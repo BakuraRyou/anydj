@@ -1,0 +1,9 @@
+data/
+.env
+node_modules/
+*.log
+.venv-beat-this/
+.venv-structure/
+__pycache__/
+
+.venv-style/

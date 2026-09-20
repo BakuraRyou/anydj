@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>WiZ Local · DJ</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/dj.css"><script type="module" src="/dj.js"></script></head>
+<body class="dj-page"><div class="shell">
+<header class="topbar"><a class="brand" href="/">WiZ local</a><h1>DJ</h1><nav><a href="/music">Player</a><a href="/editor">Editor</a></nav><label for="djLamp">Licht</label><select id="djLamp"><option value="">Nur Audio</option></select><button id="djStop" class="button secondary" title="Beide Decks stoppen und vorheriges Licht wiederherstellen">Stopp</button><details class="dj-settings"><summary>Einstellungen</summary><div><label class="editor-check"><input id="djStructure" type="checkbox" checked> KI-Songaufbau</label></div></details></header>
+<p id="djStatus" class="notice" role="status" hidden></p>
+<main>
+<div class="dj-console">
+<div id="decks" class="dj-decks"></div>
+<section class="panel dj-mixer" aria-label="Mixer">
+  <label class="dj-show-choice" for="djShowProfile">Lichtshow <select id="djShowProfile"><option value="auto">Automatisch</option><option value="party">Party</option><option value="disco">Disco</option></select></label>
+  <div class="dj-crossfader"><label for="crossfader">A <span>Crossfader</span> B</label><input id="crossfader" class="range" type="range" min="0" max="1" step="0.01" value="0" aria-describedby="mixValue"><output id="mixValue">A 100 % · B 0 %</output></div>
+  <div class="dj-auto-controls"><label class="editor-check"><input id="autoCrossfade" type="checkbox"> Auto-Crossfade</label><select id="fadeDuration" aria-label="Übergangsdauer"><option value="2">2 s</option><option value="4">4 s</option><option value="8" selected>8 s</option><option value="12">12 s</option><option value="20">20 s</option></select><button id="fadeNow" class="button primary" disabled>Überblenden</button><button id="fadeCancel" class="button secondary" hidden>Abbrechen</button></div>
+  <p id="fadeStatus" class="small muted" role="status"></p>
+</section>
+</div>
+<div class="dj-collections">
+<section id="libraryDrop" class="panel dj-library" aria-label="Bibliothek">
+<div class="dj-library-heading"><h2>Bibliothek <span id="trackCount">0</span></h2><button id="addTracks" class="button secondary" title="Einzelne Dateien hinzufügen">+ Dateien</button><button id="linkFolder" class="button primary">Ordner verbinden</button></div>
+<div id="folderBar" hidden><span id="folderName"></span><button id="syncFolder" class="button secondary">Aktualisieren</button><button id="disconnectFolder" class="button secondary" title="Ordnerverbindung trennen">Trennen</button></div>
+<p id="folderStatus" class="small muted" role="status"></p>
+<div id="libraryTools"><button id="enqueueAll" class="button secondary">Alle einreihen</button>
+<input id="trackSearch" type="search" placeholder="Tracks suchen" aria-label="Tracks suchen"></div>
+<input id="djFiles" type="file" accept="audio/*,.mp3,.wav,.flac,.ogg,.m4a" multiple hidden>
+<input id="djFolderFiles" type="file" webkitdirectory multiple hidden>
+<p id="libraryStatus" class="small muted" role="status"></p>
+<ol id="trackList" class="dj-tracks" tabindex="0" aria-label="Trackliste"></ol>
+</section>
+<section class="panel dj-library dj-queue" aria-label="Warteschlange">
+<div class="dj-library-heading"><h2>Warteschlange <span id="queueCount">0</span></h2>
+<div id="queueTools"><button id="queueStart" class="button primary">Start</button><button id="queueClear" class="button secondary">Leeren</button></div></div>
+<p id="queueStatus" class="small muted" role="status"></p>
+<ol id="queueList" class="dj-tracks" tabindex="0" aria-label="Warteschlange"></ol>
+</section>
+</div>
+</main>
+</div></body></html>

@@ -1,0 +1,21 @@
+{
+  "initial": {
+    "automatic": "pulse",
+    "manual": false,
+    "folded": true,
+    "disabled": true,
+    "beats": 544
+  },
+  "manual": {
+    "automatic": null,
+    "saturation": 35,
+    "beats": 544
+  },
+  "reset": {
+    "manual": false,
+    "folded": true,
+    "automatic": "pulse",
+    "beats": 544
+  },
+  "browserErrors": 0
+}

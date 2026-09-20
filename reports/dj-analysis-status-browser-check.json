@@ -1,0 +1,19 @@
+{
+  "deck": "✓ Vollständig berechnet",
+  "library": [
+    {
+      "text": "✓ Vollständig berechnet",
+      "detail": "✓ Vollständig berechnet"
+    },
+    {
+      "text": "⚠ Fertig · Teilanalyse",
+      "detail": "Spielbereit · Bisherige Show verwendet: Songaufbau passt nicht zu diesem Lied."
+    }
+  ],
+  "playable": true,
+  "queued": [
+    "Spielbereit · Songaufbau läuft …",
+    "Spielbereit · Songaufbau wartet …"
+  ],
+  "browserErrors": 0
+}

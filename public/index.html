@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#14181d">
+  <title>WiZ Local · Dein Licht</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <a class="brand" href="/" aria-label="WiZ Local Startseite"><span class="brand-mark">w</span><span>WiZ <span class="brand-light">local</span></span></a>
+      <span class="connection-badge"><span class="status-dot"></span> Lokal verbunden <span class="version">· v0.1</span></span>
+    </header>
+    <div id="demoBanner" class="demo-banner" hidden>DEMO-MODUS · Alle Lampen und Antworten sind simuliert. Es werden keine echten Geräte angesprochen.</div>
+    <section class="intro"><span class="eyebrow">DEIN ZUHAUSE / LICHT</span><h1>Licht, wie du es magst.</h1><p>Farbe, Stimmung und Helligkeit. Direkt in deinem Heimnetz.</p></section>
+    <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+    <main class="workspace">
+      <aside class="sidebar">
+        <div class="side-heading"><h2>Deine Lampen</h2><span id="deviceCount" class="count">0</span></div>
+        <div id="deviceList" class="device-list"><p class="small muted">Noch keine Lampe hinzugefügt.</p></div>
+        <button id="discover" class="button primary full" type="button" disabled><span aria-hidden="true">⌕</span> Lampen suchen</button>
+        <p class="small muted search-hint">Die Suche schaltet keine Lampe ein oder aus.</p>
+        <p class="small"><a href="/setup">Neue Lampe ohne WiZ-App ins WLAN aufnehmen</a></p>
+        <p class="small"><a href="/music">♫ Licht zur Musik · MP3 &amp; Rechner-Audio</a> · <a href="/dj">DJ-Pult · Zwei Decks</a> · <a href="/editor">Lichtshow-Editor</a></p>
+        <details class="network-options"><summary>Netzwerk auswählen</summary><label for="interface" class="small">Netzwerkschnittstelle</label><select id="interface"><option value="">Alle lokalen Netzwerke</option></select></details>
+        <details id="addDetails" class="add-card">
+          <summary><span aria-hidden="true">＋</span> IP manuell hinzufügen</summary>
+          <form id="addForm">
+            <label for="newIp">IP-Adresse der Lampe</label><input id="newIp" placeholder="192.168.178.42" inputmode="decimal" autocomplete="off" required>
+            <label for="newName">Name <span class="muted">(optional)</span></label><input id="newName" placeholder="Wohnzimmer" maxlength="60" autocomplete="off">
+            <button id="addButton" class="button secondary full" type="submit">Verbinden</button>
+          </form>
+        </details>
+        <div class="local-note"><span class="local-symbol" aria-hidden="true">↔</span><div><strong>Bleibt bei dir.</strong><p>Kein Konto, keine Cloud-Anbindung, keine externen Schriftarten.</p></div></div>
+      </aside>
+      <section class="studio">
+        <div id="emptyState" class="empty-state panel">
+          <div class="empty-orb" aria-hidden="true"></div><span class="eyebrow">BEREIT FÜR DEIN LICHT</span><h2>Verbinde deine erste Lampe.</h2><p>Suche nach WiZ-Lampen im lokalen Netzwerk oder trage ihre IP-Adresse aus deinem Router ein.</p><div class="empty-tags"><span>Ein / Aus</span><span>Farben</span><span>Weißlicht</span></div>
+          <p class="small muted">Die Lampe muss bereits mit dem WLAN verbunden sein.</p>
+        </div>
+        <div id="lightPanel" hidden>
+          <div class="light-heading"><div><div class="eyebrow">AUSGEWÄHLTE LAMPE</div><h2 id="lightName">Wohnzimmer</h2><p id="lightAddress" class="small muted"></p></div><button id="power" type="button" class="power-switch" role="switch" aria-checked="false" aria-label="Lampe einschalten"><span class="power-knob"></span><span id="powerText">Aus</span></button></div>
+          <div class="control-grid">
+            <section id="preview" class="preview panel" aria-label="Lichtvorschau">
+              <div class="preview-top"><span id="deviceStatus" class="state-pill">Status wird gelesen</span><span class="small muted">VORSCHAU</span></div>
+              <div class="orb-wrap" aria-hidden="true"><div class="orb-halo"></div><div class="light-orb"></div><div class="orb-base"></div></div>
+              <div class="preview-bottom"><span id="modeLabel">Weißlicht</span><strong id="reportedValue">–</strong><span id="lastSeen" class="small muted">Noch keine Bestätigung</span></div>
+            </section>
+            <section class="controls panel" aria-label="Lichteinstellungen">
+              <div class="slider-heading"><label for="brightness">Helligkeit</label><output id="brightnessValue" for="brightness">65 <span>%</span></output></div>
+              <input id="brightness" class="range brightness-range" type="range" min="1" max="100" value="65">
+              <div class="range-labels"><span>Dunkler</span><span>Heller</span></div>
+              <div class="divider"></div>
+              <div class="tabs" role="tablist" aria-label="Lichtmodus"><button id="whiteTab" type="button" role="tab" aria-selected="true" aria-controls="whitePanel">Weißlicht</button><button id="colorTab" type="button" role="tab" aria-selected="false" aria-controls="colorPanel">Farbe</button></div>
+              <div id="whitePanel" role="tabpanel" aria-labelledby="whiteTab">
+                <div class="slider-heading temperature-heading"><label for="temperature">Farbtemperatur</label><output id="temperatureValue" for="temperature">2700 <span>K</span></output></div>
+                <input id="temperature" class="range temperature-range" type="range" min="2200" max="6500" step="50" value="2700">
+                <div class="range-labels"><span id="minTemperature">Warm · 2200 K</span><span id="maxTemperature">Kühl · 6500 K</span></div>
+                <p id="rangeNote" class="small muted">Modellbereich wird geprüft.</p>
+              </div>
+              <div id="colorPanel" role="tabpanel" aria-labelledby="colorTab" hidden>
+                <label for="color" class="color-label">Deine Farbe</label>
+                <div class="color-input-row"><input id="color" type="color" value="#7fe5b4" aria-label="Farbe auswählen"><form id="hexForm"><label for="hex" class="sr-only">Hex-Farbwert</label><input id="hex" value="#7FE5B4" maxlength="7" pattern="#[0-9A-Fa-f]{6}" aria-label="Hex-Farbwert"><button type="submit" class="button small-button">Setzen</button></form></div>
+                <div id="swatches" class="swatches" aria-label="Farbvorschläge"></div>
+                <p class="small muted">RGB-Schwarz ist kein Ausschalter. Nutze dafür den Schalter oben.</p>
+              </div>
+              <p id="capabilityNote" class="small muted"></p>
+              <p class="interaction-note">Regler und Presets schalten die Lampe ein. Der Zustand wird anschließend von der Lampe zurückgelesen.</p>
+            </section>
+          </div>
+          <section class="presets-section"><div class="section-heading"><h3>Ein Klick. Eine Stimmung.</h3><span class="small muted">Lokale Presets</span></div><div id="presets" class="presets"></div></section>
+          <details id="diagnostics" class="diagnostics panel">
+            <summary>Verbindung &amp; Diagnose <span class="small muted">IP · Modell · UDP-Antworten</span></summary>
+            <div class="diagnostic-content"><dl class="facts"><div><dt>IP-Adresse</dt><dd id="diagIp">–</dd></div><div><dt>MAC-Adresse</dt><dd id="diagMac">–</dd></div><div><dt>Modul</dt><dd id="diagModule">–</dd></div><div><dt>Firmware</dt><dd id="diagFirmware">–</dd></div></dl>
+              <form id="renameForm" class="rename-form"><label for="rename">Name in dieser Webapp</label><div><input id="rename" maxlength="60" required><button class="button secondary" type="submit">Speichern</button></div></form>
+              <div class="diagnostic-actions"><button id="refresh" class="button secondary" type="button">Status neu lesen</button><button id="remove" class="button text-button" type="button">Aus Liste entfernen</button></div>
+              <p class="small muted">Rohdaten können IP- und MAC-Adressen enthalten. Vor dem Weitergeben prüfen.</p><pre id="rawData" tabindex="0"></pre>
+            </div>
+          </details>
+        </div>
+        <div class="compatibility-note"><strong>Voraussetzung:</strong> WiZ-Lokalzugriff muss erlaubt sein. „Nur verifizierte Steuerungen“ und Cloud-Steuerung sind nicht enthalten. Die experimentelle WLAN-Ersteinrichtung unterstützt bisher ein bestimmtes Modell mit Firmware 1.32.0.</div>
+      </section>
+    </main>
+    <footer>WiZ Local <span>Unabhängiger Prototyp · Keine offizielle WiZ-App</span><span id="footerStatus">Serververbindung wird geprüft …</span></footer>
+  </div>
+  <dialog id="loginDialog"><form id="loginForm"><span class="eyebrow">ZUGANG ZUR WEBAPP</span><h2>Dein Heimnetz-Zugang.</h2><p>Gib den <strong>Web-Zugangscode</strong> aus dem Server-Terminal ein. Er ist nicht der WiZ Home Security Key.</p><label for="webToken">Web-Zugangscode</label><input id="webToken" type="password" autocomplete="off" required><p id="loginError" class="small error-text" role="alert"></p><button class="button primary full" type="submit">Verbinden</button><p class="small muted">Nur für ein vertrauenswürdiges Heimnetz. Die HTTP-Verbindung ist nicht verschlüsselt.</p></form></dialog>
+  <noscript><p class="notice">Für die Bedienoberfläche muss JavaScript aktiviert sein.</p></noscript>
+</body>
+</html>

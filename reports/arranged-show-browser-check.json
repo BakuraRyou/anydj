@@ -1,0 +1,34 @@
+{
+  "oldPulse": {
+    "beats": 544,
+    "accents": 544,
+    "largeBrightnessJumps": 888,
+    "nearMinimum": 0.35071090047393366,
+    "looks": []
+  },
+  "automatic": {
+    "beats": 544,
+    "accents": 40,
+    "largeBrightnessJumps": 0,
+    "nearMinimum": 0.006635071090047393,
+    "looks": [
+      "Gehaltenes Licht",
+      "Fließende Farben",
+      "Intensiv mit Akzenten",
+      "Steigerung"
+    ]
+  },
+  "withStructure": {
+    "beats": 544,
+    "accents": 24,
+    "largeBrightnessJumps": 0,
+    "nearMinimum": 0.006635071090047393,
+    "looks": [
+      "Gehaltenes Licht",
+      "Fließende Farben",
+      "Intensiv mit Akzenten"
+    ]
+  },
+  "browserErrors": 0,
+  "note": "Actual example audio and Beat This!; structure reused from previous All-In-One result. No real lamps or new structure inference."
+}

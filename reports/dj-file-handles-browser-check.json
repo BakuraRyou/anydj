@@ -1,0 +1,11 @@
+{
+  "nativeHandle": {
+    "name": "linked.mp3",
+    "paused": false,
+    "time": 1.088,
+    "state": "Spielbereit · Beat This! · 25 Beats · 7 Taktanfänge"
+  },
+  "deletedAfterReload": true,
+  "browserErrors": 0,
+  "note": "Native FileSystemFileHandle from isolated browser OPFS; operating-system permission prompt not automated."
+}

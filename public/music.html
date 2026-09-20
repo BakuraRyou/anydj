@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>WiZ Local · Musik</title><link rel="stylesheet" href="/style.css"><script src="/music.js" defer></script></head>
+<body><div class="shell">
+<header class="topbar"><a class="brand" href="/">WiZ local</a><nav><a href="/dj">DJ-Pult</a> · <a href="/editor">Lichtshow-Editor</a> · <a href="/">Zur Lampensteuerung</a></nav></header>
+<section class="intro"><span class="eyebrow">DEIN LICHT / DEINE MUSIK</span><h1>Licht im Rhythmus.</h1><p>Spiele eine MP3 ab oder lass die Lampe auf den Ton deines Rechners reagieren.</p></section>
+<div id="musicStatus" class="notice" role="status" aria-live="polite">Lampen werden geladen …</div>
+<main class="music-layout">
+<section class="panel controls">
+  <label for="musicLamp">Lampe</label><select id="musicLamp" disabled></select>
+  <h2>Musikquelle</h2>
+  <details class="music-advanced"><summary>Wiedergabe-Einstellungen</summary>
+  <label for="mp3Mode">MP3-Wiedergabe</label><select id="mp3Mode"><option value="live">Live zur Musik</option><option value="show" selected>Lichtshow vorab erstellen</option></select>
+  <label for="beatEngine">Beat-Erkennung für die Vorab-Show</label><select id="beatEngine"><option value="beat-this">Beat This! · lokale KI</option><option value="builtin">Standard · schnelle Analyse</option></select>
+  <p id="beatStatus" class="small muted" role="status">Beat This! analysiert die Musik auf dem Rechner mit WiZ Local. Es werden keine Audiodaten an einen Cloud-Dienst gesendet.</p>
+  </details>
+  <p class="small muted">Die App analysiert Rhythmus und Klang deines Liedes und gestaltet daraus automatisch die Lichtshow.</p>
+  <div id="dropZone" class="music-drop" tabindex="0" role="button" aria-label="MP3-Datei auswählen oder hier ablegen">
+    <strong>MP3 hierher ziehen</strong><span>oder klicken und eine Datei auswählen</span>
+    <span id="fileName" class="small muted">Die Datei bleibt auf deinem Rechner.</span>
+  </div>
+  <input id="musicFile" type="file" accept="audio/mpeg,.mp3" hidden>
+  <audio id="musicPlayer" controls preload="metadata" hidden></audio>
+  <div id="showPanel" hidden><progress id="analysisProgress" max="100" value="0"></progress><p id="analysisStatus" role="status">Noch kein Lied analysiert.</p><details class="music-advanced"><summary>Details zur vorbereiteten Show</summary><canvas id="showMelody" width="600" height="72" aria-label="Erkannter Tonhöhenverlauf; Lücken markieren unsichere Stellen"></canvas><p id="melodySummary" class="small muted"></p><p id="melodyPosition" class="small muted"></p><canvas id="showColors" width="600" height="24" aria-label="Berechneter Farbverlauf des ganzen Liedes"></canvas><p class="small muted">Farbverlauf des ganzen Liedes · Helligkeitsbögen und gezielte Akzente</p><div id="showTimeline" aria-label="Vorbereiteter Liedverlauf"></div><p class="small muted">Abschnitt anklicken, um dorthin zu springen. Ruhig · Aufbau · Intensiv · Fließend</p><p id="showPosition" class="small muted"></p><p id="showSound" class="small muted"></p><div class="show-output"><span id="showSwatch" aria-hidden="true"></span><span id="showOutput">Noch keine Lichtbilder gesendet</span></div></details></div>
+  <details class="music-advanced"><summary>Musikanalyse ansehen</summary>
+  <div class="music-level-heading"><span>Audio</span><output id="audioValue">0 %</output></div>
+  <div class="music-meter" aria-label="Audiopegel"><span id="levelBar"></span></div>
+  <div class="music-level-heading"><span>Bass · 40–180 Hz</span><output id="bassValue">0 %</output></div>
+  <div class="music-meter bass-meter" aria-label="Basspegel"><span id="bassBar"></span></div>
+  <section class="sound-analysis" aria-label="Klanganalyse">
+    <h2>Klangbild</h2><p class="small muted">Anteile am Spektrum von 40–6000 Hz. Tonanteile sind keine isolierten Instrumente oder Stimmen.</p>
+    <div id="soundBands"></div>
+    <p id="soundDetails" class="small muted">Warte auf Klangdaten …</p>
+  </section>
+  <div class="music-beat"><span id="beatIndicator"></span> Beat / Schlag</div>
+  <p id="tempoStatus" class="small muted">Beat-Suche · noch kein stabiles Tempo</p>
+  <p class="small muted">Die Balken passen sich an die Lautstärke an. dBFS zeigt den tatsächlichen Signalpegel; 0 dBFS ist Vollaussteuerung.</p><p id="levelText" class="small muted">Noch kein Audiosignal.</p>
+  </details>
+  <div class="music-actions"><button id="systemStart" class="button secondary" disabled>Rechner-Audio starten</button><button id="tabStart" class="button secondary" disabled>Browser-Tab teilen</button></div>
+  <p class="small muted">Rechner-Audio erfasst unter Linux die aktuelle Standard-Audioausgabe, z. B. einen Musikplayer oder Browser. Es wird kein Mikrofon aufgenommen und keine Aufnahme gespeichert. Bei „Browser-Tab teilen“ im Browserdialog die Audiofreigabe aktivieren.</p>
+</section>
+<section class="panel controls">
+  <h2>Deine automatische Lichtshow</h2>
+  <p>Lied auswählen und abspielen. Farben, Übergänge und Lichtimpulse werden passend zur Musik gewählt.</p>
+  <p id="automaticStatus" class="notice" role="status">Automatik bereit · Jedes Lied wird individuell gestaltet.</p>
+  <button id="structureStart" class="button secondary" disabled>Songaufbau im Hintergrund verfeinern</button>
+  <button id="structureCancel" class="button secondary" hidden>Zusätzliche KI-Analyse abbrechen</button>
+  <p id="structureStatus" class="small muted" role="status">Optional: lokale KI schätzt Intro, Strophen und Refrains. Musik und Licht können dabei weiterlaufen.</p>
+  <details id="fineTuning" class="music-advanced"><summary>Optional: selbst feinabstimmen</summary>
+  <label class="editor-check"><input id="manualTuning" type="checkbox"> Für dieses Lied manuell anpassen</label>
+  <p class="small muted">Übernimmt die automatisch gewählten Werte als Ausgangspunkt. Ausschalten kehrt zur Automatik zurück; ein neues Lied startet wieder automatisch.</p>
+  <fieldset id="manualSettings" disabled><legend>Eigene Gestaltung</legend>
+  <label for="musicMode">Live-Effekt</label><select id="musicMode"><option value="soft">Sanft · warmes Licht</option><option value="bass">Bass-Puls</option><option value="color">Farbverlauf · fließend</option><option value="disco" selected>Disco · auf den Beat</option></select>
+  <p id="effectDescription" class="small muted">Eine Farbe deiner Palette folgt sanft der Lautstärke.</p>
+  <label for="musicMood">Stimmungsmodus</label><select id="musicMood"><option value="off">Aus · meine Farbpalette</option><option value="auto">An · Farben nach musikalischer Stimmung</option></select>
+  <p class="small muted">Für die Vorab-Show: Dur-/Moll-Tendenz und Energie wählen warme, kühle oder intensive Farben. Die Einordnung ist eine Schätzung. Bei Unsicherheit bleibt die Palette erhalten; Wechsel erfolgen weich.</p>
+  <p id="moodStatus" class="small muted">Stimmungsmodus aus.</p>
+  <label id="musicPaletteLabel" for="musicPalette">Farbpalette</label><select id="musicPalette"><option value="sunset">Sonnenuntergang · Orange / Pink / Violett</option><option value="rainbow">Regenbogen · alle Farben</option><option value="neon">Neon · Pink / Violett / Cyan / Limette</option><option value="fire">Feuer · Rot / Orange / Gold</option><option value="ocean">Ozean · Blau / Türkis / Violett</option><option value="custom">Eigene Farben</option></select>
+  <div id="customColors" class="music-color-pair" hidden><label for="musicColorA">Farbe 1 <input id="musicColorA" type="color" value="#ff0080"></label><label for="musicColorB">Farbe 2 <input id="musicColorB" type="color" value="#00dfff"></label></div>
+  <label for="musicSpeed">Farbwechsel-Tempo <output id="speedLabel">1 ×</output></label><input id="musicSpeed" type="range" class="range" min="0.2" max="4" step="0.1" value="1" aria-describedby="speedHint">
+  <p id="speedHint" class="small muted">Das Tempo steuert den fließenden Farbverlauf. Disco folgt den erkannten Schlägen der Musik.</p>
+  <label for="musicSaturation">Farbsättigung <output id="saturationLabel">100 %</output></label><input id="musicSaturation" type="range" class="range" min="20" max="100" step="1" value="100">
+  <label for="musicToneFollow">Klangfarben folgen <output id="toneFollowLabel">80 %</output></label><input id="musicToneFollow" type="range" class="range" min="0" max="1" step="0.05" value="0.8">
+  <p class="small muted">Bei manueller Gestaltung pulsiert die Helligkeit auf den Beats. Dominante Tonhöhenanteile und Klanghelligkeit lenken die Farbverläufe; weiche Übergänge verbinden die Klangwechsel.</p>
+  <label for="showOffset">Licht-Vorlauf <output id="showOffsetLabel">0 ms</output></label><input id="showOffset" type="range" class="range" min="-500" max="500" step="25" value="0">
+  <p class="small muted">Bei verspätetem Licht positiv einstellen, bei zu frühem Licht negativ. Gilt für vorbereitete Shows.</p>
+  <label for="musicDynamics">Helligkeitskurve</label><select id="musicDynamics"><option value="balanced">Ausgewogen · gleichmäßige Abstufungen</option><option value="sensitive">Feinfühlig · leise Musik hervorheben</option><option value="punchy">Kontrastreich · kräftige Akzente</option></select>
+  <label for="musicSmoothing">Weiche Übergänge <output id="smoothingLabel">50 %</output></label><input id="musicSmoothing" type="range" class="range" min="0" max="1" step="0.05" value="0.5">
+  <label for="musicIntensity">Empfindlichkeit <output id="intensityLabel">1,5</output></label><input id="musicIntensity" type="range" class="range" min="0.2" max="4" step="0.1" value="1.5">
+  <label for="musicMinimum">Minimale Helligkeit <output id="minimumLabel">5 %</output></label><input id="musicMinimum" type="range" class="range" min="5" max="100" step="1" value="5">
+  <label for="musicMaximum">Maximale Helligkeit <output id="maximumLabel">75 %</output></label><input id="musicMaximum" type="range" class="range" min="5" max="100" step="1" value="75">
+
+  </fieldset>
+  </details>
+  <button id="musicStop" class="button primary full" disabled>Stoppen &amp; vorheriges Licht wiederherstellen</button>
+  <p class="small muted">Der Effekt schaltet die Lampe ein. Pause oder Stoppen stellt ihren vorherigen Zustand wieder her. Bei ausbleibender Browserverbindung beendet der Server den Effekt automatisch.</p>
+</section>
+</main><footer>WiZ Local <span>Musik bleibt lokal · Keine WiZ-App erforderlich</span></footer>
+</div></body></html>

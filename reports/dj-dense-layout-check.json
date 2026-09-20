@@ -1,0 +1,55 @@
+{
+  "layouts": [
+    {
+      "width": 2560,
+      "height": 1420,
+      "scrollWidth": 2560,
+      "scrollHeight": 1420,
+      "rowHeight": 41,
+      "visibleSongs": 24,
+      "sideBySide": true,
+      "actionsFit": true
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "scrollWidth": 1920,
+      "scrollHeight": 1080,
+      "rowHeight": 41,
+      "visibleSongs": 15,
+      "sideBySide": true,
+      "actionsFit": true
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "scrollWidth": 1280,
+      "scrollHeight": 720,
+      "rowHeight": 41,
+      "visibleSongs": 7,
+      "sideBySide": true,
+      "actionsFit": true
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "scrollWidth": 1024,
+      "scrollHeight": 768,
+      "rowHeight": 41,
+      "visibleSongs": 8,
+      "sideBySide": true,
+      "actionsFit": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 1134,
+      "rowHeight": 106,
+      "visibleSongs": 1,
+      "sideBySide": true,
+      "actionsFit": true
+    }
+  ],
+  "browserErrors": 0
+}

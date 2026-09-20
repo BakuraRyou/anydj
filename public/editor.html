@@ -1,0 +1,38 @@
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WiZ Local · Lichtshow-Editor</title><link rel="stylesheet" href="/style.css"><script type="module" src="/editor.js"></script></head>
+<body class="editor-page"><div class="shell"><header class="topbar"><a class="brand" href="/">WiZ local</a><nav><a href="/music">Musikeffekt</a> · <a href="/">Lampen</a></nav></header>
+<section class="intro"><span class="eyebrow">DEINE MUSIK / DEINE FARBEN</span><h1>Deine Lichtshow.</h1><p>Höre ins Lied, setze Farbpunkte und gestalte die Übergänge. Für jede Lampe bleibt dein eigener Verlauf gespeichert.</p></section>
+<div id="editorStatus" class="notice" role="status">Lampen werden geladen …</div>
+<main class="music-layout editor-layout editor-v2"><section class="panel controls">
+<label for="editorLamp">Lampe</label><select id="editorLamp"></select><p id="editorCapabilities" class="small muted"></p>
+<details class="editor-analysis"><summary>Analyse-Einstellungen</summary><label for="editorBeatEngine">Beat-Erkennung</label><select id="editorBeatEngine"><option value="beat-this">Beat This! · lokale KI</option><option value="builtin">Standard · schnelle Analyse</option></select>
+<p id="editorBeatStatus" class="small muted" role="status">Beat This! analysiert die Musik auf dem Rechner mit WiZ Local. Keine Cloud-Verarbeitung.</p></details>
+<label class="music-drop" id="editorDrop" for="editorFile"><strong>MP3 hierher ziehen oder auswählen</strong><span id="editorFilename">Die Musik bleibt auf deinem Rechner.</span></label><input id="editorFile" type="file" accept="audio/mpeg,.mp3" hidden>
+<progress id="editorProgress" max="100" value="0" hidden></progress>
+<audio id="editorAudio" controls hidden></audio>
+<div id="editorWorkspace" hidden>
+<div class="editor-toolbar" role="toolbar" aria-label="Zeitleisten-Werkzeuge">
+<button id="editorPlay" class="button secondary" title="Musikvorschau · Leertaste">▶ Anhören</button>
+<button id="editorAdd" class="button primary" title="Punkt setzen · N">＋ Punkt setzen</button>
+<button id="editorUndo" class="button secondary" title="Strg+Z">↶ Zurück</button>
+<button id="editorRedo" class="button secondary" title="Strg+Umschalt+Z">↷ Wiederholen</button>
+<button id="editorDuplicate" class="button secondary" title="Ausgewählten Punkt an der Abspielposition kopieren · Strg+D">Duplizieren</button>
+</div>
+<div class="editor-zoom"><label for="editorZoom">Zoom</label><select id="editorZoom"><option value="1">Ganzes Lied</option><option value="2">2 ×</option><option value="4">4 ×</option><option value="8">8 ×</option><option value="16">16 ×</option></select><label class="editor-check"><input id="editorSnap" type="checkbox" checked> An Beats einrasten</label><span class="small muted">Alt beim Ziehen: frei verschieben</span></div>
+<p id="editorTimelineHint" class="small muted">Doppelklick: Punkt setzen · Farbmarkierung ziehen: verschieben · Klick auf die Welle: Abspielposition wählen</p>
+<div id="editorTimelineScroll" tabindex="0" aria-label="Zeitleiste. Pfeiltasten bewegen die Abspielposition, N setzt einen Punkt." aria-describedby="editorTimelineHint"><div id="editorTimelineContent"><div id="editorRuler" aria-hidden="true"></div><canvas id="editorTimeline" width="1000" height="140" aria-label="Wellenform und Farbverlauf"></canvas><div id="editorMarkers"></div><div id="editorPlayhead" aria-hidden="true"></div></div></div>
+<label for="editorSeek">Liedposition <output id="editorClock">0:00</output></label><input id="editorSeek" class="range" type="range" min="0" max="1" step="0.05" value="0">
+
+<details class="editor-point-list"><summary>Alle Punkte als Liste</summary><div id="editorCues" class="editor-cues" aria-label="Farbpunkte"></div></details><details class="editor-shortcuts"><summary>Tastenkürzel</summary><p class="small muted">Leertaste: anhören / pausieren · N: neuer Punkt · 1–6: Schnellfarben · Entf: Punkt löschen · Strg+D: duplizieren · Strg+Z: rückgängig · Strg+Umschalt+Z: wiederholen. Ausgewählter Marker: ← / → um 0,05 s verschieben, mit Umschalt um 0,5 s. Auf der Zeitleiste: ← / → eine Sekunde springen. Texteingaben behalten ihre normalen Tastenkürzel.</p></details>
+</div></section>
+<section class="panel controls editor-inspector"><h2>Vorschau am Abspielpunkt</h2><div id="editorOrb" aria-label="Lichtvorschau"></div><p id="editorPreview" class="small muted">Lade ein Lied, um zu beginnen.</p>
+<h2 id="editorSelectionLabel">Ausgewählter Punkt</h2><fieldset id="editorFields" disabled><label for="cueTime">Zeit im Lied (Sekunden)</label><input id="cueTime" type="number" min="0" step="0.05">
+<div id="cueColorGroup"><label for="cueColor">Farbe</label><input id="cueColor" type="color" value="#ff7700"><div id="editorSwatches" class="swatches"></div></div>
+<div id="cueTempGroup" hidden><label for="cueTemp">Weißtemperatur <output id="cueKelvin"></output></label><input id="cueTemp" class="range" type="range" min="2200" max="6500" step="50" value="2700"></div>
+<label for="cueBrightness">Helligkeit am Beat <output id="cueBrightnessValue">75 %</output></label><input id="cueBrightness" class="range" type="range" min="5" max="100" value="75">
+<label for="cueTransition">Übergang zu diesem Punkt</label><select id="cueTransition"><option value="smooth">Weich überblenden</option><option value="cut">An dieser Stelle direkt wechseln</option></select>
+<button id="editorDelete" class="button secondary" title="Entf · der Startpunkt bleibt erhalten">Punkt entfernen</button></fieldset>
+<label class="editor-check"><input id="editorBeat" type="checkbox" checked> Helligkeit auf den Beat pulsieren lassen</label>
+<p class="small muted">Der Audio-Player spielt zunächst nur Musik und Vorschau. Mit dem folgenden Knopf spielt die ausgewählte Lampe mit.</p>
+<div class="music-actions"><button id="editorStart" class="button primary" disabled>Musik + Licht starten</button><button id="editorStop" class="button secondary" disabled>Stoppen &amp; Licht wiederherstellen</button></div>
+<p id="editorSaved" class="small muted">Automatisch lokal gespeichert. Zum Wiederöffnen dasselbe Lied auswählen.</p>
+</section></main><footer>WiZ Local <span>Ein Lied · ein Verlauf pro Lampe · lokal gespeichert</span></footer></div></body></html>

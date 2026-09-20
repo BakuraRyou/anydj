@@ -1,0 +1,19 @@
+{
+  "music": {
+    "status": "Beat This! · 544 Beats · 137 Taktanfänge",
+    "beats": 544,
+    "grid": 544,
+    "downbeats": 137
+  },
+  "rerender": {
+    "beats": 544,
+    "grid": 544
+  },
+  "editor": {
+    "status": "Beat This! · 544 Beats · 137 Taktanfänge · zwischengespeichert",
+    "preview": "0:00 · 5 % · Vorschau",
+    "enabled": true
+  },
+  "standardSwitch": true,
+  "browserErrors": 0
+}

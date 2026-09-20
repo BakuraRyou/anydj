@@ -1,0 +1,621 @@
+{
+  "date": "2026-09-19T23:48:22.964Z",
+  "audio": {
+    "file": "RobbieWilliamsBoddies.mp3",
+    "sha256": "a7f4a64dbe1e67248876776938b7d74bb5e4cf4af52f0c86807dae8b9aec6c3f",
+    "duration": 263.6974375
+  },
+  "baseline": {
+    "analysisSeconds": 0.9273652990000001,
+    "beats": 507,
+    "sections": 21,
+    "frames": 2110,
+    "melodyCoverage": 0.4669296116504854,
+    "anchors": [
+      {
+        "id": 0,
+        "time": 0,
+        "kind": "Ruhig",
+        "motif": 0,
+        "energy": 0.198
+      },
+      {
+        "id": 1,
+        "time": 8,
+        "kind": "Fließend",
+        "motif": 1,
+        "energy": 0.653
+      },
+      {
+        "id": 2,
+        "time": 40,
+        "kind": "Fließend",
+        "motif": 1,
+        "energy": 0.68
+      },
+      {
+        "id": 3,
+        "time": 60,
+        "kind": "Fließend",
+        "motif": 1,
+        "energy": 0.708
+      },
+      {
+        "id": 4,
+        "time": 70,
+        "kind": "Intensiv",
+        "motif": 2,
+        "energy": 0.759
+      },
+      {
+        "id": 5,
+        "time": 104,
+        "kind": "Intensiv",
+        "motif": 2,
+        "energy": 0.718
+      },
+      {
+        "id": 6,
+        "time": 122,
+        "kind": "Aufbau",
+        "motif": 3,
+        "energy": 0.617
+      },
+      {
+        "id": 7,
+        "time": 156,
+        "kind": "Fließend",
+        "motif": 1,
+        "energy": 0.703
+      },
+      {
+        "id": 8,
+        "time": 182,
+        "kind": "Fließend",
+        "motif": 1,
+        "energy": 0.667
+      },
+      {
+        "id": 9,
+        "time": 198,
+        "kind": "Aufbau",
+        "motif": 3,
+        "energy": 0.575
+      },
+      {
+        "id": 10,
+        "time": 206,
+        "kind": "Aufbau",
+        "motif": 3,
+        "energy": 0.55
+      },
+      {
+        "id": 11,
+        "time": 246,
+        "kind": "Ruhig",
+        "motif": 0,
+        "energy": 0.237
+      }
+    ]
+  },
+  "limitations": [
+    "FFmpeg decode at 16 kHz; browser decoding may differ slightly.",
+    "Anchor selection is a smoke test, not a full arrangement.",
+    "No musical ground truth or physical lamp measurement."
+  ],
+  "runs": [
+    {
+      "style": "calm",
+      "wallSeconds": 11.176823212,
+      "loadSeconds": 6.467106778,
+      "promptTokens": 473,
+      "outputTokens": 356,
+      "tokensPerSecond": 79.62139578990687,
+      "doneReason": "stop",
+      "idsValid": true,
+      "editorValidationPassed": true,
+      "brightnessValid": true,
+      "styleRulesValid": true,
+      "motifConsistent": true,
+      "cues": [
+        {
+          "time": 0,
+          "color": "#6B8BA8",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 8,
+          "color": "#6B8BA8",
+          "brightness": 40,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 40,
+          "color": "#6B8BA8",
+          "brightness": 42,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 60,
+          "color": "#6B8BA8",
+          "brightness": 44,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 70,
+          "color": "#6B8BA8",
+          "brightness": 45,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 104,
+          "color": "#6B8BA8",
+          "brightness": 45,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 122,
+          "color": "#6B8BA8",
+          "brightness": 45,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 156,
+          "color": "#6B8BA8",
+          "brightness": 43,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 182,
+          "color": "#6B8BA8",
+          "brightness": 41,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 198,
+          "color": "#6B8BA8",
+          "brightness": 45,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 206,
+          "color": "#6B8BA8",
+          "brightness": 45,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 246,
+          "color": "#6B8BA8",
+          "brightness": 38,
+          "temp": 2700,
+          "transition": "smooth"
+        }
+      ]
+    },
+    {
+      "style": "dramatic",
+      "wallSeconds": 4.337740296,
+      "loadSeconds": 0.222962247,
+      "promptTokens": 474,
+      "outputTokens": 358,
+      "tokensPerSecond": 93.60404599566859,
+      "doneReason": "stop",
+      "idsValid": true,
+      "editorValidationPassed": true,
+      "brightnessValid": true,
+      "styleRulesValid": false,
+      "motifConsistent": false,
+      "cues": [
+        {
+          "time": 0,
+          "color": "#4B0082",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 8,
+          "color": "#6A0DAD",
+          "brightness": 40,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 40,
+          "color": "#6A0DAD",
+          "brightness": 42,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 60,
+          "color": "#6A0DAD",
+          "brightness": 44,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 70,
+          "color": "#FF4500",
+          "brightness": 60,
+          "temp": 2700,
+          "transition": "cut"
+        },
+        {
+          "time": 104,
+          "color": "#FF1493",
+          "brightness": 65,
+          "temp": 2700,
+          "transition": "cut"
+        },
+        {
+          "time": 122,
+          "color": "#FF4500",
+          "brightness": 58,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 156,
+          "color": "#FF4500",
+          "brightness": 56,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 182,
+          "color": "#FF4500",
+          "brightness": 57,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 198,
+          "color": "#FF1493",
+          "brightness": 62,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 206,
+          "color": "#FF1493",
+          "brightness": 64,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 246,
+          "color": "#4B0082",
+          "brightness": 38,
+          "temp": 2700,
+          "transition": "smooth"
+        }
+      ]
+    },
+    {
+      "style": "calm",
+      "wallSeconds": 4.210099140999999,
+      "loadSeconds": 0.318737984,
+      "promptTokens": 473,
+      "outputTokens": 356,
+      "tokensPerSecond": 94.14681826067456,
+      "doneReason": "stop",
+      "idsValid": true,
+      "editorValidationPassed": true,
+      "brightnessValid": true,
+      "styleRulesValid": true,
+      "motifConsistent": true,
+      "cues": [
+        {
+          "time": 0,
+          "color": "#6B8BA8",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 8,
+          "color": "#6B8BA8",
+          "brightness": 40,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 40,
+          "color": "#6B8BA8",
+          "brightness": 42,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 60,
+          "color": "#6B8BA8",
+          "brightness": 44,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 70,
+          "color": "#6B8BA8",
+          "brightness": 45,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 104,
+          "color": "#6B8BA8",
+          "brightness": 45,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 122,
+          "color": "#6B8BA8",
+          "brightness": 45,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 156,
+          "color": "#6B8BA8",
+          "brightness": 43,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 182,
+          "color": "#6B8BA8",
+          "brightness": 41,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 198,
+          "color": "#6B8BA8",
+          "brightness": 45,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 206,
+          "color": "#6B8BA8",
+          "brightness": 45,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 246,
+          "color": "#6B8BA8",
+          "brightness": 38,
+          "temp": 2700,
+          "transition": "smooth"
+        }
+      ]
+    }
+  ],
+  "loadedModelsBefore": [],
+  "modelRuntime": [
+    {
+      "name": "qwen3.5:4b",
+      "digest": "2a654d98e6fba55d452b7043684e9b57a947e393bbffa62485a7aac05ee4eefd",
+      "size": 3128038521,
+      "sizeVram": 3128038521,
+      "contextLength": 4096
+    }
+  ],
+  "repeatedCalmIdentical": true,
+  "boundedRuns": [
+    {
+      "style": "calm",
+      "wallSeconds": 0.815965819,
+      "loadSeconds": 0.210365396,
+      "outputTokens": 37,
+      "editorValidationPassed": true,
+      "motifMapping": {
+        "0": "#163CFF",
+        "1": "#AD44FF",
+        "2": "#5833EE",
+        "3": "#007FCC"
+      },
+      "distinctColors": 4,
+      "cues": [
+        {
+          "time": 0,
+          "color": "#163CFF",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 8,
+          "color": "#AD44FF",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 40,
+          "color": "#AD44FF",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 60,
+          "color": "#AD44FF",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 70,
+          "color": "#5833EE",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 104,
+          "color": "#5833EE",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 122,
+          "color": "#007FCC",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 156,
+          "color": "#AD44FF",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 182,
+          "color": "#AD44FF",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 198,
+          "color": "#007FCC",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 206,
+          "color": "#007FCC",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 246,
+          "color": "#163CFF",
+          "brightness": 35,
+          "temp": 2700,
+          "transition": "smooth"
+        }
+      ]
+    },
+    {
+      "style": "dramatic",
+      "wallSeconds": 0.791101147,
+      "loadSeconds": 0.241135138,
+      "outputTokens": 38,
+      "editorValidationPassed": true,
+      "motifMapping": {
+        "0": "#FF3300",
+        "1": "#FF7700",
+        "2": "#FF0080",
+        "3": "#FF1493"
+      },
+      "distinctColors": 4,
+      "cues": [
+        {
+          "time": 0,
+          "color": "#FF3300",
+          "brightness": 65,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 8,
+          "color": "#FF7700",
+          "brightness": 65,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 40,
+          "color": "#FF7700",
+          "brightness": 65,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 60,
+          "color": "#FF7700",
+          "brightness": 65,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 70,
+          "color": "#FF0080",
+          "brightness": 65,
+          "temp": 2700,
+          "transition": "cut"
+        },
+        {
+          "time": 104,
+          "color": "#FF0080",
+          "brightness": 65,
+          "temp": 2700,
+          "transition": "cut"
+        },
+        {
+          "time": 122,
+          "color": "#FF1493",
+          "brightness": 65,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 156,
+          "color": "#FF7700",
+          "brightness": 65,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 182,
+          "color": "#FF7700",
+          "brightness": 65,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 198,
+          "color": "#FF1493",
+          "brightness": 65,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 206,
+          "color": "#FF1493",
+          "brightness": 65,
+          "temp": 2700,
+          "transition": "smooth"
+        },
+        {
+          "time": 246,
+          "color": "#FF3300",
+          "brightness": 65,
+          "temp": 2700,
+          "transition": "smooth"
+        }
+      ]
+    }
+  ]
+}

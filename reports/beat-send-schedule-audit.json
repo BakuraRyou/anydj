@@ -1,0 +1,15 @@
+{
+  "uniform100ms": {
+    "medianMs": 40.00000000000625,
+    "p95Ms": 80.0000000000125,
+    "maxMs": 80.0000000000125,
+    "peaksMoreThan50msLate": 219
+  },
+  "beatScheduled": {
+    "medianMs": 9.606537787476555e-9,
+    "p95Ms": 0.9999999999763531,
+    "maxMs": 1.0000000000047748,
+    "peaksMoreThan50msLate": 0
+  },
+  "note": "Deterministic browser scheduling simulation on 544 recorded model beats. Excludes HTTP, UDP, real timer jitter and lamp response; does not validate model beat accuracy."
+}

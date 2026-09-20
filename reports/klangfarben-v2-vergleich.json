@@ -1,0 +1,78 @@
+{
+  "sunset": {
+    "before": {
+      "medianSaturation": 0.596078431372549,
+      "rgbRanges": [
+        [
+          255,
+          255
+        ],
+        [
+          66,
+          209
+        ],
+        [
+          88,
+          220
+        ]
+      ]
+    },
+    "after": {
+      "medianSaturation": 0.9490196078431372,
+      "rgbRanges": [
+        [
+          157,
+          255
+        ],
+        [
+          1,
+          126
+        ],
+        [
+          9,
+          255
+        ]
+      ]
+    },
+    "brightnessIdentical": true,
+    "beats": 507
+  },
+  "rainbow": {
+    "before": {
+      "medianSaturation": 0.6,
+      "rgbRanges": [
+        [
+          67,
+          255
+        ],
+        [
+          172,
+          255
+        ],
+        [
+          85,
+          255
+        ]
+      ]
+    },
+    "after": {
+      "medianSaturation": 0.9411764705882353,
+      "rgbRanges": [
+        [
+          3,
+          255
+        ],
+        [
+          1,
+          255
+        ],
+        [
+          7,
+          255
+        ]
+      ]
+    },
+    "brightnessIdentical": true,
+    "beats": 507
+  }
+}

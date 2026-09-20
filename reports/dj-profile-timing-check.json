@@ -1,0 +1,20 @@
+{
+  "prepareSeconds": 14.885,
+  "duration": 263.697375,
+  "styleWindows": 129,
+  "values": {
+    "auto": {
+      "milliseconds": 0.19999999552965164,
+      "beats": 501
+    },
+    "party": {
+      "milliseconds": 4.100000001490116,
+      "beats": 501
+    },
+    "disco": {
+      "milliseconds": 2.8000000044703484,
+      "beats": 501
+    }
+  },
+  "note": "Actual MP3, Beat This and style model; base show ready, excludes optional All-In-One structure. No real lamps."
+}

@@ -1,0 +1,18 @@
+{
+  "before": {
+    "meanColorStep": 39.22475106685633,
+    "meanHueBinsPer8Seconds": 3.1333333333333333,
+    "narrowWindows": 6,
+    "colorCues": 0
+  },
+  "after": {
+    "meanColorStep": 46.049786628734,
+    "meanHueBinsPer8Seconds": 5.166666666666667,
+    "narrowWindows": 1,
+    "colorCues": 201
+  },
+  "sameBrightness": true,
+  "sameBeats": true,
+  "browserErrors": 0,
+  "note": "Actual example audio, Beat This and style model. Same inputs compared to plan v9; no real lamps."
+}

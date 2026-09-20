@@ -1,0 +1,21 @@
+{
+  "initial": {
+    "id": "1137644013865efcfd9dcd16bcd7f305b321",
+    "time": 1.034667,
+    "beats": 25
+  },
+  "cancelled": {
+    "id": "1137644013865efcfd9dcd16bcd7f305b321",
+    "paused": false,
+    "text": "Zusätzliche KI-Analyse abgebrochen. Die bisherige Show bleibt aktiv."
+  },
+  "refined": {
+    "id": "1137644013865efcfd9dcd16bcd7f305b321",
+    "paused": false,
+    "time": 3.317333,
+    "beats": 25,
+    "sections": 2,
+    "transition": true
+  },
+  "browserErrors": 0
+}

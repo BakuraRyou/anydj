@@ -1,0 +1,74 @@
+.dj-page .shell{max-width:1920px;padding:0 20px;height:100dvh;display:flex;flex-direction:column;gap:12px;padding-bottom:14px}
+.dj-page .topbar{height:64px;min-height:64px;gap:16px;justify-content:initial;position:relative}
+.dj-page h1{font-size:18px;margin:0;letter-spacing:0}.dj-page .brand{font-size:20px}.dj-page nav{display:flex;gap:14px;margin-right:auto;font-size:12px}
+.dj-page .topbar>label{font-size:12px}.dj-page .topbar>select{width:180px;min-width:0}
+.dj-page .button{padding:8px 12px;min-height:34px;font-size:12px;white-space:nowrap}
+.dj-page select,.dj-page input[type=search]{padding:8px 10px;font-size:12px;min-height:34px}
+.dj-page main{display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:auto minmax(0,1fr);gap:14px;min-height:0;flex:1}
+.dj-console{display:grid;grid-template-columns:minmax(0,2.5fr) minmax(220px,1fr);gap:12px;min-width:0;min-height:0}
+.dj-decks{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.dj-deck{--deck-accent:#f6ac7b;border-top:3px solid var(--deck-accent);padding:16px;min-width:0}
+.dj-deck:last-child{--deck-accent:#77d2dc}
+.dj-deck h2{font-size:12px;letter-spacing:.08em;color:var(--deck-accent);margin:0 0 10px}
+.dj-track-title{font-size:16px;font-weight:600;line-height:1.4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0 0 12px}
+.dj-deck canvas{display:block;width:100%;height:60px;background:#141a20;border-radius:7px}
+.dj-deck .dj-analysis{font-size:11px;line-height:1.4;min-height:32px;margin:8px 0 12px;white-space:normal}
+.dj-deck .dj-look{display:none}.dj-deck label{font-size:11px;color:#b8c7c9;display:block}
+.dj-deck .range{margin:12px 0}.dj-clock{font-variant-numeric:tabular-nums;font-size:12px;display:block;margin:0 0 12px}
+.dj-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-bottom:14px}
+.dj-deck .dj-volume{margin-bottom:4px}
+.dj-mixer{padding:14px 16px}
+.dj-crossfader>label{display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.dj-crossfader .range{margin:14px 0 10px}#mixValue{display:block;text-align:center;font-size:11px;color:var(--muted);margin-bottom:12px}
+.dj-auto-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.dj-auto-controls .editor-check{font-size:12px;margin-right:auto;gap:8px}.dj-auto-controls select{width:64px}
+#fadeStatus{font-size:11px;line-height:1.4;margin:10px 0 0}#fadeStatus:empty{display:none}
+.dj-library{padding:14px;min-height:0;display:flex;flex-direction:column;gap:10px;overflow:hidden}
+.dj-library-heading{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.dj-library h2{font-size:15px;margin:0 auto 0 0}.dj-library h2 span{font-weight:400;color:var(--muted);font-size:11px;margin-left:6px}
+#folderBar{display:flex;align-items:center;gap:6px;min-width:0}#folderName{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12px}
+#folderBar .button{font-size:11px;padding:6px 9px;min-height:30px}
+#folderStatus,#libraryStatus{font-size:11px;margin:0;line-height:1.4}#folderStatus:empty,#libraryStatus:empty{display:none}
+#trackSearch{width:100%;flex-shrink:0}
+.dj-tracks{list-style:none;padding:0;margin:0;overflow:auto;min-height:0;flex:1;scrollbar-gutter:stable}
+.dj-tracks li{display:flex;align-items:center;gap:10px;border-top:1px solid #ffffff12;padding:3px 0;min-height:40px}
+.dj-track-info{flex:1;min-width:0}.dj-track-info strong{display:block;font-size:12px;line-height:1.5;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dj-track-info small{display:block;color:var(--muted);font-size:11px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dj-tracks .button{font-size:11px;min-height:28px;padding:5px 9px}.dj-empty{font-size:12px;color:var(--muted)}
+.dj-settings{font-size:12px}.dj-settings summary{cursor:pointer}.dj-settings>div{position:absolute;right:0;top:58px;padding:16px;background:var(--panel);border:1px solid var(--line);border-radius:10px;z-index:5;box-shadow:0 8px 30px #0006;min-width:180px}
+.dj-page .notice{margin:0;padding:8px 12px;font-size:12px}.dj-page input[type=checkbox]{width:16px;height:16px;flex-shrink:0;accent-color:var(--accent)}
+.dj-deck.dragging,.dj-library.dragging{outline:2px solid #77d2dc;outline-offset:2px}
+@media(min-width:1100px){.dj-buttons{display:flex}.dj-buttons .button{flex:1;padding:8px}.dj-deck{padding:18px}}
+@media(max-width:950px){.dj-page .shell{padding:0 12px 12px}.dj-page .topbar{gap:10px}.dj-page .brand{font-size:17px}.dj-page .topbar>label{display:none}.dj-page .topbar>select{width:120px}.dj-page nav{gap:10px}.dj-deck{padding:12px}.dj-auto-controls{gap:8px}.dj-auto-controls .editor-check{flex-basis:100%}}
+@media(max-width:760px){.dj-page .shell{height:auto;min-height:100dvh}.dj-page .topbar{height:auto;min-height:64px;flex-wrap:wrap;padding:12px 0}.dj-page nav{margin-right:0}.dj-page .topbar>select{margin-left:auto}.dj-page main{display:flex;flex-direction:column}.dj-deck canvas{height:44px}.dj-deck{padding:12px}.dj-library{height:360px;min-height:250px}.dj-settings>div{top:100%}.dj-track-title{font-size:14px}.dj-auto-controls .editor-check{flex-basis:auto}.dj-page .button{padding:7px 9px}.dj-page .brand{font-size:18px}}
+@media(max-height:680px) and (min-width:761px){.dj-page .topbar{height:52px;min-height:52px}.dj-deck canvas{height:42px}.dj-deck .dj-analysis{margin:6px 0}.dj-deck{padding:12px}.dj-buttons{margin-bottom:8px}.dj-mixer{padding:10px 14px}.dj-page .shell{gap:8px}.dj-console{gap:8px}}
+
+.dj-page [data-analysis=complete]{color:#a5e7c5}.dj-page [data-analysis=working]{color:#ebca8b}.dj-page [data-analysis=warning]{color:#f0bca0}
+#libraryTools,#queueTools{display:flex;gap:8px}#libraryTools .button{padding:5px 9px;min-height:28px}#queueTools .button:first-child{flex:1}
+#queueStatus{font-size:11px;line-height:1.4;margin:0}#queueStatus:empty{display:none}
+
+.dj-collections{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;min-height:0}
+.dj-library{min-width:0}
+.dj-console .dj-deck{padding:12px 14px}.dj-console .dj-deck canvas{height:32px}
+.dj-console .dj-track-title{margin-bottom:8px}.dj-console .dj-deck h2{margin-bottom:6px}
+.dj-console .dj-deck .range{margin:8px 0}.dj-console .dj-clock{margin-bottom:8px}
+.dj-console .dj-buttons{display:flex;gap:6px;margin-bottom:8px}.dj-console .dj-buttons .button{flex:1;padding:7px 6px}
+.dj-mixer{display:flex;flex-direction:column;justify-content:center;min-width:0}
+.dj-auto-controls .editor-check{flex-basis:100%;margin-bottom:4px}
+@media(max-width:950px){.dj-console{grid-template-columns:minmax(0,2.6fr) minmax(180px,1fr)}.dj-console .dj-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:760px){.dj-console{display:flex;flex-direction:column}.dj-collections{gap:10px}.dj-library{height:400px;padding:10px}.dj-library h2{font-size:13px}.dj-library-heading{gap:6px}.dj-library-heading h2{flex-basis:100%}.dj-library-heading .button{white-space:normal}#folderBar{flex-wrap:wrap}#folderName{flex-basis:100%}#queueTools{flex-wrap:wrap}#queueTools .button{white-space:normal}.dj-console .dj-buttons{display:grid}}
+
+.dj-show-choice{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:12px;margin-bottom:18px}.dj-show-choice select{width:auto;min-width:0;max-width:70%}
+
+.dj-track-actions{display:flex;align-items:center;gap:4px;flex-shrink:0}
+.dj-track-actions .button{padding:4px 7px;min-width:26px;min-height:28px}
+#libraryTools{align-items:center}#libraryTools .button{flex-shrink:0}#libraryTools #trackSearch{flex:1;min-width:0;width:auto}
+#queueTools .button:first-child{flex:initial}
+@media(min-width:761px){
+ .dj-page .topbar{height:54px;min-height:54px}.dj-page .shell{gap:10px;padding-bottom:10px}
+ .dj-console .dj-deck{padding:10px 12px}.dj-console .dj-deck canvas{height:24px}
+ .dj-console .dj-track-title{font-size:14px;margin-bottom:6px}
+ .dj-console .dj-deck .dj-analysis{min-height:16px;margin:5px 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+ .dj-console .dj-deck label{display:flex;align-items:center;gap:10px;min-height:24px}
+ .dj-console .dj-deck label .range{flex:1;min-width:0;width:auto;margin:6px 0}
+ .dj-console .dj-clock{margin-bottom:6px}.dj-console .dj-buttons{margin-bottom:6px}
+ .dj-library{padding:10px 12px;gap:8px}.dj-show-choice{margin-bottom:12px}
+}
+@media(max-width:760px){.dj-tracks li{flex-wrap:wrap;gap:5px}.dj-track-info{flex-basis:100%}.dj-track-actions{flex-wrap:wrap;max-width:100%}#libraryTools{flex-wrap:wrap}#libraryTools #trackSearch{flex-basis:100%}#queueTools{width:100%}}

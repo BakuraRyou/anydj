@@ -1,0 +1,27 @@
+{
+  "auto": {
+    "position": "1",
+    "timeB": 2.035129,
+    "status": "Deck B läuft",
+    "starts": 1,
+    "stops": 0
+  },
+  "manual": {
+    "position": "0.4",
+    "armed": false,
+    "cancelHidden": true
+  },
+  "desktop": {
+    "width": 1280,
+    "scroll": 1280,
+    "padding": "18px",
+    "gap": "12px"
+  },
+  "mobile": {
+    "width": 390,
+    "scroll": 390,
+    "padding": "12px",
+    "columns": "177px 177px"
+  },
+  "browserErrors": 0
+}

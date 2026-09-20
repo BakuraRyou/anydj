@@ -1,0 +1,15 @@
+{
+  "name": "wiz-local-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Lokale WiZ-Lampensteuerung ohne Cloud und ohne npm-Abhängigkeiten",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node --watch server.mjs",
+    "lan": "node server.mjs --lan",
+    "demo": "node server.mjs --demo",
+    "test": "node --test test/*.test.mjs"
+  }
+}

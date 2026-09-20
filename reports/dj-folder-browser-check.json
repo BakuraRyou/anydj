@@ -1,0 +1,47 @@
+{
+  "folderReload": true,
+  "automaticAdd": true,
+  "add": true,
+  "update": true,
+  "deferredRemoval": true,
+  "search": true,
+  "layouts": [
+    {
+      "width": 1366,
+      "height": 768,
+      "scrollWidth": 1366,
+      "scrollHeight": 768,
+      "listScroll": 2736,
+      "listHeight": 518,
+      "mixerBottom": 589.390625
+    },
+    {
+      "width": 1280,
+      "height": 720,
+      "scrollWidth": 1280,
+      "scrollHeight": 720,
+      "listScroll": 2736,
+      "listHeight": 470,
+      "mixerBottom": 589.390625
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "scrollWidth": 1024,
+      "scrollHeight": 768,
+      "listScroll": 2736,
+      "listHeight": 518,
+      "mixerBottom": 628.390625
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 1034,
+      "listScroll": 2844,
+      "listHeight": 201,
+      "mixerBottom": 647.59375
+    }
+  ],
+  "browserErrors": 0
+}

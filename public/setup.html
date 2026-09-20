@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="de">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>WiZ Local · WLAN einrichten</title><link rel="stylesheet" href="/style.css"><script src="/setup.js" defer></script></head>
+<body><div class="shell">
+  <header class="topbar"><a class="brand" href="/">WiZ local</a></header>
+  <section class="intro"><span class="eyebrow">OHNE WIZ-APP</span><h1>Lampe ins WLAN aufnehmen.</h1><p>Experimentelle Einrichtung für ESP03_SHRGB1C_01, Firmware 1.32.0. WLAN-Einrichtung und lokale Statusabfragen wurden an diesem Modell erfolgreich geprüft.</p></section>
+  <main class="panel controls">
+    <p>Für die Übertragung verbindet sich der Rechner vorübergehend per WLAN mit <strong>WiZConfig_…</strong>. Seine LAN-Verbindung zum Heimnetz kann dabei bestehen bleiben. Nach der Einrichtung arbeitet die Lampe in deinem normalen WLAN.</p>
+    <button id="check" class="button secondary" type="button">Lampe prüfen / Status aktualisieren</button>
+    <p id="status" role="status" aria-live="polite">Verbindung zur Lampe wird geprüft …</p>
+    <form id="setupForm" hidden autocomplete="off">
+      <label for="ssid">Name deines 2,4-GHz-WLANs</label><input id="ssid" required maxlength="32" autocomplete="off">
+      <label for="password">WLAN-Passwort</label><input id="password" type="password" required minlength="8" maxlength="63" autocomplete="off">
+      <p class="small muted">Die Zugangsdaten werden nur für die direkte Übertragung an die Lampe verwendet und von dieser Webapp nicht gespeichert oder protokolliert. Die WiZ-Firmware kann nach dem Beitritt weiterhin Herstellerdienste kontaktieren.</p>
+      <button id="submit" class="button primary" type="submit">WLAN-Daten an diese Lampe übertragen</button>
+    </form>
+    <button id="complete" class="button primary" type="button" hidden>Einrichtung abschließen</button>
+    <p id="result" role="status" aria-live="polite"></p>
+    <p><a href="/">Zur Lampensteuerung</a></p>
+  </main>
+</div></body></html>

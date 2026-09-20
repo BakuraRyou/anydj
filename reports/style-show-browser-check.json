@@ -1,0 +1,40 @@
+{
+  "oldPulse": {
+    "styleWindows": 0,
+    "beats": 544,
+    "accents": 544,
+    "meanColorStep": 15.659554291133238,
+    "largeBrightnessJumps": 888,
+    "nearMinimum": 0.35071090047393366,
+    "looks": []
+  },
+  "automatic": {
+    "styleWindows": 129,
+    "beats": 544,
+    "accents": 501,
+    "meanColorStep": 39.22475106685633,
+    "largeBrightnessJumps": 399,
+    "nearMinimum": 0.005687203791469194,
+    "looks": [
+      "Ruhige Passage",
+      "Klangbewegung",
+      "Rhythmische Akzente",
+      "Aufbau"
+    ]
+  },
+  "withStructure": {
+    "styleWindows": 129,
+    "beats": 544,
+    "accents": 510,
+    "meanColorStep": 25.09198672356567,
+    "largeBrightnessJumps": 312,
+    "nearMinimum": 0.005687203791469194,
+    "looks": [
+      "Ruhige Passage",
+      "Klangbewegung",
+      "Rhythmische Akzente"
+    ]
+  },
+  "browserErrors": 0,
+  "note": "Actual example audio and Beat This!; structure reused from previous All-In-One result. No real lamps or new structure inference."
+}

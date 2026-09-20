@@ -1,0 +1,32 @@
+{
+  "seconds": 124.796,
+  "initial": {
+    "time": 1.066667,
+    "state": "Spielbereit · Songaufbau wird im Hintergrund analysiert …",
+    "starts": 1
+  },
+  "mixed": {
+    "mix": "A 50 % · B 50 %",
+    "starts": 1,
+    "stops": 0,
+    "frame": {
+      "state": true,
+      "r": 201,
+      "g": 182,
+      "b": 73,
+      "dimming": 11
+    }
+  },
+  "refined": {
+    "time": 114.485333,
+    "paused": false,
+    "state": "Spielbereit · KI-Schätzung · 16 Songabschnitte",
+    "starts": 1,
+    "stops": 0
+  },
+  "restored": {
+    "count": 2,
+    "text": "1. RobbieWilliamsBoddies.mp3Datei erneut verknüpfen.Auf AAuf BErneut verknüpfen↑↓Entfernen2. wiz-dj-second.wavDatei erneut verknüpfen.Auf AAuf BErneut verknüpfen↑↓Entfernen"
+  },
+  "browserErrors": 0
+}

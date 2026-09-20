@@ -1,0 +1,10 @@
+{
+  "beats": 544,
+  "medianBpm": 124.99999999999994,
+  "medianNearestSpectralOnsetMs": 48.00000000000182,
+  "within60ms": 0.9742647058823529,
+  "intervalMedianMs": 480.0000000000002,
+  "intervalP10Ms": 460.00000000000796,
+  "intervalP90Ms": 496.0000000000032,
+  "note": "Spectral onsets are a diagnostic proxy, not annotated musical beats; ffmpeg decoding can differ from browser time origin."
+}
