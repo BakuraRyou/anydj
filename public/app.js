@@ -34,7 +34,7 @@ async function api(path, { method = 'GET', data } = {}) {
   const timeout = setTimeout(() => controller.abort(), ['/api/connection','/api/discover'].includes(path)?30000:14000);
   const headers = {};
   if (state.token) headers.Authorization = `Bearer ${state.token}`;
-  if (method !== 'GET') { headers['X-WiZ-Local'] = '1'; headers['Content-Type'] = 'application/json'; }
+  if (method !== 'GET') { headers['X-AnyDj-Local'] = '1'; headers['Content-Type'] = 'application/json'; }
   try {
     const response = await fetch(path, { method, headers, signal: controller.signal,
       ...(data !== undefined ? { body: JSON.stringify(data) } : {}) });
@@ -123,7 +123,7 @@ function render(syncControls = true) {
   const actualWhite = pilot.temp > 0;
   const actualColor = ['r', 'g', 'b'].every(k => Number.isFinite(pilot[k]));
   const actualScene = pilot.sceneId > 0;
-  text('modeLabel', !device.pilot ? 'Status unbekannt' : actualScene ? `WiZ-Szene ${pilot.sceneId}` : actualWhite ? 'Weißlicht' : actualColor ? 'RGB-Farbe' : 'Licht');
+  text('modeLabel', !device.pilot ? 'Status unbekannt' : actualScene ? `AnyDj-Szene ${pilot.sceneId}` : actualWhite ? 'Weißlicht' : actualColor ? 'RGB-Farbe' : 'Licht');
   text('reportedValue', !device.pilot ? '–' : !pilot.state ? 'Aus' : actualScene ? `${pilot.dimming ?? '–'} %` : actualWhite ? `${pilot.temp} K` : actualColor ? rgbHex(pilot).toUpperCase() : `${pilot.dimming ?? '–'} %`);
   text('lastSeen', device.lastSeen ? `Letzte Antwort · ${new Date(device.lastSeen).toLocaleTimeString('de-DE')}` : 'Noch keine Antwort von der Lampe');
   $('whiteTab').disabled = caps.temperature === false;
@@ -233,7 +233,7 @@ async function discover(retry = false) {
   clearTimeout(searchRetryTimer);
   if(retry!==true)searchUntil=Date.now()+90000;
   state.scanning = true; $('discover').disabled = true; text('discover', 'Suche läuft …');
-  notice('WiZ-Geräte im lokalen Netzwerk werden gesucht. Es werden keine Lichtzustände verändert.');
+  notice('AnyDj-Geräte im lokalen Netzwerk werden gesucht. Es werden keine Lichtzustände verändert.');
   try {
     const result = await api('/api/discover', { method: 'POST', data: { interface: $('interface').value } });
     for (const device of result.devices) upsert(device);
@@ -358,7 +358,7 @@ $('renameForm').addEventListener('submit', async event => {
   event.preventDefault(); const ip = state.selected;
   try {
     const result = await api(`/api/devices/${encodeURIComponent(ip)}`, { method: 'PATCH', data: { name: $('rename').value.trim() } });
-    upsert(result.device); render(false); notice('Name lokal gespeichert. Der Name in der WiZ-App wurde nicht verändert.');
+    upsert(result.device); render(false); notice('Name lokal gespeichert. Der Name in der AnyDj-App wurde nicht verändert.');
   } catch (error) { notice(error.message, 'error'); }
 });
 $('remove').addEventListener('click', async () => {

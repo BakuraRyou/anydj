@@ -1,4 +1,6 @@
 import http from 'node:http';
+import https from 'node:https';
+import {DmxConnection} from './lib/dmx.mjs';
 import { readFile, mkdir, writeFile, rename } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
@@ -8,7 +10,8 @@ import { AppError, WizClient, assertLocalIP, validatePilot, capabilities } from 
 import { DemoClient } from './lib/demo.mjs';
 import { SetupClient } from './lib/setup.mjs';
 import { AutoRecovery } from './lib/recovery.mjs';
-import { setupNetworkVisible } from './lib/connection.mjs';
+import { RecoveryMonitor } from './lib/recovery-monitor.mjs';
+import { setupNetworkStatus } from './lib/connection.mjs';
 import { MusicSession } from './lib/music.mjs';
 import { BeatAnalysis } from './lib/beat-analysis.mjs';
 import { StyleAnalysis } from './lib/style-analysis.mjs';
@@ -17,6 +20,15 @@ import { StructureAnalysis } from './lib/structure-analysis.mjs';
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const VERSION = '0.1.0';
 const STATIC = new Map([
+  ['/musical-transition.js', ['musical-transition.js', 'text/javascript; charset=utf-8']],
+  ['/stage-motifs.js', ['stage-motifs.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-connection.js', ['dmx-connection.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-auto.js', ['dmx-auto.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-show.js', ['dmx-show.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-editor.js', ['dmx-editor.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-model.js', ['dmx-model.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-stage.js', ['dmx-stage.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-stage.css', ['dmx-stage.css', 'text/css; charset=utf-8']],
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/style.css', ['style.css', 'text/css; charset=utf-8']],
@@ -27,12 +39,34 @@ const STATIC = new Map([
   ['/editor-model.js', ['editor-model.js', 'text/javascript; charset=utf-8']],
   ['/music', ['music.html', 'text/html; charset=utf-8']],
   ['/dj', ['dj.html', 'text/html; charset=utf-8']],
+  ['/spotify-callback.html', ['spotify-callback.html', 'text/html; charset=utf-8']],
+  ['/spotify-auth.js', ['spotify-auth.js', 'text/javascript; charset=utf-8']],
+  ['/provider-queue.js', ['provider-queue.js', 'text/javascript; charset=utf-8']],
+  ['/spotify-playback.js', ['spotify-playback.js', 'text/javascript; charset=utf-8']],
+  ['/spotify-client.js', ['spotify-client.js', 'text/javascript; charset=utf-8']],
+  ['/spotify-library.js', ['spotify-library.js', 'text/javascript; charset=utf-8']],
+  ['/spotify-library.css', ['spotify-library.css', 'text/css; charset=utf-8']],
+  ['/dj-color-modes.js', ['dj-color-modes.js', 'text/javascript; charset=utf-8']],
+  ['/dj-color-picker.js', ['dj-color-picker.js', 'text/javascript; charset=utf-8']],
+  ['/beat-sync.js', ['beat-sync.js', 'text/javascript; charset=utf-8']],
+  ['/dj-performance.js', ['dj-performance.js', 'text/javascript; charset=utf-8']],
+  ['/dj-performance-model.js', ['dj-performance-model.js', 'text/javascript; charset=utf-8']],
+  ['/dj-session.js', ['dj-session.js', 'text/javascript; charset=utf-8']],
+  ['/dj-layout.js', ['dj-layout.js', 'text/javascript; charset=utf-8']],
+  ['/dj-layout.css', ['dj-layout.css', 'text/css; charset=utf-8']],
+  ['/dj-tutorial.js', ['dj-tutorial.js', 'text/javascript; charset=utf-8']],
+  ['/tutorial.json', ['tutorial.json', 'application/json; charset=utf-8']],
   ['/dj.js', ['dj.js', 'text/javascript; charset=utf-8']],
+  ['/dj-shuffle.js', ['dj-shuffle.js', 'text/javascript; charset=utf-8']],
   ['/dj-model.js', ['dj-model.js', 'text/javascript; charset=utf-8']],
+  ['/color-choreography.js', ['color-choreography.js', 'text/javascript; charset=utf-8']],
+  ['/section-lighting.js', ['section-lighting.js', 'text/javascript; charset=utf-8']],
+  ['/section-editor.js', ['section-editor.js', 'text/javascript; charset=utf-8']],
   ['/dj-show-profile.js', ['dj-show-profile.js', 'text/javascript; charset=utf-8']],
   ['/dj-status.js', ['dj-status.js', 'text/javascript; charset=utf-8']],
   ['/dj-folder.js', ['dj-folder.js', 'text/javascript; charset=utf-8']],
   ['/dj-library.js', ['dj-library.js', 'text/javascript; charset=utf-8']],
+  ['/local-cover.js', ['local-cover.js', 'text/javascript; charset=utf-8']],
   ['/dj.css', ['dj.css', 'text/css; charset=utf-8']],
   ['/audio-analysis.js', ['audio-analysis.js', 'text/javascript; charset=utf-8']],
   ['/audio-worklet.js', ['audio-worklet.js', 'text/javascript; charset=utf-8']],
@@ -40,6 +74,7 @@ const STATIC = new Map([
   ['/spectral-analysis.js', ['spectral-analysis.js', 'text/javascript; charset=utf-8']],
   ['/melody-analysis.js', ['melody-analysis.js', 'text/javascript; charset=utf-8']],
   ['/mood-analysis.js', ['mood-analysis.js', 'text/javascript; charset=utf-8']],
+  ['/show-patterns.js', ['show-patterns.js', 'text/javascript; charset=utf-8']],
   ['/show-arrangement.js', ['show-arrangement.js', 'text/javascript; charset=utf-8']],
   ['/show-clock.js', ['show-clock.js', 'text/javascript; charset=utf-8']],
   ['/show-plan.js', ['show-plan.js', 'text/javascript; charset=utf-8']],
@@ -47,6 +82,7 @@ const STATIC = new Map([
   ['/music-style.js', ['music-style.js', 'text/javascript; charset=utf-8']],
   ['/style-analysis.js', ['style-analysis.js', 'text/javascript; charset=utf-8']],
   ['/song-structure.js', ['song-structure.js', 'text/javascript; charset=utf-8']],
+  ['/instrument-activity.js', ['instrument-activity.js', 'text/javascript; charset=utf-8']],
   ['/structure-analysis.js', ['structure-analysis.js', 'text/javascript; charset=utf-8']],
   ['/show-worker.js', ['show-worker.js', 'text/javascript; charset=utf-8']],
   ['/beat-grid.js', ['beat-grid.js', 'text/javascript; charset=utf-8']],
@@ -94,11 +130,12 @@ function tokenMatches(header, token) {
 /** The HTTP service is independent of the transport; tests inject a DemoClient. */
 export async function createApp({
   demo = false, client = demo ? new DemoClient() : new WizClient(),
-  dataDir = join(ROOT, 'data'), token = '', hosts = allowedHosts(),
-  setup = new SetupClient(), detectSetup = setupNetworkVisible,
+  dataDir = join(ROOT, 'data'), token = '', hosts = allowedHosts(), tls = null,
+  setup = new SetupClient(), detectSetup = setupNetworkStatus,
   beatAnalysis = new BeatAnalysis(),
   structureAnalysis = new StructureAnalysis(),
   styleAnalysis = new StyleAnalysis(),
+  dmx = new DmxConnection({demo}),
 } = {}) {
   const devices = new Map();
   const music = new MusicSession(client);
@@ -154,7 +191,7 @@ export async function createApp({
     const old = devices.get(ip) || [...devices.values()].find(x => identity && x.mac === identity);
     if (!old && devices.size >= 128) throw new AppError('Maximal 128 Geräte im Prototyp.', 409);
     if (old && old.ip !== ip) devices.delete(old.ip);
-    const record = { ...old, ip, name: old?.name || (demo ? (ip.endsWith('.50') ? 'Wohnzimmer (Demo)' : 'Leselampe (Demo)') : `WiZ ${ip}`), online: true,
+    const record = { ...old, ip, name: old?.name || (demo ? (ip.endsWith('.50') ? 'Wohnzimmer (Demo)' : 'Leselampe (Demo)') : `AnyDj ${ip}`), online: true,
       lastSeen: new Date().toISOString(), lastError: null,
       ...rest, pilot: pilot || old?.pilot || null, system: system || old?.system || {},
       model: model || old?.model || {}, mac: identity || old?.mac || null };
@@ -227,13 +264,26 @@ export async function createApp({
       if(record&&!record.musicActive)await recovery.observeReady(record);
       if (record) result = { state: record.musicActive ? 'music' : 'ready', message: record.musicActive ? 'Musik läuft bereits. Statusprüfung pausiert während der Wiedergabe.' : record.ip !== ip && ip ? 'Lampe unter neuer IP wiedergefunden und verbunden.' : 'Lampe verbunden.', device: serialize(record) };
       else {
-        const setup = local && !demo && stored && await detectSetup(stored.mac);
+        const resumed = local && !demo && stored && !music.session && await recovery.resumeHome(stored.mac, stored.ip);
+        let detection=null;
+        if(!resumed&&local&&!demo&&stored&&!music.session){
+          const config=await recovery.config();
+          const scan=await detectSetup(stored.mac,{interfaceName:config?.interface||''});
+          detection=typeof scan==='boolean'?{visible:scan,code:scan?'SETUP_VISIBLE':'SETUP_NOT_VISIBLE'}:scan;
+        }
+        const setup = detection?.visible;
         result = { state: setup ? 'setup' : 'offline', setupUrl: setup ? '/setup' : null,
           message: setup ? 'Die Lampe sendet ihr Einrichtungsnetz. Sie muss erneut mit dem WLAN verbunden werden.' : music.session ? 'Verbindungsprüfung wartet, bis die laufende Musik beendet ist.' : scanError ? 'Lampe nicht erreichbar; die automatische Suche konnte nicht abgeschlossen werden. Die App versucht es erneut.' : 'Lampe aktuell nicht im Heimnetz erreichbar. Die App sucht automatisch erneut.',
           device: stored ? serialize(devices.get(ip)) : null };
+        if(detection&&!setup){
+          result.diagnosis={code:detection.code,checkedAt:new Date().toISOString()};
+          if(detection.code==='WIFI_SCAN_FAILED')result.message='Die WLAN-Suche auf dem Rechner ist fehlgeschlagen. Der Einrichtungsmodus der Lampe konnte nicht geprüft werden. Die App versucht es erneut.';
+          else if(detection.code==='SETUP_NOT_VISIBLE')result.message='Keine Antwort im Heimnetz und kein Einrichtungs-WLAN der Lampe gefunden. Eine automatische Einrichtung ist erst möglich, sobald die Lampe erreichbar ist. Die App prüft weiter.';
+        }
+        if(resumed)result={...result,state:resumed.state,message:resumed.message,setupUrl:null};
       }
       if(result.state==='setup'&&!music.session){
-        const recoveryStatus=await recovery.start(stored.mac);
+        const recoveryStatus=await recovery.start(stored.mac, stored.ip);
         if(recoveryStatus)result={...result,state:recoveryStatus.state==='recovering'?'recovering':'setup',message:recoveryStatus.message,setupUrl:recoveryStatus.state==='recovering'?null:'/setup'};
       }
       const entry = { result, until: Date.now() + (record?.musicActive ? 0 : 5000) };
@@ -256,20 +306,22 @@ export async function createApp({
     if (entry.count > (frame ? 1400 : 360)) throw new AppError('Zu viele Anfragen. Bitte kurz pausieren.', 429, 'RATE_LIMIT');
   };
 
-  const server = http.createServer(async (req, res) => {
+  const createServer = tls ? handler => https.createServer(tls, handler) : handler => http.createServer(handler);
+  const server = createServer(async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self' blob:; connect-src 'self'; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' https://sdk.scdn.co; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.scdn.co https://*.spotifycdn.com; media-src 'self' blob: https://*.scdn.co https://*.spotifycdn.com; connect-src 'self' https://accounts.spotify.com https://api.spotify.com https://*.spotify.com wss://*.spotify.com https://*.scdn.co https://*.spotifycdn.com; frame-src https://sdk.scdn.co https://*.spotify.com; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
     try {
       let url;
-      try { url = new URL(req.url, `http://${req.headers.host}`); }
+      try { url = new URL(req.url, `${req.socket.encrypted ? 'https' : 'http'}://${req.headers.host}`); }
       catch { throw new AppError('Ungültiger Host.', 400); }
       if (!hosts.has(url.hostname) || req.url.startsWith('http')) {
         throw new AppError('Host nicht zugelassen. localhost oder die lokale Server-IP verwenden.', 403, 'BAD_HOST');
       }
-      if (req.headers['sec-fetch-site'] === 'cross-site') {
+      const spotifyCallback=req.method==='GET'&&url.pathname==='/spotify-callback.html'&&req.headers['sec-fetch-mode']==='navigate'&&req.headers['sec-fetch-dest']==='document';
+      if (req.headers['sec-fetch-site'] === 'cross-site'&&!spotifyCallback) {
         throw new AppError('Seitenübergreifende Anfragen sind gesperrt.', 403, 'CROSS_SITE');
       }
       if (req.headers.origin && req.headers.origin !== url.origin) {
@@ -284,15 +336,24 @@ export async function createApp({
       }
       if (req.method === 'GET' && path === '/favicon.ico') { res.writeHead(204); res.end(); return; }
       if (!path.startsWith('/api/')) throw new AppError('Nicht gefunden.', 404);
-      limiter(req, path === '/api/music/frame' || path === '/api/music/status');
+      limiter(req, path === '/api/dmx/frame' || path === '/api/music/frame' || path === '/api/music/status');
       if (req.method === 'GET' && path === '/api/meta') {
-        json(res, 200, { version: VERSION, demo, tokenRequired: Boolean(token) }); return;
+        json(res, 200, { version: VERSION, demo, tokenRequired: Boolean(token) && !tokenMatches(req.headers.authorization, token) }); return;
       }
       if (token && !tokenMatches(req.headers.authorization, token)) {
         throw new AppError('Bitte den Web-Zugangscode aus dem Server-Terminal eingeben.', 401, 'UNAUTHORIZED');
       }
-      if (!['GET', 'HEAD'].includes(req.method) && req.headers['x-wiz-local'] !== '1') {
-        throw new AppError('Schreibzugriff benötigt den Header X-WiZ-Local: 1.', 403, 'CSRF');
+      if (!['GET', 'HEAD'].includes(req.method) && req.headers['x-anydj-local'] !== '1' && req.headers['x-wiz-local'] !== '1') {
+        throw new AppError('Schreibzugriff benötigt den Header X-AnyDj-Local: 1.', 403, 'CSRF');
+      }
+      if (path === '/api/dmx/status' && req.method === 'GET') { json(res,200,dmx.status());return; }
+      if (path.startsWith('/api/dmx/')) {
+        if(req.method!=='POST')throw new AppError('DMX-Zugriff benötigt POST.',405);
+        const body=await bodyJSON(req);
+        if(path==='/api/dmx/start'){json(res,200,await dmx.enable(body.target));return;}
+        if(path==='/api/dmx/frame'){dmx.frame(body.id,body.channels);json(res,202,{accepted:true});return;}
+        if(path==='/api/dmx/stop'){json(res,200,await dmx.stop(body.id));return;}
+        throw new AppError('DMX-Endpunkt nicht gefunden.',404);
       }
       if (path === '/api/analysis/beats') {
         if (req.method === 'GET') { json(res, 200, await beatAnalysis.status()); return; }
@@ -470,8 +531,14 @@ export async function createApp({
   server.headersTimeout = 10000;
   server.keepAliveTimeout = 5000;
   server.maxHeadersCount = 50;
+  const recoveryMonitor = new RecoveryMonitor({ recovery, devices, checkConnection,
+    isBusy: () => Boolean(music.session || connecting || discovering) });
+  if (!demo) server.on('listening', () => recoveryMonitor.start());
+  server.on('close', () => recoveryMonitor.stop());
   server.on('close', () => { beatAnalysis.close(); structureAnalysis.close(); styleAnalysis.close(); if (music.session) void music.stop(music.session.id); });
-  return { server, devices, client, music };
+  server.on('listening',()=>dmx.startMonitoring());
+  server.on('close',()=>void dmx.close());
+  return { server, devices, client, music, dmx };
 }
 
 async function main() {
@@ -480,11 +547,22 @@ async function main() {
   }
   const args = process.argv.slice(2);
   if (args.includes('--help')) {
-    console.log('node server.mjs [--lan] [--demo]\nPORT=3030, HOST=127.0.0.1, WIZ_WEB_TOKEN=<mindestens 20 Zeichen>, WIZ_DATA_DIR=<Pfad>');
+    console.log('node server.mjs [--lan] [--demo] [--https]\nSSL_CERT_FILE=.certs/localhost.pem, SSL_KEY_FILE=.certs/localhost-key.pem\nPORT=3030, HOST=127.0.0.1, WIZ_WEB_TOKEN=<mindestens 20 Zeichen>, WIZ_DATA_DIR=<Pfad>');
     return;
   }
-  if (args.some(x => !['--lan', '--demo'].includes(x))) throw new Error('Unbekannte Option. Siehe --help.');
+  if (args.some(x => !['--lan', '--demo', '--https'].includes(x))) throw new Error('Unbekannte Option. Siehe --help.');
   const demo = args.includes('--demo');
+  const secure = args.includes('--https'), protocol = secure ? 'https' : 'http';
+  let tls = null;
+  if (secure) {
+    try {
+      const [cert, key] = await Promise.all([
+        readFile(resolve(process.env.SSL_CERT_FILE || join(ROOT, '.certs/localhost.pem'))),
+        readFile(resolve(process.env.SSL_KEY_FILE || join(ROOT, '.certs/localhost-key.pem'))),
+      ]);
+      tls = {cert, key};
+    } catch { throw Error('Lokales TLS-Zertifikat fehlt oder ist nicht lesbar. Zuerst pnpm run dev:cert ausführen oder SSL_CERT_FILE und SSL_KEY_FILE setzen.'); }
+  }
   const host = process.env.HOST || (args.includes('--lan') ? '0.0.0.0' : '127.0.0.1');
   const hosts = allowedHosts();
   if (host !== '0.0.0.0' && !hosts.has(host)) throw new Error('HOST muss 127.0.0.1, localhost oder eine lokale Server-IP sein.');
@@ -494,21 +572,23 @@ async function main() {
   let token = process.env.WIZ_WEB_TOKEN || '';
   if (token && token.length < 20) throw new Error('WIZ_WEB_TOKEN muss mindestens 20 Zeichen lang sein.');
   if (lan && !token) token = randomBytes(18).toString('base64url');
-  const { server, client, music } = await createApp({ demo, token, hosts,
+  const { server, client, music, dmx } = await createApp({ demo, token, hosts, tls,
     ...(process.env.WIZ_DATA_DIR ? { dataDir: resolve(process.env.WIZ_DATA_DIR) } : {}),
   });
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, host, resolve); });
-  console.log(`\nWiZ Local · Prototyp ${VERSION}${demo ? ' · DEMO: keine echte Lampe wird angesprochen' : ''}`);
-  console.log(`Rechner: http://127.0.0.1:${port}`);
+  console.log(`\nAnyDj · Prototyp ${VERSION}${demo ? ' · DEMO: keine echte Lampe wird angesprochen' : ''}`);
+  console.log(`Rechner: ${protocol}://127.0.0.1:${port}`);
+  if (secure) console.log(`Spotify Redirect URI: https://127.0.0.1:${port}/spotify-callback.html`);
   if (lan) {
-    for (const iface of (new WizClient()).interfaces()) console.log(`Heimnetz (${iface.name}): http://${iface.address}:${port}`);
-    console.log('Nur in einem vertrauenswürdigen Heimnetz verwenden. Kein TLS; keine Internet-Portfreigabe.');
+    for (const iface of (new WizClient()).interfaces()) console.log(`Heimnetz (${iface.name}): ${protocol}://${iface.address}:${port}`);
+    console.log(secure ? 'Das lokale Zertifikat muss auch die verwendete Heimnetz-IP abdecken.' : 'Nur in einem vertrauenswürdigen Heimnetz verwenden. Kein TLS; keine Internet-Portfreigabe.');
   }
-  if (token) console.log(`\nWeb-Zugangscode: ${token}\n(Das ist NICHT der WiZ Home Security Key.)`);
+  if (token) console.log(`\nWeb-Zugangscode: ${token}\n(Das ist NICHT der AnyDj Home Security Key.)`);
   console.log('\nBeenden: Strg+C\n');
   const stop = async () => {
     setTimeout(() => process.exit(0), 6000).unref();
     if (music.session) await music.stop(music.session.id);
+    await dmx.close();
     server.close(() => process.exit(0));
   };
   process.once('SIGINT', stop);

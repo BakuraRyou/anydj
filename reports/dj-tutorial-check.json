@@ -1,0 +1,38 @@
+{
+  "base": "https://127.0.0.1:3030",
+  "implementation": "Original Animatus Tutorial component",
+  "results": [
+    {
+      "width": 1440,
+      "path": "party",
+      "visited": 15
+    },
+    {
+      "width": 1440,
+      "path": "dj",
+      "visited": 37
+    },
+    {
+      "width": 390,
+      "path": "party",
+      "visited": 15
+    },
+    {
+      "width": 390,
+      "path": "dj",
+      "visited": 37
+    }
+  ],
+  "checks": [
+    "floating help icon bottom right",
+    "original path selection",
+    "original progress bar and spotlight",
+    "actions advance only after interaction",
+    "empty-library conditional steps",
+    "desktop/mobile viewport",
+    "original completion/skip animation",
+    "launcher restarts at selection",
+    "Escape"
+  ],
+  "errors": []
+}

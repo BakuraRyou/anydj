@@ -4,6 +4,15 @@ import { createDecipheriv, createHash } from 'node:crypto';
 import { SetupClient, pairingPayload } from '../lib/setup.mjs';
 const device = { mac: 'a8bb5074d27c', name: 'ESP03_SHRGB1C_01', fw: '1.32.0', status: 0 };
 const interfaces = () => [{ address: '192.168.56.100', network: '192.168.56.0', netmask: '255.255.255.0' }];
+test('Nach bestätigtem Beitritt erfolgt Abschluss im Heimnetz auch bei weiterhin erreichbarem AP',async()=>{
+ const calls=[];
+ const client=new SetupClient({interfaces:()=>[...interfaces(),{address:'192.168.178.28',network:'192.168.178.0',netmask:'255.255.255.0'}],fetcher:async url=>{
+  calls.push(url);
+  return url.endsWith('/device')?Response.json({...device,status:5,ip:'192.168.178.53'}):new Response(null,{status:200});
+ }});
+ await client.device();await client.complete(device.mac);
+ assert.deepEqual(calls,['http://192.168.56.1/device','http://192.168.178.53/device','http://192.168.178.53/complete']);
+});
 test('Abschluss folgt der bestätigten Heimnetz-IP, wenn das Einrichtungs-WLAN verschwindet', async () => {
   let apAvailable = true;
   const calls = [];

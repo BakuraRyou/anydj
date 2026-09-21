@@ -30,5 +30,5 @@ if not target.is_file() or hashlib.sha256(target.read_bytes()).hexdigest() != ex
     finally:
         temporary.unlink(missing_ok=True)
 Audio2Beats(checkpoint_path=str(target.resolve()), device='cpu', dbn=False)
-print('Beat This! final0 ist bereit. WiZ Local verwendet die lokale CPU-Analyse.')
+print('Beat This! final0 ist bereit. AnyDj verwendet die lokale CPU-Analyse.')
 PY

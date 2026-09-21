@@ -9,6 +9,7 @@ import socket
 import sys
 import time
 import wave
+from stem_features import extract_instruments
 
 
 def main():
@@ -49,14 +50,17 @@ def main():
                 wav.writeframesraw(chunk)
         result = analyze(str(audio), model='harmonix-all', device='cpu',
                          demix_dir=work/'demix', spec_dir=work/'spec',
-                         keep_byproducts=False, multiprocess=False)
+                         keep_byproducts=True, multiprocess=False)
+        instruments = extract_instruments(work/'demix'/'htdemucs'/'song', duration)
         segments = [dict(start=max(0, float(s.start)), end=min(duration, float(s.end)), label=s.label)
                     for s in result.segments if min(duration, float(s.end)) > max(0, float(s.start))]
     print(json.dumps(dict(version=1, source='all-in-one', duration=duration,
-                         segments=segments, elapsedSeconds=round(time.monotonic()-started, 3)), allow_nan=False))
+                         segments=segments, instruments=instruments, elapsedSeconds=round(time.monotonic()-started, 3)), allow_nan=False))
 
 
 if __name__ == '__main__':
+    import multiprocessing
+    multiprocessing.freeze_support()
     try:
         main()
     except Exception as error:

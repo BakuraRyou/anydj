@@ -1,0 +1,313 @@
+[
+  {
+    "automaticColorEvents": 190,
+    "discoColorEvents": 341,
+    "file": "RobbieWilliamsBoddies.mp3",
+    "duration": 263.6974375,
+    "baseSeconds": 6.143584947,
+    "refinementSeconds": 97.75551704799999,
+    "totalSeconds": 104.28779321,
+    "budgetSeconds": 180,
+    "envelopeFrames": 2637,
+    "sections": [
+      {
+        "start": 0,
+        "end": 0.42,
+        "label": "start",
+        "role": "rest",
+        "look": "held",
+        "intensity": 0.0017660647828850059,
+        "colorEvents": 0
+      },
+      {
+        "start": 0.42,
+        "end": 31.13,
+        "label": "intro",
+        "role": "build",
+        "look": "lift",
+        "intensity": 0.35450894736450406,
+        "colorEvents": 47
+      },
+      {
+        "start": 31.13,
+        "end": 46.49,
+        "label": "verse",
+        "role": "support",
+        "look": "peak",
+        "intensity": 0.6541546903226788,
+        "colorEvents": 8
+      },
+      {
+        "start": 46.49,
+        "end": 69.53,
+        "label": "verse",
+        "role": "support",
+        "look": "flow",
+        "intensity": 0.598389124535966,
+        "colorEvents": 12
+      },
+      {
+        "start": 69.53,
+        "end": 84.89,
+        "label": "chorus",
+        "role": "feature",
+        "look": "peak",
+        "intensity": 0.7092683288784941,
+        "colorEvents": 32
+      },
+      {
+        "start": 84.89,
+        "end": 100.25,
+        "label": "inst",
+        "role": "neutral",
+        "look": "flow",
+        "intensity": 0.5404942202392783,
+        "colorEvents": 32
+      },
+      {
+        "start": 100.25,
+        "end": 123.29,
+        "label": "verse",
+        "role": "support",
+        "look": "peak",
+        "intensity": 0.6163957666350017,
+        "colorEvents": 12
+      },
+      {
+        "start": 123.29,
+        "end": 138.65,
+        "label": "chorus",
+        "role": "feature",
+        "look": "peak",
+        "intensity": 0.7222825109641634,
+        "colorEvents": 32
+      },
+      {
+        "start": 138.65,
+        "end": 154.01,
+        "label": "chorus",
+        "role": "feature",
+        "look": "peak",
+        "intensity": 0.7514645865162485,
+        "colorEvents": 32
+      },
+      {
+        "start": 154.01,
+        "end": 169.36,
+        "label": "inst",
+        "role": "neutral",
+        "look": "peak",
+        "intensity": 0.6023476787385755,
+        "colorEvents": 32
+      },
+      {
+        "start": 169.36,
+        "end": 184.73,
+        "label": "verse",
+        "role": "support",
+        "look": "peak",
+        "intensity": 0.6089063476366737,
+        "colorEvents": 9
+      },
+      {
+        "start": 184.73,
+        "end": 200.09,
+        "label": "verse",
+        "role": "rest",
+        "look": "held",
+        "intensity": 0.16916638241001108,
+        "colorEvents": 0
+      },
+      {
+        "start": 200.09,
+        "end": 223.13,
+        "label": "chorus",
+        "role": "feature",
+        "look": "peak",
+        "intensity": 0.7047312120723861,
+        "colorEvents": 45
+      },
+      {
+        "start": 223.13,
+        "end": 246.17,
+        "label": "chorus",
+        "role": "feature",
+        "look": "peak",
+        "intensity": 0.7718483520848682,
+        "colorEvents": 48
+      },
+      {
+        "start": 246.17,
+        "end": 259.61,
+        "label": "outro",
+        "role": "rest",
+        "look": "held",
+        "intensity": 0.010766947445862249,
+        "colorEvents": 0
+      },
+      {
+        "start": 259.61,
+        "end": 263.6974375,
+        "label": "end",
+        "role": "rest",
+        "look": "held",
+        "intensity": 3.8177755194415637e-7,
+        "colorEvents": 0
+      }
+    ],
+    "accentsBefore": 512,
+    "accentsAfter": 471,
+    "fasterThanSong": true
+  },
+  {
+    "automaticColorEvents": 220,
+    "discoColorEvents": 422,
+    "file": "djsfrommars20years.mp3",
+    "duration": 275.528,
+    "baseSeconds": 6.361484094999993,
+    "refinementSeconds": 113.391946989,
+    "totalSeconds": 120.25458175199998,
+    "budgetSeconds": 180,
+    "envelopeFrames": 2756,
+    "sections": [
+      {
+        "start": 0,
+        "end": 0.02,
+        "label": "start",
+        "role": "rest",
+        "look": "held",
+        "intensity": 0.05868331096214584,
+        "colorEvents": 0
+      },
+      {
+        "start": 0.02,
+        "end": 19.68,
+        "label": "intro",
+        "role": "rest",
+        "look": "held",
+        "intensity": 0.17987400517432778,
+        "colorEvents": 0
+      },
+      {
+        "start": 19.68,
+        "end": 46.73,
+        "label": "chorus",
+        "role": "feature",
+        "look": "flow",
+        "intensity": 0.44700764919220237,
+        "colorEvents": 56
+      },
+      {
+        "start": 46.73,
+        "end": 69.69,
+        "label": "chorus",
+        "role": "feature",
+        "look": "flow",
+        "intensity": 0.39587731853523966,
+        "colorEvents": 48
+      },
+      {
+        "start": 69.69,
+        "end": 91.94,
+        "label": "chorus",
+        "role": "feature",
+        "look": "flow",
+        "intensity": 0.510314033105419,
+        "colorEvents": 43
+      },
+      {
+        "start": 91.94,
+        "end": 106.49,
+        "label": "inst",
+        "role": "neutral",
+        "look": "flow",
+        "intensity": 0.5845363182499562,
+        "colorEvents": 32
+      },
+      {
+        "start": 106.49,
+        "end": 121.03,
+        "label": "chorus",
+        "role": "feature",
+        "look": "flow",
+        "intensity": 0.4081953037889319,
+        "colorEvents": 32
+      },
+      {
+        "start": 121.03,
+        "end": 142.89,
+        "label": "chorus",
+        "role": "neutral",
+        "look": "flow",
+        "intensity": 0.33759726005929797,
+        "colorEvents": 27
+      },
+      {
+        "start": 142.89,
+        "end": 164.46,
+        "label": "chorus",
+        "role": "feature",
+        "look": "flow",
+        "intensity": 0.4020761719597058,
+        "colorEvents": 43
+      },
+      {
+        "start": 164.46,
+        "end": 179,
+        "label": "chorus",
+        "role": "feature",
+        "look": "flow",
+        "intensity": 0.5318435995736601,
+        "colorEvents": 32
+      },
+      {
+        "start": 179,
+        "end": 193.77,
+        "label": "verse",
+        "role": "support",
+        "look": "flow",
+        "intensity": 0.46871357356316057,
+        "colorEvents": 8
+      },
+      {
+        "start": 193.77,
+        "end": 219.62,
+        "label": "chorus",
+        "role": "feature",
+        "look": "flow",
+        "intensity": 0.4220264209583184,
+        "colorEvents": 54
+      },
+      {
+        "start": 219.62,
+        "end": 241.79,
+        "label": "chorus",
+        "role": "feature",
+        "look": "lift",
+        "intensity": 0.7089037782356672,
+        "colorEvents": 47
+      },
+      {
+        "start": 241.79,
+        "end": 271.84,
+        "label": "outro",
+        "role": "rest",
+        "look": "held",
+        "intensity": 0.015593476227864032,
+        "colorEvents": 0
+      },
+      {
+        "start": 271.84,
+        "end": 275.528,
+        "label": "outro",
+        "role": "rest",
+        "look": "held",
+        "intensity": 0.021762684660079516,
+        "colorEvents": 0
+      }
+    ],
+    "accentsBefore": 521,
+    "accentsAfter": 470,
+    "fasterThanSong": true
+  }
+]

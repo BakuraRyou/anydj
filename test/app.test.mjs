@@ -29,7 +29,7 @@ async function httpApp(t, options = {}) {
   const base = `http://127.0.0.1:${app.server.address().port}`;
   const call = async (path, method = 'GET', data, extraHeaders = {}) => {
     const response = await fetch(`${base}${path}`, {
-      method, headers: { 'Content-Type': 'application/json', 'X-WiZ-Local': '1', ...extraHeaders },
+      method, headers: { 'Content-Type': 'application/json', 'X-AnyDj-Local': '1', ...extraHeaders },
       ...(data !== undefined ? { body: JSON.stringify(data) } : {}),
     });
     return { status: response.status, body: await response.json(), headers: response.headers };
@@ -105,7 +105,7 @@ test('Demo: Suche, Status, Weißlicht, RGB, Ein/Aus und Namensänderung', async 
 test('HTTP blockiert Cross-Origin, fehlenden Schreibheader und beliebige RPCs', async t => {
   const { call, base } = await httpApp(t);
   assert.equal((await call('/api/discover', 'POST', {}, { Origin: 'https://fremde-seite.invalid' })).status, 403);
-  assert.equal((await call('/api/discover', 'POST', {}, { 'X-WiZ-Local': '' })).status, 403);
+  assert.equal((await call('/api/discover', 'POST', {}, { 'X-AnyDj-Local': '' })).status, 403);
   assert.equal((await call('/api/devices', 'POST', { ip: '8.8.8.8' })).status, 400);
   await call('/api/devices', 'POST', { ip: '192.168.178.50' });
   assert.equal((await call('/api/devices/192.168.178.50/pilot', 'POST', { method: 'reset' })).status, 400);
@@ -124,6 +124,7 @@ test('LAN-Zugangscode schützt Lesen und Schreiben', async t => {
   const { call } = await httpApp(t, { token });
   const meta = await call('/api/meta'); assert.equal(meta.body.tokenRequired, true);
   assert.equal(JSON.stringify(meta.body).includes(token), false);
+  assert.equal((await call('/api/meta', 'GET', undefined, { Authorization: `Bearer ${token}` })).body.tokenRequired, false);
   assert.equal((await call('/api/devices')).status, 401);
   assert.equal((await call('/api/devices', 'GET', undefined, { Authorization: `Bearer ${token}` })).status, 200);
   assert.equal((await call('/api/discover', 'POST', {}, { Authorization: 'Bearer falsch' })).status, 401);
@@ -244,7 +245,7 @@ test('Seitenprüfung verbindet bekannte Lampe und fasst parallele Prüfungen zus
   const replies = await Promise.all([call('/api/connection', 'POST', { ip }), call('/api/connection', 'POST', { ip })]);
   assert.ok(replies.every(r => r.body.state === 'ready'));
   assert.equal(inspections, 1);
-  assert.equal((await call('/api/connection', 'POST', { ip }, { 'X-WiZ-Local': '' })).status, 403);
+  assert.equal((await call('/api/connection', 'POST', { ip }, { 'X-AnyDj-Local': '' })).status, 403);
 });
 test('Seitenprüfung findet geänderte IP anhand MAC und erhält den Lampennamen', async t => {
   const { call, client, devices } = await httpApp(t);
@@ -294,4 +295,14 @@ test('Suche prüft bekannte IP direkt bei fehlender Broadcast-Antwort und lösch
   const search=await call('/api/discover','POST',{});
   assert.ok(search.body.found.includes(ip));
   assert.equal((await call('/api/connection','POST',{ip})).body.state,'ready');
+});
+
+test('Lokale API akzeptiert neuen und bisherigen App-Header, aber keinen fehlenden',async t=>{
+ const {base}=await httpApp(t);
+ for(const name of ['X-AnyDj-Local','X-WiZ-Local']){
+  const response=await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json',[name]:'1'},body:'{}'});
+  assert.equal(response.status,200);
+ }
+ const denied=await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
+ assert.equal(denied.status,403);
 });

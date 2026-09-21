@@ -14,7 +14,7 @@ export async function analyzeStyle(decoded,{token='',signal,onStatus=()=>{}}={})
     const pcm=new ArrayBuffer(decoded.length*4),view=new DataView(pcm);
     const channels=Array.from({length:decoded.numberOfChannels},(_,c)=>decoded.getChannelData(c));
     for(let i=0;i<decoded.length;i++)view.setFloat32(i*4,channels.reduce((sum,c)=>sum+c[i],0)/channels.length,true);
-    const response=await fetch('/api/analysis/style',{method:'POST',headers:{...headers,'Content-Type':'application/octet-stream','X-WiZ-Local':'1'},body:pcm,signal:signal?AbortSignal.any([signal,AbortSignal.timeout(185000)]):AbortSignal.timeout(185000)});
+    const response=await fetch('/api/analysis/style',{method:'POST',headers:{...headers,'Content-Type':'application/octet-stream','X-AnyDj-Local':'1'},body:pcm,signal});
     const result=await response.json();
     if(!response.ok)throw Error(result.error?.message||'Stilerkennung konnte das Lied nicht analysieren.');
     return {style:validateMusicStyle(result,decoded.duration),message:'Stilverlauf erkannt'};

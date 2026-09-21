@@ -29,4 +29,4 @@ Prüfung: 124 Tests erfolgreich. Neue Tests treffen nicht rasterförmige Beats b
 0,333 und 0,847 Sekunden exakt, prüfen Taktakzente/Fallback/manuellen Modus sowie
 direkte, begrenzte Weiterleitung. Der stumme Chrome-DJ-Test mit Demo-Lampen prüft
 weiterhin Crossfade und manuelle Übernahme. Keine Messung der optischen Reaktion
-einer echten WiZ-Lampe; Browser-Intervalle und Lampenübergänge bleiben bestehen.
+einer echten AnyDj-Lampe; Browser-Intervalle und Lampenübergänge bleiben bestehen.

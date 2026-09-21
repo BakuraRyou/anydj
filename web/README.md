@@ -1,0 +1,62 @@
+# AnyDj auf statischem Webspace
+
+```sh
+npm run build:web
+npm run preview:web
+```
+
+Vorschau: `http://127.0.0.1:4173`. Der Vorschau-Server ist nur ein lokales
+Entwicklungswerkzeug. Für die öffentliche Seite genügt normaler HTTPS-Webspace.
+
+Den **Inhalt** von `dist/web/` per SFTP oder über die Hosting-Verwaltung
+hochladen. `index.html` ist die Startseite, `dj.html` die Anwendung. Auch ein
+Unterordner wie `https://example.org/anydj/` funktioniert. Keine Rewrite-Regeln,
+Datenbank, Python-Modelle, Node.js-Server oder API-Zugänge nötig. Der Webserver
+muss `.js` als JavaScript ausliefern; Worker-Dateien dürfen nicht durch eine
+HTML-Fallbackseite ersetzt werden. Die Dateien über HTTP(S) öffnen, nicht per
+Doppelklick als `file://`.
+
+## Funktionen
+
+- Zwei Decks, Audio-Crossfader, Auto-Crossfade und Warteschlange.
+- Analyse des Audiosignals lokal im Browser, ohne KI-Downloads oder Uploads.
+- Farbmodi, eigene Paletten, editierbare Abschnitte und berechnete Lichtvorschau.
+- Zwei im Browser synthetisierte Demo-Tracks zum direkten Ausprobieren.
+- Separate Web-Demo-Bibliothek in IndexedDB; Einstellungen und Analyseergebnisse
+  bleiben lokal. Audiodateien werden nicht in IndexedDB abgelegt. Nach einem
+  Neustart ggf. erneut auswählen; gespeicherte Ordnerfreigaben hängen vom Browser ab.
+- Audiodateien bis 50 MiB und 15 Minuten, soweit der Browser das Format decodiert.
+
+Kein direkter WiZ-UDP-Zugriff, keine WLAN-Wiederverbindung, keine KI-Beat-/Stil-/
+Instrumenten-/Strukturanalyse. Auto Beat ist deshalb deaktiviert. Die
+Browseranalyse wird als eigene Betriebsart ausgewiesen; bewusst nicht
+enthaltene KI-Funktionen erzeugen keine Teilanalyse-Warnung.
+
+Die Startseite nutzt keine externen Schriftarten, Tracker oder eingebetteten
+Dienste. Der Hoster kann unabhängig davon normale Zugriffsprotokolle führen.
+Die Seite ist vorbereitet, wurde aber nicht auf einem öffentlichen Server
+veröffentlicht. Betreiberangaben und vorhandene Website-Navigation können beim
+Einbinden ergänzt werden.
+
+## Prüfung
+
+```sh
+node scripts/check-web.mjs
+```
+
+Der Entwicklertest verwendet lokales Chrome und prüft Unterordner-Hosting,
+beide Demo-Tracks, Audio-Wiedergabe, Farbvorschau, Warteschlange, Wiederherstellen
+des Analyse-Caches, Mobilansicht sowie null API-Anfragen und null Uploads.
+Screenshots entstehen unter `/tmp/anydj-web-*.png`.
+
+## Spotify
+
+Die Bibliothek besitzt einen optionalen Spotify-Tab für Playlists, Lieblingssongs
+und Titelsuche. Nach einmaliger Einrichtung der Client ID und Redirect URI kann
+sich jeder freigegebene Nutzer mit seinem Konto anmelden. Siehe
+[Spotify-Einrichtung](../SETUP.md#spotify-in-der-dj-bibliothek).
+`spotify-callback.html` muss mit hochgeladen werden. Erst nach expliziter Anmeldung
+werden Spotify-APIs verwendet. Spotify-Premium-Wiedergabe ist in den Decks
+verfügbar; die gemeinsame Warteschlange unterstützt lokale und Spotify-Titel.
+Spotify-Titel werden ohne Crossfade gewechselt und nicht für Live-Lichtanalyse,
+KI oder Aufnahme verwendet. Bestehende Kontoverbindungen einmal neu anmelden.

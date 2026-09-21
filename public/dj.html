@@ -1,16 +1,20 @@
 <!doctype html>
 <html lang="de">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>WiZ Local · DJ</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/dj.css"><script type="module" src="/dj.js"></script></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>AnyDj · DJ</title><link rel="stylesheet" href="/style.css"><link rel="stylesheet" href="/dj.css"><link rel="stylesheet" href="/dmx-stage.css"><link rel="stylesheet" href="/dj-layout.css"><link rel="stylesheet" href="/spotify-library.css"><script type="module" src="/dj.js"></script></head>
 <body class="dj-page"><div class="shell">
-<header class="topbar"><a class="brand" href="/">WiZ local</a><h1>DJ</h1><nav><a href="/music">Player</a><a href="/editor">Editor</a></nav><label for="djLamp">Licht</label><select id="djLamp"><option value="">Nur Audio</option></select><button id="djStop" class="button secondary" title="Beide Decks stoppen und vorheriges Licht wiederherstellen">Stopp</button><details class="dj-settings"><summary>Einstellungen</summary><div><label class="editor-check"><input id="djStructure" type="checkbox" checked> KI-Songaufbau</label></div></details></header>
+<header class="topbar"><a class="brand" href="/">AnyDj</a><nav><a href="/dj" aria-current="page">DJ</a><a href="/music">Player</a><a href="/editor">Editor</a></nav><label for="djLamp">Licht</label><select id="djLamp"><option value="">Nur Audio</option></select><button id="djStop" class="button secondary" title="Beide Decks stoppen und vorheriges Licht wiederherstellen">Stopp</button><details class="dj-settings"><summary>Einstellungen</summary><div><label class="editor-check"><input id="djStructure" type="checkbox" checked> KI-Songaufbau</label></div></details></header>
 <p id="djStatus" class="notice" role="status" hidden></p>
+<p id="djConnection" class="small muted" role="status">Lampenverbindung wird geprüft …</p>
 <main>
 <div class="dj-console">
 <div id="decks" class="dj-decks"></div>
 <section class="panel dj-mixer" aria-label="Mixer">
+  <div class="dj-color-preview" aria-label="Berechnete Farbvorschau"><span>Farbvorschau</span><div><span><i id="previewA" class="color-point" role="img" aria-label="Deck A: inaktiv"></i>A</span><span><i id="previewMix" class="color-point mix-point" role="img" aria-label="Lichtmix: inaktiv"></i>Mix</span><span><i id="previewB" class="color-point" role="img" aria-label="Deck B: inaktiv"></i>B</span></div></div>
+  <button id="openLightStage" type="button" class="button secondary stage-open">Lichtbühne aktivieren</button>
   <label class="dj-show-choice" for="djShowProfile">Lichtshow <select id="djShowProfile"><option value="auto">Automatisch</option><option value="party">Party</option><option value="disco">Disco</option></select></label>
   <div class="dj-crossfader"><label for="crossfader">A <span>Crossfader</span> B</label><input id="crossfader" class="range" type="range" min="0" max="1" step="0.01" value="0" aria-describedby="mixValue"><output id="mixValue">A 100 % · B 0 %</output></div>
-  <div class="dj-auto-controls"><label class="editor-check"><input id="autoCrossfade" type="checkbox"> Auto-Crossfade</label><select id="fadeDuration" aria-label="Übergangsdauer"><option value="2">2 s</option><option value="4">4 s</option><option value="8" selected>8 s</option><option value="12">12 s</option><option value="20">20 s</option></select><button id="fadeNow" class="button primary" disabled>Überblenden</button><button id="fadeCancel" class="button secondary" hidden>Abbrechen</button></div>
+  <div class="dj-auto-controls"><label class="editor-check"><input id="autoCrossfade" type="checkbox" checked> Auto-Crossfade</label><select id="fadeDuration" aria-label="Übergangsdauer"><option value="2">2 s</option><option value="4">4 s</option><option value="8" selected>8 s</option><option value="12">12 s</option><option value="20">20 s</option></select><button id="fadeNow" class="button primary" disabled>Überblenden</button><button id="fadeCancel" class="button secondary" hidden>Abbrechen</button></div>
+  <label class="editor-check dj-beat-choice"><input id="autoBeat" type="checkbox" checked> Musikalische Übergänge</label><p id="beatStatus" class="small muted" role="status"></p>
   <p id="fadeStatus" class="small muted" role="status"></p>
 </section>
 </div>
@@ -28,7 +32,9 @@
 </section>
 <section class="panel dj-library dj-queue" aria-label="Warteschlange">
 <div class="dj-library-heading"><h2>Warteschlange <span id="queueCount">0</span></h2>
+<label class="editor-check"><input id="queueShuffle" type="checkbox"> Shuffle · alle Dateien</label>
 <div id="queueTools"><button id="queueStart" class="button primary">Start</button><button id="queueClear" class="button secondary">Leeren</button></div></div>
+<div class="queue-manager"><label for="queueSelect">Warteschlange / gespeicherte Liste</label><select id="queueSelect"><option value="">Aktuelle Warteschlange</option></select><div class="queue-list-actions"><button id="queueNew" class="button secondary">+ Neue Liste</button><button id="queueSaveList" class="button secondary">Als Liste speichern</button><button id="queueDeleteList" class="button secondary" hidden>Liste löschen</button></div><label id="queueNameLabel" hidden>Name <input id="queueName" maxlength="80" placeholder="Zum Beispiel: Warm-up"></label><p id="queueSaved" class="small muted" role="status"></p><p id="queueLive" class="small muted" role="status"></p></div>
 <p id="queueStatus" class="small muted" role="status"></p>
 <ol id="queueList" class="dj-tracks" tabindex="0" aria-label="Warteschlange"></ol>
 </section>

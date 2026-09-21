@@ -4,14 +4,14 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#14181d">
-  <title>WiZ Local · Dein Licht</title>
+  <title>AnyDj · Dein Licht</title>
   <link rel="stylesheet" href="/style.css">
   <script src="/app.js" defer></script>
 </head>
 <body>
   <div class="shell">
     <header class="topbar">
-      <a class="brand" href="/" aria-label="WiZ Local Startseite"><span class="brand-mark">w</span><span>WiZ <span class="brand-light">local</span></span></a>
+      <a class="brand" href="/" aria-label="AnyDj Startseite"><span class="brand-mark">w</span><span>AnyDj <span class="brand-light">local</span></span></a>
       <span class="connection-badge"><span class="status-dot"></span> Lokal verbunden <span class="version">· v0.1</span></span>
     </header>
     <div id="demoBanner" class="demo-banner" hidden>DEMO-MODUS · Alle Lampen und Antworten sind simuliert. Es werden keine echten Geräte angesprochen.</div>
@@ -23,7 +23,7 @@
         <div id="deviceList" class="device-list"><p class="small muted">Noch keine Lampe hinzugefügt.</p></div>
         <button id="discover" class="button primary full" type="button" disabled><span aria-hidden="true">⌕</span> Lampen suchen</button>
         <p class="small muted search-hint">Die Suche schaltet keine Lampe ein oder aus.</p>
-        <p class="small"><a href="/setup">Neue Lampe ohne WiZ-App ins WLAN aufnehmen</a></p>
+        <p class="small"><a href="/setup">Neue Lampe ohne AnyDj-App ins WLAN aufnehmen</a></p>
         <p class="small"><a href="/music">♫ Licht zur Musik · MP3 &amp; Rechner-Audio</a> · <a href="/dj">DJ-Pult · Zwei Decks</a> · <a href="/editor">Lichtshow-Editor</a></p>
         <details class="network-options"><summary>Netzwerk auswählen</summary><label for="interface" class="small">Netzwerkschnittstelle</label><select id="interface"><option value="">Alle lokalen Netzwerke</option></select></details>
         <details id="addDetails" class="add-card">
@@ -38,7 +38,7 @@
       </aside>
       <section class="studio">
         <div id="emptyState" class="empty-state panel">
-          <div class="empty-orb" aria-hidden="true"></div><span class="eyebrow">BEREIT FÜR DEIN LICHT</span><h2>Verbinde deine erste Lampe.</h2><p>Suche nach WiZ-Lampen im lokalen Netzwerk oder trage ihre IP-Adresse aus deinem Router ein.</p><div class="empty-tags"><span>Ein / Aus</span><span>Farben</span><span>Weißlicht</span></div>
+          <div class="empty-orb" aria-hidden="true"></div><span class="eyebrow">BEREIT FÜR DEIN LICHT</span><h2>Verbinde deine erste Lampe.</h2><p>Suche nach AnyDj-Lampen im lokalen Netzwerk oder trage ihre IP-Adresse aus deinem Router ein.</p><div class="empty-tags"><span>Ein / Aus</span><span>Farben</span><span>Weißlicht</span></div>
           <p class="small muted">Die Lampe muss bereits mit dem WLAN verbunden sein.</p>
         </div>
         <div id="lightPanel" hidden>
@@ -81,12 +81,12 @@
             </div>
           </details>
         </div>
-        <div class="compatibility-note"><strong>Voraussetzung:</strong> WiZ-Lokalzugriff muss erlaubt sein. „Nur verifizierte Steuerungen“ und Cloud-Steuerung sind nicht enthalten. Die experimentelle WLAN-Ersteinrichtung unterstützt bisher ein bestimmtes Modell mit Firmware 1.32.0.</div>
+        <div class="compatibility-note"><strong>Voraussetzung:</strong> AnyDj-Lokalzugriff muss erlaubt sein. „Nur verifizierte Steuerungen“ und Cloud-Steuerung sind nicht enthalten. Die experimentelle WLAN-Ersteinrichtung unterstützt bisher ein bestimmtes Modell mit Firmware 1.32.0.</div>
       </section>
     </main>
-    <footer>WiZ Local <span>Unabhängiger Prototyp · Keine offizielle WiZ-App</span><span id="footerStatus">Serververbindung wird geprüft …</span></footer>
+    <footer>AnyDj <span>Unabhängiger Prototyp · Keine offizielle AnyDj-App</span><span id="footerStatus">Serververbindung wird geprüft …</span></footer>
   </div>
-  <dialog id="loginDialog"><form id="loginForm"><span class="eyebrow">ZUGANG ZUR WEBAPP</span><h2>Dein Heimnetz-Zugang.</h2><p>Gib den <strong>Web-Zugangscode</strong> aus dem Server-Terminal ein. Er ist nicht der WiZ Home Security Key.</p><label for="webToken">Web-Zugangscode</label><input id="webToken" type="password" autocomplete="off" required><p id="loginError" class="small error-text" role="alert"></p><button class="button primary full" type="submit">Verbinden</button><p class="small muted">Nur für ein vertrauenswürdiges Heimnetz. Die HTTP-Verbindung ist nicht verschlüsselt.</p></form></dialog>
+  <dialog id="loginDialog"><form id="loginForm"><span class="eyebrow">ZUGANG ZUR WEBAPP</span><h2>Dein Heimnetz-Zugang.</h2><p>Gib den <strong>Web-Zugangscode</strong> aus dem Server-Terminal ein. Er ist nicht der AnyDj Home Security Key.</p><label for="webToken">Web-Zugangscode</label><input id="webToken" type="password" autocomplete="off" required><p id="loginError" class="small error-text" role="alert"></p><button class="button primary full" type="submit">Verbinden</button><p class="small muted">Nur für ein vertrauenswürdiges Heimnetz. Die HTTP-Verbindung ist nicht verschlüsselt.</p></form></dialog>
   <noscript><p class="notice">Für die Bedienoberfläche muss JavaScript aktiviert sein.</p></noscript>
 </body>
 </html>

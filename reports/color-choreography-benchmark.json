@@ -1,0 +1,123 @@
+[
+  {
+    "automaticColorEvents": 229,
+    "discoColorEvents": 445,
+    "file": "djsfrommars20years.mp3",
+    "duration": 275.528,
+    "baseSeconds": 7.829523727000001,
+    "refinementSeconds": 121.217626326,
+    "totalSeconds": 129.49346764,
+    "budgetSeconds": 180,
+    "envelopeFrames": 2756,
+    "sections": [
+      {
+        "start": 0,
+        "end": 0.02,
+        "label": "start",
+        "look": "held",
+        "intensity": 0.05868331096214584
+      },
+      {
+        "start": 0.02,
+        "end": 19.68,
+        "label": "intro",
+        "look": "held",
+        "intensity": 0.17987400517432778
+      },
+      {
+        "start": 19.68,
+        "end": 46.73,
+        "label": "chorus",
+        "look": "flow",
+        "intensity": 0.44700764919220237
+      },
+      {
+        "start": 46.73,
+        "end": 69.69,
+        "label": "chorus",
+        "look": "flow",
+        "intensity": 0.39587731853523966
+      },
+      {
+        "start": 69.69,
+        "end": 91.94,
+        "label": "chorus",
+        "look": "flow",
+        "intensity": 0.510314033105419
+      },
+      {
+        "start": 91.94,
+        "end": 106.49,
+        "label": "inst",
+        "look": "flow",
+        "intensity": 0.5845363182499562
+      },
+      {
+        "start": 106.49,
+        "end": 121.03,
+        "label": "chorus",
+        "look": "flow",
+        "intensity": 0.4081953037889319
+      },
+      {
+        "start": 121.03,
+        "end": 142.89,
+        "label": "chorus",
+        "look": "flow",
+        "intensity": 0.33759726005929797
+      },
+      {
+        "start": 142.89,
+        "end": 164.46,
+        "label": "chorus",
+        "look": "flow",
+        "intensity": 0.4020761719597058
+      },
+      {
+        "start": 164.46,
+        "end": 179,
+        "label": "chorus",
+        "look": "flow",
+        "intensity": 0.5318435995736601
+      },
+      {
+        "start": 179,
+        "end": 193.77,
+        "label": "verse",
+        "look": "flow",
+        "intensity": 0.46871357356316057
+      },
+      {
+        "start": 193.77,
+        "end": 219.62,
+        "label": "chorus",
+        "look": "flow",
+        "intensity": 0.4220264209583184
+      },
+      {
+        "start": 219.62,
+        "end": 241.79,
+        "label": "chorus",
+        "look": "lift",
+        "intensity": 0.7089037782356672
+      },
+      {
+        "start": 241.79,
+        "end": 271.84,
+        "label": "outro",
+        "look": "held",
+        "intensity": 0.015593476227864032
+      },
+      {
+        "start": 271.84,
+        "end": 275.528,
+        "label": "outro",
+        "look": "held",
+        "intensity": 0.021762684660079516
+      }
+    ],
+    "accentsBefore": 521,
+    "accentsAfter": 470,
+    "fasterThanSong": true
+  }
+]

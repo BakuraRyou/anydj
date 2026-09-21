@@ -11,7 +11,7 @@ async function app(t,analysis,extra={}) {
  const {server}=await createApp({demo:true,styleAnalysis:analysis,...extra});server.listen(0,'127.0.0.1');await once(server,'listening');
  t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve);}));
  const base=`http://127.0.0.1:${server.address().port}`;
- return {base,post:(body=pcm(),headers={},signal)=>fetch(base+'/api/analysis/style',{method:'POST',headers:{'Content-Type':'application/octet-stream','X-WiZ-Local':'1',...headers},body,signal})};
+ return {base,post:(body=pcm(),headers={},signal)=>fetch(base+'/api/analysis/style',{method:'POST',headers:{'Content-Type':'application/octet-stream','X-AnyDj-Local':'1',...headers},body,signal})};
 }
 test('style API validates PCM and caches successful model output',async t=>{
  let calls=0;const client=await app(t,new StyleAnalysis({ready:async()=>{},run:async()=>{calls++;return result;}}));
@@ -19,7 +19,7 @@ test('style API validates PCM and caches successful model output',async t=>{
  const bad=pcm();bad.writeFloatLE(NaN);assert.equal((await client.post(bad)).status,400);
  assert.equal((await client.post(Buffer.alloc(64000-1))).status,400);
  assert.equal((await client.post(pcm(),{'Content-Type':'application/json'})).status,415);
- assert.equal((await client.post(pcm(),{'X-WiZ-Local':''})).status,403);
+ assert.equal((await client.post(pcm(),{'X-AnyDj-Local':''})).status,403);
 });
 test('style inference requires access token and rejects invalid timelines',async t=>{
  const client=await app(t,new StyleAnalysis({ready:async()=>{},run:async()=>({...result,duration:3})}),{token:'a'.repeat(24)});

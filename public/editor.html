@@ -1,11 +1,11 @@
-<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WiZ Local · Lichtshow-Editor</title><link rel="stylesheet" href="/style.css"><script type="module" src="/editor.js"></script></head>
-<body class="editor-page"><div class="shell"><header class="topbar"><a class="brand" href="/">WiZ local</a><nav><a href="/music">Musikeffekt</a> · <a href="/">Lampen</a></nav></header>
+<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>AnyDj · Lichtshow-Editor</title><link rel="stylesheet" href="/style.css"><script type="module" src="/editor.js"></script></head>
+<body class="editor-page"><div class="shell"><header class="topbar"><a class="brand" href="/">AnyDj</a><nav><a href="/music">Musikeffekt</a> · <a href="/">Lampen</a></nav></header>
 <section class="intro"><span class="eyebrow">DEINE MUSIK / DEINE FARBEN</span><h1>Deine Lichtshow.</h1><p>Höre ins Lied, setze Farbpunkte und gestalte die Übergänge. Für jede Lampe bleibt dein eigener Verlauf gespeichert.</p></section>
 <div id="editorStatus" class="notice" role="status">Lampen werden geladen …</div>
 <main class="music-layout editor-layout editor-v2"><section class="panel controls">
 <label for="editorLamp">Lampe</label><select id="editorLamp"></select><p id="editorCapabilities" class="small muted"></p>
 <details class="editor-analysis"><summary>Analyse-Einstellungen</summary><label for="editorBeatEngine">Beat-Erkennung</label><select id="editorBeatEngine"><option value="beat-this">Beat This! · lokale KI</option><option value="builtin">Standard · schnelle Analyse</option></select>
-<p id="editorBeatStatus" class="small muted" role="status">Beat This! analysiert die Musik auf dem Rechner mit WiZ Local. Keine Cloud-Verarbeitung.</p></details>
+<p id="editorBeatStatus" class="small muted" role="status">Beat This! analysiert die Musik auf dem Rechner mit AnyDj. Keine Cloud-Verarbeitung.</p></details>
 <label class="music-drop" id="editorDrop" for="editorFile"><strong>MP3 hierher ziehen oder auswählen</strong><span id="editorFilename">Die Musik bleibt auf deinem Rechner.</span></label><input id="editorFile" type="file" accept="audio/mpeg,.mp3" hidden>
 <progress id="editorProgress" max="100" value="0" hidden></progress>
 <audio id="editorAudio" controls hidden></audio>
@@ -35,4 +35,4 @@
 <p class="small muted">Der Audio-Player spielt zunächst nur Musik und Vorschau. Mit dem folgenden Knopf spielt die ausgewählte Lampe mit.</p>
 <div class="music-actions"><button id="editorStart" class="button primary" disabled>Musik + Licht starten</button><button id="editorStop" class="button secondary" disabled>Stoppen &amp; Licht wiederherstellen</button></div>
 <p id="editorSaved" class="small muted">Automatisch lokal gespeichert. Zum Wiederöffnen dasselbe Lied auswählen.</p>
-</section></main><footer>WiZ Local <span>Ein Lied · ein Verlauf pro Lampe · lokal gespeichert</span></footer></div></body></html>
+</section></main><footer>AnyDj <span>Ein Lied · ein Verlauf pro Lampe · lokal gespeichert</span></footer></div></body></html>

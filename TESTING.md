@@ -8,7 +8,7 @@ Umgebung: Node.js 22.16.0. Befehl: `npm test`.
 
 16 Tests prüfen Broadcast-Berechnung, lokale IPv4-Validierung, Parametergrenzen, Modellfähigkeiten, echte UDP-Datagramme über Loopback, ungültige Antworten, explizite Gerätefehler, Wiederholungsversuche, Timeouts, HTTP-Steuerung, Web-Zugangscode, Host-/Origin-/Schreibheader-Prüfungen, Speicherung, Serialisierung gleichzeitiger Befehle, Fallbacks für ältere Firmware und den Umgang mit fehlenden Statusantworten.
 
-Die UDP-Gegenstelle ist ein **Testserver**, keine echte WiZ-Lampe. Die Tests prüfen nicht, ob ein bestimmtes physisches Modell oder dessen aktuelle Firmware die Befehle annimmt. Die Broadcast-Adressberechnung wird geprüft; die Gerätesuche wurde nicht in einem realen WiZ-WLAN verifiziert.
+Die UDP-Gegenstelle ist ein **Testserver**, keine echte AnyDj-Lampe. Die Tests prüfen nicht, ob ein bestimmtes physisches Modell oder dessen aktuelle Firmware die Befehle annimmt. Die Broadcast-Adressberechnung wird geprüft; die Gerätesuche wurde nicht in einem realen AnyDj-WLAN verifiziert.
 
 ## Oberflächentests
 
@@ -18,9 +18,9 @@ Die lokale HTML-/CSS-/JavaScript-Oberfläche wurde in Chromium im Desktopformat 
 
 ## Noch am echten Gerät zu prüfen
 
-Die Erreichbarkeit im Heimnetz, das Discovery-Verhalten der konkreten Firmware, die lokale WiZ-Sicherheitseinstellung, tatsächliche Farb-/Temperatur-/Dimmgrenzen und Paketverluste im WLAN bleiben vor Ort zu prüfen. Auch die automatische Wiedererkennung nach einer echten DHCP-Änderung sowie längerer Mehrbenutzerbetrieb wurden nicht auf Hardware getestet.
+Die Erreichbarkeit im Heimnetz, das Discovery-Verhalten der konkreten Firmware, die lokale AnyDj-Sicherheitseinstellung, tatsächliche Farb-/Temperatur-/Dimmgrenzen und Paketverluste im WLAN bleiben vor Ort zu prüfen. Auch die automatische Wiedererkennung nach einer echten DHCP-Änderung sowie längerer Mehrbenutzerbetrieb wurden nicht auf Hardware getestet.
 
-Der Prototyp ist kein Sicherheits-Audit und keine produktiv gehärtete, öffentlich betreibbare Smart-Home-Zentrale. „Nur verifizierte Steuerungen“, allgemeines WLAN-Pairing für beliebige Modelle, native WiZ-Effekte, Mehrzonen-Steuerung und Cloud-Anbindung gehören nicht zum implementierten Umfang.
+Der Prototyp ist kein Sicherheits-Audit und keine produktiv gehärtete, öffentlich betreibbare Smart-Home-Zentrale. „Nur verifizierte Steuerungen“, allgemeines WLAN-Pairing für beliebige Modelle, native AnyDj-Effekte, Mehrzonen-Steuerung und Cloud-Anbindung gehören nicht zum implementierten Umfang.
 
 ## Experimentelle WLAN-Ersteinrichtung
 
@@ -55,7 +55,7 @@ Zusätzliche Tests prüfen UTF-8-Grenzen, Passwortgrenzen, zufällige IVs, volls
 ## UDP-Stabilität und Wiederherstellung
 
 - 46 Tests bestanden. Abgesichert: gekennzeichneter Statuscache ohne konkurrierenden Lampenzugriff während Musik, gesperrte Suche, Unterdrückung identischer Lichtpakete, Sendepausen nach Fehlern und Wiederherstellung ohne ungültiges `sceneId: 0` oder gemischte Farbmodi.
-- Reale Diagnose: Lampen-IP 192.168.178.53 antwortet weder auf getPilot noch Ping; Nachbartabelle meldet FAILED, lokale WiZ-Suche findet keine Lampe. Kein WiZ-Einrichtungsnetz im WLAN-Scan gesehen. Dies belegt keine bestimmte Ursache des Verbindungsverlusts; Betrieb an der echten Lampe bleibt bis zur Wiederverbindung ungeprüft.
+- Reale Diagnose: Lampen-IP 192.168.178.53 antwortet weder auf getPilot noch Ping; Nachbartabelle meldet FAILED, lokale AnyDj-Suche findet keine Lampe. Kein AnyDj-Einrichtungsnetz im WLAN-Scan gesehen. Dies belegt keine bestimmte Ursache des Verbindungsverlusts; Betrieb an der echten Lampe bleibt bis zur Wiederverbindung ungeprüft.
 
 ## Prüfung beim Seitenaufruf
 
@@ -161,7 +161,7 @@ bekannter IPs bei ausbleibenden Broadcast-Antworten. Browser-Simulation mit
 Entfernen der Lampe und Wiederkehr unter neuer DHCP-IP: automatische Erkennung,
 Erhalt des Namens, erneute Freigabe der Steuerung, keine Browserfehler. Physische
 Statusprüfung: Heimnetz-IP 192.168.178.53 ohne Antwort; frischer WLAN-Scan
-bestätigt WiZConfig_d27c. Kein tatsächlicher Stromzyklus durchgeführt und keine
+bestätigt AnyDjConfig_d27c. Kein tatsächlicher Stromzyklus durchgeführt und keine
 WLAN-Zugangsdaten verändert.
 
 Automatische WLAN-Wiederherstellung: 96 Tests bestanden. Neue Tests prüfen
@@ -170,7 +170,7 @@ des temporären AP-Profils, Schutz vor Doppelaufträgen und Wiederholung unklare
 Übertragungen, genau einen Wiederholungsversuch nach bestätigtem aber
 wirkungslosen Auftrag sowie Abschluss eines schon im Heimnetz erreichbaren
 Einrichtungsversuchs vor Löschen des Journals. An der echten Lampe wurde die
-Verbindung über WiZConfig_d27c und die Wiederherstellung unter 192.168.178.53
+Verbindung über AnyDjConfig_d27c und die Wiederherstellung unter 192.168.178.53
 bestätigt. WLAN-Daten separat erfolgreich mit temporärem NM-Profil geprüft;
 keine Zugangsdaten ausgegeben. Temporäre Profile entfernt, Automatik aktiviert.
 Ein erneuter physischer Aus-/Einschaltzyklus wurde nicht durchgeführt.
@@ -192,3 +192,68 @@ Schutz des festen Startpunkts, Lichtwiedergabe/Restore, Entwurf nach Reload und
 kein Seitenüberlauf bei 390 px und 16× Zoom. Desktop-/Mobil-Screenshots erstellt,
 Desktop-Ansicht visuell geprüft. Bestehende Beat-This!-Integration beibehalten;
 der Interaktionstest nutzt für reproduzierbare Laufzeit die Standard-Analyse.
+
+DMX-Verbindung ohne Hardware: `node --test test/dmx-connection.test.mjs`
+prüft Transport, Sitzungen, Watchdog und API. `node scripts/check-dmx-connection.mjs`
+prüft den Bedienablauf mit lokalem Server, Chrome und simuliertem Interface.
+Keine echten DMX-Geräte werden angesprochen. Grenzen und Ergebnisse:
+[DMX-Verbindungsprüfung](reports/dmx-connection-check.md).
+
+DJ-Werkzeuge: `node --test test/dj-performance.test.mjs` prüft Audiopeaks,
+Gain, Hotcue-Grenzen, Loops und Beat-Sprünge. `node scripts/check-dj-performance.mjs`
+verwendet erzeugte Audiodateien und prüft den Audiographen, Tempo, Hotcues,
+Loops, Master-Aufnahme und Vorhören mit simulierten Ausgangs-IDs.
+`node scripts/check-dj-layout.mjs` prüft die responsive Anordnung und das
+Bühnenfenster. Ergebnisse und Grenzen: [DJ-Evaluation](reports/dj-performance-check.md).
+
+Mehrere Warteschlangen: `node scripts/check-dj-queue-lists.mjs` prüft das Speichern
+einer bestehenden Warteschlange, benannte Listen, Bearbeitung während laufender
+Wiedergabe, unabhängigen Crossfade, unveränderte gespeicherte Vorlagen, Wiederherstellung,
+Löschen und horizontale Überläufe auf Mobilgeräten. Verwendet erzeugte Audiodateien.
+
+## Spotify-Bibliothek
+
+- `node --test test/spotify.test.mjs`: PKCE/State/Ablaufzeit, Token-Erneuerung,
+  Trennen während laufender Erneuerung, URL-Begrenzung für Bearer-Tokens,
+  Rate Limits, API-Formate und Callback-Ausnahme im lokalen HTTP-Server.
+- `npm run build:web && node scripts/check-spotify.mjs`: Chrome-Test mit simulierten
+  Spotify-Antworten, echten lokalen Demo-Audiodateien, Tabs, Pagination, ausdrücklich
+  bestätigter Zuordnung, Reihenfolge/Wiederholungen in Queue und DJ-Liste, Deck-Playback,
+  Lieblingssongs, Suche, Trennen sowie Desktop-/Mobilansicht und Unterordner-Hosting.
+  Screenshots: `/tmp/anydj-spotify-1280.png`, `/tmp/anydj-spotify-390.png`.
+- Für den Live-Abnahmetest eigene Client ID und Redirect URI konfigurieren, echte
+  Spotify-Anmeldung abschließen, eigene Playlist und Lieblingssongs laden, Reload
+  und Token-Erneuerung prüfen. App-Freigabe und Kontoberechtigungen sind extern und
+  können durch simulierte API-Antworten nicht bestätigt werden.
+
+- `node --test test/spotify-playback.test.mjs`: SDK-Start, Gerätesteuerung,
+  fehlende Freigabe, Abbruch während des Starts, bestätigtes Titelende und
+  Speichern gemischter Warteschlangen.
+- `npm run build:web && node scripts/check-spotify-playback.mjs`: Browsercheck mit
+  simuliertem Spotify-SDK für lokale Datei → Spotify → lokale Datei ohne
+  parallele Wiedergabe, Playlist-Klicks, Untermenüs, Drag-and-drop und gespeicherte
+  gemischte Listen nach Reload. Kein Nachweis echter Spotify-/DRM-Wiedergabe.
+- Live-Wiedergabe separat mit Premium-Konto prüfen; bestehende Verbindung einmal
+  neu autorisieren, damit die zusätzlichen Wiedergabeberechtigungen vorliegen.
+
+## Hosting / Deployment
+
+- `node --test test/dev-https.test.mjs`: lokaler HTTPS-Server und Dev-Befehl mit
+  temporärem Testzertifikat (OpenSSL erforderlich), Zertifikatsprüfung,
+  HTTPS-Origin-Schutz, Spotify-Callback und gesperrte private Zertifikatspfade.
+  Die Installation der mkcert-CA im System wird dabei nicht verändert.
+
+- `node --test test/hosting.test.mjs`: HTTP-Auslieferung ohne lokale Geräte-APIs,
+  private Dateien/Pfadtraversal/Symlinks, Healthcheck, echter globaler Crash in
+  einem Kindprozess, Start ohne Crash-Schleife und Plesk-kompatibler Bootstrap.
+- `python3 -m unittest discover -s test -p deploy_test.py`: simulierter FTP-Server,
+  Aktivierung erst nach vollständigem Upload, abgebrochener Upload, Rollback,
+  Crash-Marker, Sperre paralleler Deployments, Ausschluss von Geheimnissen/Symlinks
+  und Pfadvalidierung. Zusätzlich Public-Verzeichniswechsel und Wiederherstellung
+  bei Fehlern, Erhalt eigener Hosting-Dateien sowie sichere Release-Bereinigung.
+- `node test/deploy-health.test.mjs`: Healthcheck-Diagnosen und Bereinigung nur
+  nach Bestätigung des aktivierten Releases.
+- `npm run deploy -- --dry-run`: Build ohne Netzwerkzugriff.
+- `npm run deploy:check`: ausschließlich lesender FTPS-Test mit echten Zugangsdaten.
+  Kein Upload und kein Restart. Live-Start erst nach Upload und Plesk-Konfiguration
+  über `https://anydj.de/healthz` bzw. `npm run deploy:restart` prüfen.

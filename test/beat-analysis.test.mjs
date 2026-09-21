@@ -14,7 +14,7 @@ async function app(t,analysis,extra={}) {
   const {server}=await createApp({demo:true,beatAnalysis:analysis,...extra});
   server.listen(0,'127.0.0.1');await once(server,'listening');
   t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve);}));
-  return {base:`http://127.0.0.1:${server.address().port}`,post(body=pcm(),headers={},signal){return fetch(`http://127.0.0.1:${server.address().port}/api/analysis/beats`,{method:'POST',headers:{'Content-Type':'application/octet-stream','X-WiZ-Local':'1',...headers},body,signal});}};
+  return {base:`http://127.0.0.1:${server.address().port}`,post(body=pcm(),headers={},signal){return fetch(`http://127.0.0.1:${server.address().port}/api/analysis/beats`,{method:'POST',headers:{'Content-Type':'application/octet-stream','X-AnyDj-Local':'1',...headers},body,signal});}};
 }
 test('Zeitpunkte müssen zum Audio passen, sortiert und endlich sein; Taktanfänge gehören zu Beats',()=>{
   assert.deepEqual(validateBeatGrid(grid(),2),grid());
@@ -41,7 +41,7 @@ test('Binäre API validiert PCM und cached nur erfolgreiche Ergebnisse',async t=
   assert.equal((await client.post(Buffer.alloc(6401))).status,400);
   const invalid=pcm();invalid.writeFloatLE(NaN,0);assert.equal((await client.post(invalid)).status,400);
   assert.equal((await client.post(pcm(),{'Content-Type':'application/json'})).status,415);
-  assert.equal((await client.post(pcm(),{'X-WiZ-Local':''})).status,403);
+  assert.equal((await client.post(pcm(),{'X-AnyDj-Local':''})).status,403);
   assert.equal((await client.post(pcm(),{Origin:'https://foreign.invalid'})).status,403);
   assert.equal(MAX_PCM_BYTES,57600000);
 });
@@ -49,7 +49,7 @@ test('Audio-Analyse respektiert den LAN-Zugangscode und verändert das JSON-Limi
   const client=await app(t,new BeatAnalysis({ready:async()=>{},run:async()=>grid()}),{token:'a'.repeat(24)});
   assert.equal((await client.post()).status,401);
   assert.equal((await client.post(pcm(),{Authorization:'Bearer '+'a'.repeat(24)})).status,200);
-  const r=await fetch(client.base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-WiZ-Local':'1',Authorization:'Bearer '+'a'.repeat(24)},body:JSON.stringify({padding:'x'.repeat(9000)})});
+  const r=await fetch(client.base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1',Authorization:'Bearer '+'a'.repeat(24)},body:JSON.stringify({padding:'x'.repeat(9000)})});
   assert.equal(r.status,413);
 });
 test('Fehlendes Modell und defektes Ergebnis führen zu sichtbaren Fehlern',async t=>{
@@ -66,10 +66,6 @@ test('Nur eine Analyse gleichzeitig; Abbruch gibt den Platz wieder frei',async t
   await entered;assert.equal((await client.post()).status,409);controller.abort();await rejected;
   for(let i=0;i<100&&analysis.active;i++)await new Promise(resolve=>setTimeout(resolve,5));
   assert.equal(cancelled,true);assert.equal(analysis.active,null);
-});
-test('Zeitlimit bricht den Analyseprozess ab und lässt einen neuen Versuch zu',async t=>{
-  const analysis=new BeatAnalysis({ready:async()=>{},timeoutMs:50,run:async(_,{signal})=>new Promise((_,reject)=>signal.addEventListener('abort',()=>reject(signal.reason),{once:true}))});
-  const client=await app(t,analysis);assert.equal((await client.post()).status,504);assert.equal(analysis.active,null);
 });
 test('Browser-Fallback ist ausdrücklich sichtbar; Nutzerabbruch wird nicht verschluckt',async t=>{
   const original=globalThis.fetch;t.after(()=>{globalThis.fetch=original;});

@@ -3,13 +3,38 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Lokale WiZ-Lampensteuerung ohne Cloud und ohne npm-Abhängigkeiten",
-  "engines": { "node": ">=22" },
+  "description": "Lokale AnyDj-Lampensteuerung ohne Cloud und ohne npm-Abh\u00e4ngigkeiten",
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
     "lan": "node server.mjs --lan",
     "demo": "node server.mjs --demo",
-    "test": "node --test test/*.test.mjs"
-  }
+    "test": "node --test test/*.test.mjs",
+    "desktop": "node scripts/start-desktop.mjs",
+    "pack": "node scripts/pack.mjs",
+    "pack:linux": "node scripts/pack.mjs --linux",
+    "pack:win": "node scripts/pack.mjs --win",
+    "pack:analysis": "node scripts/prepare-analysis-bundle.mjs",
+    "build:web": "node scripts/build-web.mjs",
+    "preview:web": "node scripts/preview-web.mjs",
+    "build:hosting": "node scripts/build-hosting.mjs",
+    "start:hosting": "node dist/hosting/index.js",
+    "deploy": "node scripts/deploy.mjs",
+    "deploy:check": "node scripts/deploy.mjs --check",
+    "deploy:restart": "node scripts/deploy.mjs --restart",
+    "deploy:rollback": "node scripts/deploy.mjs --rollback",
+    "dev:https": "node scripts/dev-https.mjs",
+    "dev:cert": "node scripts/dev-https.mjs --cert-only",
+    "build:tutorial": "node scripts/build-dj-tutorial.mjs"
+  },
+  "main": "desktop/main.mjs",
+  "author": "AnyDj",
+  "devDependencies": {
+    "electron": "44.4.3",
+    "electron-builder": "26.15.3"
+  },
+  "homepage": "https://github.com/BakuraRyou/anydj"
 }

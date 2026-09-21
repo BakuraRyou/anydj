@@ -5,7 +5,7 @@ let pending = false;
 let timer;
 let polls = 0;
 async function api(path, data) {
-  const headers = { 'Content-Type': 'application/json', 'X-WiZ-Local': '1' };
+  const headers = { 'Content-Type': 'application/json', 'X-AnyDj-Local': '1' };
   const token = sessionStorage.getItem('wiz-web-token');
   if (token) headers.Authorization = `Bearer ${token}`;
   const response = await fetch(path, { method: data === undefined ? 'GET' : 'POST', headers,

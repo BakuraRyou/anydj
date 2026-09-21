@@ -9,7 +9,7 @@ let future=[],zoom=1,beatTimes=[],timelineDirty=true,drag=null;
 let token='';try{token=sessionStorage.getItem('wiz-web-token')||'';}catch{}
 const message=(text,error=false)=>{$('editorStatus').textContent=text;$('editorStatus').className=`notice${error?' warning':''}`;};
 async function api(path,data,keepalive=false){
- const response=await fetch(path,{method:data===undefined?'GET':'POST',headers:{'Content-Type':'application/json','X-WiZ-Local':'1',...(token?{Authorization:`Bearer ${token}`}:{})},...(data===undefined?{}:{body:JSON.stringify(data)}),keepalive,signal:AbortSignal.timeout(30000)});
+ const response=await fetch(path,{method:data===undefined?'GET':'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1',...(token?{Authorization:`Bearer ${token}`}:{})},...(data===undefined?{}:{body:JSON.stringify(data)}),keepalive,signal:AbortSignal.timeout(30000)});
  const result=await response.json();if(!response.ok)throw Error(result.error?.message||'Anfrage fehlgeschlagen.');return result;
 }
 const clock=t=>`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;

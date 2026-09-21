@@ -1,4 +1,4 @@
-**Lokale KI für WiZ Local – Untersuchung vom 20.09.2026**
+**Lokale KI für AnyDj – Untersuchung vom 20.09.2026**
 
 Empfehlung: Die vorhandene Audiopipeline und den Editor um eine optionale lokale Gestaltung mit dem bereits installierten `qwen3.5:4b` erweitern. Das Modell wählt Paletten und Effekte pro musikalischem Motiv; Anwendungscode bestimmt Zeitpunkte, Wiederholungen, Übergänge und erlaubte Helligkeit. Für eine verbesserte Musikerkennung anschließend Beat This! separat evaluieren. All-In-One ist der fachlich passendere Kandidat für Strophe/Refrain, aber die aufwendigere Integration.
 

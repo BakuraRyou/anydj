@@ -1,0 +1,226 @@
+[
+  {
+    "file": "RobbieWilliamsBoddies.mp3",
+    "duration": 263.6974375,
+    "baseSeconds": 5.687470169,
+    "refinementSeconds": 97.39715146399999,
+    "totalSeconds": 103.483999363,
+    "budgetSeconds": 180,
+    "envelopeFrames": 2637,
+    "sections": [
+      {
+        "start": 0,
+        "end": 0.42,
+        "label": "start",
+        "look": "held",
+        "intensity": 0.0017660647828850059
+      },
+      {
+        "start": 0.42,
+        "end": 31.13,
+        "label": "intro",
+        "look": "lift",
+        "intensity": 0.35450894736450406
+      },
+      {
+        "start": 31.13,
+        "end": 46.49,
+        "label": "verse",
+        "look": "peak",
+        "intensity": 0.6541546903226788
+      },
+      {
+        "start": 46.49,
+        "end": 69.53,
+        "label": "verse",
+        "look": "flow",
+        "intensity": 0.598389124535966
+      },
+      {
+        "start": 69.53,
+        "end": 84.89,
+        "label": "chorus",
+        "look": "peak",
+        "intensity": 0.7092683288784941
+      },
+      {
+        "start": 84.89,
+        "end": 100.25,
+        "label": "inst",
+        "look": "flow",
+        "intensity": 0.5404942202392783
+      },
+      {
+        "start": 100.25,
+        "end": 123.29,
+        "label": "verse",
+        "look": "peak",
+        "intensity": 0.6163957666350017
+      },
+      {
+        "start": 123.29,
+        "end": 138.65,
+        "label": "chorus",
+        "look": "peak",
+        "intensity": 0.7222825109641634
+      },
+      {
+        "start": 138.65,
+        "end": 154.01,
+        "label": "chorus",
+        "look": "peak",
+        "intensity": 0.7514645865162485
+      },
+      {
+        "start": 154.01,
+        "end": 169.36,
+        "label": "inst",
+        "look": "peak",
+        "intensity": 0.6023476787385755
+      },
+      {
+        "start": 169.36,
+        "end": 184.73,
+        "label": "verse",
+        "look": "peak",
+        "intensity": 0.6089063476366737
+      },
+      {
+        "start": 184.73,
+        "end": 200.09,
+        "label": "verse",
+        "look": "held",
+        "intensity": 0.16916638241001108
+      },
+      {
+        "start": 200.09,
+        "end": 223.13,
+        "label": "chorus",
+        "look": "peak",
+        "intensity": 0.7047312120723861
+      },
+      {
+        "start": 223.13,
+        "end": 246.17,
+        "label": "chorus",
+        "look": "peak",
+        "intensity": 0.7718483520848682
+      },
+      {
+        "start": 246.17,
+        "end": 259.61,
+        "label": "outro",
+        "look": "held",
+        "intensity": 0.010766947445862249
+      },
+      {
+        "start": 259.61,
+        "end": 263.6974375,
+        "label": "end",
+        "look": "held",
+        "intensity": 3.8177755194415637e-7
+      }
+    ],
+    "accentsBefore": 512,
+    "accentsAfter": 471,
+    "fasterThanSong": true
+  },
+  {
+    "file": "scatman_neu.mp3",
+    "duration": 217.5226875,
+    "baseSeconds": 5.745125098000004,
+    "refinementSeconds": 83.883012981,
+    "totalSeconds": 89.99480059099999,
+    "budgetSeconds": 163.142,
+    "envelopeFrames": 2176,
+    "sections": [
+      {
+        "start": 0,
+        "end": 0.01,
+        "label": "start",
+        "look": "held",
+        "intensity": 0.0000014423132108007208
+      },
+      {
+        "start": 0.01,
+        "end": 33.49,
+        "label": "intro",
+        "look": "flow",
+        "intensity": 0.3301884023909201
+      },
+      {
+        "start": 33.49,
+        "end": 49.49,
+        "label": "intro",
+        "look": "flow",
+        "intensity": 0.4154331923033311
+      },
+      {
+        "start": 49.49,
+        "end": 65.48,
+        "label": "intro",
+        "look": "flow",
+        "intensity": 0.36857939582094995
+      },
+      {
+        "start": 65.48,
+        "end": 81.49,
+        "label": "intro",
+        "look": "flow",
+        "intensity": 0.47668491932039747
+      },
+      {
+        "start": 81.49,
+        "end": 101.48,
+        "label": "intro",
+        "look": "flow",
+        "intensity": 0.36245107805580346
+      },
+      {
+        "start": 101.48,
+        "end": 115.5,
+        "label": "intro",
+        "look": "held",
+        "intensity": 0.14854916480239128
+      },
+      {
+        "start": 115.5,
+        "end": 131.49,
+        "label": "intro",
+        "look": "flow",
+        "intensity": 0.4234843120153166
+      },
+      {
+        "start": 131.49,
+        "end": 179.49,
+        "label": "intro",
+        "look": "flow",
+        "intensity": 0.4205316668904222
+      },
+      {
+        "start": 179.49,
+        "end": 199.48,
+        "label": "inst",
+        "look": "flow",
+        "intensity": 0.3120961196646973
+      },
+      {
+        "start": 199.48,
+        "end": 214.97,
+        "label": "outro",
+        "look": "held",
+        "intensity": 0.11747615216797168
+      },
+      {
+        "start": 214.97,
+        "end": 217.5226875,
+        "label": "end",
+        "look": "held",
+        "intensity": 0
+      }
+    ],
+    "accentsBefore": 427,
+    "accentsAfter": 306,
+    "fasterThanSong": true
+  }
+]

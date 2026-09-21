@@ -47,7 +47,7 @@ test('Kräftige rhythmische Passagen bewegen Helligkeit und Farbe deutlich, leis
   assert.ok(plan.arrangement.times.length>30);
   assert.ok(showFrameAt(plan,10).dimming-showFrameAt(plan,10.4).dimming>15);
   const a=showFrameAt(plan,10),b=showFrameAt(plan,10.375);
-  assert.ok(Math.abs(a.r-b.r)+Math.abs(a.g-b.g)+Math.abs(a.b-b.b)>25);
+  assert.ok(Math.abs(a.r-b.r)+Math.abs(a.g-b.g)+Math.abs(a.b-b.b)<25);
   assert.ok(showFrameAt(plan,10.4).dimming>plan.effectiveOptions.minimum+10);
   const pad=compileShow(percussion.map(w=>({...w,rms:.02,bass:0,flux:0})),duration,settings({arrangement:'auto'}),grid);
   assert.equal(pad.arrangement.times.length,0);
@@ -80,10 +80,11 @@ test('Ein schwächerer Schlag im durchgehenden Groove lässt die Bewegung nicht 
   assert.ok(showFrameAt(plan,13).dimming-showFrameAt(plan,13.4).dimming>=10);
 });
 
-test('Kräftige Schläge bleiben bei hoher Farbkontur in Farbe unterscheidbar',()=>{
+test('Kräftige Schläge treiben Helligkeit, ohne bei hoher Farbkontur ständig die Farbe zu wechseln',()=>{
   const percussion=windows.map((w,i)=>({...w,rms:i%25<3?.3:.12,bass:i%25<3?.15:.02,flux:i%25<3?.7:0,tone:.95}));
   const plan=compileShow(percussion,duration,settings({arrangement:'auto'}),grid,structure);
   let moving=0;
   for(let t=22;t<30;t+=.5){const a=showFrameAt(plan,t+.125),b=showFrameAt(plan,t+.375);if(['r','g','b'].reduce((sum,key)=>sum+Math.abs(a[key]-b[key]),0)>40)moving++;}
-  assert.ok(moving>=12);
+  assert.equal(moving,0);
+  assert.ok(showFrameAt(plan,26).dimming-showFrameAt(plan,26.375).dimming>15);
 });

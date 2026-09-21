@@ -1,0 +1,16 @@
+import {cp,mkdir,writeFile,rm} from 'node:fs/promises';
+import {fileURLToPath} from 'node:url';
+import {join} from 'node:path';
+import {randomBytes} from 'node:crypto';
+await import('./build-web.mjs');
+const root=fileURLToPath(new URL('../',import.meta.url)),output=join(root,'dist','hosting');
+const release=new Date().toISOString().replace(/\D/g,'').slice(0,14)+'-'+randomBytes(6).toString('hex');
+await rm(output,{recursive:true,force:true});
+await mkdir(join(output,'releases',release),{recursive:true});
+await cp(join(root,'dist','web'),join(output,'public'),{recursive:true});
+await cp(join(output,'public'),join(output,'releases',release,'public'),{recursive:true});
+await cp(join(root,'builder','hosting','server.mjs'),join(output,'releases',release,'server.mjs'));
+await cp(join(root,'builder','hosting','index.js'),join(output,'index.js'));
+await writeFile(join(output,'package.json'),JSON.stringify({name:'anydj-hosting',version:'1.0.0',private:true,type:'commonjs',engines:{node:'>=22'},scripts:{start:'node index.js'}},null,2)+'\n');
+await writeFile(join(output,'current.json'),JSON.stringify({release})+'\n');
+console.log(`Plesk-Paket erstellt: dist/hosting · Release ${release}`);

@@ -1,0 +1,28 @@
+{
+  "prepareSeconds": 8.663,
+  "patterns": [
+    "wash",
+    "sweep",
+    "bounce",
+    "punch",
+    "build"
+  ],
+  "phrases": 38,
+  "duration": 263.697375,
+  "styleWindows": 129,
+  "values": {
+    "auto": {
+      "milliseconds": 0,
+      "beats": 501
+    },
+    "party": {
+      "milliseconds": 2.399999998509884,
+      "beats": 501
+    },
+    "disco": {
+      "milliseconds": 1.6999999955296516,
+      "beats": 501
+    }
+  },
+  "note": "Actual MP3, Beat This and style model; base show ready, excludes optional All-In-One structure. No real lamps."
+}

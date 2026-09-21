@@ -1,4 +1,118 @@
-# WiZ Local – Prototyp 0.1.0
+# AnyDj – Prototyp 0.1.0
+
+**Virtuelle Lichtbühne im DJ-Pult:** Im Mixer „Lichtbühne aktivieren“
+anklicken. Die Bühne ersetzt oben die Farbvorschau; „Bühne einstellen“ öffnet
+die Einstellungen. Beim Schließen der Einstellungen läuft die Bühne weiter.
+„Lichtbühne deaktivieren“ stellt die Farbvorschau wieder her. Die gewählte
+Anzeige bleibt beim Neuladen erhalten. Die gewählte Ausstattung zeigt
+die Lichtshow direkt im Browser – auch bei „Nur Audio“ und in der Web-Demo.
+„Demo ohne Musik starten“ zeigt einen Beispielverlauf mit simulierten 120 BPM.
+Sobald ein Deck spielt, übernimmt die Musik. Pause und Stopp schalten die
+Vorschau dunkel. „Vorschau abdunkeln“ betrifft ausschließlich die Simulation.
+
+**Frei zusammenstellbare Bühne:** Unter „Bühne einstellen → Deine Ausstattung“
+mit „+ Scheinwerfer“ und „+ Lichtleiste“ beliebig gemischte Geräte hinzufügen.
+Jede Lichtleiste besitzt eine eigene Segmentanzahl; „Entfernen“ nimmt nur dieses
+Gerät aus der Bühne. Scheinwerfer und mehrere Lichtleisten spielen gleichzeitig
+mit derselben Musikanalyse. Die bisherigen Grenzen von vier Scheinwerfern und
+acht Segmenten entfallen. Größere Bühnen scrollen innerhalb der Vorschau.
+
+Die Simulation verwaltet derzeit ein Universum mit insgesamt 512 Kanälen.
+Ein Scheinwerfer benötigt vier, eine Lichtleiste drei Kanäle pro Segment.
+Die Belegung wird angezeigt; eine Änderung, die das Universum überschreitet,
+wird mit einem Hinweis abgelehnt. Je Leiste sind technisch bis zu 170 Segmente
+möglich, soweit die übrige Bühne Platz lässt. Leere Bühnen sind erlaubt und
+bleiben dunkel. Die gemeinsame Farbobergrenze orientiert sich an allen
+verfügbaren Scheinwerfern und Segmenten; Lauflichter berücksichtigen die Länge
+jeder Leiste separat.
+
+Geräteliste, Segmentzahlen, Gruppen sowie allgemeine und abschnittsbezogene
+Gestaltungen bleiben gespeichert. Beim Entfernen werden nur die Einstellungen
+des entfernten Geräts gelöscht; andere Geräte behalten ihre Zuordnung. Alte
+Scheinwerfer-/Lichtleisten-Einstellungen werden übernommen. Die Ausstattung
+wird weiterhin manuell angegeben. USB-/LAN-Ausgänge werden über einen lokalen
+OLA-Dienst automatisch erkannt; die Ausgabe wird ausdrücklich eingeschaltet.
+
+**Automatische Lichtshow:** Im rechten Einstellungsbereich „Automatische
+Lichtshow“ wählen und unter „Maximale Farben gleichzeitig“ eine bis vier Farben
+zulassen. Diese Zahl ist eine Obergrenze: In ruhigen Passagen darf die gesamte
+Bühne dieselbe Farbe zeigen. Fließende Passagen verwenden bis zu zwei Farben,
+Aufbauten erweitern die Palette schrittweise, kräftige Passagen können die ganze
+gewählte Farbvielfalt nutzen. Die aktuelle Palette und eine kurze Erklärung
+werden direkt angezeigt. Die Deckfarbe bildet den Ausgangspunkt; die Automatik
+ergänzt verwandte oder kontrastierende Farben und verteilt Helligkeitswellen
+auf Scheinwerfer und Lichtleiste. Es müssen keine Geräte einzeln programmiert
+werden. Musik- und Abschnittsmerkmale stammen aus der vorhandenen vorbereiteten
+Show; die zusätzliche Darstellung benötigt keine erneute KI-Analyse. Die
+musikalische Zuordnung ist eine Gestaltungsheuristik, keine Garantie einer
+optimalen Show. Ohne Abschnittsinformation verwendet sie bis zu zwei Farben;
+ohne Beat-Raster bleibt die Bewegung aus. Crossfades mischen pro Farbplatz,
+sodass die gewählte Obergrenze auch während eines Übergangs erhalten bleibt.
+Helligkeitsabstufungen können zusätzliche sichtbare Schattierungen erzeugen.
+
+**Bisheriger und manueller Modus bleiben erhalten:** „Gemeinsamer Lichtmix · wie
+bisher“ bleibt bei der ersten Verwendung die Voreinstellung und gibt allen
+Geräten dieselbe Farbe und Helligkeit. „Manuell · pro Gerät gestalten“ bietet
+individuelle Farben, Gruppen und Animationen. Der automatische Modus verwendet
+eine eigene Gestaltung und lässt manuelle Regeln gespeichert. Ein Wechsel
+zwischen den Modi löscht nichts; Modus und maximale Farbanzahl bleiben gespeichert.
+Im automatischen Modus führt ein Klick auf die Bühne zur Farbauswahl, im
+manuellen oder gemeinsamen Modus zur Gestaltung des angeklickten Geräts.
+
+**Lichtshow gestalten:** Unter „Bearbeiten“ die gesamte Bühne, eine Gruppe oder
+ein Gerät auswählen. Gruppen heißen Links, Rechts und Hintergrund; jedes Gerät
+kann einer dieser Gruppen zugeordnet werden. Anfangs gehören Scheinwerfer 1/2
+zu Links und 3/4 zu Rechts. Neue Lichtleisten gehören zunächst zum Hintergrund. Rechts verwendet
+im neuen Modus zunächst eine Gegenfarbe. „Eigene Einstellungen“ schaltet eine
+abweichende Gestaltung ein; ausgeschaltet übernimmt die Auswahl ihre Vorgaben.
+„Diese Auswahl zurücksetzen“ entfernt die Abweichung, bei der gesamten Bühne
+setzt es deren Vorgaben zurück. Andere Geräte- und Gruppenregeln bleiben erhalten.
+
+Farbmodi: Lichtmix übernehmen, Gegenfarbe, feste Farbe, eigene Palette und die
+bekannten Paletten aus dem DJ-Pult. Bereits gespeicherte eigene DJ-Paletten
+stehen beim Öffnen der DJ-Seite ebenfalls zur Auswahl. Farbe A/B bearbeitet
+eine eigene Zweifarbenpalette; feste Farbe verwendet A. Helligkeit und
+Animationsstärke sind separat einstellbar. Die Automatik kombiniert
+abwechselnde Akzente, eine animierte Lichtleiste und Flächenlicht in ruhigen
+Abschnitten. Alternativ stehen originale Helligkeit, Hintergrundlicht,
+Beat-Impulse, Wechselakzente, Farbwelle und Lauflicht zur Verfügung.
+Dauer und Versatz werden in Beats angegeben; vier Beats bedeuten nicht
+zwingend einen Takt. Ohne Beat-Raster folgen rhythmische Effekte der
+ursprünglichen Helligkeit. Farbwellen/Lauflichter verteilen Paletten räumlich;
+mit „Lichtmix übernehmen“ bleibt die Ausgangsfarbe erhalten.
+
+**Gestaltung pro Songabschnitt:** Während der Wiedergabe unter „Gültigkeit“
+„Aktueller Songabschnitt“ wählen. Die Regel gilt für diesen Track und diesen
+Abschnitt. Bei zwei Decks zeigt der Editor den Abschnitt des stärker gewichteten
+Decks; jedes Deck wird dennoch mit seinen eigenen Regeln berechnet und danach
+pro Gerät überblendet. Abschnittsvorgaben haben Vorrang vor allgemeinen Regeln;
+innerhalb einer Ebene gilt Gerät vor Gruppe vor gesamter Bühne. Die Auswahl
+„Aktueller Songabschnitt“ folgt der laufenden Wiedergabe; die Bezeichnung zeigt,
+welcher Abschnitt gerade bearbeitet wird. Abschnittsregeln sind an Track-ID und
+Abschnittsstart gebunden; nach einer Neuanalyse mit veränderten Grenzen müssen
+sie gegebenenfalls neu gesetzt werden.
+
+Modus und Gestaltung werden lokal im Browser gespeichert, getrennt von der
+WiZ-Steuerung. Speicherfehler werden angezeigt; Löschen der Browserdaten entfernt
+die Gestaltung. Es werden bis zu 256 Abschnittsregeln gespeichert. Die
+Simulation erzeugt ein DMX-Universum mit 512 Kanalwerten: dynamisch aufeinanderfolgende Dimmer/RGB-Geräte und RGB-Segmente
+mit automatisch zugeordneten Kanalbereichen. Die Darstellung interpretiert
+diese Werte; Kanalbelegung und Werte stehen unter „Kanalbelegung & technische Details“. USB und LAN sind über OLA angebunden (siehe [Einrichtung](SETUP.md#dmx-über-usb-und-lan)). Herstellerprofile und
+Moving Heads werden noch nicht unterstützt. Die Visualisierung ist keine physikalische Lichtberechnung.
+
+
+**Echte DMX-Ausgabe:** Unter „Bühne einstellen → Echte Lampen verbinden“ einen
+USB-/lokalen oder LAN-Ausgang wählen und einschalten. AnyDj prüft den lokalen
+OLA-Dienst alle 2,5 Sekunden auf vorhandene und neu angeschlossene Interfaces.
+Ein ausgewählter Ausgang steuert mehrere Lampen/Segmente im gemeinsamen
+512-Kanal-Universum. Die Ausgabe folgt derselben Show wie die Vorschau; die
+visuelle Demo und „Vorschau abdunkeln“ bleiben reine Vorschaufunktionen.
+Demo-Start, Bühnen-Deaktivierung, geänderte Ausstattung und Stop schalten die
+DMX-Ausgabe aus. Ohne neue Browserdaten versucht der Server nach 1,8 Sekunden
+ein Schwarzbild zu senden; bei Verbindungsverlust kann dessen Empfang nicht
+garantiert werden. Nach einer Trennung wird nicht automatisch neu eingeschaltet.
+OLA muss separat installiert und eingerichtet sein; kein universeller
+USB-Plug-and-play-Treiber. Die Web-Demo und der App-Demomodus senden kein DMX.
 
 **DJ-Pult unter `/dj`:** Zwei unabhängig spielbare Decks, lokale Trackliste,
 Drag & Drop, Cue-Punkte, Positionsregler und Lautstärke pro Deck. Der Crossfader
@@ -43,9 +157,19 @@ fehlgeschlagenen Teilanalyse „⚠ Fertig · Teilanalyse“ mit dem Grund im To
 
 **Lichtshow im DJ-Mixer:** „Automatisch“ verwendet die musikalisch gestaltete
 Basis-Show. „Party“ verstärkt Akzentkontrast und Farbsättigung; „Disco“ setzt
-stärkere, kürzere Akzente und kontrastreiche Farbwechsel auf die ausgewählten
-rhythmischen Ereignisse. Gehaltene Passagen und Stille erhalten keinen
+dichtere, kontrastreiche Farbwechsel auf die ausgewählten rhythmischen Ereignisse.
+Die Farben bleiben zwischen diesen Ereignissen stehen. Ein höheres Grundlicht
+und kleinere Helligkeitsimpulse reduzieren im Disco-Profil das dauernde Pumpen. Gehaltene Passagen und Stille erhalten keinen
 zusätzlichen Farbwechsel. Alle Modi behalten Beat-Zeitpunkte und Helligkeitslimits.
+Erkannte Strophen halten jetzt Farbkontrast und Wechselgeschwindigkeit zurück,
+wenn das Lied einen akustisch ausreichend kräftigen Refrain oder Soloabschnitt
+enthält. Diese Hauptabschnitte erhalten den vollen Farbkontrast und mehr
+Helligkeitsspielraum. Die Abschnittsrolle bleibt von der lokalen Schlagzeugstärke
+getrennt: Eine kräftige Strophe wird dadurch nicht automatisch genauso dicht wie
+der Refrain. Ruhige oder gegenüber der Strophe deutlich schwächere vorhergesagte
+Refrains lösen diese Hervorhebung nicht aus. Ohne belastbare Abschnittshinweise
+bleibt die bisherige akustische Gestaltung verfügbar. Es gibt keine Regeln für
+bestimmte Dateinamen, Künstler oder Songzeitpunkte.
 Die Auswahl gilt für beide Decks und folgende Queue-Tracks und bleibt gespeichert.
 Beim Wechsel während der Wiedergabe wird über zwei Sekunden überblendet.
 Die KI muss dafür nicht erneut laufen; die ursprüngliche Show bleibt erhalten,
@@ -58,6 +182,77 @@ kann im Hintergrund weiterlaufen. Profilwechsel selbst benötigten rund 3–4 ms
 Diese Laufzeiten sind Messungen dieses Rechners und Tracks, keine Garantie.
 Die Profile steuern Gestaltungspräferenzen; eine objektiv optimale Lichtshow
 ist dadurch nicht nachgewiesen. Details: `reports/dj-show-profiles-check.md`.
+
+**Automatische Animationsmuster:** Die Show kombiniert ruhige Flächen, breite
+Lichtwellen, wechselnd kräftige Akzente, Aufbauten und kurze Impulse. Abschnitt,
+lokaler Stilverlauf und wiederkehrende Motive bestimmen die Auswahl. Längere
+Passagen wechseln an erkannten Taktgrenzen das Muster; ohne Taktanfänge dienen
+Gruppen der ausgewählten Akzente als Ersatz. Party und Disco behalten diese
+Abwechslung. Der Stil wird pro Musterphrase neu berücksichtigt; Aufbauten
+steigern sich über den gesamten Abschnitt. Intensive Einsätze starten mit einem
+klaren Impuls, interne Musterwechsel mischen den ersten Akzent, und Lichtwellen
+klingen bis auf null aus. Die Musterauswahl berücksichtigt zusätzlich die hörbaren Anschläge pro Phrase:
+Ausgeprägte rhythmische Anschläge bevorzugen Impulse und Wechselakzente, weiche
+Passagen Wellen und Wechselakzente. Die Takterkennung bleibt unverändert. Bereits vorbereitete Tracks
+müssen für die neuen Muster erneut berechnet werden. Prüfbericht:
+`reports/animation-pattern-check.md`.
+
+**Lokale Coverbilder:** Die Bibliothek zeigt eingebettete Cover aus MP3 (ID3),
+FLAC, M4A und WAV mit ID3-Metadaten neben dem Titel. JPEG-, PNG- und WebP-Bilder
+werden lokal zu kleinen Vorschaubildern verkleinert und im Browser gespeichert.
+Es werden keine Bilder aus dem Internet geladen. Ohne Cover bleibt die Textzeile
+erhalten. Bereits vorhandene Titel werden ergänzt, sobald die Audiodatei lokal
+verfügbar bzw. der Ordner freigegeben ist. Ogg-Cover und separate Bilddateien im
+Musikordner werden derzeit nicht ausgewertet.
+
+**Musikalische Übergänge (früher „Auto Beat“):** Die standardmäßig aktive
+Checkbox im zentralen Mixer wählt geeignete Takt- und Abschnittsgrenzen für
+Auto-Crossfade und Warteschlange. Sie verändert weder das Tempo noch die
+laufende Beatphase der Songs. Ein normaler Play-Start springt nicht mehr auf
+den Takt des anderen Decks. Beim automatischen Übergang kann das nächste Lied
+an einem nahegelegenen erkannten Taktanfang starten.
+
+Fehlt ein brauchbares Raster oder ist die Option aus, wird zeitbasiert mit der
+eingestellten Übergangsdauer überblendet. Die gespeicherte Schalterstellung
+bleibt erhalten; die Web-Version kann die Option ebenfalls verwenden und fällt
+bei fehlendem Raster auf den zeitbasierten Start zurück. „Überblenden“ startet
+weiterhin sofort. Nur der manuelle Tempo-Regler und der ausdrücklich betätigte
+Sync-Button ändern die Wiedergabegeschwindigkeit. Manuelles Tempo bleibt beim
+Ein-/Ausschalten der musikalischen Übergänge unverändert.
+
+**Farbmodi und Vorschau:** Direkt unter dem Tracknamen jedes DJ-Decks öffnet
+„Farbmodus“ eine Auswahl mit Textsuche und Farbgruppenfiltern. Neben Songanalyse,
+warmen, kühlen, bunten und weißen Paletten lassen sich eigene benannte Farbpaare
+hinzufügen. Die Auswahl wird pro Lied im Browser gespeichert und ohne erneute
+KI-Analyse angewandt; explizite Abschnittsfarben behalten Vorrang. Ein Profilwechsel
+oder Neuberechnen behält den gewählten Farbmodus bei. „Songanalyse“ stellt die
+ursprünglichen automatischen Farben wieder her.
+
+Oben im Mixer zeigen drei Farbpunkte Deck A, den Lichtmix und Deck B. Die
+Mixvorschau berücksichtigt Crossfader, Lautstärken und laufende Übergänge. Bei
+pausierten Decks bleibt deren aktuelle Farbe sichtbar; ohne aktive Wiedergabe
+ist der Mixpunkt inaktiv. Dies ist die berechnete Vorschau, keine Rückmeldung
+der physischen Lampe.
+
+**Neu berechnen:** Der Button am Track startet die Analyse erneut. Eine vorhandene
+Show bleibt bis zum fertigen Ersatz nutzbar; das neue Ergebnis wird gespeichert.
+Falls nötig, wird zuvor die Musikdatei erneut ausgewählt.
+
+**Gespeicherte Lichtshows:** Der DJ-Modus speichert die berechnete Basis-Show
+und spätere Verfeinerungen automatisch lokal im Browser (IndexedDB). Nach einem
+Neuladen stehen sie wieder bereit, auch mit Party/Disco. Bei noch ausstehendem
+Songaufbau werden die Analysemerkmale mitgespeichert; die Hintergrundanalyse
+kann nach Wiederverbinden der Datei fortgesetzt werden. Dateiname, Größe,
+Änderungsdatum, Berechnungsversion und Gestaltungsoptionen müssen übereinstimmen,
+sonst wird neu berechnet. Änderungen an der Show-Erzeugung müssen deshalb
+`SHOW_PLAN_VERSION` in `public/show-plan.js` erhöhen.
+
+Audiodateien werden nicht kopiert. Ohne dauerhafte Dateiberechtigung muss die
+Musik nach einem Neuladen erneut verknüpft werden; die passende Lichtshow bleibt
+erhalten. Der Speicher gilt für denselben Browser und dieselbe Adresse mit Port.
+Gelöschte Browserdaten entfernen auch gespeicherte Shows. Speicherfehler werden
+angezeigt, verhindern aber die Wiedergabe nicht. Details und Browserprüfung:
+`reports/dj-show-cache-check.md`.
 
 **Warteschlange:** Tracks über „+ Queue“ oder die gefilterte Bibliothek über
 „Alle einreihen“ hinzufügen. Im Container „Warteschlange“ die Reihenfolge mit ↑/↓ ändern
@@ -77,14 +272,55 @@ halten die Automatik mit einer Fehlermeldung an, statt Titel still zu übersprin
 Die verbleibende Reihenfolge wird gespeichert; nach Neuladen ist ein bewusster
 Start und gegebenenfalls erneuter Dateizugriff erforderlich.
 
-**Auto-Crossfade:** Beide Decks mit vorbereiteten Tracks belegen. Ein Deck starten
+**Musikalische Übergänge:** Sobald beide Titel im Deck vorbereitet sind, erstellt
+AnyDj einen gemeinsamen Übergangsplan. Mit vorhandener Instrumentenanalyse
+vergleicht er Gesang, Bass, Energie und rhythmische Unterschiede an möglichen
+Ein- und Ausstiegsstellen. Direkt unter dem Crossfader zeigt ein Status, ob Titel noch vorbereitet werden,
+ein Basisübergang bereits nutzbar ist oder der gemeinsame Plan bereit ist.
+Die fertige Planung nennt die Variante:
+„Sanfter Übergang“, „Bassübergabe“ oder „Kurze Überlagerung“. Die Bassübergabe
+senkt den alten Bass vor dem neuen ab; eine kurze Überlagerung reduziert
+konkurrierenden Gesang oder auseinanderlaufende Rhythmen. Manuelle EQ-Werte
+bleiben erhalten. Nach Abschluss oder Abbruch werden die Übergangsfilter
+zurückgesetzt.
+
+Die eingestellte Dauer ist die Obergrenze; kurze Restlaufzeiten verkürzen den
+Übergang. Der automatische Start darf bis zu vier Sekunden bzw. eine halbe
+Übergangsdauer vor dem bisherigen Start liegen. Der nächste Titel darf an einem
+erkannten Taktanfang bis zu zwei Sekunden hinter seinem Cue starten. Änderungen
+an Titel, Cue, manuellem Tempo oder Dauer erneuern den Plan. Ein laufender
+Übergang behält seinen Plan. „Überblenden“ beginnt sofort an der aktuellen Stelle.
+Das Tempo wird nicht automatisch geändert.
+
+Ohne Instrumentenanalyse bleibt der sanfte Crossfade mit vorhandenen Takt- und
+Abschnittsgrenzen erhalten; ohne brauchbares Raster startet er zeitbasiert.
+Die Auswahl ist eine Heuristik auf den vorhandenen lokalen Analyseergebnissen,
+keine Garantie für einen musikalisch perfekten Mix. Browser- und Audiolatenzen
+erlauben keine samplegenaue Synchronisation. Ein neues KI-Modell ist nicht nötig.
+
+**Lichtmotive und Höhepunkte in der automatischen Lichtbühne:** Wiederkehrende
+Motivgruppen der vorbereiteten Show verwenden denselben Farbanker. Ihr
+Bewegungsablauf beginnt relativ zum jeweiligen Abschnitt, damit ein späterer
+Refrain wiedererkennbar wirkt. Die bestehenden Motiverkennungen sind heuristisch;
+bei KI-Abschnitten beruhen sie auf Abschnittslabels. Unbekannte Motive verwenden
+weiter die laufende Deckfarbe. Ruhige Passagen erhalten die halbe bisherige
+Helligkeit, fließende 85 %, Aufbauten steigen von 55 % bis 100 %. Höhepunkte
+nutzen den vorhandenen Maximalwert, ohne ihn zu erhöhen. Farbobergrenze,
+Blackout und Crossfade bleiben wirksam. Gemeinsamer und manueller Lichtmodus
+behalten ihre bisherige Gestaltung. Gespeicherte Shows erhalten diese
+Bühneninterpretation beim Laden ohne erneute Audioanalyse.
+
+**Auto-Crossfade:** Beim Öffnen des DJ-Pults standardmäßig aktiv. Beide Decks mit vorbereiteten Tracks belegen. Ein Deck starten
 und den Crossfader ganz auf dessen Seite stellen. „Auto-Crossfade“ startet das zweite Deck am Cue-Punkt und blendet Audio und Licht
 über die gewählte Dauer (2–20 Sekunden, standardmäßig 8) um. Danach pausiert
 das bisherige Deck. Bei kurzen verbleibenden Laufzeiten wird der Übergang gekürzt.
 „Überblenden“ startet den Übergang sofort; ein bereits spielendes Zieldeck
-behält seine Position. Der Verlauf folgt der Wiedergabezeit des Ausgangsdecks.
+behält seine Position. Der Verlauf folgt der Audio-Uhr des Browsers.
 
-Manuelles Ziehen am Crossfader, Pause, Cue, Positionswechsel oder „Abbrechen“ beendet einen laufenden Übergang und schaltet die Automatik aus.
+Manuelles Ziehen am Crossfader, Pause, Cue oder „Abbrechen“ beendet einen laufenden Übergang und pausiert die Automatik bis zum nächsten Play- oder Überblenden-Start. Die gespeicherte Auto-Crossfade-Einstellung bleibt erhalten.
+Positionsregler, Hotcues und Beat-Sprünge lassen Auto-Crossfade und die laufende
+Warteschlange aktiv. Ein laufender Übergang setzt seinen Verlauf fort; sonst
+richtet sich der nächste Start nach der neuen Songposition.
 Beim Abbrechen bleibt die aktuelle Mischung erhalten; „Stopp“ pausiert
 beide Decks. Für den nächsten automatischen Übergang einen neuen Track auf das
 freigewordene Deck laden. Bereits ausgeblendete Tracks werden nicht automatisch
@@ -106,8 +342,10 @@ Die Bibliothek ist die Sammlung; die Warteschlange bestimmt die automatische Abs
 Farbpaarung. Fließende Stellen orientieren sich an erkannten Taktanfängen;
 intensive Passagen wechseln häufiger auf ausgewählten Akzenten. Ohne erkannte
 Taktanfänge werden vorhandene Akzente gruppiert, keine Taktart unterstellt.
-In intensiven Passagen bleibt zusätzlich eine kontrastierende Farbe der
-gewählten Automatikpalette erhalten. Ruhepassagen, manuelle Gestaltung,
+Jedes Motiv erhält ein kontrastierendes Farbpaar. Bei zu ähnlichen automatischen
+Palettenfarben wird eine Gegenfarbe ergänzt; benutzerdefinierte Paletten bleiben
+erhalten. Farbwechsel werden auch zwischen den 125-ms-Vorschaubildern am
+tatsächlichen Akzentzeitpunkt ausgewertet. Ruhepassagen, manuelle Gestaltung,
 Beat-Zeitpunkte und Helligkeitskurven werden dadurch nicht verändert.
 
 **Lokaler Stilverlauf:** Discogs-EffNet ergänzt die automatische Show in Player und
@@ -150,6 +388,20 @@ Farbfamilien, Sättigung, Helligkeitsbögen und die Auswahl musikalischer Akzent
 Beat This! bleibt für die erkannten Beat-Zeitpunkte zuständig.
 Die manuelle Gestaltung auf der Musikseite behält Vorrang.
 
+Die dabei ohnehin getrennten Demucs-Spuren (Schlagzeug, Bass, Gesang und übrige
+Begleitung) liefern zusätzlich Pegelverläufe in 100-ms-Schritten. Es wird kein
+zweiter Trennlauf gestartet. Die Show bewertet Intensität relativ zum gesamten
+Song, unterdrückt rein gesangsbedingte Rhythmusimpulse bei wenig Schlagzeug und
+reserviert Kontrast vor erkennbar stärkeren Abschnittseinsätzen. Abschnittsnamen
+allein bestimmen damit nicht mehr, wie kräftig die Show ausfällt. Die Zuordnung
+bleibt eine Gestaltungsheuristik, keine verifizierte Instrumententranskription.
+
+Beat-, Stil- und Songaufbauanalyse haben kein automatisches Laufzeitlimit.
+Sie laufen bis zum Abschluss, einem Fehler oder einem Abbruch. Manuelles Abbrechen,
+Verbindungsabbruch und das Beenden der Anwendung stoppen laufende Berechnungen.
+Analyse und Instrumentenverlauf werden mit der DJ-Show gespeichert. Bestehende
+Shows werden wegen der neuen Planversion einmal neu berechnet.
+
 ```bash
 bash scripts/install-structure.sh
 ```
@@ -163,12 +415,12 @@ im Python-Adapter gesperrt. Ein erster CPU-Test der rund 264 Sekunden langen
 Beispiel-MP3 benötigte etwa 103 Sekunden reine Inferenz und lieferte 16 Abschnitte.
 Das ist eine Einzelmessung; Abschnittsgrenzen sind nicht manuell verifiziert.
 
-Der Browser sendet dekodiertes 44,1-kHz-Stereo-Audio an den lokalen WiZ-Server.
+Der Browser sendet dekodiertes 44,1-kHz-Stereo-Audio an den lokalen AnyDj-Server.
 Für diese Analyse werden PCM, WAV und Zwischenprodukte vorübergehend in einem
 eigenen temporären Verzeichnis gespeichert und nach Abschluss oder Abbruch
 entfernt. Ein hart beendeter Prozess kann temporäre Dateien hinterlassen.
 Maximal ein Strukturauftrag gleichzeitig, 5 Sekunden bis 15 Minuten Audio,
-15 Minuten Zeitlimit; vier Ergebnisse bleiben im Server-Arbeitsspeicher.
+ohne Laufzeitlimit; vier Ergebnisse bleiben im Server-Arbeitsspeicher.
 Die DJ-Trackliste verarbeitet Basisanalysen und Strukturaufträge jeweils
 nacheinander. Ergebnisse und Lichtpläne werden nach einem Seitenneuladen neu
 berechnet (gegebenenfalls aus dem Server-Cache). Fehlende Modelle oder Fehler
@@ -207,6 +459,17 @@ Ausschalten stellt die Automatik wieder her. Ein neues Lied beginnt automatisch;
 eine manuelle Gestaltung wird nicht unbemerkt auf das nächste Lied übertragen.
 Wiedergabe-Einstellungen und Analysedetails sind zunächst eingeklappt. Der
 Lichtshow-Editor bleibt für gezielte Eingriffe in einzelne Farbpunkte verfügbar.
+
+Im **DJ-Pult → „Abschnittslicht“** am Deck oder **„Abschnitte“** in der Trackliste
+lassen sich analysierte Songabschnitte einzeln gestalten. „Ruhig“, „Ausgewogen“
+und „Intensiv“ setzen Akzentdichte, Bewegungsstärke und Farbverhalten; diese Werte
+und die Farben sind auch einzeln editierbar. Grenzen und Teilungen rasten auf
+erkannten Beats ein. Gleiche Motivgruppen können dieselben Lichteinstellungen
+übernehmen; die vorgeschlagenen Gruppen sind keine bestätigte Motiverkennung.
+„Speichern und anwenden“ übernimmt Änderungen auch bei laufender Wiedergabe und
+speichert sie pro Track im Browser. Die Basisanalyse bleibt erhalten, sodass
+keine Neuberechnung nötig ist. „Abbrechen“ verwirft ungespeicherte Änderungen.
+
 Live-Audio wählt die Gestaltung aus den letzten Klangmerkmalen und bestätigt
 Moduswechsel über zwei Bewertungen, um hektisches Umschalten zu vermeiden.
 
@@ -238,7 +501,7 @@ Entwicklungsrechner etwa fünf Sekunden einschließlich Python-/Modellstart.
 Das ist ein Einzelmesswert, keine garantierte Laufzeit.
 
 Der Browser überträgt für Beat This! bereits dekodiertes Mono-Audio an den
-Rechner, auf dem WiZ Local läuft – beim Zugriff vom Handy also über das lokale
+Rechner, auf dem AnyDj läuft – beim Zugriff vom Handy also über das lokale
 Heimnetz. Es gibt keinen Cloud-Upload. Der Server speichert diese Audiodaten
 nicht auf Platte. Maximal ein Lied wird gleichzeitig analysiert, bis zu
 15 Minuten; vier erfolgreiche Ergebnisse bleiben im Arbeitsspeicher bis zum
@@ -259,9 +522,9 @@ Nach Aktualisierung des Servercodes den Server neu starten und die Seite neu lad
 
 Verfahren und Lizenz: [Beat This! – offizielles Repository](https://github.com/CPJKU/beat_this).
 
-Eine lokale Webapp für WiZ-WLAN-Lampen: Node.js-Backend, Browser-Frontend, keine npm-Abhängigkeiten und keine Cloud-Anbindung der Webapp.
+Eine lokale Webapp für AnyDj-WLAN-Lampen: Node.js-Backend, Browser-Frontend, keine npm-Abhängigkeiten und keine Cloud-Anbindung der Webapp.
 
-**Voraussetzung:** Die Lampe ist bereits im WLAN und akzeptiert ungesicherte lokale WiZ-Befehle. Diese Version unterstützt **nicht** „Only verified controls / Nur verifizierte Steuerungen“ mit dem WiZ Home Security Key. Für die WLAN-Ersteinrichtung gibt es einen [experimentellen lokalen Ablauf](SETUP.md), bisher ausschließlich für ESP03_SHRGB1C_01 mit Firmware 1.32.0. Sicherheitseinstellungen werden nicht umgangen. WiZ beschreibt diese Unterscheidung in seinen lokalen Integrations- und Sicherheitshinweisen [1, 2].
+**Voraussetzung:** Die Lampe ist bereits im WLAN und akzeptiert ungesicherte lokale AnyDj-Befehle. Diese Version unterstützt **nicht** „Only verified controls / Nur verifizierte Steuerungen“ mit dem AnyDj Home Security Key. Für die WLAN-Ersteinrichtung gibt es einen [experimentellen lokalen Ablauf](SETUP.md), bisher ausschließlich für ESP03_SHRGB1C_01 mit Firmware 1.32.0. Sicherheitseinstellungen werden nicht umgangen. AnyDj beschreibt diese Unterscheidung in seinen lokalen Integrations- und Sicherheitshinweisen [1, 2].
 
 ## Start auf Kubuntu / Ubuntu
 
@@ -292,9 +555,9 @@ Ein/Aus wird als eindeutiger Zielzustand gesendet, nicht als Toggle auf der Lamp
 
 Helligkeit, RGB-Farbe, Hex-Farbwert und Weißtemperatur lassen sich getrennt einstellen. Änderungen an Reglern und Presets **schalten die Lampe ein**. Der Helligkeitsregler sendet 1–100 Prozent; die tatsächliche Mindesthelligkeit hängt vom Gerät ab. RGB-Schwarz ist bewusst kein Ersatz für den Ausschaltbefehl.
 
-Die UI enthält sechs **eigene, statische Presets**, keine vollständige Liste der nativen WiZ-Effekte. Das Umschalten zwischen den Tabs „Weißlicht“ und „Farbe“ sendet noch keinen Befehl. Erst ein geänderter Wert wird übertragen.
+Die UI enthält sechs **eigene, statische Presets**, keine vollständige Liste der nativen AnyDj-Effekte. Das Umschalten zwischen den Tabs „Weißlicht“ und „Farbe“ sendet noch keinen Befehl. Erst ein geänderter Wert wird übertragen.
 
-Der Server liest soweit möglich Modul und Temperaturbereich aus. Nicht unterstützte Funktionen werden bei bekannten Modultypen deaktiviert. Kann der Bereich nicht ermittelt werden, zeigt die UI ausdrücklich einen voreingestellten Bereich von 2200–6500 K. Die Lampe kann Werte ignorieren oder begrenzen; maßgeblich bleibt der zurückgelesene Zustand. Ungewöhnliche Geräte und Mehrzonenleuchten können zusätzliche Anpassungen benötigen. Die zugrunde liegenden WiZ-Felder und Modellabfragen sind unter anderem in pywizlight nachvollziehbar [3].
+Der Server liest soweit möglich Modul und Temperaturbereich aus. Nicht unterstützte Funktionen werden bei bekannten Modultypen deaktiviert. Kann der Bereich nicht ermittelt werden, zeigt die UI ausdrücklich einen voreingestellten Bereich von 2200–6500 K. Die Lampe kann Werte ignorieren oder begrenzen; maßgeblich bleibt der zurückgelesene Zustand. Ungewöhnliche Geräte und Mehrzonenleuchten können zusätzliche Anpassungen benötigen. Die zugrunde liegenden AnyDj-Felder und Modellabfragen sind unter anderem in pywizlight nachvollziehbar [3].
 
 Unter **„Verbindung & Diagnose“** stehen IP, MAC, Modul, Firmware, aktuelle Rohdaten und ein begrenzter Verlauf gesendeter/empfangener Pakete. Namen können dort lokal geändert werden. „Aus Liste entfernen“ löscht nur den App-Eintrag und setzt die Lampe nicht zurück.
 
@@ -322,7 +585,7 @@ http://192.168.178.20:3030
 
 Das ist die **IP des Rechners mit dem Node-Server**, nicht die IP der Lampe. Den Zugangscode im Anmeldedialog eingeben. Der Code wird nur für die Browser-Sitzung gespeichert. Bei einem Neustart wird standardmäßig ein neuer Code erzeugt.
 
-Der Web-Zugangscode schützt diese Webapp und hat **nichts mit dem WiZ Home Security Key** zu tun. Er schaltet den verifizierten WiZ-Modus nicht frei.
+Der Web-Zugangscode schützt diese Webapp und hat **nichts mit dem AnyDj Home Security Key** zu tun. Er schaltet den verifizierten AnyDj-Modus nicht frei.
 
 **Sicherheitsgrenze:** Dieser Prototyp nutzt HTTP, kein HTTPS. Der LAN-Zugangscode ist daher auf dem Übertragungsweg nicht zusätzlich durch TLS geschützt. Nur in einem vertrauenswürdigen Heimnetz benutzen, nicht öffentlich bereitstellen und keine Internet-Portweiterleitung einrichten. Der Standardstart bindet absichtlich nur an Loopback. Host-/Origin-Prüfungen, ein zusätzlicher Schreibheader und Eingabevalidierung bieten Basisschutz, sind aber kein Ersatz für eine gehärtete produktive Bereitstellung.
 
@@ -351,17 +614,17 @@ PORT=3031 node server.mjs
 
 Ein fester Zugangscode kann über `WIZ_WEB_TOKEN` gesetzt werden. Keine echten Zugangscodes ins Git-Repository schreiben. `.env`-Dateien werden **nicht automatisch geladen**; Variablen direkt in der Shell oder in der Prozessverwaltung setzen.
 
-Im echten Modus liegen IP-Adressen, MAC-Adressen und eigene Namen in `data/devices.json`. Es werden keine Passwörter oder WiZ-Zugangsdaten darin gespeichert. Zustände werden nicht über einen Neustart hinweg als aktuell ausgegeben. Bei einer defekten Gerätedatei bricht der Server ab, anstatt sie still zu überschreiben. Bei einer Wiederentdeckung per MAC bleibt der eigene Name auch bei geänderter DHCP-Adresse erhalten.
+Im echten Modus liegen IP-Adressen, MAC-Adressen und eigene Namen in `data/devices.json`. Es werden keine Passwörter oder AnyDj-Zugangsdaten darin gespeichert. Zustände werden nicht über einen Neustart hinweg als aktuell ausgegeben. Bei einer defekten Gerätedatei bricht der Server ab, anstatt sie still zu überschreiben. Bei einer Wiederentdeckung per MAC bleibt der eigene Name auch bei geänderter DHCP-Adresse erhalten.
 
 ## Wenn keine Lampe antwortet
 
 Zuerst IP und WLAN-Verbindung im Router prüfen und die IP manuell hinzufügen. Ein fehlendes Suchergebnis beweist nicht, dass die Lampe keine lokale Steuerung unterstützt. Der Rechner sollte für den ersten Test direkt im gleichen Netz laufen, nicht in einer VM oder einem Docker-Bridge-Netz.
 
-Der Prototyp sendet an den WiZ-Port **UDP 38899** [3]. Er verwendet auf dem Rechner dynamische UDP-Quellports. Antworten müssen an diese Quellports zurückkommen können; nur pauschal eingehendes UDP 38899 freizugeben beschreibt die benötigte Verbindung deshalb nicht vollständig. Für die Suche werden Broadcasts der ausgewählten lokalen IPv4-Schnittstellen verwendet. Gastnetz-Isolation, VLAN-Grenzen, VPN-Routing oder Firewall-Regeln können die Verbindung verhindern.
+Der Prototyp sendet an den AnyDj-Port **UDP 38899** [3]. Er verwendet auf dem Rechner dynamische UDP-Quellports. Antworten müssen an diese Quellports zurückkommen können; nur pauschal eingehendes UDP 38899 freizugeben beschreibt die benötigte Verbindung deshalb nicht vollständig. Für die Suche werden Broadcasts der ausgewählten lokalen IPv4-Schnittstellen verwendet. Gastnetz-Isolation, VLAN-Grenzen, VPN-Routing oder Firewall-Regeln können die Verbindung verhindern.
 
-Unter WiZ **Settings → Security** muss lokale Kommunikation erlaubt sein. Diese Version benötigt **„All controls / Alle Steuerungen“**. Bei **„Only verified controls“** fehlt diesem Prototyp die authentifizierte Protokollimplementierung; bei deaktivierter lokaler Kommunikation wird lokales UDP nicht akzeptiert [1, 2]. Ein Timeout kann diese Fälle nicht zuverlässig voneinander unterscheiden.
+Unter AnyDj **Settings → Security** muss lokale Kommunikation erlaubt sein. Diese Version benötigt **„All controls / Alle Steuerungen“**. Bei **„Only verified controls“** fehlt diesem Prototyp die authentifizierte Protokollimplementierung; bei deaktivierter lokaler Kommunikation wird lokales UDP nicht akzeptiert [1, 2]. Ein Timeout kann diese Fälle nicht zuverlässig voneinander unterscheiden.
 
-Wenn eure WiZ-App nicht funktioniert, aber die Lampe weiterhin im WLAN und für lokale Befehle offen ist, benötigt der laufende Prototyp keinen App-Login. Eine nicht mehr eingerichtete oder gesperrte Lampe lässt sich damit jedoch nicht einfach übernehmen. **Nicht vorschnell auf Werkseinstellungen zurücksetzen**, da danach die WLAN-Ersteinrichtung erneut nötig wäre. Die offizielle Home-Assistant-Dokumentation setzt ebenfalls eine bereits konfigurierte WiZ-Netzwerkverbindung voraus [4].
+Wenn eure AnyDj-App nicht funktioniert, aber die Lampe weiterhin im WLAN und für lokale Befehle offen ist, benötigt der laufende Prototyp keinen App-Login. Eine nicht mehr eingerichtete oder gesperrte Lampe lässt sich damit jedoch nicht einfach übernehmen. **Nicht vorschnell auf Werkseinstellungen zurücksetzen**, da danach die WLAN-Ersteinrichtung erneut nötig wäre. Die offizielle Home-Assistant-Dokumentation setzt ebenfalls eine bereits konfigurierte AnyDj-Netzwerkverbindung voraus [4].
 
 Die App greift ausschließlich lokal zu. Sie verändert oder sperrt nicht die Cloud-Verbindungen, die die Lampe selbst eventuell weiterhin aufbaut.
 
@@ -387,11 +650,11 @@ wiz-local/
 
 Die Transportklasse `WizClient` ist von der HTTP-API getrennt. Ein späteres React-/Next.js-Frontend kann dieselben HTTP-Endpunkte nutzen, wenn es im selben Origin ausgeliefert wird. Eine direkt eingebaute Next.js-Variante müsste den UDP-Code in der Node-Runtime ausführen, nicht im Browser oder in einer Edge-Runtime. Der verwendete UDP-Baustein ist Nodes `dgram` [5].
 
-Sinnvolle Erweiterungspunkte sind eigene gespeicherte Presets, Räume/Gruppen, ein zentraler Scheduler und eine separat zu implementierende Unterstützung des WiZ Home Security Key. Keine dieser Erweiterungen wird hier bereits vorgetäuscht.
+Sinnvolle Erweiterungspunkte sind eigene gespeicherte Presets, Räume/Gruppen, ein zentraler Scheduler und eine separat zu implementierende Unterstützung des AnyDj Home Security Key. Keine dieser Erweiterungen wird hier bereits vorgetäuscht.
 
 ## HTTP-API
 
-Alle Schreibanfragen benötigen `Content-Type: application/json` und `X-WiZ-Local: 1`. Bei aktiviertem Web-Zugangscode wird zusätzlich `Authorization: Bearer <WEB-ZUGANGSCODE>` benötigt. Es gibt bewusst keinen frei aufrufbaren WiZ-RPC-Endpunkt.
+Alle Schreibanfragen benötigen `Content-Type: application/json` und `X-AnyDj-Local: 1`. Bei aktiviertem Web-Zugangscode wird zusätzlich `Authorization: Bearer <WEB-ZUGANGSCODE>` benötigt. Es gibt bewusst keinen frei aufrufbaren AnyDj-RPC-Endpunkt.
 
 | Methode / Pfad | Zweck |
 | --- | --- |
@@ -409,7 +672,7 @@ Beispiel: bereits hinzugefügte Lampe auf violett mit 70 Prozent Helligkeit setz
 ```bash
 curl -X POST http://127.0.0.1:3030/api/devices/192.168.178.42/pilot \
   -H 'Content-Type: application/json' \
-  -H 'X-WiZ-Local: 1' \
+  -H 'X-AnyDj-Local: 1' \
   --data '{"state":true,"r":170,"g":20,"b":255,"dimming":70}'
 ```
 
@@ -429,28 +692,28 @@ node --watch server.mjs
 
 Die Tests verwenden Demo-Adapter und lokale UDP-Testserver, nicht eure Lampe. `node --watch` startet das Backend bei Änderungen an importierten Serverdateien neu. Frontend-Änderungen werden nach einem Neuladen der Seite sichtbar; ein Browser-Hot-Reload ist nicht eingebaut.
 
-**Testumfang und Grenzen stehen in `TESTING.md`. Ein erfolgreicher Test mit eurer konkreten WiZ-Birne ist noch nicht nachgewiesen.**
+**Testumfang und Grenzen stehen in `TESTING.md`. Ein erfolgreicher Test mit eurer konkreten AnyDj-Birne ist noch nicht nachgewiesen.**
 
 ## Quellen zum Protokoll und zu den Voraussetzungen
 
-[1] WiZ: Local integrations – verifizierte/unverifizierte Steuerungen und Home Security Key.
+[1] AnyDj: Local integrations – verifizierte/unverifizierte Steuerungen und Home Security Key.
 https://wizconnected.helpshift.com/hc/en/7-wiz-v2/faq/1178-local-integrations/
 
-[2] WiZ: Secure or Disable local network communication.
+[2] AnyDj: Secure or Disable local network communication.
 https://wizconnected.helpshift.com/hc/en/7-wiz-v2/faq/548-secure-or-disable-local-network-communication/
 
-[3] pywizlight: primäre Implementierung und Felder für lokale WiZ-Steuerung.
+[3] pywizlight: primäre Implementierung und Felder für lokale AnyDj-Steuerung.
 https://github.com/sbidy/pywizlight
 https://github.com/sbidy/pywizlight/blob/master/pywizlight/bulb.py
 https://github.com/sbidy/pywizlight/blob/master/pywizlight/discovery.py
 
-[4] Home Assistant: WiZ-Integration und lokale Netzwerkverbindung.
+[4] Home Assistant: AnyDj-Integration und lokale Netzwerkverbindung.
 https://www.home-assistant.io/integrations/wiz/
 
 [5] Node.js: UDP / dgram.
 https://nodejs.org/api/dgram.html
 
-Stand der für diesen Prototyp geprüften Quellen: 19.09.2026. Unabhängiger Prototyp; kein offizielles Produkt von WiZ oder Signify.
+Stand der für diesen Prototyp geprüften Quellen: 19.09.2026. Unabhängiger Prototyp; kein offizielles Produkt von AnyDj oder Signify.
 
 ## Live zur Musik
 
@@ -486,7 +749,7 @@ Haupt- und Musikseite prüfen die gespeicherte Lampe beim Laden. Bei ausbleibend
 
 Die Musiksteuerung und die normalen Lichtknöpfe werden erst bei bestätigter Verbindung freigegeben. Während einer bestehenden Musiksitzung werden Statuswerte aus dem gekennzeichneten Cache genutzt. Eine IP, die nun einem anderen Gerät gehört, wird nicht stillschweigend übernommen.
 
-Auf dem lokalen Linux-Rechner prüft die App bei fehlender Lampe außerdem die von NetworkManager sichtbaren WLAN-Namen. Ein passendes WiZConfig-Netz führt zum Hinweis auf erneute WLAN-Einrichtung mit Link zur Einrichtungsseite. Es werden weder WLAN-Zugangsdaten dauerhaft gespeichert noch beim Seitenaufruf Netzwerke umgeschaltet. Ein ausgeschaltetes Gerät, verlorene WLAN-Einrichtung oder ein Firmwarefehler können durch eine Webseite nicht verhindert werden; in diesen Fällen zeigt sie den erkannten Zustand an und gibt keine vermeintlich betriebsbereite Steuerung frei.
+Auf dem lokalen Linux-Rechner prüft die App bei fehlender Lampe außerdem die von NetworkManager sichtbaren WLAN-Namen. Ein passendes AnyDjConfig-Netz führt zum Hinweis auf erneute WLAN-Einrichtung mit Link zur Einrichtungsseite. Es werden weder WLAN-Zugangsdaten dauerhaft gespeichert noch beim Seitenaufruf Netzwerke umgeschaltet. Ein ausgeschaltetes Gerät, verlorene WLAN-Einrichtung oder ein Firmwarefehler können durch eine Webseite nicht verhindert werden; in diesen Fällen zeigt sie den erkannten Zustand an und gibt keine vermeintlich betriebsbereite Steuerung frei.
 
 ## Lichtshow vorab erstellen
 
@@ -563,7 +826,7 @@ Gesang/Instrumenten oder garantierte Erkennung der führenden Melodie.
 Unsicherheit. Der Prozentwert bezeichnet die zeitliche Abdeckung, nicht die
 Erkennungsgenauigkeit. Helligkeit und erkannte Beats bleiben unabhängig von der
 Tonspur. Die musikalische Partitur (`score`: Tonspur, Noten, Phrasen, Motive)
-enthält keine WiZ-Befehle; erst der Renderer erzeugt daraus die RGB-Bilder für
+enthält keine AnyDj-Befehle; erst der Renderer erzeugt daraus die RGB-Bilder für
 eine Lampe. So können spätere Lichtanlagen dieselbe Partitur verwenden. Live-
 Audio bleibt bei der bisherigen kausalen Spektralanalyse ohne Vorab-Motivsuche.
 
@@ -606,12 +869,12 @@ Suchrunden bis zu 90 Sekunden. Bei Suche über alle Netzwerke werden zusätzlich
 bis zu zwölf bekannte IP-Adressen direkt geprüft. Statusfehler werden nur fünf
 Sekunden zwischengespeichert; „Status neu lesen“ erzwingt eine frische Prüfung.
 Beim Zurückkehren zum Browser-Tab wird erneut geprüft. Neue DHCP-Adressen werden
-weiterhin über die MAC zugeordnet. Ein tatsächlich sichtbares WiZConfig-Netz
+weiterhin über die MAC zugeordnet. Ein tatsächlich sichtbares AnyDjConfig-Netz
 weist dagegen auf Einrichtungsmodus hin; dazu zeigt die App die WLAN-Einrichtung.
 
 **Automatische WLAN-Wiederherstellung:** Für die bekannte Lampe kann der lokale
 Server eine private Konfiguration in `data/recovery.json` verwenden. Bei einem
-passenden WiZConfig-Netz verbindet er die konfigurierte WLAN-Schnittstelle
+passenden AnyDjConfig-Netz verbindet er die konfigurierte WLAN-Schnittstelle
 vorübergehend mit der Lampe, prüft vollständige MAC/Modell/Firmware, überträgt die
 hinterlegten WLAN-Daten, wartet auf den bestätigten Beitritt und schließt die
 Einrichtung ab. Erst eine MAC-geprüfte UDP-Antwort im Heimnetz bestätigt Erfolg.
@@ -666,3 +929,150 @@ verschieben Pfeiltasten den Punkt um 0,05 s, Umschalt+Pfeil um 0,5 s; auf der
 Zeitleiste springen sie um 1 bzw. 5 Sekunden. Eingabefelder behalten ihre normalen
 Tastaturfunktionen. Analyse-Einstellungen und Punktliste sind einklappbar; am
 Desktop bleibt die kompaktere Farbauswahl beim Scrollen sichtbar.
+
+### Desktop-Anwendung / Installer
+
+```sh
+npm ci
+npm run pack -- --linux  # AppImage und .deb
+npm run pack -- --win    # Windows-Setup.exe; bevorzugt auf Windows bauen
+```
+
+Die Dateien entstehen unter `dist/`. `npm run pack` wählt das aktuelle
+Betriebssystem. Für das vollständige Paket zuerst `npm run pack:analysis` in den eingerichteten
+Analyseumgebungen ausführen. `pack` enthält dann lokale KI-Laufzeiten und Modelle;
+eine Basisversion ohne KI erfordert ausdrücklich `--lite`.
+Details, Build-Voraussetzungen und Grenzen: [Desktop-Pakete](desktop/README.md).
+
+### Web-Demo ohne Serveranalyse
+
+`npm run build:web` erstellt eine statische Startseite mit DJ-Demo unter
+`dist/web/`. `npm run preview:web` öffnet einen lokalen Vorschau-Server auf
+Port 4173. Zum Hosten den Inhalt von `dist/web/` auf HTTPS-Webspace hochladen.
+Die Analyse läuft im Browser; weder KI-Modelle noch Musik-Uploads sind nötig.
+Die Web-Version zeigt eine Lichtvorschau, steuert aber keine echten Lampen.
+[Web-Build und Hosting](web/README.md).
+
+### DJ-Werkzeuge und zentraler Mixer
+
+Das Pult ordnet Deck A links, Lichtbühne und Mixer mittig sowie Deck B rechts
+an. Das Bühnenfenster öffnet sich ebenfalls mittig. Auf schmalen Displays
+stehen die Bereiche in derselben Reihenfolge untereinander.
+
+- Audio-Wellenform mit Abspielposition und Hotcue-Markierungen. Der mittlere
+  Signalpegel (RMS) wird kräftig dargestellt, kurze Spitzen liegen als dezente
+  Hülle dahinter. Eine gemeinsame Skalierung pro Titel verhindert abgeschnittene
+  Spitzen; laute Passagen behalten erkennbare Energieunterschiede. Alte
+  Wellenformdaten werden beim Laden der Audiodatei automatisch ersetzt. Der kleine
+  Lichtverlauf bleibt separat erhalten. BPM und Restzeit berücksichtigen das Tempo.
+- Tempo ±16 %, Tonhöhe halten und einmaliges Sync zum laufenden anderen Deck.
+  Manuelles Tempo ist unabhängig von musikalischen Übergängen. Nur der ausdrücklich
+  betätigte Sync passt das Tempo an; er benötigt ein passendes Beat-Raster.
+- Vier gespeicherte Hotcues pro Track: leere Marke setzen, belegte anspringen.
+  Shift-Klick oder „Löschen“ und anschließende Markenwahl entfernt eine Marke.
+- Beat-Loops mit 1/2/4/8/16 Beats und Sprünge um vier Beats. Aktive Loops
+  unterdrücken den automatischen Crossfade des betreffenden Decks. Manuelle
+  Sprünge beenden den Loop und pausieren die Warteschlangenautomatik.
+- Gain und Dreiband-EQ pro Deck; Kanalpegel vor dem Fader, Masterlautstärke,
+  Masterpegel vor der Dynamikbegrenzung und Übersteuerungsanzeige.
+- Vorhören vor dem Kanalfader und Crossfader auf einem getrennten Ausgang:
+  unter „Audioausgänge & Vorhören“ zuerst Master, dann Kopfhörer wählen.
+  Browserabhängig über native Geräteauswahl oder bereits freigegebene Ausgänge.
+  Gleiche oder Standard-Ausgänge sind als Kopfhörerpaar nicht zulässig.
+  Nach einer Geräteänderung die Ausgänge erneut wählen. Es gibt kein automatisches
+  Zurückfallen des Vorhörsignals auf den Master.
+- Master-Mix als WebM/Opus oder Ogg/Opus aufnehmen und herunterladen. Aufnahme
+  enthält den Mix nach der Dynamikbegrenzung, ohne Kopfhörersignal. Höchstens
+  zwei Stunden bzw. ungefähr 128 MB pro Aufnahme; vor einer weiteren Aufnahme
+  die vorherige herunterladen. Beim Verlassen mit laufender oder noch nicht
+  heruntergeladener Aufnahme greift die Browser-Rückfrage.
+- Tastenkürzel: A = Q/W und 1–4, B = O/P und 7–0 für Play/Cue/Hotcues.
+  Shift + Ziffer löscht einen Hotcue; Texteingaben und Dialoge bleiben ausgenommen.
+
+„Abschnittslicht“ liegt nun beim jeweiligen Deck im Farbmodus-Menü.
+Die Lichtshow nutzt weiterhin die Songanalyse und den Crossfader; EQ und Gain
+ändern das Audiosignal, nicht die vorbereiteten Lichtfarben.
+
+Die Loops beruhen auf zeitgesteuerten Sprüngen im Browser-Audioplayer. Sie sind
+nicht samplegenau; Hintergrund-Drosselung kann ihre Genauigkeit beeinträchtigen.
+Die Dynamikbegrenzung ist ein Kompressor, kein garantierter True-Peak-Limiter.
+Mehrkanal-Soundkartenrouting, MIDI/HID-Controller, Jogwheel/Scratch, DVS,
+Stems und Effektketten sind noch nicht implementiert. Vorhören wurde mit
+simulierten Ausgangs-IDs geprüft, nicht mit zwei physischen Audiogeräten.
+
+### Mehrere Warteschlangen und gespeicherte Listen
+
+Im Warteschlangenbereich wählst du zwischen der **aktuellen Warteschlange** und
+beliebigen benannten Listen. „+ Neue Liste“ erstellt eine leere Liste; den Namen
+kannst du direkt bearbeiten. Einreihen aus der Bibliothek, „Alle einreihen“,
+Verschieben und Entfernen wirken auf die gerade ausgewählte Liste.
+
+Mit „Als Liste speichern“ sicherst du die noch ausstehenden Titel der aktuellen
+Warteschlange als wiederverwendbare Liste. Änderungen an benannten Listen werden
+automatisch auf diesem Gerät gespeichert; „Liste speichern“ speichert zusätzlich
+explizit. Der Speicherstatus zeigt Erfolg oder Fehler an.
+
+Während eine Warteschlange läuft, kannst du eine andere Liste vorbereiten.
+Das Wechseln der Ansicht verändert die Wiedergabe nicht. „Liste starten“ kopiert
+die gespeicherten Titel in die aktuelle Warteschlange. Ein bereits laufender
+Titel spielt weiter, anschließend folgt die neue Reihenfolge. Während eines
+laufenden Crossfades ist dieser Wechsel gesperrt. Die gespeicherte Liste bleibt
+vollständig erhalten, auch wenn ihre Wiedergabekopie bereits abgearbeitet wurde.
+
+Listen, Namen und ausgewählte Ansicht bleiben nach dem Neuladen gespeichert;
+Musik startet niemals automatisch. Die bisherige einzelne Warteschlange bleibt
+als aktuelle Warteschlange erhalten. „Liste löschen“ entfernt nur die benannte
+Vorlage, nicht die laufende Kopie oder Musikdateien. Speichern umfasst lokale
+Track-Verweise, keine Kopien der Audiodateien. Nach einem Neustart müssen Dateien
+gegebenenfalls erneut freigegeben/verknüpft werden. Die Speicherung gilt pro
+Browserprofil bzw. lokaler App; es gibt keinen Cloud-Abgleich.
+
+### Vereinfachte DJ-Oberfläche
+
+Die Grundansicht zeigt pro Deck Wiedergabe, Cue, Wellenform und Lautstärke.
+„Weitere Aktionen“ enthält Cue setzen und Entladen. „Mix-Werkzeuge“ öffnet
+Tempo, Hotcues, Loops, Klang und Vorhören; aktive Loops, Vorhören und abweichendes
+Tempo bleiben in der Zusammenfassung sichtbar. „Lichtgestaltung“ bündelt
+Farbmodus, Abschnittslicht und den separaten Lichtverlauf.
+
+Der zentrale Mixer gliedert sich in Lichtshow, Überblenden und Master.
+Übergangsdauer und musikalische Startauswahl stehen unter „Automatik einstellen“.
+Audioausgänge, Aufnahme und Tastenkürzel liegen unter „Audio & Aufnahme“;
+laufende und fertige Aufnahmen bleiben an dessen Überschrift erkennbar.
+
+In der Bibliothek gibt es pro Titel „+ Warteschlange“ und „Mehr“. „Mehr“ enthält
+beschriftete Aktionen zum Laden auf Deck A/B sowie Analyse und Verwaltung.
+„Musik hinzufügen“ bündelt Datei- und Ordnerzugriff. Gespeicherte Listen werden
+weiterhin direkt ausgewählt; Erstellen, Speichern, Umbenennen und Löschen liegen
+unter „Liste verwalten“. Beim Erstellen öffnet sich die Namenseingabe automatisch.
+
+
+Der DJ-Arbeitsstand wird automatisch lokal im Browser gespeichert: beide Decks mit Track,
+Position und Cue sowie Lautstärke, manuelles Tempo, Tonhöhenhaltung, EQ, Loop-Länge,
+Crossfader, Master-/Kopfhörerlautstärke und Übergangseinstellungen. Nach einem Reload
+bleibt die Wiedergabe pausiert; aktive Loops, Vorhören und Aufnahmen werden nicht gestartet.
+Musikdateien werden dadurch nicht kopiert. Besteht der Lesezugriff auf eine verknüpfte
+Datei noch, wird sie automatisch wieder geladen. Andernfalls bietet das Deck
+**Datei verbinden** an; nach Auswahl derselben Datei bleibt die gespeicherte Position erhalten.
+Der Stand gehört zum jeweiligen Browserprofil und zur verwendeten App-Adresse;
+beim Löschen der Browserdaten geht er verloren.
+
+
+Titel lassen sich über **+ Warteschlange** direkt aus der Bibliothek einreihen.
+Die Vorbereitung läuft auch ohne gestartete Wiedergabe: Eine laufende Analyse wird
+abgeschlossen, danach haben geladene Decks und die Titel der aktuellen bzw. gerade
+bearbeiteten Warteschlange Vorrang vor der übrigen Bibliothek. Basis- und zusätzliche
+Songaufbau-Analyse laufen nacheinander. Auch Ordner-Titel werden dafür vorab gelesen,
+soweit der Browser den Dateizugriff bereits erlaubt. Fehlender Zugriff wird am Titel
+angezeigt; andere Titel können weiter vorbereitet werden. Bereits berechnete Shows
+werden wiederverwendet. Die tatsächliche Bereitschaft hängt von Dateizugriff und
+Rechenzeit ab; Einreihen allein startet keine Wiedergabe.
+
+**Spotify-Bibliothek:** Tabs für lokale Dateien und Spotify, Konto-Anmeldung per
+PKCE, eigene Playlists, Lieblingssongs, Katalogsuche und Playlist-Links. Unter
+„Mehr → Datei zuordnen“ Spotify-Titel mit eigenen Audiodateien verbinden; unter
+„Set vorbereiten“ zugeordnete Titel einreihen oder als DJ-Liste speichern.
+Spotify-Titel spielen mit Premium über den Spotify-Player in den Decks und
+können mit lokalen Dateien in derselben Warteschlange stehen. Spotify-Titelwechsel
+erfolgen ohne Crossfade; Audioanalyse und Aufnahme verwenden lokale Dateien. Eine Spotify Client ID und konfigurierte Redirect URI sind nötig:
+[Einrichtung](SETUP.md#spotify-in-der-dj-bibliothek).

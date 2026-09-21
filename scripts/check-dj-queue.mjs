@@ -13,7 +13,7 @@ await promisify(execFile)('ffmpeg',['-v','error','-f','lavfi','-i','sine=frequen
 await promisify(execFile)('ffmpeg',['-v','error','-i',wav,mp3]);
 const {BeatAnalysis}=await import('../lib/beat-analysis.mjs');const app=await createApp({demo:true,beatAnalysis:new BeatAnalysis({ready:async()=>{throw Error('Test uses builtin analysis');}})});app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
-await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-WiZ-Local':'1'},body:'{}'});
+await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
 const profile=await mkdtemp(join(tmpdir(),'wiz-beat-chrome-'));
 const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--mute-audio','--autoplay-policy=no-user-gesture-required','--no-sandbox','--disable-gpu','--disable-background-networking','--no-first-run','--no-default-browser-check','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
 let ws;
@@ -61,8 +61,8 @@ try {
  const layouts=[];
  for(const [width,height] of [[1280,720],[1024,768],[390,844]]){
  await c('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<500});
- const layout=await evaluate("(()=>{const library=document.querySelector('#libraryDrop').getBoundingClientRect(),queue=document.querySelector('.dj-queue').getBoundingClientRect();return {width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,sideBySide:library.right<=queue.left&&Math.abs(library.top-queue.top)<1,bothListsVisible:[...document.querySelectorAll('#trackList,#queueList')].every(list=>list.getBoundingClientRect().height>70&&!list.hidden)};})()");
- if(layout.scrollWidth>width||(width>760&&layout.scrollHeight>height)||!layout.sideBySide||!layout.bothListsVisible)throw Error('Layout regression '+JSON.stringify(layout));layouts.push(layout);
+ const layout=await evaluate("(()=>{const library=document.querySelector('#libraryDrop').getBoundingClientRect(),queue=document.querySelector('.dj-queue').getBoundingClientRect();return {width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,sideBySide:library.right<=queue.left&&Math.abs(library.top-queue.top)<1,stacked:library.bottom<=queue.top,bothListsVisible:[...document.querySelectorAll('#trackList,#queueList')].every(list=>list.getBoundingClientRect().height>70&&!list.hidden)};})()");
+ if(layout.scrollWidth>width||(width>760?!layout.sideBySide:!layout.stacked)||!layout.bothListsVisible)throw Error('Layout regression '+JSON.stringify(layout));layouts.push(layout);
  if(width===1280||width===390){const shot=await c('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await writeFile(join(tmpdir(),`wiz-dj-containers-${width}.png`),Buffer.from(shot.data,'base64'));}
 
  }

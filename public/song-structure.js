@@ -1,3 +1,4 @@
+import {validateInstruments} from './instrument-activity.js';
 export const STRUCTURE_LABELS={start:'Anfang',intro:'Intro',verse:'Strophe',chorus:'Refrain',bridge:'Bridge',break:'Break',inst:'Instrumental',solo:'Solo',outro:'Outro',end:'Ende'};
 export function validateStructure(value,duration) {
   if(!value||value.source!=='all-in-one'||value.version!==1||!Number.isFinite(duration)||duration<=0||
@@ -12,7 +13,9 @@ export function validateStructure(value,duration) {
   if(Math.abs(segments.at(-1).end-duration)>.05)throw Error('Songaufbau ist unvollständig.');
   segments[0].start=0;segments.at(-1).end=duration;
   if(segments.some(s=>s.end<=s.start))throw Error('Ungültige Abschnittslänge.');
-  return {version:1,source:'all-in-one',duration,segments};
+  return {version:1,source:'all-in-one',duration,segments,
+    ...(value.instruments?{instruments:validateInstruments(value.instruments,duration)}:{}),
+    ...(Number.isFinite(value.elapsedSeconds)&&value.elapsedSeconds>=0?{elapsedSeconds:value.elapsedSeconds}:{})};
 }
 
 // Label-based themes recur, but labels are predictions rather than ground truth.

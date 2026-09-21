@@ -1,0 +1,256 @@
+/* Calm default workspace: transport, light and mix first; detail tools on demand. */
+.dj-page{--muted:#a4b2bb;--line:#ffffff14;background:#10161b}
+.dj-page .shell{max-width:1680px;padding:0 24px 24px;gap:16px}
+.dj-page .topbar{min-height:62px;height:auto}
+.dj-page .panel{border:1px solid #ffffff10;border-radius:14px;background:#1a232b;box-shadow:none}
+.dj-decks{grid-template-columns:minmax(0,1fr) minmax(300px,.92fr) minmax(0,1fr);gap:20px;align-items:stretch}
+.dj-console .dj-deck{padding:20px;border-top:3px solid var(--deck-accent)}
+.dj-console .dj-deck h2{font-size:12px;margin-bottom:12px;letter-spacing:.12em}
+.dj-console .dj-track-title{font-size:19px;margin-bottom:10px;font-weight:600}
+.dj-console .dj-deck canvas.dj-waveform{height:62px;background:#0f171e;margin:12px 0}
+.dj-performance-readout{font-size:12px;color:var(--muted)}
+.dj-console .dj-deck .dj-analysis{font-size:12px;margin:10px 0;min-height:18px}
+.dj-console .dj-buttons{display:grid;grid-template-columns:1fr .7fr auto;align-items:start;gap:8px;margin:14px 0 16px}
+.dj-console .dj-buttons>.button{min-height:42px;font-size:13px}
+.dj-console .dj-buttons>.dj-play{background:var(--deck-accent);color:#112029;border-color:transparent;font-weight:700}
+.dj-console .dj-buttons>.dj-play:disabled{background:#334149;color:#a0adb5;opacity:.65}
+.dj-page .button.secondary{background:#ffffff05;border-color:#ffffff12;color:#c5d1d8}
+.dj-page .button.secondary:hover:not(:disabled){background:#ffffff0c;border-color:#ffffff35}
+.dj-page .button:disabled{opacity:.4}
+.dj-deck-tools,.dj-light-options,.dj-transport-options,.dj-transition-options,.dj-audio-options,.dj-list-options,.dj-import-options{font-size:12px}
+.dj-deck-tools,.dj-light-options{border-top:1px solid var(--line);margin-top:10px;padding-top:3px}
+.dj-page :is(.dj-deck-tools,.dj-light-options,.dj-transition-options,.dj-audio-options,.dj-list-options)>summary{cursor:pointer;color:#bac9d0;padding:9px 0;min-height:38px;font-weight:500}
+.dj-page :is(.dj-deck-tools,.dj-light-options,.dj-transition-options,.dj-audio-options,.dj-list-options)[open]>summary{color:var(--accent)}
+.dj-transport-options{position:relative}
+.dj-transport-options>summary{cursor:pointer;min-height:42px;padding:10px 6px;color:#b2c0c8;font-size:11px}
+.dj-transport-options[open]{display:grid;gap:6px}
+.dj-transport-options .button{width:100%;margin-top:6px}
+.dj-light-options .dj-color-menu{position:static;width:100%;max-height:none;box-shadow:none;margin-top:8px}
+.dj-light-options .dj-color-picker{margin:8px 0}
+.dj-console .dj-deck .dj-light-options canvas{margin:10px 0}
+.dj-performance{margin:4px 0 10px;gap:12px}
+.dj-mixer{gap:16px}
+.dj-mixer h2{font-size:13px;font-weight:600;letter-spacing:.02em;margin:0 0 12px;color:#e1ebe7}
+.dj-mixer-light{padding-bottom:16px}
+.dj-mixer-transition{padding-top:16px;border-top:1px solid var(--line)}
+.dj-mixer .stage-inline-title{display:none}
+.dj-mixer .stage-inline .stage-scene[data-type=mixed]{min-height:84px;max-height:130px;border:0;background:#0c151c}
+.dj-mixer .stage-inline .stage-status{font-size:11px;color:#9cbab1}
+.dj-mixer .stage-inline-toolbar{display:flex;justify-content:space-between;gap:8px;margin:6px 0 8px}
+.dj-page .stage-inline-toolbar .button{border:0;background:transparent;padding:5px 0;min-height:32px;font-size:11px}
+.dj-page #stageSettings{color:var(--accent)}
+.dj-mixer .dj-show-choice{margin:0;font-size:12px;min-height:34px}
+.dj-mixer .dj-show-choice select{min-height:34px;padding:5px 10px}
+.dj-mixer .dj-crossfader{margin-bottom:10px}
+.dj-mixer .dj-auto-controls{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.dj-mixer .dj-auto-controls .editor-check{flex-basis:auto;margin:0;font-size:12px}
+.dj-mixer .dj-auto-controls #fadeNow{background:var(--accent);color:#173327;border:0;min-height:38px;padding:8px 14px;flex:none}
+.dj-transition-options{margin-top:6px}
+.dj-transition-options>label:first-of-type{display:flex;justify-content:space-between;align-items:center;margin:10px 0;gap:12px}
+.dj-transition-options select{width:95px}
+.dj-transition-options #beatStatus{font-size:11px;color:var(--muted);line-height:1.5}
+.dj-master{padding-top:14px;margin-top:10px}
+.dj-master>.dj-level{margin:8px 0 4px}
+.dj-audio-options .dj-recording{padding-bottom:10px}
+.dj-audio-options>.dj-routing,.dj-audio-options>.dj-shortcuts{border:0}
+.dj-collections{gap:20px}
+.dj-collections .dj-library{height:440px;padding:18px;gap:12px}
+.dj-library-heading{min-height:38px;align-items:start}
+.dj-library-heading h2{font-size:16px;align-self:center}
+.dj-import-options{margin-left:auto;max-width:100%}
+.dj-import-options>summary{border:1px solid #ffffff25;border-radius:8px;padding:8px 12px;min-height:38px;cursor:pointer;color:#d8e4e8}
+.dj-import-options[open]{width:100%;display:block}
+.dj-import-options .button{margin:8px 4px 0 0}
+.dj-import-options #folderBar{margin-top:8px}
+#libraryTools .button{border:0;background:transparent;font-size:11px}
+#trackList>li:not(.dj-empty){display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;padding:12px 0}
+#trackList .dj-track-actions{gap:8px;flex-wrap:nowrap;align-items:start;justify-content:flex-end}
+#trackList .dj-enqueue{min-height:34px;font-size:12px;padding:6px 10px;background:#a7edc80c;border-color:#a7edc825;color:var(--accent)}
+.dj-track-more>summary{list-style:none;cursor:pointer;min-height:34px;padding:7px 4px;color:#aebdc6;font-size:12px}
+.dj-track-more>summary::-webkit-details-marker{display:none}
+#trackList li:has(.dj-track-more[open]){grid-template-columns:minmax(0,1fr)}
+#trackList .dj-track-more[open]{display:flex;flex-direction:column;max-width:100%;padding:0 10px 8px;border-left:2px solid var(--accent)}
+#trackList .dj-track-more .button{display:block;white-space:normal;text-align:left;width:100%;border:0;margin:3px 0;background:transparent}
+.dj-track-info strong{font-size:13px;font-weight:500}
+.dj-track-info small{font-size:11px;color:#96aab0}
+.queue-manager{gap:6px;padding-bottom:6px;border:0}
+.queue-manager>label[for=queueSelect]{font-size:11px}
+.queue-manager select{background:#101a21;border-color:#ffffff20;font-size:13px}
+.dj-list-options .queue-list-actions{margin:6px 0 10px}
+.dj-list-options #queueNameLabel{display:flex;align-items:center;gap:10px;font-size:12px}
+.dj-list-options #queueClear{margin-top:10px}
+#queueSaved,#queueLive,#queueStatus{font-size:11px;line-height:1.45}
+#queueList>li:not(.dj-empty){padding:12px 0;border-top-color:#ffffff0b}
+#queueList .dj-track-actions .button{background:transparent;border-color:transparent;color:#aabac3}
+@media(max-width:1100px) and (min-width:761px){
+ .dj-page .shell{padding-left:16px;padding-right:16px}
+ .dj-decks{grid-template-columns:minmax(0,1fr) minmax(260px,.95fr) minmax(0,1fr);gap:12px}
+ .dj-console .dj-deck,.dj-mixer{padding:14px}
+ .dj-console .dj-track-title{font-size:16px}
+ .dj-console .dj-buttons{grid-template-columns:1fr 1fr}.dj-transport-options{grid-column:1/-1}
+ .dj-transport-options>summary{min-height:30px;padding:5px 0}
+}
+@media(max-width:760px){
+ .dj-page .shell{padding:0 12px 16px}.dj-decks{grid-template-columns:minmax(0,1fr);gap:14px}
+ .dj-console .dj-deck,.dj-mixer{padding:16px}
+ .dj-console .dj-buttons{grid-template-columns:1fr .7fr auto}
+ .dj-collections{gap:14px}.dj-collections .dj-library{padding:14px;height:450px}
+ #trackList>li:not(.dj-empty){grid-template-columns:minmax(0,1fr);gap:5px}
+ .dj-page .stage-inline-toolbar .button{min-height:38px}
+}
+.dj-light-heading{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}
+.dj-light-heading h2{margin:0}
+.dj-page .dj-light-heading #stageSettings{border:0;background:transparent;min-height:30px;padding:4px 0;font-size:11px}
+.dj-light-quick{display:flex;gap:12px;justify-content:space-between;align-items:center;flex-wrap:wrap}
+.dj-mixer .dj-light-quick .stage-inline-toolbar{margin:0;flex-shrink:0}
+.dj-mixer .dj-light-quick .dj-show-choice{gap:8px;font-size:11px;margin-left:auto}
+.dj-mixer .stage-inline .stage-scene[data-type=mixed]{min-height:74px}
+.dj-mixer-light{padding-bottom:12px}
+.dj-mixer-transition{padding-top:12px}
+.dj-mixer-transition h2{margin-bottom:8px}
+.dj-mixer .dj-crossfader{margin-bottom:4px}
+.dj-mixer .dj-crossfader .range{margin:8px 0 4px}
+.dj-mixer #mixValue{margin-bottom:6px}
+.dj-master{padding-top:12px;margin-top:6px}
+.dj-master>label .range{margin:8px 0}
+.dj-master>.dj-level{margin:4px 0}
+.dj-mixer .dj-light-quick .dj-show-choice select{max-width:none;width:118px}
+
+/* Independent cards keep lighting separate from the audio transition controls. */
+.dj-console .dj-mixer{padding:0;background:transparent;border:0;border-radius:0;box-shadow:none;gap:16px}
+.dj-mixer>.dj-mixer-light,.dj-mixer>.dj-mixer-transition{min-width:0;padding:18px;border:1px solid #ffffff14;border-radius:14px;background:#1a232b}
+.dj-mixer>.dj-mixer-light{border-top:3px solid #8fc9ad}
+.dj-mixer>.dj-mixer-transition{border-top:3px solid #a6b9d2;flex:1}
+.dj-mixer-transition>.dj-master{margin-top:12px;padding-top:12px}
+@media(max-width:1100px){
+ .dj-console .dj-mixer{gap:14px}
+ .dj-mixer>.dj-mixer-light,.dj-mixer>.dj-mixer-transition{padding:14px}
+}
+
+/* One application workspace, with docked deck, light and music areas. */
+.dj-page{background:#11171c}
+.dj-page .shell{max-width:none;padding:0;gap:0;height:100dvh;overflow:hidden}
+.dj-page .topbar{min-height:52px;height:52px;padding:0 18px;gap:18px;flex-shrink:0;background:#10161b;border-bottom:1px solid #ffffff18}
+.dj-page .brand{font-size:18px;letter-spacing:-.04em}
+.dj-page nav{height:100%;gap:4px;align-items:stretch}
+.dj-page nav a{display:flex;align-items:center;padding:0 13px;color:#98a9b5;border-bottom:2px solid transparent}
+.dj-page nav a[aria-current=page]{color:#e8f4ef;border-bottom-color:var(--accent);background:#ffffff04;font-weight:600}
+.dj-page .topbar .button,.dj-page .topbar select{min-height:30px;height:32px;border-radius:5px}
+.dj-page main{gap:0;grid-template-rows:minmax(0,2.5fr) minmax(220px,1fr);overflow:hidden}
+.dj-page .dj-console{min-height:0;overflow:hidden;background:#182128}
+.dj-page .dj-decks{height:100%;gap:0;grid-template-columns:minmax(0,1fr) minmax(300px,.88fr) minmax(0,1fr)}
+.dj-page .dj-deck{border:0;border-radius:0;background:#182128;overflow:auto;scrollbar-gutter:stable;padding:18px 20px}
+.dj-page .dj-deck h2{display:flex;align-items:center;gap:8px;font-size:11px;margin-bottom:14px}
+.dj-page .dj-deck h2::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--deck-accent)}
+.dj-page .dj-console .dj-mixer{gap:0;border-left:1px solid #ffffff14;border-right:1px solid #ffffff14;background:#141c23;overflow:auto;scrollbar-gutter:stable}
+.dj-page .dj-mixer>.dj-mixer-light,.dj-page .dj-mixer>.dj-mixer-transition{border:0;border-radius:0;background:transparent;padding:16px 18px;flex:none}
+.dj-page .dj-mixer>.dj-mixer-transition{border-top:1px solid #ffffff20;background:#19232b;flex:1}
+.dj-page .dj-mixer h2{font-size:12px;color:#c8d7df}
+.dj-page .dj-collections{gap:0;min-height:0;border-top:1px solid #46535e;background:#121a21}
+.dj-page .dj-collections .dj-library{height:auto;padding:12px 18px;border:0;border-radius:0;background:transparent;gap:8px;min-height:0}
+.dj-page .dj-collections .dj-queue{border-left:1px solid #ffffff18}
+.dj-page .dj-library-heading{min-height:32px;flex-shrink:0}
+.dj-page .dj-library-heading h2{font-size:13px}
+.dj-page .dj-library-heading h2 span{font-size:10px}
+.dj-page .dj-tracks{min-height:60px;flex:1;overflow:auto;scrollbar-gutter:stable}
+.dj-page #trackList>li:not(.dj-empty),.dj-page #queueList>li:not(.dj-empty){padding:8px 0}
+.dj-page .button,.dj-page select,.dj-page input[type=search],.dj-page .dj-import-options>summary{border-radius:5px}
+.dj-statusbar{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 18px;min-height:28px;flex-shrink:0;border-top:1px solid #ffffff14;background:#10161b}
+.dj-statusbar p{margin:0;font-size:10px;color:#9bacb6}
+.dj-statusbar p:empty{display:none}
+.dj-page #djStatus:not([hidden]){margin:0;padding:8px 18px;border-radius:0;flex-shrink:0}
+.dj-page :is(button,summary,a,select,input):focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media(min-width:761px) and (max-width:1100px){
+ .dj-page .dj-decks{grid-template-columns:minmax(0,1fr) minmax(260px,.95fr) minmax(0,1fr)}
+ .dj-page .dj-deck,.dj-page .dj-mixer>.dj-mixer-light,.dj-page .dj-mixer>.dj-mixer-transition{padding:14px}
+}
+@media(max-width:760px){
+ .dj-page .shell{height:auto;min-height:100dvh;overflow:visible}
+ .dj-page .topbar{height:auto;min-height:52px;padding:8px 12px;gap:10px;flex-wrap:wrap}
+ .dj-page nav{height:36px}.dj-page nav a{padding:0 10px}
+ .dj-page main{display:flex;flex-direction:column;overflow:visible}
+ .dj-page .dj-console{overflow:visible}
+ .dj-page .dj-decks{height:auto;grid-template-columns:minmax(0,1fr)}
+ .dj-page .dj-deck{overflow:visible;padding:18px 16px;border-bottom:1px solid #ffffff18}
+ .dj-page .dj-console .dj-mixer{overflow:visible;border:0;border-bottom:1px solid #ffffff18}
+ .dj-page .dj-collections .dj-library{height:420px;padding:14px 16px}
+ .dj-page .dj-collections .dj-queue{border-left:0;border-top:1px solid #ffffff18}
+ .dj-statusbar{flex-wrap:wrap;padding:8px 16px}
+}
+
+.dj-page :is(.dj-deck,.dj-mixer,.dj-tracks){scrollbar-width:thin;scrollbar-color:#46535d transparent}
+.dj-page .dj-statusbar{margin-top:0}
+
+/* Priorities: transport first, preparation on demand, music within easy reach. */
+@media(min-width:761px){
+ .dj-page main{grid-template-rows:minmax(0,min(480px,57dvh)) minmax(220px,1fr)}
+ .dj-page .dj-decks{grid-template-columns:minmax(0,1fr) minmax(280px,.78fr) minmax(0,1fr)}
+}
+.dj-page .dj-console .dj-deck{padding:24px 28px}
+.dj-page .dj-console .dj-track-title{font-size:20px;line-height:1.45;margin-bottom:16px}
+.dj-page .dj-console .dj-deck h2{margin-bottom:18px;color:var(--muted)}
+.dj-page .dj-console .dj-deck canvas.dj-waveform{height:78px;margin:12px 0 0;border-radius:4px}
+.dj-page .dj-deck .dj-analysis[data-analysis=complete],.dj-page .dj-track-info small[data-analysis=complete]{display:none}
+.dj-page .dj-console .dj-position{font-size:0;min-height:18px;margin-top:2px}
+.dj-page .dj-console .dj-position .range{margin:6px 0;width:100%;height:6px;min-height:6px}
+.dj-page .dj-clock{font-size:11px;color:#a7b8c4;margin:2px 0 18px}
+.dj-page .dj-console .dj-buttons{grid-template-columns:minmax(100px,1fr) minmax(70px,.55fr);gap:10px;margin:0}
+.dj-page .dj-console .dj-buttons>.button{min-height:46px;font-size:14px}
+.dj-page .dj-transport-options{grid-column:1/-1;margin-top:10px;min-width:0}
+.dj-page .dj-transport-options>summary{min-height:32px;padding:7px 0;font-size:12px;color:#9fadb8}
+.dj-page .dj-transport-options[open]{display:block;border-top:1px solid var(--line);padding-top:8px}
+.dj-page .dj-transport-options>.button{width:auto;margin:8px 6px 16px 0}
+.dj-page .dj-transport-options>.dj-level{margin:8px 0}
+.dj-page .dj-transport-options>label{margin-top:8px}
+.dj-page .dj-transport-options :is(.dj-deck-tools,.dj-light-options){margin-top:8px}
+.dj-page .dj-mixer>.dj-mixer-light,.dj-page .dj-mixer>.dj-mixer-transition{padding:16px 20px}
+.dj-page .dj-mixer>.dj-mixer-light{background:#111a21}
+.dj-page .dj-mixer>.dj-mixer-transition{background:#1c2932}
+.dj-page .dj-light-settings{margin-top:8px;font-size:11px;color:#a7b8c4}
+.dj-page .dj-light-settings>summary{cursor:pointer;padding:5px 0}
+.dj-page .dj-light-settings[open]>.dj-light-quick{padding-top:8px}
+.dj-page .dj-mixer .stage-status{margin:6px 0 0;font-size:10px}
+.dj-page .dj-mixer-transition>h2{font-size:14px;margin-bottom:12px}
+.dj-page .dj-mixer .dj-auto-controls{margin-top:6px}
+.dj-page .dj-transition-options>summary,.dj-page .dj-audio-options>summary{min-height:28px;padding:6px 0;font-size:11px;color:#a7b8c4}
+.dj-page .dj-mixer-transition>.dj-master{margin-top:8px;padding-top:8px}
+.dj-page #fadeStatus{font-size:10px;margin-top:4px}
+.dj-page .dj-collections .dj-library{padding:16px 24px;gap:12px}
+.dj-page .dj-library-heading h2{font-size:15px}
+.dj-page #trackList>li:not(.dj-empty),.dj-page #queueList>li:not(.dj-empty){padding:10px 0}
+.dj-page #trackList .dj-enqueue{background:transparent;border-color:#ffffff12;color:#b5c8d0}
+.dj-page .queue-manager>label[for=queueSelect]{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+.dj-page .queue-manager{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:8px}
+.dj-page .queue-manager>.dj-list-options>summary{padding:9px 0;min-height:34px}
+.dj-page .queue-manager:has(.dj-list-options[open]){grid-template-columns:minmax(0,1fr)}
+.dj-page .queue-manager>p{grid-column:1/-1}
+@media(max-width:1100px){
+ .dj-page .dj-console .dj-deck{padding:18px}
+ .dj-page .dj-console .dj-track-title{font-size:17px}
+ .dj-page .dj-mixer>.dj-mixer-light,.dj-page .dj-mixer>.dj-mixer-transition{padding:12px 14px}
+}
+@media(max-width:760px){
+ .dj-page .dj-console .dj-deck{padding:20px 16px}
+ .dj-page .dj-collections .dj-library{padding:16px;height:460px}
+ .dj-page .dj-console .dj-deck canvas.dj-waveform{height:64px}
+}
+
+.dj-page [data-analysis=warning][role=button]{cursor:pointer;text-decoration:underline;text-underline-offset:3px;color:#e8bc78}
+.dj-analysis-dialog{width:min(560px,calc(100vw - 32px));max-height:85dvh;overflow:auto;padding:24px;background:#18232c;color:#e5edf1;border:1px solid #526471;border-radius:10px}
+.dj-analysis-dialog::backdrop{background:#0009}
+.dj-analysis-dialog h2{font-size:18px;margin:0 0 12px}
+.dj-analysis-dialog .analysis-track{font-weight:600;overflow-wrap:anywhere}
+.dj-analysis-dialog .analysis-explanation{font-size:13px;color:#b4c3cd;line-height:1.5}
+.dj-analysis-dialog .analysis-reason{white-space:pre-wrap;overflow-wrap:anywhere;font-family:inherit;font-size:13px;line-height:1.6;background:#10181f;padding:14px;border-radius:6px}
+.dj-analysis-dialog .analysis-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap;margin-top:20px}
+
+.dj-page .dj-queue.dragging{outline:2px solid var(--accent);outline-offset:-3px;background:#a7edc80a}
+
+#pairTransitionStatus{font-size:11px;line-height:1.4;margin:0 0 10px;color:#b5cdc5}#pairTransitionStatus:empty{display:none}
+
+#pairTransitionStatus{margin:7px 0 2px;text-align:center;min-height:1.4em}
+#pairTransitionStatus[data-state=ready],#pairTransitionStatus[data-state=active]{color:#a7edc8}
+#pairTransitionStatus[data-state=working],#pairTransitionStatus[data-state=warning]{color:#e5bd7d}
+
+.dj-track-info{display:flex;align-items:center;gap:10px}.dj-track-label{min-width:0;flex:1}
+.dj-track-cover{width:36px;height:36px;object-fit:contain;border-radius:4px;background:#10171f;flex-shrink:0}

@@ -1,0 +1,11 @@
+{
+  "opensWithoutPlay": true,
+  "offlineStatusVisible": true,
+  "automaticReconnect": true,
+  "changedIP": true,
+  "reloadConnects": true,
+  "selectionRestored": true,
+  "audioOnlyRestored": true,
+  "musicStarts": 0,
+  "browserErrors": 0
+}

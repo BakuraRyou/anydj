@@ -1,5 +1,7 @@
 data/
 .env
+builder/ftp/.env.*
+!builder/ftp/.env.example
 node_modules/
 *.log
 .venv-beat-this/
@@ -7,3 +9,8 @@ node_modules/
 __pycache__/
 
 .venv-style/
+
+# Desktop build artifacts
+dist/
+.build/
+.certs/

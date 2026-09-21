@@ -1,0 +1,51 @@
+{
+  "autoBeat": true,
+  "colorModeFilter": true,
+  "customColorMode": true,
+  "colorModePersistence": true,
+  "liveColorPreview": true,
+  "recalculated": true,
+  "migration": true,
+  "cacheChecks": {
+    "restoredFrames": 96,
+    "pendingWindows": 600,
+    "analysisCalls": 0,
+    "staleFileRejected": true,
+    "staleOptionsRejected": true,
+    "refinementSaved": true,
+    "removed": true
+  },
+  "threeTracks": true,
+  "twoAutomaticCrossfades": true,
+  "finished": true,
+  "reorder": true,
+  "remove": true,
+  "restored": true,
+  "layouts": [
+    {
+      "width": 1280,
+      "height": 720,
+      "scrollWidth": 1280,
+      "scrollHeight": 720,
+      "sideBySide": true,
+      "bothListsVisible": true
+    },
+    {
+      "width": 1024,
+      "height": 768,
+      "scrollWidth": 1024,
+      "scrollHeight": 768,
+      "sideBySide": true,
+      "bothListsVisible": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "scrollWidth": 390,
+      "scrollHeight": 1322,
+      "sideBySide": true,
+      "bothListsVisible": true
+    }
+  ],
+  "browserErrors": 0
+}

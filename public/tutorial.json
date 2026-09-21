@@ -1,0 +1,552 @@
+{
+  "schemaVersion": 1,
+  "id": "anydj-console",
+  "version": 2,
+  "status": "published",
+  "target": {
+    "component": "anydj/dj",
+    "pathname": "/dj"
+  },
+  "prompt": {
+    "title": "Was möchtest du am DJ-Pult machen?",
+    "text": "Wähle die Einführung, die zu dir passt."
+  },
+  "storage": {
+    "mode": "browser",
+    "fallbackToBrowser": true
+  },
+  "autoStart": false,
+  "startDelay": 450,
+  "paths": [
+    {
+      "id": "party",
+      "title": "Einfach Musik auf der Party abspielen",
+      "description": "Musik auswählen, Warteschlange starten, Lautstärke und Licht steuern.",
+      "steps": [
+        {
+          "id": "welcome",
+          "title": "Deine Musik für die Party",
+          "text": "Wir schauen gemeinsam, wo du Musik auswählst, die Wiedergabe startest und das Licht steuerst. Über das Hilfeicon unten rechts kannst du die Einführung jederzeit erneut starten.",
+          "placement": "center",
+          "nextLabel": "Los geht’s"
+        },
+        {
+          "id": "sources",
+          "title": "Woher kommt deine Musik?",
+          "text": "In der Bibliothek wechselst du zwischen lokalen Dateien und Spotify. Für die vollständigen DJ-Werkzeuge verwenden wir lokale Dateien. Öffne jetzt „Lokal“.",
+          "target": "#localTab",
+          "advanceOn": {
+            "event": "click",
+            "target": "#localTab"
+          },
+          "completeWhen": {
+            "target": "#localTab[aria-selected=\"true\"]"
+          },
+          "actionHint": "Wähle „Lokal“"
+        },
+        {
+          "id": "import-open",
+          "title": "Musik hinzufügen",
+          "text": "Öffne „Musik hinzufügen“ oben in der Bibliothek. Dort findest du die Dateiauswahl und kannst einen ganzen Musikordner verbinden.",
+          "target": ".dj-import-options > summary",
+          "advanceOn": {
+            "event": "click",
+            "target": ".dj-import-options > summary",
+            "waitFor": {
+              "target": ".dj-import-options[open]"
+            }
+          },
+          "completeWhen": {
+            "target": ".dj-import-options[open]"
+          },
+          "actionHint": "Öffne „Musik hinzufügen“"
+        },
+        {
+          "id": "import",
+          "title": "Wähle deine Lieder",
+          "text": "Über „+ Dateien“ wählst du einzelne Lieder, über „Ordner verbinden“ einen Musikordner. Du kannst Audiodateien auch in die Bibliothek ziehen. Du kannst jetzt Musik hinzufügen oder dich mit „Weiter“ erst umsehen.",
+          "target": ".dj-import-options"
+        },
+        {
+          "id": "search",
+          "title": "Ein Lied wiederfinden",
+          "text": "Mit „Tracks suchen“ filterst du deine Bibliothek nach einem Titel. Leere das Suchfeld, um wieder alle Lieder zu sehen.",
+          "target": "#trackSearch"
+        },
+        {
+          "id": "enqueue",
+          "title": "Was soll als Nächstes laufen?",
+          "text": "Klicke bei einem Lied auf „+ Warteschlange“. Du kannst weitere Titel hinzufügen oder unter „Musik hinzufügen“ alle einreihen.",
+          "target": "#trackList",
+          "advanceOn": {
+            "event": "click",
+            "target": "#trackList .dj-enqueue:not(:disabled)",
+            "waitFor": {
+              "target": "#queueList .dj-track-info"
+            }
+          },
+          "actionHint": "Reihe ein Lied ein",
+          "when": {
+            "target": "#trackList .dj-enqueue:not(:disabled)"
+          }
+        },
+        {
+          "id": "queue",
+          "title": "Deine Reihenfolge",
+          "text": "Hier stehen die nächsten Titel. Mit den Pfeilen veränderst du ihre Reihenfolge; mit Entfernen nimmst du einen Titel aus der Warteschlange. „Shuffle · alle Dateien“ wählt zufällig aus deinen verfügbaren lokalen Dateien.",
+          "target": ".dj-queue"
+        },
+        {
+          "id": "volume",
+          "title": "Wie laut soll die Musik sein?",
+          "text": "Mit „Master“ regelst du die Gesamtlautstärke deiner lokalen Wiedergabe. Beginne leise und passe die Lautstärke an deine Lautsprecher an.",
+          "target": "[data-master]"
+        },
+        {
+          "id": "start",
+          "title": "Die Party starten",
+          "text": "Mit „Start“ in der Warteschlange beginnt die Wiedergabe. Die nächsten Titel werden vorbereitet. Lass „Auto-Crossfade“ eingeschaltet, wenn lokale Lieder automatisch ineinander übergehen sollen. Spotify-Titel wechseln ohne Überblendung.",
+          "target": "#queueStart"
+        },
+        {
+          "id": "transport",
+          "title": "Pause oder ganz stoppen?",
+          "text": "Play/Pause findest du direkt in jedem Deck. „Stopp“ oben beendet beide Decks und stellt das vorherige Lampenlicht wieder her.",
+          "target": "#djStop"
+        },
+        {
+          "id": "light",
+          "title": "Musik mit oder ohne Licht",
+          "text": "Oben wählst du unter „Licht“ eine verfügbare Lampe aus. „Nur Audio“ spielt ohne diese Lampensteuerung. Hinweise zur Verbindung findest du am unteren Rand.",
+          "target": "#djLamp",
+          "when": {
+            "target": "#djLamp:not([hidden])"
+          }
+        },
+        {
+          "id": "stage",
+          "title": "Deine Lichtshow",
+          "text": "In diesem Bereich siehst du die Lichtvorschau. Über die Lichtbühne kannst du deine Bühne ansehen und über „Bühne einstellen“ konfigurieren.",
+          "target": ".dj-mixer-light"
+        },
+        {
+          "id": "light-options",
+          "title": "Lichtoptionen",
+          "text": "Öffne „Lichtoptionen“, um den Stil deiner Show zu finden.",
+          "target": ".dj-light-settings > summary",
+          "advanceOn": {
+            "event": "click",
+            "target": ".dj-light-settings > summary",
+            "waitFor": {
+              "target": ".dj-light-settings[open]"
+            }
+          },
+          "completeWhen": {
+            "target": ".dj-light-settings[open]"
+          },
+          "actionHint": "Öffne „Lichtoptionen“"
+        },
+        {
+          "id": "style",
+          "title": "Welcher Stil passt?",
+          "text": "Wähle zwischen „Automatisch“, „Party“ und „Disco“. Für den Einstieg kannst du „Automatisch“ stehen lassen.",
+          "target": "#djShowProfile"
+        },
+        {
+          "id": "saved-lists",
+          "title": "Eine Auswahl wiederverwenden",
+          "text": "Über „Warteschlange / gespeicherte Liste“ wechselst du zwischen deinen Listen. Unter „Liste verwalten“ kannst du deine aktuelle Auswahl als Liste speichern.",
+          "target": ".queue-manager"
+        },
+        {
+          "id": "spotify",
+          "title": "Auch Spotify ist dabei",
+          "text": "Unter „Spotify“ verbindest du dein Konto und findest Playlists oder einzelne Titel. Die Hinweise unter „Info“ erklären die Voraussetzungen und die Unterschiede zu lokalen Dateien.",
+          "target": "#spotifyTab"
+        },
+        {
+          "id": "party-done",
+          "title": "Alles für deine Party",
+          "text": "Du kennst die wichtigsten Bereiche. Füge deine Lieblingslieder zur Warteschlange hinzu und starte die Musik. Die DJ-Werkzeuge lernst du bei Bedarf über das Hilfeicon unten rechts kennen.",
+          "placement": "center",
+          "nextLabel": "Fertig"
+        }
+      ]
+    },
+    {
+      "id": "dj",
+      "title": "Als DJ selbst mixen",
+      "description": "Die Grundlagen plus Decks, Übergänge, Tempo, Hotcues, Loops, Klang und Vorhören.",
+      "steps": [
+        {
+          "id": "welcome",
+          "title": "Deine Musik für die Party",
+          "text": "Wir schauen gemeinsam, wo du Musik auswählst, die Wiedergabe startest und das Licht steuerst. Über das Hilfeicon unten rechts kannst du die Einführung jederzeit erneut starten.",
+          "placement": "center",
+          "nextLabel": "Los geht’s"
+        },
+        {
+          "id": "sources",
+          "title": "Woher kommt deine Musik?",
+          "text": "In der Bibliothek wechselst du zwischen lokalen Dateien und Spotify. Für die vollständigen DJ-Werkzeuge verwenden wir lokale Dateien. Öffne jetzt „Lokal“.",
+          "target": "#localTab",
+          "advanceOn": {
+            "event": "click",
+            "target": "#localTab"
+          },
+          "completeWhen": {
+            "target": "#localTab[aria-selected=\"true\"]"
+          },
+          "actionHint": "Wähle „Lokal“"
+        },
+        {
+          "id": "import-open",
+          "title": "Musik hinzufügen",
+          "text": "Öffne „Musik hinzufügen“ oben in der Bibliothek. Dort findest du die Dateiauswahl und kannst einen ganzen Musikordner verbinden.",
+          "target": ".dj-import-options > summary",
+          "advanceOn": {
+            "event": "click",
+            "target": ".dj-import-options > summary",
+            "waitFor": {
+              "target": ".dj-import-options[open]"
+            }
+          },
+          "completeWhen": {
+            "target": ".dj-import-options[open]"
+          },
+          "actionHint": "Öffne „Musik hinzufügen“"
+        },
+        {
+          "id": "import",
+          "title": "Wähle deine Lieder",
+          "text": "Über „+ Dateien“ wählst du einzelne Lieder, über „Ordner verbinden“ einen Musikordner. Du kannst Audiodateien auch in die Bibliothek ziehen. Du kannst jetzt Musik hinzufügen oder dich mit „Weiter“ erst umsehen.",
+          "target": ".dj-import-options"
+        },
+        {
+          "id": "search",
+          "title": "Ein Lied wiederfinden",
+          "text": "Mit „Tracks suchen“ filterst du deine Bibliothek nach einem Titel. Leere das Suchfeld, um wieder alle Lieder zu sehen.",
+          "target": "#trackSearch"
+        },
+        {
+          "id": "enqueue",
+          "title": "Was soll als Nächstes laufen?",
+          "text": "Klicke bei einem Lied auf „+ Warteschlange“. Du kannst weitere Titel hinzufügen oder unter „Musik hinzufügen“ alle einreihen.",
+          "target": "#trackList",
+          "advanceOn": {
+            "event": "click",
+            "target": "#trackList .dj-enqueue:not(:disabled)",
+            "waitFor": {
+              "target": "#queueList .dj-track-info"
+            }
+          },
+          "actionHint": "Reihe ein Lied ein",
+          "when": {
+            "target": "#trackList .dj-enqueue:not(:disabled)"
+          }
+        },
+        {
+          "id": "queue",
+          "title": "Deine Reihenfolge",
+          "text": "Hier stehen die nächsten Titel. Mit den Pfeilen veränderst du ihre Reihenfolge; mit Entfernen nimmst du einen Titel aus der Warteschlange. „Shuffle · alle Dateien“ wählt zufällig aus deinen verfügbaren lokalen Dateien.",
+          "target": ".dj-queue"
+        },
+        {
+          "id": "volume",
+          "title": "Wie laut soll die Musik sein?",
+          "text": "Mit „Master“ regelst du die Gesamtlautstärke deiner lokalen Wiedergabe. Beginne leise und passe die Lautstärke an deine Lautsprecher an.",
+          "target": "[data-master]"
+        },
+        {
+          "id": "start",
+          "title": "Die Party starten",
+          "text": "Mit „Start“ in der Warteschlange beginnt die Wiedergabe. Die nächsten Titel werden vorbereitet. Lass „Auto-Crossfade“ eingeschaltet, wenn lokale Lieder automatisch ineinander übergehen sollen. Spotify-Titel wechseln ohne Überblendung.",
+          "target": "#queueStart"
+        },
+        {
+          "id": "transport",
+          "title": "Pause oder ganz stoppen?",
+          "text": "Play/Pause findest du direkt in jedem Deck. „Stopp“ oben beendet beide Decks und stellt das vorherige Lampenlicht wieder her.",
+          "target": "#djStop"
+        },
+        {
+          "id": "light",
+          "title": "Musik mit oder ohne Licht",
+          "text": "Oben wählst du unter „Licht“ eine verfügbare Lampe aus. „Nur Audio“ spielt ohne diese Lampensteuerung. Hinweise zur Verbindung findest du am unteren Rand.",
+          "target": "#djLamp",
+          "when": {
+            "target": "#djLamp:not([hidden])"
+          }
+        },
+        {
+          "id": "stage",
+          "title": "Deine Lichtshow",
+          "text": "In diesem Bereich siehst du die Lichtvorschau. Über die Lichtbühne kannst du deine Bühne ansehen und über „Bühne einstellen“ konfigurieren.",
+          "target": ".dj-mixer-light"
+        },
+        {
+          "id": "light-options",
+          "title": "Lichtoptionen",
+          "text": "Öffne „Lichtoptionen“, um den Stil deiner Show zu finden.",
+          "target": ".dj-light-settings > summary",
+          "advanceOn": {
+            "event": "click",
+            "target": ".dj-light-settings > summary",
+            "waitFor": {
+              "target": ".dj-light-settings[open]"
+            }
+          },
+          "completeWhen": {
+            "target": ".dj-light-settings[open]"
+          },
+          "actionHint": "Öffne „Lichtoptionen“"
+        },
+        {
+          "id": "style",
+          "title": "Welcher Stil passt?",
+          "text": "Wähle zwischen „Automatisch“, „Party“ und „Disco“. Für den Einstieg kannst du „Automatisch“ stehen lassen.",
+          "target": "#djShowProfile"
+        },
+        {
+          "id": "saved-lists",
+          "title": "Eine Auswahl wiederverwenden",
+          "text": "Über „Warteschlange / gespeicherte Liste“ wechselst du zwischen deinen Listen. Unter „Liste verwalten“ kannst du deine aktuelle Auswahl als Liste speichern.",
+          "target": ".queue-manager"
+        },
+        {
+          "id": "spotify",
+          "title": "Auch Spotify ist dabei",
+          "text": "Unter „Spotify“ verbindest du dein Konto und findest Playlists oder einzelne Titel. Die Hinweise unter „Info“ erklären die Voraussetzungen und die Unterschiede zu lokalen Dateien.",
+          "target": "#spotifyTab"
+        },
+        {
+          "id": "decks",
+          "title": "Zwei Decks für deinen Mix",
+          "text": "Deck A und Deck B sind deine beiden Player. Lade einen lokalen Titel über „Mehr“ in der Bibliothek auf das gewünschte Deck oder ziehe ihn direkt dorthin. Während ein Deck spielt, kannst du im anderen den nächsten Titel vorbereiten.",
+          "target": "#decks"
+        },
+        {
+          "id": "waveform",
+          "title": "Orientierung im Lied",
+          "text": "Die Wellenform zeigt den Verlauf des Audios. Über die Positionsleiste springst du im geladenen Lied; BPM und Restzeit helfen dir beim Planen des nächsten Übergangs.",
+          "target": ".dj-deck[aria-label=\"Deck A\"] .dj-waveform"
+        },
+        {
+          "id": "deck-settings",
+          "title": "Deck einstellen",
+          "text": "Öffne „Deck einstellen“ in Deck A. Hier liegen Lautstärke, Cue-Punkt, Mix-Werkzeuge und Lichtgestaltung. Deck B bietet dieselben Werkzeuge.",
+          "target": ".dj-deck[aria-label=\"Deck A\"] .dj-transport-options > summary",
+          "advanceOn": {
+            "event": "click",
+            "target": ".dj-deck[aria-label=\"Deck A\"] .dj-transport-options > summary",
+            "waitFor": {
+              "target": ".dj-deck[aria-label=\"Deck A\"] .dj-transport-options[open]"
+            }
+          },
+          "completeWhen": {
+            "target": ".dj-deck[aria-label=\"Deck A\"] .dj-transport-options[open]"
+          },
+          "actionHint": "Öffne „Deck einstellen“"
+        },
+        {
+          "id": "cue",
+          "title": "Deinen Einstieg vorbereiten",
+          "text": "Mit „Cue setzen“ merkst du dir die aktuelle Position. Der Cue-Knopf neben Play bringt dich zu diesem Einstieg zurück. „Entladen“ gibt das Deck wieder frei.",
+          "target": ".dj-deck[aria-label=\"Deck A\"] .dj-set-cue"
+        },
+        {
+          "id": "tools",
+          "title": "Mix-Werkzeuge",
+          "text": "Öffne jetzt „Mix-Werkzeuge“. Hier findest du Tempo, Hotcues, Loops, Klang und Vorhören.",
+          "target": ".dj-deck[aria-label=\"Deck A\"] .dj-deck-tools > summary",
+          "advanceOn": {
+            "event": "click",
+            "target": ".dj-deck[aria-label=\"Deck A\"] .dj-deck-tools > summary",
+            "waitFor": {
+              "target": ".dj-deck[aria-label=\"Deck A\"] .dj-deck-tools[open]"
+            }
+          },
+          "completeWhen": {
+            "target": ".dj-deck[aria-label=\"Deck A\"] .dj-deck-tools[open]"
+          },
+          "actionHint": "Öffne „Mix-Werkzeuge“"
+        },
+        {
+          "id": "tempo",
+          "title": "Tempo und Sync",
+          "text": "Mit Tempo passt du die Geschwindigkeit an, mit Reset setzt du sie zurück. „Sync“ gleicht Tempo und Beatposition einmalig an das laufende andere Deck an. Dafür brauchen beide Titel ein passendes Beat-Raster. „Tonhöhe halten“ hält die Tonhöhe bei Tempoänderungen stabil.",
+          "target": ".dj-deck[aria-label=\"Deck A\"] .dj-tempo"
+        },
+        {
+          "id": "hotcues",
+          "title": "Wichtige Stellen merken",
+          "text": "Eine freie Hotcue-Taste speichert die aktuelle Position. Eine belegte Taste springt dorthin. Zum Entfernen nutzt du „Löschen“ und danach die betreffende Taste oder hältst beim Klicken die Umschalttaste gedrückt.",
+          "target": ".dj-deck[aria-label=\"Deck A\"] .dj-hotcues"
+        },
+        {
+          "id": "loops",
+          "title": "Einen Abschnitt wiederholen",
+          "text": "Wähle eine Loop-Länge in Beats und aktiviere „Loop an“. Ein erneuter Klick beendet die Wiederholung. Die Tasten daneben springen vier Beats zurück oder vor. Loops benötigen ein Beat-Raster.",
+          "target": ".dj-deck[aria-label=\"Deck A\"] .dj-loop"
+        },
+        {
+          "id": "eq-open",
+          "title": "Klang · Gain & Dreiband-EQ",
+          "text": "Öffne die Klangeinstellungen, um Pegel und Frequenzbereiche zu finden.",
+          "target": ".dj-deck[aria-label=\"Deck A\"] .dj-eq > summary",
+          "advanceOn": {
+            "event": "click",
+            "target": ".dj-deck[aria-label=\"Deck A\"] .dj-eq > summary",
+            "waitFor": {
+              "target": ".dj-deck[aria-label=\"Deck A\"] .dj-eq[open]"
+            }
+          },
+          "completeWhen": {
+            "target": ".dj-deck[aria-label=\"Deck A\"] .dj-eq[open]"
+          },
+          "actionHint": "Öffne „Klang · Gain & Dreiband-EQ“"
+        },
+        {
+          "id": "eq",
+          "title": "Deinen Klang abstimmen",
+          "text": "Gain passt den Eingangspegel an; Bass, Mitten und Höhen formen den Klang dieses Decks. Achte auf die Pegelanzeige und reduziere die Lautstärke, wenn der Mix übersteuert. „Klang zurücksetzen“ stellt die Regler auf null.",
+          "target": ".dj-deck[aria-label=\"Deck A\"] .dj-eq-grid"
+        },
+        {
+          "id": "crossfader",
+          "title": "Von A nach B mischen",
+          "text": "Ganz links hörst du Deck A, ganz rechts Deck B. Dazwischen mischst du beide. Eine manuelle Änderung greift in die laufende Automatik ein; bereite deinen nächsten Titel vor dem Übergang vor.",
+          "target": "#crossfader"
+        },
+        {
+          "id": "fade",
+          "title": "Einen Übergang auslösen",
+          "text": "„Überblenden“ startet den Wechsel zum vorbereiteten anderen Deck. Währenddessen kannst du ihn abbrechen. „Auto-Crossfade“ übernimmt den Wechsel automatisch; manuelle Eingriffe können die Warteschlangen-Automatik pausieren.",
+          "target": ".dj-auto-controls"
+        },
+        {
+          "id": "transition-options",
+          "title": "Automatik einstellen",
+          "text": "Öffne „Automatik einstellen“, um die Übergangsdauer und musikalische Übergänge zu finden.",
+          "target": ".dj-transition-options > summary",
+          "advanceOn": {
+            "event": "click",
+            "target": ".dj-transition-options > summary",
+            "waitFor": {
+              "target": ".dj-transition-options[open]"
+            }
+          },
+          "completeWhen": {
+            "target": ".dj-transition-options[open]"
+          },
+          "actionHint": "Öffne „Automatik einstellen“"
+        },
+        {
+          "id": "transition",
+          "title": "Deinen Übergang planen",
+          "text": "Die Übergangsdauer bestimmt die Länge des Wechsels. „Musikalische Übergänge“ nutzt die Analyse der lokalen Titel. Die Hinweise darunter zeigen dir, ob und wie ein passender Übergang vorbereitet werden kann.",
+          "target": ".dj-transition-options"
+        },
+        {
+          "id": "audio-open",
+          "title": "Audio & Aufnahme",
+          "text": "Öffne „Audio & Aufnahme“ unter dem Master-Regler. Hier liegen die Ausgänge, Tastenkürzel und die Aufnahme deines Mixes.",
+          "target": ".dj-audio-options > summary",
+          "advanceOn": {
+            "event": "click",
+            "target": ".dj-audio-options > summary",
+            "waitFor": {
+              "target": ".dj-audio-options[open]"
+            }
+          },
+          "completeWhen": {
+            "target": ".dj-audio-options[open]"
+          },
+          "actionHint": "Öffne „Audio & Aufnahme“"
+        },
+        {
+          "id": "routing-open",
+          "title": "Audioausgänge & Vorhören",
+          "text": "Öffne die Audioausgänge, um Lautsprecher und Kopfhörer getrennt einzurichten.",
+          "target": ".dj-routing > summary",
+          "advanceOn": {
+            "event": "click",
+            "target": ".dj-routing > summary",
+            "waitFor": {
+              "target": ".dj-routing[open]"
+            }
+          },
+          "completeWhen": {
+            "target": ".dj-routing[open]"
+          },
+          "actionHint": "Öffne „Audioausgänge & Vorhören“"
+        },
+        {
+          "id": "routing",
+          "title": "Vorhören vorbereiten",
+          "text": "Wähle zuerst einen eigenen Master-Ausgang und danach einen anderen physischen Ausgang für die Kopfhörer. Anschließend aktivierst du „Auf Kopfhörern vorhören“ in den Mix-Werkzeugen des gewünschten Decks. Ist die Auswahl deaktiviert, unterstützt dein Browser getrennte Ausgänge hier nicht.",
+          "target": ".dj-routing"
+        },
+        {
+          "id": "record",
+          "title": "Deinen Mix aufnehmen",
+          "text": "„Mix aufnehmen“ zeichnet den lokalen Master-Mix auf. Beende die Aufnahme und lade sie herunter, bevor du die Seite schließt. Spotify-Wiedergabe gehört nicht zum lokalen Master-Mix.",
+          "target": ".dj-recording"
+        },
+        {
+          "id": "shortcuts",
+          "title": "Tastenkürzel",
+          "text": "Öffne „Tastenkürzel“, wenn du Play, Cue und Hotcues über die Tastatur bedienen möchtest.",
+          "target": ".dj-shortcuts > summary",
+          "advanceOn": {
+            "event": "click",
+            "target": ".dj-shortcuts > summary",
+            "waitFor": {
+              "target": ".dj-shortcuts[open]"
+            }
+          },
+          "completeWhen": {
+            "target": ".dj-shortcuts[open]"
+          },
+          "actionHint": "Öffne „Tastenkürzel“"
+        },
+        {
+          "id": "keys",
+          "title": "Schneller am Pult",
+          "text": "Deck A: Q für Play/Pause, W für Cue und 1–4 für Hotcues. Deck B: O für Play/Pause, P für Cue und 7–0 für Hotcues. In Eingabefeldern sind die Kürzel ausgeschaltet.",
+          "target": ".dj-shortcuts"
+        },
+        {
+          "id": "light-design",
+          "title": "Lichtgestaltung",
+          "text": "Öffne „Lichtgestaltung“ unter „Deck einstellen“ in Deck A, um die Farben und den Lichtverlauf dieses Decks zu finden.",
+          "target": ".dj-deck[aria-label=\"Deck A\"] .dj-light-options > summary",
+          "advanceOn": {
+            "event": "click",
+            "target": ".dj-deck[aria-label=\"Deck A\"] .dj-light-options > summary",
+            "waitFor": {
+              "target": ".dj-deck[aria-label=\"Deck A\"] .dj-light-options[open]"
+            }
+          },
+          "completeWhen": {
+            "target": ".dj-deck[aria-label=\"Deck A\"] .dj-light-options[open]"
+          },
+          "actionHint": "Öffne „Lichtgestaltung“"
+        },
+        {
+          "id": "colors",
+          "title": "Farben passend zum Titel",
+          "text": "Hier gestaltest du die Farben des Decks. Für gezielte Änderungen nach Songabschnitten findest du bei einem analysierten Titel unter „Mehr“ den Eintrag „Abschnittslicht bearbeiten“.",
+          "target": ".dj-deck[aria-label=\"Deck A\"] .dj-light-options"
+        },
+        {
+          "id": "dj-done",
+          "title": "Bereit für deinen ersten Mix",
+          "text": "Lade zwei lokale Titel, bereite den Einstieg im zweiten Deck vor und probiere deinen Übergang bei niedriger Lautstärke. Über das Hilfeicon unten rechts kannst du jederzeit wieder eine Führung starten.",
+          "placement": "center",
+          "nextLabel": "Fertig"
+        }
+      ]
+    }
+  ]
+}

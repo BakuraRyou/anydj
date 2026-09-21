@@ -51,7 +51,7 @@ player.addEventListener('volumechange', savePreferences);
 $('showOffset').addEventListener('input', () => { optionLabels(); savePreferences(); });
 function message(text, error = false) { $('musicStatus').textContent = text; $('musicStatus').className = `notice${error ? ' warning' : ''}`; }
 async function api(path, data, keepalive = false) {
-  const headers = { 'Content-Type': 'application/json', 'X-WiZ-Local': '1' };
+  const headers = { 'Content-Type': 'application/json', 'X-AnyDj-Local': '1' };
   if (token) headers.Authorization = `Bearer ${token}`;
   const response = await fetch(path, { method: data === undefined ? 'GET' : 'POST', headers, ...(data === undefined ? {} : { body: JSON.stringify(data) }), keepalive, signal: AbortSignal.timeout(path === '/api/connection' ? 30000 : 12000) });
   const result = await response.json();

@@ -1,3 +1,5 @@
+import {choreographColors,colorFrameAt} from './color-choreography.js';
+import {sectionFrameAt} from './section-lighting.js';
 import {validateMusicStyle,musicStyleAt} from './music-style.js';
 import {arrangeShow,arrangementLevelAt,arrangementMotionAt} from './show-arrangement.js';
 import { analyzeMood, MOOD_PALETTES } from './mood-analysis.js';
@@ -5,29 +7,36 @@ import { musicalScore } from './melody-analysis.js';
 import { validateBeatGrid } from './beat-grid.js';
 import { automaticSettings } from './automatic-settings.js';
 import { validateStructure, structureTheme, STRUCTURE_LABELS } from './song-structure.js';
+// Bump whenever generated show data or its interpretation changes.
+export const SHOW_PLAN_VERSION = 17;
 const clamp = v => Math.max(0, Math.min(1, v));
 const quantile = (sorted, p) => sorted[Math.floor((sorted.length - 1) * p)] || 0;
 const colors = {
   sunset: ['#ff7700','#ff3300','#ff0080','#9d00ff'], rainbow: ['#ff2400','#ffbf00','#36ff00','#00dfff','#3333ff','#ff00cc'],
   neon: ['#ff0080','#7400ff','#00e5ff','#b5ff00'], fire: ['#ff1800','#ff6500','#ffc000','#ff0070'], ocean: ['#003cff','#00aaff','#00ffd0','#6600ff'],
 };
-// Change color pairings only at selected musical accents. Counts below group
-// accents for visual variation; they do not infer a time signature.
+// A stable passage keeps its color identity. Phrase boundaries permit changes
+// only when the measured sound changes; beats alone are brightness events.
 export function colorCuesFor(arrangement,sections,downbeats=[]) {
   if(!arrangement)return [];
-  const cues=[];let sectionIndex=0,count=0,barIndex=0;
-  for(const time of arrangement.times) {
-    while(sectionIndex+1<sections.length&&sections[sectionIndex+1].start<=time){sectionIndex++;count=0;}
-    const look=sections[sectionIndex].look;
-    if(look==='held')continue;
-    while(barIndex<downbeats.length&&downbeats[barIndex]<time-.03)barIndex++;
-    const onBar=Math.abs((downbeats[barIndex]??Infinity)-time)<=.03;
-    // Flow follows known downbeats; peaks also move between them. Without a
-    // downbeat model, group selected attacks instead of inventing bar markers.
-    if(look==='flow'&&downbeats.length>1&&!onBar)continue;
-    const group=look==='peak'||look==='lift'?2:downbeats.length>1?1:4;
-    if(count%group===0)cues.push({time,section:sectionIndex,offset:Math.floor(count/group)});
-    count++;
+  const cues=[];
+  for(const [sectionIndex,section] of sections.entries()){
+    if(section.look==='held')continue;
+    const end=section.end??sections[sectionIndex+1]?.start??Infinity;
+    const events=arrangement.times.filter(time=>time>=section.start&&time<end);
+    if(!events.length)continue;
+    cues.push({time:events[0],section:sectionIndex,offset:0,reason:'section'});
+    const phrases=(arrangement.patterns?.phrases||[]).filter(p=>p.section===sectionIndex);
+    let reference=phrases[0],offset=0,last=events[0];
+    for(const phrase of phrases.slice(1)){
+      const changed=Math.abs(phrase.energy-reference.energy)>=.14||Math.abs(phrase.tone-reference.tone)>=.16;
+      if(!changed)continue;
+      const eligible=events.filter(time=>time>=phrase.start&&time<phrase.end);
+      const time=eligible.find(time=>downbeats.some(bar=>Math.abs(bar-time)<=.03))??eligible[0];
+      if(time===undefined||time-last<4)continue;
+      offset++;cues.push({time,section:sectionIndex,offset,reason:'sound-change'});
+      reference=phrase;last=time;
+    }
   }
   return cues;
 }
@@ -113,8 +122,8 @@ export function compileShow(windows, duration, options, beatGrid = null, structu
     const kinds={start:'Ruhig',intro:'Ruhig',verse:'Fließend',chorus:'Intensiv',bridge:'Aufbau',break:'Ruhig',inst:'Fließend',solo:'Intensiv',outro:'Ruhig',end:'Ruhig'};
     sections.splice(0,sections.length,...structure.segments.map(s=>({...s,kind:kinds[s.label],title:STRUCTURE_LABELS[s.label],motif:Object.keys(STRUCTURE_LABELS).indexOf(s.label),estimated:true})));
   }
-  const arrangement=automatic?arrangeShow(windows,duration,sections,beats,beatGrid?.downbeats,musicStyle):null;
-  if(arrangement)sections.forEach((section,i)=>{section.look=arrangement.passages[i].look;section.lookLabel=arrangement.passages[i].lookLabel;});
+  const arrangement=automatic?arrangeShow(windows,duration,sections,beats,beatGrid?.downbeats,musicStyle,structure?.instruments):null;
+  if(arrangement)sections.forEach((section,i)=>{section.role=arrangement.passages[i].role;section.emphasis=arrangement.passages[i].emphasis;section.look=arrangement.passages[i].look;section.lookLabel=arrangement.passages[i].lookLabel;});
   const palette=(options.palette==='custom'?[options.colorA,options.colorB]:colors[options.palette]||colors.sunset).map(hex=>[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)));
   // Calibrate the combined, already smoothed sound trajectory against this
   // song. Normalizing individual inputs before averaging compressed all songs
@@ -180,11 +189,13 @@ export function compileShow(windows, duration, options, beatGrid = null, structu
     const anchor=(section.motif+order[offset%order.length])%palette.length;
     const partner=(anchor+(look==='peak'?2:1))%palette.length;
     const motion=arrangement?arrangementMotionAt(arrangement,t):0;
-    const movement=look==='held'?contourPosition*.3:(contourPosition*style.melody+motion*(1-style.melody))*style.colorSpan;
+    const progress=clamp((t-section.start)/Math.max(1,section.end-section.start));
+    const span=look==='held'?.14:look==='peak'?.45:look==='lift'?.2+progress*.25:.28;
+    const movement=clamp((contourPosition*.85+(look==='lift'?progress:average(t-.4,t+.4))*.15)*span*style.colorSpan+motion*(look==='peak'?.04:.015));
     const automaticPosition=anchor*(1-movement)+partner*movement;
     const target=arrangement&&audible?automaticPosition:!audible&&previousPosition!==undefined?previousPosition:(motif*(1-follow)+contourPosition*follow)*(palette.length-1);
     colorDrivers.push(!audible?'pause':arrangement?(look==='held'?'hold':'passage'):melodyMix>.7?'melody':melodyMix>.2?'blend':'spectrum');
-    const transition=arrangement?1-Math.exp(-.125*style.colorSpeed/(look==='held'?1.2:look==='peak'?.08:look==='lift'?.12:.16)):1-Math.exp(-0.125*Math.max(0.2,options.speed*(theme?.speed??1))*(1+edge(t,0.08)*3)/(0.10+(options.smoothing??0.5)*0.45));
+    const transition=arrangement?1-Math.exp(-.125*style.colorSpeed/(look==='held'?1.2:look==='peak'?.35:.65)):1-Math.exp(-0.125*Math.max(0.2,options.speed*(theme?.speed??1))*(1+edge(t,0.08)*3)/(0.10+(options.smoothing??0.5)*0.45));
     // This is an ordered tonal contour, not a cyclic hue wheel: a falling note
     // must retrace the palette rather than wrap from its end to its beginning.
     previousPosition=previousPosition===undefined?target:previousPosition+(target-previousPosition)*transition;
@@ -220,12 +231,12 @@ export function compileShow(windows, duration, options, beatGrid = null, structu
     const [r,g,b]=rgb.map(v=>Math.max(1,Math.round(v/top*255*saturation+255*(1-saturation))));
     frames.push({state:true,dimming:Math.round(options.minimum+strength*(options.maximum-options.minimum)),r,g,b});
   }
-  return {version: 10,colorCues,arrangement,beatTiming,moods,score,colorDrivers,duration,step:0.125,frames,sections,beats:beats.length,beatGrid,automatic,effectiveOptions:options,structure,musicStyle};
+  return choreographColors({version: SHOW_PLAN_VERSION,colorPalette:palette,colorCues,arrangement,beatTiming,moods,score,colorDrivers,duration,step:0.125,frames,sections,beats:beats.length,beatGrid,automatic,effectiveOptions:options,structure,musicStyle});
 }
 export function showFrameAt(plan,time) {
   if(!Number.isFinite(time)) throw Error('Ungültige Wiedergabezeit.');
   const index=Math.max(0,Math.min(plan.frames.length-1,Math.floor(time/plan.step)));
-  const frame=plan.frames[index];
+  const frame=sectionFrameAt(plan,Math.max(0,Math.min(time,plan.duration-1e-6)),colorFrameAt(plan,Math.max(0,Math.min(time,plan.duration-1e-6)),plan.frames[index]));
   if(!plan.beatTiming)return frame; // Saved plans from older versions retain their rendering.
   const t=time>=plan.duration?index*plan.step:Math.max(0,time);
   const {times,accents,decay,exponent,intensity,minimum,maximum}=plan.beatTiming;

@@ -9,25 +9,28 @@
     {
       "width": 1280,
       "height": 720,
-      "scrollWidth": 1280,
-      "scrollHeight": 720,
+      "scrollWidth": 1265,
+      "scrollHeight": 1000,
       "sideBySide": true,
+      "stacked": false,
       "bothListsVisible": true
     },
     {
       "width": 1024,
       "height": 768,
-      "scrollWidth": 1024,
-      "scrollHeight": 768,
+      "scrollWidth": 1009,
+      "scrollHeight": 1475,
       "sideBySide": true,
+      "stacked": false,
       "bothListsVisible": true
     },
     {
       "width": 390,
       "height": 844,
       "scrollWidth": 390,
-      "scrollHeight": 1134,
-      "sideBySide": true,
+      "scrollHeight": 3505,
+      "sideBySide": false,
+      "stacked": true,
       "bothListsVisible": true
     }
   ],

@@ -1,0 +1,11 @@
+{
+  "instrumentPersistence": true,
+  "openFromLibrary": true,
+  "motifTransfer": true,
+  "persistence": true,
+  "beatSnappedSplit": true,
+  "merge": true,
+  "cancelPreservesSaved": true,
+  "mobileFits": true,
+  "browserErrors": 0
+}
