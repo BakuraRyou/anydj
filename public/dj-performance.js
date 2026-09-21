@@ -1,3 +1,4 @@
+import {holdAudioParam} from './transition-audio.js';
 import {transitionBassDb} from './musical-transition.js';
 import {dbGain,audioEnvelope,cleanCues,loopRange,tempoAt,jumpBeats} from './dj-performance-model.js';
 const time=value=>`${Math.floor(Math.max(0,value)/60)}:${String(Math.floor(Math.max(0,value)%60)).padStart(2,'0')}`;
@@ -122,7 +123,7 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
    const source=ctx.createMediaElementSource(d.audio);source.connect(d.eq.trim);d.eq.trim.connect(d.eq.low);d.eq.low.connect(d.eq.mid);d.eq.mid.connect(d.eq.high);
    d.meter=ctx.createAnalyser();d.meter.fftSize=1024;d.eq.high.connect(d.meter);
    d.gain=ctx.createGain();d.gain.gain.value=0;d.transitionFilter=ctx.createBiquadFilter();d.transitionFilter.type='lowshelf';d.transitionFilter.frequency.value=250;d.transitionFilter.gain.value=0;
-   d.meter.connect(d.transitionFilter);d.transitionFilter.connect(d.gain);d.gain.connect(master);
+   d.meter.connect(d.transitionFilter);d.transitionFilter.connect(d.gain);d.channelGain=ctx.createGain();d.gain.connect(d.channelGain);d.channelGain.connect(master);
    d.cueGain=ctx.createGain();d.cueGain.gain.value=0;d.meter.connect(d.cueGain);d.cueGain.connect(cueBus);
    for(const input of d.performanceElement.querySelectorAll('[data-eq]'))d.eq[input.dataset.eq].gain.value=input.dataset.eq==='trim'?dbGain(+input.value):+input.value;
   }
@@ -165,7 +166,7 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
  async function waveform(track,file){if(track.waveform?.version===2||!file)return;try{const buffer=await new OfflineAudioContext(2,1,16000).decodeAudioData(await file.arrayBuffer());if(!dead)track.waveform=audioEnvelope(buffer);}catch{/* Playback and light analysis report file errors separately. */}}
  function key(e){if(e.repeat||e.ctrlKey||e.altKey||e.metaKey||e.target.closest('input,select,textarea,[contenteditable],dialog'))return;const k=/^Digit[0-9]$/.test(e.code)?e.code.slice(-1):e.key.toLowerCase();let d,action;if(['q','w','1','2','3','4'].includes(k)){d=decks[0];action=k==='q'?'play':k==='w'?'cue':+k-1;}else if(['o','p','7','8','9','0'].includes(k)){d=decks[1];action=k==='o'?'play':k==='p'?'cue':['7','8','9','0'].indexOf(k);}else return;e.preventDefault();if(typeof action==='number')hotcue(d,action,e.shiftKey);else d.panel.querySelector('.dj-'+action).click();}
  window.addEventListener('keydown',key);
- function clearTransition(){for(const d of decks)if(d.transitionFilter){const gain=d.transitionFilter.gain;gain.cancelScheduledValues(ctx.currentTime);gain.setTargetAtTime(0,ctx.currentTime,.02);}}
+ function clearTransition(){for(const d of decks)if(d.transitionFilter){const gain=d.transitionFilter.gain;holdAudioParam(gain,ctx.currentTime);gain.setTargetAtTime(0,ctx.currentTime,.02);}}
  function startTransition(from,to,duration){
   clearTransition();
   for(const [d,incoming] of [[from,false],[to,true]]){

@@ -28,6 +28,9 @@ try {
  const wait=async(expression,timeout=30000)=>{const start=Date.now();while(Date.now()-start<timeout){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Timed out: '+expression+' '+JSON.stringify(errors)+' '+await evaluate("({queue:document.querySelector('#queueStatus')?.textContent,status:document.querySelector('#djStatus')?.textContent,count:document.querySelector('#queueCount')?.textContent,start:document.querySelector('#queueStart')?.textContent,decks:[...document.querySelectorAll('audio')].map(a=>({time:a.currentTime,paused:a.paused}))})"));};
  await c('Emulation.setDeviceMetricsOverride',{width:1280,height:1000,deviceScaleFactor:1,mobile:false});
  await c('Page.addScriptToEvaluateOnNewDocument',{source:`window.rateWrites=[];const descriptor=Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype,'playbackRate');Object.defineProperty(HTMLMediaElement.prototype,'playbackRate',{...descriptor,set(value){window.rateWrites.push(value);descriptor.set.call(this,value);}});`});
+ if(process.argv.includes('--audio-clock'))await c('Page.addScriptToEvaluateOnNewDocument',{source:`
+ window.gainCurves=[];const schedule=AudioParam.prototype.setValueCurveAtTime;
+ AudioParam.prototype.setValueCurveAtTime=function(curve,start,duration){if(curve.length===257&&curve[0]>=0)window.gainCurves.push({param:this,curve:[...curve],start,duration});return schedule.call(this,curve,start,duration);};`});
  await c('Page.navigate',{url:base+'/dj'});await wait("document.querySelector('#djLamp')?.options.length>1");
 
 
@@ -36,7 +39,7 @@ try {
  if(String(url).startsWith('/api/analysis/')){
  const response=data=>new Response(JSON.stringify(data));if(options.method!=='POST')return response({available:true});
  const duration=options.body.byteLength/64000;
- if(url.endsWith('structure')){const duration=options.body.byteLength/176400,count=Math.ceil(duration*10);return response({version:1,source:'all-in-one',duration,segments:[{start:0,end:duration,label:'intro'}],instruments:{version:1,source:'htdemucs',step:.1,bass:Array(count).fill(.6),vocals:Array(count).fill(.01),drums:Array(count).fill(.1),other:Array(count).fill(.1)}});}
+ if(url.endsWith('structure')){const duration=options.body.byteLength/176400,count=Math.ceil(duration*10);return response({version:1,source:'all-in-one',duration,segments:[{start:0,end:duration,label:'intro'}],instruments:{version:1,source:'htdemucs',step:.1,bass:Array(count).fill(${process.argv.includes('--cut')?'.01':'.6'}),vocals:Array(count).fill(.01),drums:Array(count).fill(${process.argv.includes('--cut')?'1':'.1'}),other:Array(count).fill(.1)}});}
  if(url.endsWith('beats')){const step=window.beatRequests++%2===0?.5:.6;return response({version:1,source:'beat-this',duration,beats:Array.from({length:Math.floor(duration/step)},(_,i)=>i*step),downbeats:Array.from({length:Math.floor(duration/(4*step))},(_,i)=>i*4*step)});}
  return response({version:1,source:'discogs-effnet',duration,segments:[{start:0,end:duration,scores:{electronic:.8,rock:0,pop:0,groove:0,acoustic:0,orchestral:0,ambient:0},tags:[]}]});
  }return original(url,options);};`);
@@ -67,16 +70,18 @@ try {
  if(process.argv.includes('--manual'))await evaluate("document.querySelector('#fadeNow').click()");
  await wait("!document.querySelectorAll('audio')[1].paused");
  const started=await evaluate("({time:document.querySelector('audio').currentTime,status:document.querySelector('#fadeStatus').textContent})");
- if(process.argv.includes('--pair')){
+ if(process.argv.includes('--cut')){
+  if(!started.status.includes('Kurzer Wechsel'))throw Error('Short handoff was not chosen: '+JSON.stringify(started));
+ }else if(process.argv.includes('--pair')){
   if(!started.status.includes('Bassübergabe'))throw Error('Pair plan not applied: '+JSON.stringify(started));
   await wait("filters.filter(f=>f.type==='lowshelf'&&f.gain.value<-1).length>0",2000);
  }
  if(process.argv.includes('--manual')){
   const incoming=await evaluate("document.querySelectorAll('.dj-deck audio')[1].currentTime");
-  if(incoming<2.4||incoming>3)throw Error('Manual fade ignored musical incoming cue: '+incoming);
+  if(incoming<.6||incoming>1.2)throw Error('Manual fade ignored musical incoming cue: '+incoming);
   if(!started.status.includes('musikalischer Start'))throw Error('Manual musical start missing');
  }else if(process.argv.includes('--adaptive')){
-  if(started.time<7.6||started.time>11)throw Error('Adaptive transition ignored current position: '+JSON.stringify(started));
+  if(started.time<7.6||started.time>(process.argv.includes('--cut')?12.8:11))throw Error('Adaptive transition ignored current position: '+JSON.stringify(started));
   if(!started.status.includes('musikalischer Start'))throw Error('Adaptive musical status missing');
  }else if(process.argv.includes('--plain')){
   if(started.time<8.9||started.time>9.6)throw Error('Fixed transition did not start around 9 s: '+JSON.stringify(started));
@@ -86,15 +91,53 @@ try {
   if(!started.status.includes('musikalischer Start'))throw Error('Missing musical status '+JSON.stringify(started));
  }
  if(!await evaluate("[...document.querySelectorAll('.dj-deck audio')].every(a=>a.playbackRate===1)"))throw Error('Automatic transition changed playback tempo');
+ if(process.argv.includes('--audio-clock')){
+  const result=await evaluate(`(()=>{const curves=window.gainCurves.slice(-2);if(curves.length!==2)return null;
+   const before=curves.map(c=>c.param.value),slider=document.querySelector('#crossfader').value;
+   const until=performance.now()+450;while(performance.now()<until){}
+   return {before,after:curves.map(c=>c.param.value),sliderUnchanged:document.querySelector('#crossfader').value===slider};})()`);
+  if(!result?.sliderUnchanged||!(result.after[0]<result.before[0]&&result.after[1]>result.before[1]))throw Error('Audio fade depended on main-thread timer: '+JSON.stringify(result));
+  console.log('Audio gain automation advanced while the UI thread was blocked.');
+ }
  if(process.argv.includes('--cancel')){
   await evaluate("document.querySelector('#fadeCancel').click()");
   await new Promise(r=>setTimeout(r,250));
   if(!await evaluate("filters.every(f=>Math.abs(f.gain.value)<.1)"))throw Error('Cancelled transition filters not reset');
+  if(process.argv.includes('--audio-clock')){
+   await evaluate("document.querySelector('#crossfader').value='.4';document.querySelector('#crossfader').dispatchEvent(new Event('input'))");
+   await new Promise(r=>setTimeout(r,200));
+   if(!await evaluate("Math.abs(gainCurves[0].param.value-.6)<.01&&Math.abs(gainCurves[1].param.value-.4)<.01"))throw Error('Manual gain control did not recover after cancellation');
+  }
  }else await wait("document.querySelector('audio').paused&&document.querySelector('#crossfader').value==='1'");
  if(!await evaluate('window.rateWrites.every(rate=>rate===1)'))throw Error('Automatic playback wrote a tempo change');
  if(process.argv.includes('--pair')){
   await new Promise(r=>setTimeout(r,200));
   if(!await evaluate("filters.every(f=>Math.abs(f.gain.value)<.1)"))throw Error('Transition filters not reset');
+ }
+ if(process.argv.includes('--preview')){
+  await evaluate("document.querySelector('#autoCrossfade').checked=false;document.querySelector('#autoCrossfade').dispatchEvent(new Event('change'));document.querySelectorAll('.dj-deck audio').forEach(a=>{a.pause();a.currentTime=0;});document.querySelector('#crossfader').value='0'");
+  await new Promise(r=>setTimeout(r,250));
+  const before=await evaluate("({times:[...document.querySelectorAll('.dj-deck audio')].map(a=>a.currentTime),queue:document.querySelector('#queueCount').textContent})");
+  await evaluate("document.querySelector('.transition-preview-open').click()");
+  if(!await evaluate("document.querySelector('.dj-transition-preview').open&&document.querySelector('.dj-transition-preview [data-out]').getAttribute('d').length>100"))throw Error('Preview graph missing');
+  if(!await evaluate("document.querySelector('.dj-transition-preview [data-alternative]').options.length>=2"))throw Error('Alternatives missing');
+  await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+  if(!await evaluate("document.querySelector('.dj-transition-preview').scrollWidth<=document.querySelector('.dj-transition-preview').clientWidth"))throw Error('Mobile preview overflow');
+  const previewShot=await c('Page.captureScreenshot',{format:'png'});await writeFile('/tmp/anydj-transition-options.png',Buffer.from(previewShot.data,'base64'));
+  await c('Emulation.setDeviceMetricsOverride',{width:1280,height:1000,deviceScaleFactor:1,mobile:false});
+  await evaluate("const select=document.querySelector('.dj-transition-preview [data-alternative]');select.value='1';select.dispatchEvent(new Event('change'));document.querySelector('.dj-transition-preview [data-remember]').checked=true;document.querySelector('.dj-transition-preview [data-choose]').click()");
+  if(!await evaluate("document.querySelector('.dj-transition-preview [data-status]').textContent.includes('übernommen')&&Boolean(localStorage.getItem('anydj-transition-preference'))"))throw Error('Alternative or preference not applied');
+  await evaluate("document.querySelector('#fadeDuration').value='2';document.querySelector('.dj-transition-preview [data-choose]').click()");
+  if(!await evaluate("document.querySelector('.dj-transition-preview [data-status]').textContent.includes('geändert')"))throw Error('Stale alternative was accepted');
+  await evaluate("document.querySelector('.dj-transition-preview [data-play]').click()");
+  await wait("document.querySelector('.dj-transition-preview [data-status]').textContent.includes('Hörprobe läuft')");
+  await new Promise(r=>setTimeout(r,400));
+  const after=await evaluate("({times:[...document.querySelectorAll('.dj-deck audio')].map(a=>a.currentTime),queue:document.querySelector('#queueCount').textContent})");
+  if(JSON.stringify(before)!==JSON.stringify(after))throw Error('Rehearsal changed live deck or queue');
+  if(!await evaluate("[...document.querySelectorAll('.dj-deck audio')].every(a=>a.paused)&&+document.querySelector('.dj-transition-preview [data-position]').value>0"))throw Error('Preview playback did not stay isolated');
+  await evaluate("document.querySelector('.dj-transition-preview [data-stop]').click();document.querySelector('.dj-transition-preview').close()");
+  if(!await evaluate("document.querySelector('.dj-transition-preview [data-stop]').disabled"))throw Error('Preview did not stop');
+  console.log('Transition preview: graph, real audio playback, progress, stop and deck/queue isolation passed.');
  }
  if(errors.length)throw Error(JSON.stringify(errors));
  console.log('Audio crossfade passed ('+(process.argv.includes('--plain')?'fixed time':'musical boundary')+'): 120/100 BPM tracks kept original tempo throughout, including start and fade.');

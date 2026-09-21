@@ -20,6 +20,8 @@ import { StructureAnalysis } from './lib/structure-analysis.mjs';
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const VERSION = '0.1.0';
 const STATIC = new Map([
+  ['/transition-audio.js', ['transition-audio.js', 'text/javascript; charset=utf-8']],
+  ['/transition-preview.js', ['transition-preview.js', 'text/javascript; charset=utf-8']],
   ['/musical-transition.js', ['musical-transition.js', 'text/javascript; charset=utf-8']],
   ['/stage-motifs.js', ['stage-motifs.js', 'text/javascript; charset=utf-8']],
   ['/dmx-connection.js', ['dmx-connection.js', 'text/javascript; charset=utf-8']],
@@ -62,6 +64,8 @@ const STATIC = new Map([
   ['/dj-tutorial.js', ['dj-tutorial.js', 'text/javascript; charset=utf-8']],
   ['/tutorial.json', ['tutorial.json', 'application/json; charset=utf-8']],
   ['/dj.js', ['dj.js', 'text/javascript; charset=utf-8']],
+  ['/dj-full.js', ['dj-full.js', 'text/javascript; charset=utf-8']],
+  ['/dj-full.css', ['dj-full.css', 'text/css; charset=utf-8']],
   ['/dj-shuffle.js', ['dj-shuffle.js', 'text/javascript; charset=utf-8']],
   ['/dj-model.js', ['dj-model.js', 'text/javascript; charset=utf-8']],
   ['/color-choreography.js', ['color-choreography.js', 'text/javascript; charset=utf-8']],

@@ -1,15 +1,18 @@
+import {transitionAudioProfile,transitionAudioGains,scheduleTransitionGain,holdAudioParam} from './transition-audio.js';
+import {createTransitionPreview} from './transition-preview.js';
+import {createFullMode} from './dj-full.js';
 import {createTidalLibrary} from './tidal-library.js';
 import {createDJTutorial} from './dj-tutorial.js';
 import {spotifyImage} from './spotify-client.js';
 import {spotifyQueueEntry,validQueueEntry,copyQueueEntry} from './provider-queue.js';
-import {createShufflePicker} from './dj-shuffle.js';
+import {createShufflePicker,shuffleLookahead} from './dj-shuffle.js';
 import {createLocalCovers} from './local-cover.js';
 import {createDJSession} from './dj-session.js';
 import {createSpotifyLibrary} from './spotify-library.js';
 import {simplifyDJLayout} from './dj-layout.js';
 import {createPerformance} from './dj-performance.js';
 import {audioEnvelope} from './dj-performance-model.js';
-import {transitionPoint,incomingCue,planTransitionPair,transitionProgress} from './musical-transition.js';
+import {transitionPoint,incomingCue,planTransitionPair,transitionProgress,transitionTonalSegments} from './musical-transition.js';
 import {prepareStageMotifs,stageWashDimming,stageAccentStrength} from './stage-motifs.js';
 import {beatPosition} from './dmx-show.js';
 import {createDmxStage} from './dmx-stage.js';
@@ -47,6 +50,8 @@ let fade = null,autoFadePaused=false;
 let spotifyDeck=null,providerSwitch=false;
 const shufflePicker=createShufflePicker(),shuffleEntries=new Set();
 let shuffleEnabled=false;
+let shuffleCount=3;
+try{shuffleCount=shuffleLookahead(localStorage.getItem('anydj-shuffle-count'));}catch{}
 let queue=[],queueRunning=false,queueBusy=false,queueEpoch=0,queueDeck=null,queueMessage='';
 let queueLists=[],selectedQueueList='',queueSourceName='',queueListsReady=false,queueListsSave=Promise.resolve(),queueListRevision=0;
 const viewedQueue=()=>queueLists.find(list=>list.id===selectedQueueList);
@@ -114,7 +119,8 @@ const decks = ['A','B'].map((name, index) => {
   edit.onclick=()=>editSections(deck.track,()=>deck.audio.currentTime);
   panel.querySelector('.dj-play').onclick = () => perform(() => toggleDeck(deck));
   panel.querySelector('.dj-cue').onclick = () => { pauseQueue();cancelFade(); return perform(async () => {audio.pause(); audio.currentTime = deck.cue; deck.loop=null; deck.transition = null; await stopIfSilent();}); };
-  panel.querySelector('.dj-set-cue').onclick = () => {deck.cue = audio.currentTime; panel.querySelector('.dj-cue').textContent = `Cue ${formatTime(deck.cue)}`;};
+  panel.querySelector('.dj-set-cue').title='Cue exakt festlegen · Shift-Klick: Cue aufheben';
+  panel.querySelector('.dj-set-cue').onclick = event => {deck.cue = event.shiftKey?0:audio.currentTime; deck.cueLocked=!event.shiftKey; panel.querySelector('.dj-cue').textContent = `Cue ${formatTime(deck.cue)}`;};
   panel.querySelector('.dj-unload').onclick = () => {pauseQueue();return perform(async () => {await unload(deck); await syncFolder();});};
   panel.querySelector('.dj-seek').oninput = event => deck.spotify?void spotifyLibrary.playback.seek(Number(event.target.value)).catch(e=>notice(e.message,true)):performanceControls.seek(deck,Number(event.target.value));
   panel.querySelector('.dj-volume').oninput = updateGains;
@@ -138,6 +144,28 @@ const performanceControls=createPerformance({decks,mixer,ready:audioReady,
     deck.loop=null;deck.audio.currentTime=target.time;deck.audio.playbackRate=target.rate;deck.manualRate=target.rate;deck.transition=null;
   }});
 simplifyDJLayout(decks,mixer);
+const fullButton=document.createElement('button');fullButton.type='button';fullButton.className='button secondary';fullButton.textContent='Full';fullButton.title='Party-Lichtshow im Vollbild öffnen';
+mixer.querySelector('.dj-light-heading').append(fullButton);
+const fullMode=createFullMode(fullButton);
+createTransitionPreview({host:document.querySelector('.dj-mixer-transition'),
+ isPlaying:()=>Boolean(spotifyDeck?.spotifyStarted&&!spotifyDeck.spotifyPaused)||decks.some(d=>!d.audio.paused),
+ getPair:()=>{
+  const source=fadeSource(),from=decks[source>=0?source:Number($('crossfader').value)<.5?0:1],to=decks[1-from.index];
+  if(fade||!from.track?.plan||!to.track?.plan||!from.url||!to.url||from.resumeTime!=null||to.resumeTime!=null)return null;
+  if(queueRunning&&to.queueEntry!==queue[0]?.id)return null;
+  const plan=plannedTransition(from);if(!plan.duration)return null;
+  const snapshot=d=>({name:d.name,track:{name:d.track.name},url:d.url,rate:d.audio.playbackRate,pitch:d.audio.preservesPitch,
+   volume:Number(d.panel.querySelector('.dj-volume').value),eq:Object.fromEntries([...d.panel.querySelectorAll('[data-eq]')].map(e=>[e.dataset.eq,Number(e.value)]))});
+  return {source:from,token:plan,position:from.index===0?Number($('crossfader').value):1-Number($('crossfader').value),from:snapshot(from),to:snapshot(to),plan:{...plan}};
+ },
+ onChoose:(pair,choice,remember)=>{
+  const from=pair.source;
+  if(fade||plannedTransition(from)!==pair.token||from.audio.currentTime>choice.time)return false;
+  if(remember){$('transitionPreference').value=choice.style;$('transitionPreference').dispatchEvent(new Event('change'));from.pairPlan.keys[15]=choice.style;}
+  from.pairPlan.value={...choice,alternatives:pair.token.alternatives};pair.token=from.pairPlan.value;
+  return true;
+ }
+});
 const spotifyLibrary=createSpotifyLibrary({getTracks:()=>tracks,
   enqueueSpotifyTracks:items=>{
     if(!queueListsReady)throw Error('Bibliothek wird noch geladen.');
@@ -237,13 +265,20 @@ $('autoBeat').onchange=()=>{
 };
 $('autoBeat').checked=true;
 try{$('autoBeat').checked=localStorage.getItem('anydj-auto-beat')!=='false';}catch{}
+try{const saved=localStorage.getItem('anydj-entry-window');if(['2','16','30'].includes(saved))$('transitionEntryWindow').value=saved;}catch{}
+$('transitionEntryWindow').onchange=()=>{try{localStorage.setItem('anydj-entry-window',$('transitionEntryWindow').value);}catch{}};
+try{const saved=localStorage.getItem('anydj-transition-preference');if(['smooth','bass','handover','cut'].includes(saved))$('transitionPreference').value=saved;}catch{}
+$('transitionPreference').onchange=()=>{try{localStorage.setItem('anydj-transition-preference',$('transitionPreference').value);}catch{}};
 function fadeSeconds(){return Number($('fadeDuration').value)||8;}
 function plannedTransition(deck){
   const next=decks[1-deck.index];
   if(!next?.track?.plan||(queueRunning&&next.queueEntry!==queue[0]?.id))return transitionPoint(deck.track?.plan,fadeSeconds(),deck.audio.playbackRate,$('autoBeat').checked);
-  const keys=[deck.track?.plan,next.track.plan,next.cue,deck.audio.playbackRate,next.audio.playbackRate,fadeSeconds(),$('autoBeat').checked,$('fadeDuration').value==='auto',next.queueEntry,deck.track,next.track];
-  if(!deck.pairPlan||!keys.every((key,i)=>key===deck.pairPlan.keys[i]))deck.pairPlan={keys,value:planTransitionPair(keys[0],keys[1],{cue:keys[2],rateA:keys[3],rateB:keys[4],seconds:keys[5],musical:keys[6],adaptive:keys[7],notBefore:deck.audio.currentTime})};
-  return deck.pairPlan.value;
+  const keys=[deck.track?.plan,next.track.plan,next.cue,deck.audio.playbackRate,next.audio.playbackRate,fadeSeconds(),$('autoBeat').checked,$('fadeDuration').value==='auto',next.queueEntry,deck.track,next.track,Number($('transitionEntryWindow').value),Boolean(next.cueLocked),deck.track?.windows,next.track.windows,$('transitionPreference').value];
+  if(!deck.pairPlan||!keys.every((key,i)=>key===deck.pairPlan.keys[i]))deck.pairPlan={keys,value:planTransitionPair(keys[0],keys[1],{cue:keys[2],rateA:keys[3],rateB:keys[4],seconds:keys[5],musical:keys[6],adaptive:keys[7],notBefore:deck.audio.currentTime,entryWindow:keys[11],cueLocked:keys[12],tonalA:transitionTonalSegments(keys[13]),tonalB:transitionTonalSegments(keys[14]),preferredStyle:keys[15]})};
+  const value=deck.pairPlan.value;
+  for(const plan of new Set([value,...(value.alternatives||[])]))if(!Object.hasOwn(plan,'audioProfile'))
+    plan.audioProfile=keys[6]&&keys[7]?transitionAudioProfile(deck.track.windows,next.track.windows,plan,{rateA:keys[3],rateB:keys[4],sameTrack:deck.track.id===next.track.id}):null;
+  return value;
 }
 setInterval(()=>{
   if(closed)return;
@@ -281,7 +316,10 @@ function updateGains() {
   if(spotifyDeck)void spotifyLibrary.playback.volume(Number(spotifyDeck.panel.querySelector('.dj-volume').value)*Number(document.querySelector('[data-master]').value)).catch(e=>notice(e.message,true));
   const gains = deckGains(Number($('crossfader').value));
   $('mixValue').textContent = `A ${Math.round(gains[0]*100)} % · B ${Math.round(gains[1]*100)} %`;
-  for (const deck of decks) if (deck.gain) deck.gain.gain.setTargetAtTime(gains[deck.index]*Number(deck.panel.querySelector('.dj-volume').value), context.currentTime, .015);
+  for (const deck of decks) if (deck.gain) {
+    deck.channelGain.gain.setTargetAtTime(Number(deck.panel.querySelector('.dj-volume').value),context.currentTime,.015);
+    if(!fade||fade.starting)deck.gain.gain.setTargetAtTime(gains[deck.index],context.currentTime,.015);
+  }
 }
 $('crossfader').oninput = () => {pauseQueue();cancelFade(true); updateGains();};
 async function toggleDeck(deck, automatic = false) {
@@ -321,7 +359,7 @@ async function unload(deck) {
   performanceControls.reset(deck);
   deck.audio.pause(); deck.audio.playbackRate=1; deck.audio.removeAttribute('src'); deck.audio.load();
   if (deck.url) URL.revokeObjectURL(deck.url);
-  deck.queueEntry=null;deck.url = null; deck.track = null; deck.transition = null; deck.cue = 0;
+  deck.queueEntry=null;deck.url = null; deck.track = null; deck.transition = null; deck.cue = 0; deck.cueLocked=false;
   deck.panel.querySelector('.dj-track-title').textContent = 'Track laden';
   deck.panel.querySelector('.dj-cue').textContent = 'Cue';
   drawDeck(deck); await stopIfSilent(); renderLibrary();
@@ -584,6 +622,7 @@ function updateLightPreview(){
   const active=current.some((frame,i)=>frame&&weights[i]>0);
   const mixedFrame=active?mixDeckFrames(current,weights):null;
   paintColorPoint('previewMix',mixedFrame,'Lichtmix · berechnete Vorschau');
+  fullMode.update(mixedFrame);
   lightStage.update(mixedFrame,decks.some(deck=>!deck.audio.paused),decks.map((deck,i)=>{
     const plan=deck.track?.plan,time=times[i];
     const section=plan?.sections?.find(s=>time>=s.start&&time<s.end);
@@ -637,6 +676,7 @@ const stopLightClock=startShowClock(()=>decks.map((deck,i)=>({key:deck.audio,tim
 });
 window.addEventListener('pagehide',()=>{
   browserSession.destroy();
+  fullMode.destroy();
   performanceControls.destroy();lightStage.destroy();closed=true;queueRunning=false;queueEpoch++;stopLightClock();stopPreviewClock();cancelFade();lifetime.abort();refineController?.abort();for(const worker of workers)worker.terminate();
   for(const deck of decks){deck.audio.pause();if(deck.url)URL.revokeObjectURL(deck.url);}
   const old=session;session=null;if(old)void api('/api/music/stop',{id:old},true).catch(()=>{});
@@ -705,7 +745,9 @@ function cancelFade(disarm = Boolean(fade)) {
   if(disarm)autoFadePaused=true;
   performanceControls.clearTransition();
   if (fade) {
+    for(const deck of decks)if(deck.gain)holdAudioParam(deck.gain.gain,context.currentTime);
     fade = null;
+    updateGains();
     $('fadeStatus').textContent = 'Übergang abgebrochen';
   }
   if(disarm&&$('autoCrossfade').checked)$('fadeStatus').textContent='Auto-Crossfade pausiert · Play oder Überblenden zum Fortsetzen';
@@ -721,7 +763,7 @@ function requestFade(index, fromQueue=false, musical=false, immediate=false) {
   if (spotifyDeck?.spotifyStarted || !from.track?.plan || !to.track?.plan || from.audio.paused) return;
   if(fromQueue&&queue[0]?.provider==='spotify')return;
   autoFadePaused=false;
-  const job = fade = {from,to,starting:true,fromQueue,epoch:queueEpoch,plan:musical?(immediate?planTransitionPair(from.track.plan,to.track.plan,{seconds:fadeSeconds(),rateA:from.audio.playbackRate,rateB:to.audio.playbackRate,cue:to.cue,startTime:from.audio.currentTime,adaptive:$('fadeDuration').value==='auto'}):plannedTransition(from)):null};
+  const job = fade = {from,to,starting:true,fromQueue,epoch:queueEpoch,plan:musical?(immediate?planTransitionPair(from.track.plan,to.track.plan,{seconds:fadeSeconds(),rateA:from.audio.playbackRate,rateB:to.audio.playbackRate,cue:to.cue,startTime:from.audio.currentTime,adaptive:$('fadeDuration').value==='auto',entryWindow:Number($('transitionEntryWindow').value),cueLocked:Boolean(to.cueLocked),tonalA:transitionTonalSegments(from.track.windows),tonalB:transitionTonalSegments(to.track.windows),preferredStyle:$('transitionPreference').value}):plannedTransition(from)):null};
   $('fadeStatus').textContent = `Deck ${to.name} wird gestartet …`;
   void perform(async () => {
     if (fade !== job || (fromQueue&&(!queueRunning||job.epoch!==queueEpoch))) {if(fade===job)fade=null;return;}
@@ -739,6 +781,14 @@ function requestFade(index, fromQueue=false, musical=false, immediate=false) {
       Object.assign(job,{starting:false,start:from.audio.currentTime,startWall:performance.now(),position:Number($('crossfader').value),
         duration:Math.max(.1,Math.min(job.plan?.duration??fadeSeconds(),(from.track.plan.duration-from.audio.currentTime)/from.audio.playbackRate,(to.track.plan.duration-to.audio.currentTime)/to.audio.playbackRate))});
       job.startAudio=context.currentTime;
+      const actual={...job.plan,time:from.audio.currentTime,cue:to.audio.currentTime,duration:job.duration};
+      actual.audioProfile=musical&&$('fadeDuration').value==='auto'&&wasPaused?transitionAudioProfile(from.track.windows,to.track.windows,actual,{rateA:from.audio.playbackRate,rateB:to.audio.playbackRate,sameTrack:from.track.id===to.track.id}):null;
+      job.plan=actual;
+      const options={position:from.index===0?job.position:1-job.position,
+        levelA:Number(from.panel.querySelector('.dj-volume').value)*10**(Number(from.panel.querySelector('[data-eq="trim"]').value)/20),
+        levelB:Number(to.panel.querySelector('.dj-volume').value)*10**(Number(to.panel.querySelector('[data-eq="trim"]').value)/20)};
+      for(const [deck,i] of [[from,0],[to,1]])scheduleTransitionGain(deck.gain.gain,
+        Float32Array.from({length:257},(_,n)=>transitionAudioGains(n/256,actual,options)[i]),job.startAudio,job.duration);
       if(job.plan?.style==='bass')performanceControls.startTransition(from,to,job.duration);
       $('fadeStatus').textContent = `Deck ${from.name} → Deck ${to.name} · ${job.duration.toFixed(1)} Sekunden${musical?' · musikalischer Start':''}${job.plan?.label?' · '+job.plan.label:''}`;
     } catch(error) {if(fromQueue)pauseQueue(error.message);cancelFade(true); if(wasPaused)to.audio.pause(); throw error;}
@@ -780,7 +830,7 @@ setInterval(() => {
     updateGains();
     if (elapsed >= job.duration) {
       performanceControls.clearTransition();
-      fade = null; job.from.autoUsed = true;
+      fade = null; updateGains(); job.from.autoUsed = true;
       if(job.fromQueue)queueDeck=job.to;
       job.from.audio.pause();
       $('fadeStatus').textContent = `Deck ${job.to.name} läuft`;
@@ -947,7 +997,7 @@ function refillShuffle(){
   const queuedIds=new Set(queue.map(entry=>entry.id));
   for(const id of shuffleEntries)if(!queuedIds.has(id))shuffleEntries.delete(id);
   let changed=false;
-  while(queue.length<3){
+  while(queue.length<shuffleCount){
     const track=shufflePicker.next(tracks,[...queue.map(e=>e.trackId),...decks.filter(d=>d.track&&!d.autoUsed&&!d.audio.ended).map(d=>d.track.id)]);
     if(!track)break;
     const entry={id:crypto.randomUUID(),trackId:track.id};
@@ -962,6 +1012,13 @@ $('queueShuffle').onclick=()=>{
     queueMessage=queue.length?'Shuffle bereit':'Keine verfügbaren Dateien für Shuffle';
   }
   renderQueue();
+};
+$('queueShuffleCount').value=shuffleCount;
+$('queueShuffleCount').onchange=()=>{
+  shuffleCount=shuffleLookahead($('queueShuffleCount').value);
+  $('queueShuffleCount').value=shuffleCount;
+  try{localStorage.setItem('anydj-shuffle-count',String(shuffleCount));}catch{}
+  refillShuffle();renderQueue();
 };
 function enqueue(track) {
   displayedQueue().push({id:crypto.randomUUID(),trackId:track.id});persistDisplayedQueue();renderQueue();

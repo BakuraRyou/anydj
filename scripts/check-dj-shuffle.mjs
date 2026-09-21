@@ -38,8 +38,14 @@ try {
  await wait("document.querySelector('#queueSelect').dataset.lists!==undefined");
  await evaluate("document.querySelector('#demoTracks').click()");
  await wait("document.querySelectorAll('#trackList [data-analysis=complete]').length===2");
+ await evaluate("document.querySelector('#queueShuffleCount').value='1';document.querySelector('#queueShuffleCount').dispatchEvent(new Event('change'))");
  await evaluate("document.querySelector('#trackSearch').value='no-match';document.querySelector('#trackSearch').dispatchEvent(new Event('input'));document.querySelector('#queueShuffle').click()");
+ await wait("document.querySelector('#queueCount').textContent==='1'");
+ await evaluate("document.querySelector('#queueShuffleCount').value='2';document.querySelector('#queueShuffleCount').dispatchEvent(new Event('change'))");
  await wait("document.querySelector('#queueCount').textContent==='2'");
+ await evaluate("document.querySelector('#queueShuffleCount').value='1';document.querySelector('#queueShuffleCount').dispatchEvent(new Event('change'))");
+ if(!await evaluate("document.querySelector('#queueCount').textContent==='2'"))throw Error('Reducing lookahead removed planned titles');
+
  if(!await evaluate("[...document.querySelectorAll('audio')].every(a=>a.paused)"))throw Error('Shuffle toggle unexpectedly starts playback');
  await evaluate("document.querySelector('#queueStart').click()");
  await wait("[...document.querySelectorAll('audio')].some(a=>!a.paused&&a.currentTime>.2)");
@@ -52,6 +58,8 @@ try {
  if(!await evaluate("document.querySelector('#queueCount').textContent==='1'"))throw Error('Disabling shuffle removed queued titles');
  await evaluate("document.querySelector('#queueShuffle').click();document.querySelector('#queueClear').click()");
  if(!await evaluate("document.querySelector('#queueShuffle').getAttribute('aria-pressed')==='false'&&document.querySelector('#queueCount').textContent==='0'"))throw Error('Clearing queue must disable refill');
+ await c('Page.reload');await wait("document.querySelector('#queueSelect').dataset.lists!==undefined");
+ if(!await evaluate("document.querySelector('#queueShuffleCount').value==='1'"))throw Error('Lookahead setting not restored');
  if(errors.length)throw Error(JSON.stringify(errors));
  console.log(JSON.stringify({shuffle:true,ignoresSearch:true,noAutoplay:true,automaticRefill:true,disablePreservesQueue:true,clearDisablesShuffle:true,browserErrors:0}));
 }finally{ws?.close();chrome.kill();await once(chrome,'exit');server.closeAllConnections();await new Promise(r=>server.close(r));await rm(profile,{recursive:true,force:true});}

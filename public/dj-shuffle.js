@@ -1,3 +1,7 @@
+export function shuffleLookahead(value){
+  const count=Number(value);
+  return Number.isFinite(count)&&count>=1?Math.min(50,Math.floor(count)):3;
+}
 // Draw each available local title once per round; current/queued titles stay excluded.
 export function createShufflePicker(random=Math.random){
   const seen=new Set();

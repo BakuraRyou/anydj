@@ -28,3 +28,10 @@ test('small libraries terminate and alternate when the prior title is released',
  assert.equal(picker.next(pair,['b']).id,'a');
  assert.equal(picker.next([tracks[0]],['a']),null);
 });
+
+test('lookahead setting uses a safe default and bounded whole song counts',async()=>{
+ const {shuffleLookahead}=await import('../public/dj-shuffle.js');
+ for(const value of [null,'',undefined,'invalid',0,-1,Infinity])assert.equal(shuffleLookahead(value),3);
+ assert.equal(shuffleLookahead('1'),1);assert.equal(shuffleLookahead('10'),10);
+ assert.equal(shuffleLookahead(4.9),4);assert.equal(shuffleLookahead(999),50);
+});

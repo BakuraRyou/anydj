@@ -91,5 +91,68 @@ test('automatic option keeps fallback and disabled musical timing predictable',(
 test('different rhythms favor a shorter audible overlap without changing tempo data',()=>{
  const a=longPlan(),b=longPlan(.6);a.sections=[{start:96}];a.structure.instruments.vocals.fill(0,960,1120);
  const before=JSON.stringify([a,b]);const p=planTransitionPair(a,b,{adaptive:true});
- assert.equal(p.style,'handover');assert.equal(JSON.stringify([a,b]),before);
+ assert.ok(['handover','cut'].includes(p.style));assert.equal(JSON.stringify([a,b]),before);
+});
+
+test('automatic choice compares a short boundary handoff against blending without changing songs',()=>{
+ const a=longPlan(.5),b=longPlan(.7);
+ for(const p of [a,b])p.structure.instruments=instruments(120,{drums:1,bass:.01,vocals:0,other:.01});
+ a.sections=[{start:116}];
+ const short=planTransitionPair(a,b,{adaptive:true});
+ assert.equal(short.style,'cut');assert.equal(short.time,116);assert.equal(short.duration,.25);
+ const blend=planTransitionPair(a,a,{adaptive:true});
+ assert.equal(blend.style,'smooth');assert.ok(blend.duration>=2);
+ assert.notEqual(planTransitionPair(a,b,{seconds:8}).style,'cut');
+});
+
+test('sustained vocal endings differ from syllable gaps; context detects energy builds and drops',async()=>{
+ const {transitionContext}=await import('../public/musical-transition.js');
+ const a=longPlan(),b=longPlan();
+ a.structure.instruments.vocals.fill(0,1000,1020);
+ const end=transitionContext(a,b,99.875,0,.25);
+ assert.equal(end.vocalEnd,true);
+ a.structure.instruments.vocals.fill(.7,1002,1020);
+ assert.equal(transitionContext(a,b,99.875,0,.25).vocalEnd,false);
+ const flat=longPlan();flat.structure.instruments=instruments(120,{vocals:0,bass:0,drums:0,other:.2});
+ const rising=structuredClone(flat);rising.structure.instruments.other.fill(.4,980,1000);rising.structure.instruments.other.fill(.8,1000,1020);
+ assert.equal(transitionContext(rising,flat,100,0,4).build,true);
+ assert.ok(transitionContext(rising,flat,100,0,4).cost>transitionContext(flat,flat,100,0,4).cost);
+ flat.structure.instruments.other.fill(0,40,70);
+ assert.ok(transitionContext(rising,flat,100,0,4).energyJump>1);
+});
+test('phrase estimates require an actual section anchor and absent context supplies no evidence',async()=>{
+ const {transitionContext}=await import('../public/musical-transition.js');
+ const a=longPlan();a.structure.segments=[{start:80,end:120,label:'outro'}];
+ assert.equal(transitionContext(a,a,95.875,0,.25).phrase,true);
+ assert.equal(transitionContext({...a,structure:{...a.structure,segments:[]}},a,95.875,0,.25).phrase,false);
+ assert.equal(transitionContext({duration:120},{duration:120},95,0,4).cost,0);
+});
+test('extended entry search is opt-in, bounded and never shifts an explicit cue',()=>{
+ const a=longPlan(),b=longPlan();b.structure.instruments.vocals.fill(0,60);
+ const ordinary=planTransitionPair(a,b,{adaptive:true});assert.ok(ordinary.cue<=2);
+ const extended=planTransitionPair(a,b,{adaptive:true,entryWindow:16});
+ assert.ok(extended.alternatives.some(p=>p.cue>2));assert.ok(extended.cue<=16);
+ for(const adaptive of [false,true])for(const cue of [0,.6,5]){
+  const p=planTransitionPair(a,b,{adaptive,cue,cueLocked:true,entryWindow:30});assert.equal(p.cue,cue);
+  for(const alternative of p.alternatives||[])assert.equal(alternative.cue,cue);
+ }
+});
+test('tonal estimates use existing chroma, ignore silence and uncertain keys',async()=>{
+ const {transitionTonalSegments,harmonicCompatibility}=await import('../public/musical-transition.js');
+ const chroma=Array(12).fill(0);for(const n of [0,2,4,5,7,9,11])chroma[n]=n===0?3:n===4||n===7?2:1;
+ const windows=Array.from({length:1000},(_,i)=>({rms:i<500?.1:0,chroma}));
+ const keys=transitionTonalSegments(windows);assert.equal(keys[0].root,0);assert.equal(keys[0].mode,'major');assert.equal(keys[1].mode,null);
+ assert.equal(transitionTonalSegments(windows),keys);
+ const unrelated=[{start:0,end:10,mode:'major',root:1,confidence:1}];
+ assert.ok(harmonicCompatibility(keys,unrelated,1,1).cost>0);
+ assert.equal(harmonicCompatibility(keys,keys,1,1).cost,0);
+ assert.equal(harmonicCompatibility(keys,[{...unrelated[0],confidence:.1}],1,1).cost,0);
+ assert.equal(harmonicCompatibility([],[],1,1).cost,0);
+});
+test('alternatives are finite, distinct, serializable and preserve musical bounds',()=>{
+ const a=longPlan(),b=longPlan(.6),p=planTransitionPair(a,b,{adaptive:true,entryWindow:16,notBefore:100});
+ assert.equal(p.alternatives.length,3);assert.equal(p.score,p.alternatives[0].score);
+ for(const candidate of p.alternatives){assert.ok(Number.isFinite(candidate.score));assert.ok(candidate.time>=100);assert.ok(candidate.time+candidate.duration<=120);assert.ok(candidate.cue<=16);assert.ok(!candidate.alternatives);}
+ assert.doesNotThrow(()=>JSON.stringify(p));
+ const preferred=planTransitionPair(a,b,{adaptive:true,preferredStyle:'cut'});assert.ok(preferred.duration>0);
 });

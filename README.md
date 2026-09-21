@@ -1,5 +1,21 @@
 # AnyDj – Prototyp 0.1.0
 
+**Layout anpassen:** Auf breiten Bildschirmen lassen sich die Trennlinien zwischen
+Decks und Mixer, zwischen Pult und Listen sowie zwischen Bibliothek und
+Warteschlange ziehen. Die Größen werden im Browser gespeichert. Fokussierte
+Trennlinien reagieren auf Pfeiltasten (mit Umschalt in größeren Schritten).
+Doppelklick setzt die jeweilige Aufteilung zurück; „Einstellungen → Layout
+zurücksetzen“ stellt alle Standardgrößen wieder her. Auf schmalen Displays
+bleibt die gestapelte Ansicht erhalten.
+
+**Full-Modus für Parties:** Bei „Lichtshow“ auf „Full“ klicken: Weich bewegte,
+bildschirmfüllende Farbflächen folgen den Songfarben, der Helligkeit und dem
+aktuellen Crossfade. Musik und Warteschlange laufen weiter, auch ohne Lampe.
+Die Bedienung verschwindet nach kurzer Zeit und erscheint bei Mausbewegung
+oder Antippen wieder. Mit Escape oder „Schließen“ zurück zum Pult.
+Pause und Stopp schalten die Farben dunkel. Ohne Browser-Vollbildunterstützung
+füllt die Ansicht das Browserfenster.
+
 **Virtuelle Lichtbühne im DJ-Pult:** Im Mixer „Lichtbühne aktivieren“
 anklicken. Die Bühne ersetzt oben die Farbvorschau; „Bühne einstellen“ öffnet
 die Einstellungen. Beim Schließen der Einstellungen läuft die Bühne weiter.
@@ -219,6 +235,42 @@ bei fehlendem Raster auf den zeitbasierten Start zurück. „Überblenden“ sta
 weiterhin sofort. Nur der manuelle Tempo-Regler und der ausdrücklich betätigte
 Sync-Button ändern die Wiedergabegeschwindigkeit. Manuelles Tempo bleibt beim
 Ein-/Ausschalten der musikalischen Übergänge unverändert.
+
+**Adaptive Übergangsplanung:** Bei „Übergangsdauer → Automatisch“ vergleicht
+AnyDj kurze Wechsel und mehrere Überblendvarianten. Neben Rhythmus, Gesang
+und Bass zählen anhaltende Gesangspausen, geschätzte Phrasengrenzen und der
+Energieverlauf vor und nach dem Wechsel. Vorhandene Tonhöhenverteilungen
+liefern eine lokale Tonartschätzung; unsichere Ergebnisse werden nicht gewichtet.
+Das sind musikalische Näherungen, keine Erkennung des Liedtextes und keine
+Garantie für einen perfekten Übergang.
+
+Bei musikalischen Übergängen mit automatischer Dauer wird die Audiokurve
+zusätzlich aus den RMS-Pegeln der aktuell gewählten Ein- und Ausstiegsbereiche
+berechnet. Ein behutsamer Ausgleich von maximal 2 dB während der Überlagerung
+kann das Pegelloch in der Mitte verringern. Bei hohen gemessenen Pegeln wird der
+Ausgleich reduziert; bei fehlenden Daten, sehr leisen Bereichen, demselben
+Bibliothekstitel auf beiden Decks und kurzen Wechseln entfällt er. Es gibt keine
+hinterlegten Songkombinationen. Dies ist ein Energieausgleich, keine
+LUFS-Normalisierung oder Garantie gegen Pegelspitzen.
+
+Die Lautstärkekurven aller Übergänge laufen auf der Audio-Zeitachse. Kanalpegel
+bleiben währenddessen bedienbar; die Hörprobe und ihre Grafik verwenden dieselbe
+Kurvenberechnung. Feste Übergangsdauern behalten ihre bisherigen Kurven.
+
+Unter „Automatik einstellen → Einstiegssuche“ lässt sich die Suche optional
+von zwei auf 16 oder 30 Sekunden erweitern. Dadurch darf die Automatik einen
+Teil des Intros überspringen. Ein mit „Cue setzen“ markierter Punkt bleibt
+exakt verbindlich, auch bei 0:00; Shift-Klick auf „Cue setzen“ hebt ihn wieder auf.
+
+„Übergang ansehen & probehören“ bietet bei vollständiger Paaranalyse bis zu
+drei Vorschläge mit Zeitpunkt, Dauer und Begründung. Die Auswahl im Dialog
+ändert zunächst nur die Vorschau; „Für Automatik übernehmen“ übernimmt sie
+für das aktuelle Songpaar. Bereits verstrichene oder inzwischen veraltete
+Pläne werden abgelehnt. Optional lässt sich der gewählte Stil als leichte
+Präferenz speichern; unter „Automatik einstellen → Leichte Stilpräferenz“
+ist sie veränderbar oder mit „Keine“ zurücksetzbar. Einstiegssuche und Präferenz
+werden auf dem Gerät gespeichert. Die Hörprobe benötigt pausierte Decks und
+spielt über den Systemausgang, ohne die Deckpositionen oder Warteschlange zu ändern.
 
 **Farbmodi und Vorschau:** Direkt unter dem Tracknamen jedes DJ-Decks öffnet
 „Farbmodus“ eine Auswahl mit Textsuche und Farbgruppenfiltern. Neben Songanalyse,

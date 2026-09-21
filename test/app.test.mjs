@@ -37,6 +37,27 @@ async function httpApp(t, options = {}) {
   return { ...app, base, call };
 }
 
+test('DJ-Seite liefert Styles und den statischen lokalen Modulbaum aus', async t => {
+  const {base}=await httpApp(t);
+  const page=await fetch(`${base}/dj`);
+  assert.equal(page.status,200);
+  const html=await page.text();
+  const pending=[...html.matchAll(/(?:src|href)="([^\"]+\.(?:js|css))"/g)].map(match=>new URL(match[1],base).href);
+  const visited=new Set();
+  while(pending.length){
+    const url=pending.pop();if(visited.has(url))continue;visited.add(url);
+    const response=await fetch(url);
+    assert.equal(response.status,200,`${url} muss erreichbar sein`);
+    assert.match(response.headers.get('content-type')||'',url.endsWith('.css')?/text\/css/:/(?:text|application)\/javascript/,url);
+    const source=await response.text();
+    if(url.endsWith('.js')){
+      for(const match of source.matchAll(/(?:\bfrom\s*|\bimport\s*)["'](\.[^"']+\.js)["']/g))pending.push(new URL(match[1],url).href);
+    }
+  }
+  assert.ok(visited.has(`${base}/dj-full.js`));
+  assert.ok(visited.has(`${base}/dj-full.css`));
+});
+
 test('Berechnet Broadcast-Adressen auch außerhalb eines /24-Netzes', () => {
   assert.equal(broadcastAddress('192.168.178.7', '255.255.255.0'), '192.168.178.255');
   assert.equal(broadcastAddress('10.3.4.17', '255.255.252.0'), '10.3.7.255');
