@@ -47,7 +47,7 @@
 .dj-mixer .dj-auto-controls #fadeNow{background:var(--accent);color:#173327;border:0;min-height:38px;padding:8px 14px;flex:none}
 .dj-transition-options{margin-top:6px}
 .dj-transition-options>label:first-of-type{display:flex;justify-content:space-between;align-items:center;margin:10px 0;gap:12px}
-.dj-transition-options select{width:95px}
+.dj-transition-options select{width:125px}
 .dj-transition-options #beatStatus{font-size:11px;color:var(--muted);line-height:1.5}
 .dj-master{padding-top:14px;margin-top:10px}
 .dj-master>.dj-level{margin:8px 0 4px}
@@ -220,9 +220,25 @@
 .dj-page #trackList>li:not(.dj-empty),.dj-page #queueList>li:not(.dj-empty){padding:10px 0}
 .dj-page #trackList .dj-enqueue{background:transparent;border-color:#ffffff12;color:#b5c8d0}
 .dj-page .queue-manager>label[for=queueSelect]{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
-.dj-page .queue-manager{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:start;gap:8px}
-.dj-page .queue-manager>.dj-list-options>summary{padding:9px 0;min-height:34px}
-.dj-page .queue-manager:has(.dj-list-options[open]){grid-template-columns:minmax(0,1fr)}
+.dj-page .queue-manager{display:grid;grid-template-columns:minmax(0,1fr) 38px 38px;align-items:center;gap:8px;padding:0;flex-shrink:0}
+.dj-page .queue-manager>select{grid-column:1;grid-row:1;width:100%;min-width:0;height:38px}
+.dj-page #queueShuffle{grid-column:2;grid-row:1}
+.dj-page .queue-manager>.dj-list-options{grid-column:3;grid-row:1;position:relative;margin:0}
+.dj-page .queue-icon-button{display:flex;align-items:center;justify-content:center;width:38px;height:38px;min-height:38px;padding:0;box-sizing:border-box;cursor:pointer;list-style:none}
+.dj-page .queue-icon-button svg{width:20px;height:20px;flex-shrink:0}
+.dj-page .queue-icon-button::-webkit-details-marker{display:none}
+.dj-page .queue-icon-button[aria-pressed=true],.dj-page .dj-list-options[open]>.queue-icon-button{color:var(--accent);background:#a7edc820;border-color:var(--accent)}
+.dj-page .queue-icon-button:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.dj-page .queue-list-panel{position:absolute;right:0;top:calc(100% + 8px);z-index:10;width:min(310px,calc(100vw - 64px));padding:16px;box-sizing:border-box;background:var(--panel);border:1px solid var(--line);border-radius:8px;box-shadow:0 8px 24px #0006}
+.dj-page .queue-list-panel .queue-list-actions{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 12px}
+.dj-page .queue-list-panel #queueSaved{margin:12px 0 0}
+.dj-page .dj-library-heading{align-items:center;min-height:38px}
+.dj-page #trackSearch{height:38px}
+@media(max-width:760px){
+ .dj-page .queue-manager{grid-template-columns:minmax(0,1fr) 44px 44px}
+ .dj-page .queue-manager>select,.dj-page .queue-icon-button{height:44px;min-height:44px}
+ .dj-page .queue-icon-button{width:44px}
+}
 .dj-page .queue-manager>p{grid-column:1/-1}
 @media(max-width:1100px){
  .dj-page .dj-console .dj-deck{padding:18px}

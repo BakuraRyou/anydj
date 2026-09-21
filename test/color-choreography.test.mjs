@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import {choreographColors} from '../public/color-choreography.js';
 import {showFrameAt} from '../public/show-plan.js';
 import {sectionEditsFor,applySectionLighting} from '../public/section-lighting.js';
+import {automaticStage} from '../public/dmx-auto.js';
+import {prepareStageMotifs} from '../public/stage-motifs.js';
 const fixture=()=>({duration:8,step:.125,effectiveOptions:{palette:'sunset'},colorPalette:[[255,80,0],[0,80,255]],
  sections:[{start:0,end:4,look:'held',motif:0},{start:4,end:8,look:'peak',motif:0}],
  frames:Array.from({length:64},()=>({r:200,g:40,b:10,dimming:30})),
@@ -16,6 +18,18 @@ test('quiet sections retain color; active colors change at exact off-frame beats
  assert.equal(a.r,255);assert.equal(b.b,255);
  assert.equal(showFrameAt(show,4.99).b,255);
  assert.equal(base.colorEvents,undefined);
+});
+test('stage palettes follow within-section color events and explicit colors despite a stored motif anchor',()=>{
+ const plan=choreographColors(fixture(),'disco');
+ const motifColor=prepareStageMotifs(plan)[1].color;
+ const render=(show,time,mode)=>automaticStage([{frame:showFrameAt(show,time),motifColor,weight:1,look:'peak',beat:0}],4,undefined,mode);
+ for(const mode of ['auto','chase','wash','follow','alternate']){
+   assert.deepEqual(render(plan,4.629,mode).palette[0],[255,80,0]);
+   assert.deepEqual(render(plan,4.63,mode).palette[0],[0,80,255]);
+   assert.deepEqual(render(plan,4.99,mode).palette[0],[0,80,255]);
+ }
+ const edits=sectionEditsFor(plan);edits[1].colors='hold';edits[1].colorA='#00ff00';
+ assert.deepEqual(render(applySectionLighting(plan,edits),4.63,'auto').palette[0],[0,255,0]);
 });
 test('explicit section colors and reduced movement retain precedence over automatic cues',()=>{
  const plan=choreographColors(fixture(),'disco'),edits=sectionEditsFor(plan);

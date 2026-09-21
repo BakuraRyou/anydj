@@ -1,3 +1,29 @@
+import {arrangementMotionAt} from './show-arrangement.js';
+
+// Reuse the show's selected attacks and their existing decay. This is only
+// spatial emphasis, never a new pulse or a gate on the source brightness.
+export function stageAccentStrength(plan,time){
+  if(!plan?.arrangement||!Number.isFinite(time))return 0;
+  return Math.max(0,Math.min(1,arrangementMotionAt(plan.arrangement,time)));
+}
+// A seek-stable, two-second trailing average of the prepared base lighting.
+// Older shows without an arrangement use their stored brightness frames.
+export function stageWashDimming(plan,time){
+  if(!plan?.frames?.length||!Number.isFinite(time))return null;
+  const arrangement=plan.arrangement,timing=plan.beatTiming;
+  const base=arrangement?.bases?.length&&timing;
+  const length=base?arrangement.bases.length:plan.frames.length;
+  const value=index=>base?arrangement.bases[index]:plan.frames[index].dimming;
+  const step=(base?arrangement.step:plan.step)||.125;
+  let sum=0;
+  for(let i=0;i<=16;i++){
+    const position=Math.min(length-1,Math.max(0,time-i*.125)/step);
+    const index=Math.floor(position),fraction=position-index;
+    sum+=value(index)*(1-fraction)+value(Math.min(index+1,length-1))*fraction;
+  }
+  const level=sum/17;
+  return Math.max(0,Math.min(timing?.maximum??100,base?timing.minimum+level*(timing.maximum-timing.minimum):level));
+}
 // Small per-track index derived from the prepared show; no new audio analysis.
 export function prepareStageMotifs(plan){
   const first=new Map();

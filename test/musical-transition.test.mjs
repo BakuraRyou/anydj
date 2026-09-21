@@ -57,3 +57,39 @@ test('manual transitions stay at the current exit and respect actual time at man
  const early=planTransitionPair(a,a,{seconds:4,startTime:7.6});
  assert.equal(early.time,7.6);assert.equal(early.duration,4);
 });
+
+const longPlan=(period=.5,beatsPerBar=4)=>({duration:120,
+ beatGrid:{beats:Array.from({length:Math.ceil(120/period)},(_,i)=>i*period),downbeats:Array.from({length:Math.ceil(120/period/beatsPerBar)},(_,i)=>i*period*beatsPerBar)},
+ sections:[],structure:{instruments:instruments(120,{vocals:.7,bass:.3,drums:.4})}});
+test('automatic pair finds a vocal-free section outside the old narrow window',()=>{
+ const a=longPlan(),b=longPlan();a.sections=[{start:96}];a.structure.instruments.vocals.fill(0,960,1120);
+ const p=planTransitionPair(a,b,{adaptive:true});
+ assert.equal(p.time,96);assert.equal(p.kind,'section');assert.equal(p.style,'bass');
+ assert.ok(p.time>=90&&p.time+p.duration<=120);assert.ok(p.cue>=0&&p.cue<=2);
+ assert.ok(planTransitionPair(a,b,{seconds:8}).time>=108);
+});
+test('automatic duration follows actual three-beat bars instead of assuming four beats',()=>{
+ const a=longPlan(.6,3);a.structure.instruments=instruments(120,{vocals:.01,bass:.01,drums:.5});
+ const p=planTransitionPair(a,a,{adaptive:true});
+ assert.ok(Math.abs(p.duration-7.2)<1e-6);assert.equal(p.style,'smooth');
+});
+test('automatic planning respects late loading, rates, cue window and immediate manual starts',()=>{
+ const a=longPlan(),b=longPlan(.6);
+ for(const notBefore of [0,103,117,119.8,120]){
+  const p=planTransitionPair(a,b,{adaptive:true,notBefore,rateA:1.25,rateB:.8,cue:5});
+  assert.ok(p.time>=notBefore);assert.ok(p.time+p.duration*1.25<=120+1e-6);
+  assert.ok(p.cue>=5&&p.cue<=7);assert.ok(p.cue+p.duration*.8<=120+1e-6);
+ }
+ assert.equal(planTransitionPair(a,b,{adaptive:true,startTime:53.4}).time,53.4);
+});
+test('automatic option keeps fallback and disabled musical timing predictable',()=>{
+ assert.deepEqual(planTransitionPair(plan,plan,{adaptive:true}),planTransitionPair(plan,plan));
+ const a=longPlan();assert.deepEqual(planTransitionPair(a,a,{adaptive:true,musical:false}),planTransitionPair(a,a,{musical:false}));
+ const broken={...a,beatGrid:{beats:[],downbeats:[]}};
+ assert.ok(!planTransitionPair(broken,broken,{adaptive:true}).adaptive);
+});
+test('different rhythms favor a shorter audible overlap without changing tempo data',()=>{
+ const a=longPlan(),b=longPlan(.6);a.sections=[{start:96}];a.structure.instruments.vocals.fill(0,960,1120);
+ const before=JSON.stringify([a,b]);const p=planTransitionPair(a,b,{adaptive:true});
+ assert.equal(p.style,'handover');assert.equal(JSON.stringify([a,b]),before);
+});

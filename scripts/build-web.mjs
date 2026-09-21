@@ -19,6 +19,6 @@ dj=dj.replace('<html lang="de">','<html lang="de" data-edition="web">')
  .replace('Lampenverbindung wird geprüft …','Web-Demo · Analyse direkt auf deinem Gerät.')
  .replace('Auto Beat</label>','Auto Beat (Desktop)</label>');
 await writeFile(join(output,'dj.html'),dj);
-await cp(join(root,'public','spotify-callback.html'),join(output,'spotify-callback.html'));
+for(const name of ['spotify-callback.html','tidal-callback.html'])await cp(join(root,'public',name),join(output,name));
 for(const name of ['index.html','web.css'])await cp(join(root,'web',name),join(output,name));
 console.log('Web-Version erstellt: dist/web/ — Inhalt auf HTTPS-Webspace hochladen. Kein Node.js/Python-Server erforderlich.');

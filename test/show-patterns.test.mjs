@@ -24,7 +24,7 @@ test('patterns are seekable, preserve beat grid and profiles, and keep silence d
  const duration=60,beats=Array.from({length:120},(_,i)=>i*.5),grid={version:1,source:'beat-this',duration,beats,downbeats:beats.filter((_,i)=>i%4===0)};
  const windows=Array.from({length:3000},(_,i)=>({rms:i%25<3?.3:.12,bass:i%25<3?.15:.02,flux:i%25<3?.7:0,tone:.5,beatSeq:Math.floor(i/25)}));
  const structure={version:1,source:'all-in-one',duration,segments:[{start:0,end:60,label:'chorus'}]};
- const plan=compileShow(windows,duration,settings({arrangement:'auto'}),grid,structure);
+ const plan=compileShow(windows,duration,settings({arrangement:'auto',maximum:75}),grid,structure);
  assert.deepEqual(plan.beatGrid,grid);assert.deepEqual(new Set(plan.arrangement.patterns.phrases.map(p=>p.kind)),new Set(['punch','bounce']));
  for(const profile of ['party','disco']) {
   const variant=applyShowProfile(plan,profile);
@@ -35,7 +35,7 @@ test('patterns are seekable, preserve beat grid and profiles, and keep silence d
  }
  const first=showFrameAt(plan,12.24);showFrameAt(plan,55);assert.deepEqual(showFrameAt(plan,12.24),first);
  assert.ok(plan.frames.every(f=>f.dimming>=5&&f.dimming<=75));
- const silent=compileShow(windows.map(w=>({...w,rms:0,bass:0,flux:0})),duration,settings({arrangement:'auto'}),grid,structure);
+ const silent=compileShow(windows.map(w=>({...w,rms:0,bass:0,flux:0})),duration,settings({arrangement:'auto',maximum:75}),grid,structure);
  assert.equal(silent.arrangement.times.length,0);assert.ok(silent.frames.every(f=>f.dimming===5));
 });
 

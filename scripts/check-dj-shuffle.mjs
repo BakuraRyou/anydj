@@ -51,7 +51,7 @@ try {
  await evaluate("document.querySelector('#queueStart').click();document.querySelector('#queueShuffle').click()");
  if(!await evaluate("document.querySelector('#queueCount').textContent==='1'"))throw Error('Disabling shuffle removed queued titles');
  await evaluate("document.querySelector('#queueShuffle').click();document.querySelector('#queueClear').click()");
- if(!await evaluate("!document.querySelector('#queueShuffle').checked&&document.querySelector('#queueCount').textContent==='0'"))throw Error('Clearing queue must disable refill');
+ if(!await evaluate("document.querySelector('#queueShuffle').getAttribute('aria-pressed')==='false'&&document.querySelector('#queueCount').textContent==='0'"))throw Error('Clearing queue must disable refill');
  if(errors.length)throw Error(JSON.stringify(errors));
  console.log(JSON.stringify({shuffle:true,ignoresSearch:true,noAutoplay:true,automaticRefill:true,disablePreservesQueue:true,clearDisablesShuffle:true,browserErrors:0}));
 }finally{ws?.close();chrome.kill();await once(chrome,'exit');server.closeAllConnections();await new Promise(r=>server.close(r));await rm(profile,{recursive:true,force:true});}

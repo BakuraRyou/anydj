@@ -1,5 +1,5 @@
 import {createDmxConnection} from './dmx-connection.js';
-import {automaticStage} from './dmx-auto.js';
+import {automaticStage,STAGE_PRESETS} from './dmx-auto.js';
 import {createStageEditor} from './dmx-editor.js';
 import {mixFixtureFrames} from './dmx-show.js';
 import {stagePatch,encodeStage,decodeStage} from './dmx-model.js';
@@ -80,11 +80,11 @@ export function createDmxStage(button) {
     }
     const t=performance.now()/1000;
     const sample=demo?{state:true,r:Math.round(128+127*Math.sin(t*.6)),g:Math.round(128+127*Math.sin(t*.6+2)),b:Math.round(128+127*Math.sin(t*.6+4)),dimming:45+25*Math.sin(t*2)}:current;
-    const inputs=demo?[{frame:sample,weight:1,beat:t*2,look:'peak'}]:streams.length?streams:[{frame:sample,weight:1}];
+    const inputs=demo?[{frame:sample,weight:1,beat:t*2,look:'peak',washDimming:55}]:streams.length?streams:[{frame:sample,weight:1}];
     const main=inputs.filter(s=>s.frame&&s.weight>0).sort((a,b)=>b.weight-a.weight)[0];
     editor.context(main?.sectionKey,main?.sectionName);
     fixtureNodes.forEach((node,i)=>node.setAttribute('aria-pressed',String(editor.mode==='design'&&editor.selected===`f${i}`)));
-    const automatic=editor.mode==='auto'?automaticStage(inputs,editor.count,equipment):null;
+    const automatic=Object.hasOwn(STAGE_PRESETS,editor.mode)?automaticStage(inputs,editor.count,equipment,editor.mode):null;
     if(automatic)editor.preview(automatic.palette,automatic.description);
     const output=automatic?automatic.frames:editor.mode==='design'?mixFixtureFrames(inputs,editor.config,equipment):sample;
     hardware.setDemo(demo);
@@ -93,7 +93,11 @@ export function createDmxStage(button) {
     fixtures.forEach((f,i)=>f.cells.forEach((rgb,j)=>{
       const target=nodes[i][j];
       target.style.setProperty('--stage-color',`rgb(${rgb.join(',')})`);
-      target.style.setProperty('--stage-power',String(Math.max(...rgb)/255));
+      // Decoded RGB already includes dimming. Apply it only once to the beam.
+      const power=Math.max(...rgb)/255;
+      const beamColor=power?rgb.map(v=>Math.round(v/power)):rgb;
+      target.style.setProperty('--stage-beam-color',`rgb(${beamColor.join(',')})`);
+      target.style.setProperty('--stage-power',String(power));
       if(f.type==='bar')target.setAttribute('role','img');target.setAttribute('aria-label',`${f.name}${f.type==='bar'?` Segment ${j+1}`:' gestalten'}: RGB ${rgb.join(', ')}`);
     }));
     const status=blackout?'Vorschau abgedunkelt · Musik und echte Lampen bleiben unverändert.':demo?'Demo läuft · Beispiellicht ohne Musik.':current?'Live-Vorschau · folgt deinem DJ-Lichtmix.':playing?'Kein hörbares Deck im Lichtmix · Crossfader und Lautstärke prüfen.':'Bereit · Starte die Demo oder spiele einen Track im DJ-Pult ab.';

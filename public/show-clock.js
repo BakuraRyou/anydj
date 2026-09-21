@@ -13,7 +13,7 @@ export function nextShowWake(streams, minimumMs=110) {
   }
   return next&&next.delay<=minimumMs*2?next:{delay:minimumMs};
 }
-export function startShowClock(read,send) {
+export function startShowClock(read,send,minimumMs=110) {
   let stopped=false,timer,pending;
   async function tick() {
     if(stopped)return;
@@ -28,7 +28,7 @@ export function startShowClock(read,send) {
     pending=null;
     try {await send();}
     finally {
-      if(!stopped){pending=nextShowWake(read());timer=setTimeout(tick,Math.max(4,Math.ceil(pending.delay)));}
+      if(!stopped){pending=nextShowWake(read(),minimumMs);timer=setTimeout(tick,Math.max(4,Math.ceil(pending.delay)));}
     }
   }
   timer=setTimeout(tick,0);

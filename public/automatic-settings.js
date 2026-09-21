@@ -27,7 +27,7 @@ export function automaticSettings(windows, limits={}, beatTimes=null) {
     smoothing:rhythmic?.7:flowing?.75:.85,
     dynamics:rhythmic?'punchy':flowing?'balanced':'sensitive',
     intensity:rhythmic?1.5:flowing?1.2:.85,
-    minimum:limits.minimum??5,maximum:limits.maximum??75,
+    minimum:limits.minimum??5,maximum:limits.maximum??100,
     colorA:'#ff0080',colorB:'#00dfff',arrangement:'auto',
   }};
 }

@@ -1,3 +1,4 @@
+import {transitionBassDb} from './musical-transition.js';
 import {dbGain,audioEnvelope,cleanCues,loopRange,tempoAt,jumpBeats} from './dj-performance-model.js';
 const time=value=>`${Math.floor(Math.max(0,value)/60)}:${String(Math.floor(Math.max(0,value)%60)).padStart(2,'0')}`;
 export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
@@ -170,7 +171,7 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
   for(const [d,incoming] of [[from,false],[to,true]]){
    const gain=d.transitionFilter?.gain;if(!gain)continue;
    gain.cancelScheduledValues(ctx.currentTime);
-   const curve=Float32Array.from({length:65},(_,i)=>{const p=i/64;return incoming?-18*(1-Math.max(0,Math.min(1,(p-.5)*2))):-18*Math.min(1,p*2);});
+   const curve=Float32Array.from({length:65},(_,i)=>transitionBassDb(i/64,incoming));
    gain.setValueCurveAtTime(curve,ctx.currentTime,Math.max(.1,duration));
   }
  }

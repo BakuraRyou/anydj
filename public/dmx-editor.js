@@ -1,15 +1,15 @@
 import {stageEquipment,stagePatch} from './dmx-model.js';
-import {colorCount} from './dmx-auto.js';
+import {colorCount,STAGE_PRESETS} from './dmx-auto.js';
 import {COLOR_MODES,validColorMode} from './dj-color-modes.js';
 import {GROUPS,cleanLook,cleanStageSettings,resolvedLook} from './dmx-show.js';
 const KEY='anydj-stage-design-v1';
 export function createStageEditor(host,onChange){
   let equipment=stageEquipment(),config=cleanStageSettings(undefined,4),mode='shared',count=2,sectionKey='',sectionName='',selected='global';
   let storageWarning='';
-  try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');equipment=stageEquipment(saved?.equipment);config=cleanStageSettings(saved?.config,equipment.devices.length);if(saved?.equipment&&!saved.equipment.devices){const indices=saved.equipment.type==='bar'?[4]:equipment.devices.map((_,i)=>i);const old=cleanStageSettings(saved.config);config.members=indices.map(i=>old.members[i]);config.fixtures=indices.map(i=>old.fixtures[i]);for(const [key,layer] of Object.entries(old.sections))config.sections[key]={...layer,fixtures:indices.map(i=>layer.fixtures[i])};}mode=['shared','auto','design'].includes(saved?.mode)?saved.mode:saved?.enabled===true?'design':'shared';count=colorCount(saved?.count);}
+  try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');equipment=stageEquipment(saved?.equipment);config=cleanStageSettings(saved?.config,equipment.devices.length);if(saved?.equipment&&!saved.equipment.devices){const indices=saved.equipment.type==='bar'?[4]:equipment.devices.map((_,i)=>i);const old=cleanStageSettings(saved.config);config.members=indices.map(i=>old.members[i]);config.fixtures=indices.map(i=>old.fixtures[i]);for(const [key,layer] of Object.entries(old.sections))config.sections[key]={...layer,fixtures:indices.map(i=>layer.fixtures[i])};}mode=['shared',...Object.keys(STAGE_PRESETS),'design'].includes(saved?.mode)?saved.mode:saved?.enabled===true?'design':'shared';count=colorCount(saved?.count);}
   catch{storageWarning='Gespeicherte Gestaltung konnte nicht geladen werden.';}
-  host.innerHTML=`<fieldset class="stage-equipment"><legend>Deine Ausstattung</legend><p>Füge alle Geräte deiner Bühne hinzu. Scheinwerfer und mehrere Lichtleisten können gemeinsam spielen.</p><div data-devices></div><div class="stage-controls"><button type="button" class="button secondary" data-add-spot>+ Scheinwerfer</button><button type="button" class="button secondary" data-add-bar>+ Lichtleiste</button></div><p data-capacity class="small"></p><p class="small">Simulation · Geräte werden hier manuell zusammengestellt.</p></fieldset><label>Lichtmodus<select data-mode><option value="shared">Alle Geräte gemeinsam</option><option value="auto">Automatische Lichtshow</option><option value="design">Manuell · pro Gerät gestalten</option></select></label>
-  <div data-auto hidden><h3>Die Musik gestaltet deine Bühne</h3><p>Farben und Bewegung folgen der Musik. Du bestimmst die maximale Anzahl gleichzeitiger Farben.</p>
+  host.innerHTML=`<fieldset class="stage-equipment"><legend>Deine Ausstattung</legend><p>Füge alle Geräte deiner Bühne hinzu. Scheinwerfer und mehrere Lichtleisten können gemeinsam spielen.</p><div data-devices></div><div class="stage-controls"><button type="button" class="button secondary" data-add-spot>+ Scheinwerfer</button><button type="button" class="button secondary" data-add-bar>+ Lichtleiste</button></div><p data-capacity class="small"></p><p class="small">Simulation · Geräte werden hier manuell zusammengestellt.</p></fieldset><label>Lichtmodus<select data-mode><option value="shared">Alle Geräte gemeinsam</option>${Object.entries(STAGE_PRESETS).map(([id,preset])=>`<option value="${id}">${preset.name}</option>`).join('')}<option value="design">Manuell · pro Gerät gestalten</option></select></label>
+  <div data-auto hidden><h3 data-auto-title>Die Musik gestaltet deine Bühne</h3><p data-auto-help>Farben und Bewegung folgen der Musik. Du bestimmst die maximale Anzahl gleichzeitiger Farben.</p>
   <label>Farben gleichzeitig · höchstens<select data-count><option value="1">1 Farbe · einheitlich</option><option value="2">Bis zu 2 Farben · abgestimmt</option><option value="3">Bis zu 3 Farben · abwechslungsreich</option><option value="4">Bis zu 4 Farben · vielfältig</option></select></label>
   <div class="stage-auto-palette" data-palette aria-label="Aktuelle Bühnenfarben"></div><p data-auto-status role="status"></p>
   <details class="stage-explanation"><summary>Wie entscheidet die Automatik?</summary><p class="small">Die vorbereitete Songanalyse entscheidet: ruhige Stellen dürfen auf allen Lampen dieselbe Farbe zeigen. Aufbauten und kräftige Passagen erhalten bei Bedarf mehr Farben und Bewegung. Die Farben folgen dem Farbmodus deiner Decks. Helligkeitsunterschiede erzeugen zusätzliche Schattierungen.</p></details></div>
@@ -68,7 +68,9 @@ export function createStageEditor(host,onChange){
     q('capacity').textContent=`${patch.length} Geräte · ${patch.reduce((n,f)=>n+f.channels,0)} von 512 Kanälen belegt`;
     for(const option of q('target').options)if(option.value[0]==='g')option.hidden=option.disabled=!config.members.includes(+option.value.slice(1));
     if(![...q('target').options].some(o=>o.value===selected&&!o.disabled))selected='global';
-    q('mode').value=mode;q('editor').hidden=mode!=='design';q('auto').hidden=mode!=='auto';q('count').value=count;
+    q('mode').value=mode;q('editor').hidden=mode!=='design';q('auto').hidden=!Object.hasOwn(STAGE_PRESETS,mode);q('count').value=count;
+    q('auto-title').textContent=STAGE_PRESETS[mode]?.name||'Die Musik gestaltet deine Bühne';
+    q('auto-help').textContent=STAGE_PRESETS[mode]?.help||'';
     q('target').value=selected;q('membership').hidden=selected[0]!=='f';
     if(selected[0]==='f')q('group').value=config.members[+selected.slice(1)];
     q('scope').options[1].disabled=!sectionKey;if(!sectionKey)q('scope').value='all';
@@ -114,7 +116,7 @@ export function createStageEditor(host,onChange){
   for(const key of ['color','animation','a','b','brightness','strength','period','offset'])q(key).addEventListener('input',()=>{if(key==='a'||key==='b'){const v=cleanLook(effective());v.colors=[q('a').value,q('b').value];set(v);}change();});
   refresh();q('saved').textContent=storageWarning;
   return {get equipment(){return equipment;},get config(){return config;},get enabled(){return mode!=='shared';},get mode(){return mode;},get count(){return count;},get selected(){return selected;},
-    select(index){if(mode==='auto'){q('count').focus();return;}selected=`f${index}`;mode='design';refresh();save();q('target').focus();},
+    select(index){if(Object.hasOwn(STAGE_PRESETS,mode)){q('count').focus();return;}selected=`f${index}`;mode='design';refresh();save();q('target').focus();},
     preview(palette,description){const signature=JSON.stringify(palette);if(q('palette').dataset.colors!==signature){q('palette').dataset.colors=signature;q('palette').replaceChildren(...palette.map((rgb,i)=>{const chip=document.createElement('span');chip.style.background=`rgb(${rgb.join(',')})`;chip.setAttribute('role','img');chip.setAttribute('aria-label',`Farbe ${i+1}: RGB ${rgb.join(', ')}`);return chip;}));}if(q('auto-status').textContent!==description)q('auto-status').textContent=description;},
     context(key,name){key=key||'';if(sectionKey===key)return;sectionKey=key;sectionName=name||'';refresh();},
   };

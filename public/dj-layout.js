@@ -65,7 +65,13 @@ export function simplifyDJLayout(decks,mixer){
  files.append(document.getElementById('libraryTools').querySelector('button'));
  const manage=disclosure('Liste verwalten','dj-list-options');
  document.querySelector('.queue-manager').append(manage);
- manage.append(document.querySelector('.queue-list-actions'),document.getElementById('queueNameLabel'),document.getElementById('queueClear'));
+ const manageSummary=manage.querySelector('summary');
+ manageSummary.className='button secondary queue-icon-button';manageSummary.title='Liste verwalten';manageSummary.setAttribute('aria-label','Liste verwalten');
+ manageSummary.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 6h12M9 12h12M9 18h12M3 6h1M3 12h1M3 18h1"/></svg>';
+ const managePanel=document.createElement('div');managePanel.className='queue-list-panel';
+ manage.append(managePanel);
+ managePanel.append(document.querySelector('.queue-list-actions'),document.getElementById('queueNameLabel'),document.getElementById('queueClear'),document.getElementById('queueSaved'));
+ document.addEventListener('click',event=>{if(!manage.contains(event.target))manage.open=false;});
  // Escape closes the nearest disclosure and returns focus to its trigger.
  document.addEventListener('keydown',event=>{if(event.key!=='Escape'||event.defaultPrevented||event.target.closest('dialog'))return;const details=event.target.closest('details');if(details?.open){details.open=false;details.querySelector('summary').focus();event.preventDefault();}});
 }

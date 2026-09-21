@@ -7,6 +7,13 @@ import { settings, MusicSession } from '../lib/music.mjs';
 const quiet=Array.from({length:1000},()=>({rms:.08,bass:.01,flatness:.1,harmonicConfidence:.1,beatSeq:0}));
 const melodic=quiet.map(w=>({...w,harmonicConfidence:.85,leadConfidence:.8}));
 const rhythmic=quiet.map((w,i)=>({...w,bpm:125,confidence:.9,beatSeq:Math.floor(i/24),bands:[.5,.2,.1,.1,.1]}));
+test('default brightness allows 100 percent while explicit limits are preserved',()=>{
+  assert.equal(settings({}).maximum,100);
+  for(const windows of [quiet,melodic,rhythmic,[]]){
+    assert.equal(automaticSettings(windows).options.maximum,100);
+    assert.equal(automaticSettings(windows,{maximum:60}).options.maximum,60);
+  }
+});
 test('Unterschiedliche Musik erhält passende unterschiedliche Einstellungen innerhalb der Gerätegrenzen',()=>{
   const a=automaticSettings(quiet,{minimum:12,maximum:55},[]);
   const b=automaticSettings(melodic,{},[]);

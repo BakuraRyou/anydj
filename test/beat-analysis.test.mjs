@@ -25,7 +25,7 @@ test('Externe Beats ersetzen Heuristik vollständig und überleben erneutes Rend
   const windows=Array.from({length:100},(_,i)=>({rms:.1,bass:.02,beatSeq:Math.floor(i/10)}));
   const a=compileShow(windows,2,settings(),grid());
   assert.equal(a.beats,4);assert.deepEqual(a.beatGrid,grid());
-  assert.equal(a.frames[0].dimming,5);assert.equal(a.frames[2].dimming,75);
+  assert.equal(a.frames[0].dimming,5);assert.equal(a.frames[2].dimming,100);
   const b=compileShow(windows,2,settings({palette:'ocean'}),a.beatGrid);
   assert.deepEqual(a.frames.map(f=>f.dimming),b.frames.map(f=>f.dimming));
   const silence=compileShow(windows,2,settings(),{...grid(),beats:[],downbeats:[]});
@@ -80,9 +80,9 @@ test('Beat-Helligkeit folgt exakten Zeitpunkten statt dem 125-ms-Farbraster',()=
   const irregular={...grid(),beats:[.333,.847,1.361,1.875],downbeats:[.333]};
   const plan=compileShow(windows,2,settings(),irregular);
   assert.equal(showFrameAt(plan,.332).dimming,5);
-  assert.equal(showFrameAt(plan,.333).dimming,75);
-  assert.ok(showFrameAt(plan,.37).dimming<75);
-  assert.equal(showFrameAt(plan,.847).dimming,75);
+  assert.equal(showFrameAt(plan,.333).dimming,100);
+  assert.ok(showFrameAt(plan,.37).dimming<100);
+  assert.equal(showFrameAt(plan,.847).dimming,100);
   assert.ok(showFrameAt(plan,.846).dimming<showFrameAt(plan,.847).dimming);
   // Random access and seeking do not depend on which frames were read before.
   const before=showFrameAt(plan,.333);showFrameAt(plan,1.9);assert.deepEqual(showFrameAt(plan,.333),before);

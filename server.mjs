@@ -39,6 +39,11 @@ const STATIC = new Map([
   ['/editor-model.js', ['editor-model.js', 'text/javascript; charset=utf-8']],
   ['/music', ['music.html', 'text/html; charset=utf-8']],
   ['/dj', ['dj.html', 'text/html; charset=utf-8']],
+  ['/tidal-callback.html', ['tidal-callback.html', 'text/html; charset=utf-8']],
+  ['/tidal-auth.js', ['tidal-auth.js', 'text/javascript; charset=utf-8']],
+  ['/tidal-client.js', ['tidal-client.js', 'text/javascript; charset=utf-8']],
+  ['/tidal-library.js', ['tidal-library.js', 'text/javascript; charset=utf-8']],
+  ['/provider-tabs.js', ['provider-tabs.js', 'text/javascript; charset=utf-8']],
   ['/spotify-callback.html', ['spotify-callback.html', 'text/html; charset=utf-8']],
   ['/spotify-auth.js', ['spotify-auth.js', 'text/javascript; charset=utf-8']],
   ['/provider-queue.js', ['provider-queue.js', 'text/javascript; charset=utf-8']],
@@ -312,7 +317,7 @@ export async function createApp({
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('Referrer-Policy', 'no-referrer');
     res.setHeader('Cache-Control', 'no-store');
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' https://sdk.scdn.co; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.scdn.co https://*.spotifycdn.com; media-src 'self' blob: https://*.scdn.co https://*.spotifycdn.com; connect-src 'self' https://accounts.spotify.com https://api.spotify.com https://*.spotify.com wss://*.spotify.com https://*.scdn.co https://*.spotifycdn.com; frame-src https://sdk.scdn.co https://*.spotify.com; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self' https://sdk.scdn.co; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://resources.tidal.com https://images.tidal.com https://*.scdn.co https://*.spotifycdn.com; media-src 'self' blob: https://*.scdn.co https://*.spotifycdn.com; connect-src 'self' https://openapi.tidal.com https://auth.tidal.com https://accounts.spotify.com https://api.spotify.com https://*.spotify.com wss://*.spotify.com https://*.scdn.co https://*.spotifycdn.com; frame-src https://sdk.scdn.co https://*.spotify.com; font-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'");
     try {
       let url;
       try { url = new URL(req.url, `${req.socket.encrypted ? 'https' : 'http'}://${req.headers.host}`); }
@@ -320,7 +325,7 @@ export async function createApp({
       if (!hosts.has(url.hostname) || req.url.startsWith('http')) {
         throw new AppError('Host nicht zugelassen. localhost oder die lokale Server-IP verwenden.', 403, 'BAD_HOST');
       }
-      const spotifyCallback=req.method==='GET'&&url.pathname==='/spotify-callback.html'&&req.headers['sec-fetch-mode']==='navigate'&&req.headers['sec-fetch-dest']==='document';
+      const spotifyCallback=req.method==='GET'&&['/spotify-callback.html','/tidal-callback.html'].includes(url.pathname)&&req.headers['sec-fetch-mode']==='navigate'&&req.headers['sec-fetch-dest']==='document';
       if (req.headers['sec-fetch-site'] === 'cross-site'&&!spotifyCallback) {
         throw new AppError('Seitenübergreifende Anfragen sind gesperrt.', 403, 'CROSS_SITE');
       }

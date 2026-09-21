@@ -37,3 +37,62 @@ test('pause, disabled sources and zero brightness cannot light up the stage',()=
   assert.ok(automaticStage([source('peak',{frame:{...frame,dimming:0}})],4).frames.flat().every(f=>f.dimming===0));
   assert.deepEqual(automaticPalette(frame,1),[[255,40,0]]);
 });
+
+test('Lauflicht preserves the travelling wave as a separate mode',()=>{
+  const equipment={devices:Array.from({length:4},(_,i)=>({id:String(i),type:'spot',cells:1}))};
+  for(let i=0;i<4;i++){
+    const streams=[source('peak',{beat:i*.5,stageCue:{kind:'punch',group:0,motion:1}})];
+    const chase=automaticStage(streams,4,equipment,'chase').frames.flat();
+    assert.equal(chase[i].dimming,60);
+    assert.ok(chase.some(f=>f.dimming===0));
+    assert.notDeepEqual(chase,automaticStage(streams,4,equipment).frames.flat());
+  }
+  const streams=[source('flow',{beat:null})];
+  assert.deepEqual(automaticStage(streams,4,equipment,'chase').frames,automaticStage(streams,4,equipment).frames);
+});
+test('DJ presets retain source pulses, calm base levels and four-beat group changes',()=>{
+  const equipment={devices:Array.from({length:4},(_,i)=>({id:String(i),type:'spot',cells:1}))};
+  const render=(mode,more={})=>automaticStage([source('peak',{beat:0,washDimming:25,...more})],4,equipment,mode).frames.flat().map(f=>f.dimming);
+  for(const dimming of [0,5,60,100])assert.deepEqual(render('follow',{frame:{...frame,dimming}}),Array(4).fill(dimming));
+  assert.deepEqual(render('wash'),[25,25,25,25]);
+  assert.deepEqual(render('wash',{beat:2.3}),render('wash'));
+  assert.deepEqual(render('alternate',{beat:3.999}),[60,0,60,0]);
+  assert.deepEqual(render('alternate',{beat:4}),[0,60,0,60]);
+  assert.deepEqual(render('alternate',{beat:4,motionBeat:0}),[0,60,0,60]);
+  assert.deepEqual(render('alternate',{beat:null}),[60,60,60,60]);
+  assert.deepEqual(render('alternate',{look:'held',beat:4}),[60,60,60,60]);
+  for(const mode of ['wash','follow','alternate']){
+    assert.deepEqual(render(mode,{frame:{...frame,dimming:0}}),[0,0,0,0]);
+    assert.ok(automaticStage([],4,equipment,mode).frames.flat().every(f=>f===null));
+    const one={devices:[{id:'solo',type:'spot',cells:1}]};
+    assert.ok(automaticStage([source('peak',{beat:4,washDimming:25})],4,one,mode).frames[0][0].dimming>0);
+  }
+});
+test('DJ presets blend both decks and respect the requested color ceiling',()=>{
+  for(const mode of ['wash','follow','alternate'])for(const count of [1,2,3,4]){
+    const a=source('peak',{weight:.25,beat:0,washDimming:20});
+    const b=source('peak',{weight:.75,beat:4,washDimming:40,frame:{...frame,r:0,b:255,dimming:80}});
+    const result=automaticStage([a,b],count,undefined,mode);
+    assert.ok(hues(result).size<=count);
+    const left=automaticStage([a],count,undefined,mode).frames.flat();
+    const right=automaticStage([b],count,undefined,mode).frames.flat();
+    result.frames.flat().forEach((f,i)=>assert.equal(f.dimming,left[i].dimming*.25+right[i].dimming*.75));
+  }
+});
+test('automatic spots and bar segments join strong accents without losing movement between hits',()=>{
+  const render=strength=>automaticStage([source('peak',{accentStrength:strength})],4).frames.flat();
+  const resting=render(0),partial=render(.5),hit=render(1);
+  assert.ok(new Set(resting.map(f=>f.dimming)).size>1);
+  assert.ok(hit.every(f=>f.dimming===60));
+  resting.forEach((f,i)=>assert.ok(Math.abs(partial[i].dimming-(f.dimming+60)/2)<1e-9));
+  for(const maximum of [0,30,100]){
+    const frames=automaticStage([source('peak',{accentStrength:1,frame:{...frame,dimming:maximum}})],4).frames.flat();
+    assert.ok(frames.every(f=>f.dimming===maximum));
+  }
+  const dark=source('peak',{accentStrength:1,frame:{...frame,dimming:0}});
+  const without=automaticStage([source(),{...dark,accentStrength:0}],4);
+  assert.deepEqual(automaticStage([source(),dark],4),without);
+  for(const mode of ['chase','wash','follow','alternate']){
+    assert.deepEqual(automaticStage([source('peak',{accentStrength:1})],4,undefined,mode),automaticStage([source('peak',{accentStrength:0})],4,undefined,mode));
+  }
+});

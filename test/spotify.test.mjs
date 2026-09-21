@@ -70,6 +70,9 @@ test('only cross-site document navigation to callback is exempt from local reque
   const request=(path,headers)=>new Promise(resolve=>{get(base+path,{headers},res=>{res.resume();res.on('end',()=>resolve(res));});});
   const headers={'Sec-Fetch-Site':'cross-site','Sec-Fetch-Mode':'navigate','Sec-Fetch-Dest':'document'};
   assert.equal((await request('/spotify-callback.html?code=x',headers)).statusCode,200);
+  assert.equal((await request('/tidal-callback.html?code=x',headers)).statusCode,200);
+  assert.equal((await request('/tidal-auth.js',headers)).statusCode,403);
+  assert.equal((await request('/tidal-callback.html',{...headers,'Sec-Fetch-Mode':'cors'})).statusCode,403);
   assert.equal((await request('/api/devices',headers)).statusCode,403);
   assert.equal((await request('/spotify-callback.html',{...headers,'Sec-Fetch-Mode':'cors'})).statusCode,403);
   for(const path of ['/spotify-client.js','/spotify-library.js','/spotify-auth.js','/spotify-library.css'])assert.equal((await fetch(base+path)).status,200);

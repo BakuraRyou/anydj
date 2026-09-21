@@ -1,3 +1,4 @@
+import {selectProvider,providerKeys} from './provider-tabs.js';
 import {createSpotifyPlayback} from './spotify-playback.js';
 import {SPOTIFY_CLIENT_ID,createSpotifyClient,callbackURL,randomString,spotifyImage,spotifyTrack,playlistID,localSuggestions} from './spotify-client.js';
 import {readSpotifyLinks,saveSpotifyLinks} from './dj-library.js';
@@ -14,10 +15,10 @@ export function createSpotifyLibrary({getTracks,enqueueTracks,saveList,loadLocal
   const localTab=button('Lokal',()=>select(false)),spotifyTab=button('Spotify',()=>select(true));
   for(const [tab,target,id] of [[localTab,local,'localTab'],[spotifyTab,panel,'spotifyTab']]){
     tab.id=id;tab.setAttribute('role','tab');tab.setAttribute('aria-controls',target.id);target.setAttribute('role','tabpanel');target.setAttribute('aria-labelledby',id);
-    tab.onkeydown=e=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(e.key)){e.preventDefault();const next=e.key==='Home'?localTab:e.key==='End'?spotifyTab:tab===localTab?spotifyTab:localTab;next.click();next.focus();}};
+    tab.onkeydown=providerKeys;
   }
   tabs.append(localTab,spotifyTab);
-  const connectButton=button('+ Verbinden',()=>{select(true);showConnection();});
+  const connectButton=button('+ Verbinden',()=>{if(document.getElementById('tidalTab')?.getAttribute('aria-selected')==='true')root.dispatchEvent(new Event('providerconnect'));else{select(true);showConnection();}});
   const tabbar=node('div',null,'provider-tabbar');tabbar.append(tabs,connectButton);heading.append(tabbar);root.append(local,panel);
   const brand=node('span','Spotify');brand.className='spotify-brand';
   // Spotify icon, displayed beside all Spotify-sourced metadata.
@@ -55,11 +56,8 @@ export function createSpotifyLibrary({getTracks,enqueueTracks,saveList,loadLocal
   let rows=[],next=null,currentPath='',currentName='',mode='playlists',links={},busy=false,revision=0,controller=null,auth=null,active=false,entered=false;
   let mappingReady=false,linksSave=Promise.resolve();
   readSpotifyLinks().then(saved=>{links=saved&&typeof saved==='object'?saved:{};mappingReady=true;renderRows();}).catch(()=>{mappingReady=true;status.textContent='Zuordnungen können momentan nicht geladen werden.';});
-  function select(spotify){active=spotify;panel.hidden=!spotify;local.hidden=spotify;heading.querySelector('.dj-import-options').hidden=spotify;
-    document.getElementById('trackCount').hidden=spotify;
-    localTab.setAttribute('aria-selected',String(!spotify));spotifyTab.setAttribute('aria-selected',String(spotify));localTab.tabIndex=spotify?-1:0;spotifyTab.tabIndex=spotify?0:-1;
-    if(spotify){renderRows();if(!entered&&client.connected){entered=true;void run(()=>showPlaylists());}}
-  }
+  function select(spotify){selectProvider(spotify?'spotifyLibrary':'localLibrary');}
+  root.addEventListener('providerchange',e=>{active=e.detail==='spotifyLibrary';if(active){renderRows();if(!entered&&client.connected){entered=true;void run(()=>showPlaylists());}}});
   function updateControls(){
     account.textContent=client.connected?(client.canStream?'Verbunden · Wiedergabe freigegeben':'Verbunden · Wiedergabe noch freigeben'):'Nicht verbunden';
     for(const control of [source,refresh,query,searchButton])control.disabled=busy||!client.connected;

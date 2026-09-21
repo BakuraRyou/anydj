@@ -61,6 +61,7 @@ try {
   await wait("document.querySelectorAll('.dj-deck audio')[1].readyState>=1&&!document.querySelectorAll('.dj-set-cue')[1].disabled");
   await evaluate("document.querySelectorAll('.dj-deck audio')[1].currentTime=.6;document.querySelectorAll('.dj-set-cue')[1].click()");
  }
+ if(process.argv.includes('--adaptive'))await evaluate("document.querySelector('#fadeDuration').value='auto'");
  await wait("document.querySelector('audio').currentTime>.2");
  await evaluate("const seek=document.querySelector('.dj-seek');seek.value=7.6;seek.dispatchEvent(new Event('input'))");
  if(process.argv.includes('--manual'))await evaluate("document.querySelector('#fadeNow').click()");
@@ -74,6 +75,9 @@ try {
   const incoming=await evaluate("document.querySelectorAll('.dj-deck audio')[1].currentTime");
   if(incoming<2.4||incoming>3)throw Error('Manual fade ignored musical incoming cue: '+incoming);
   if(!started.status.includes('musikalischer Start'))throw Error('Manual musical start missing');
+ }else if(process.argv.includes('--adaptive')){
+  if(started.time<7.6||started.time>11)throw Error('Adaptive transition ignored current position: '+JSON.stringify(started));
+  if(!started.status.includes('musikalischer Start'))throw Error('Adaptive musical status missing');
  }else if(process.argv.includes('--plain')){
   if(started.time<8.9||started.time>9.6)throw Error('Fixed transition did not start around 9 s: '+JSON.stringify(started));
   if(started.status.includes('musikalischer Start'))throw Error('Musical selection must be disabled');

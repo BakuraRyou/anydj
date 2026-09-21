@@ -238,6 +238,14 @@ Löschen und horizontale Überläufe auf Mobilgeräten. Verwendet erzeugte Audio
 
 ## Hosting / Deployment
 
+- `node --test test/tidal.test.mjs`: PKCE/State/Redirect-Bindung, Token-Erneuerung,
+  Trennen während Erneuerung, begrenzte 401-Wiederholung, Rate-Limits, sichere
+  Pagination-URLs und JSON:API-Beziehungen für Cover/Künstler und Wiederholungen.
+- `npm run build:web && node scripts/check-tidal.mjs`: isolierter Chrome-Test mit
+  simulierten TIDAL-Antworten für Tabs/Tastatur, Playlists, Suche, Lieblingssongs,
+  Cover-URL, Pagination, explizite lokale Zuordnung, Queue/Decks, Popup-Rückmeldung,
+  Trennen, Unterordner und Mobilansicht. Kein Live-Test von TIDAL-Konto oder CORS.
+
 - `node --test test/dev-https.test.mjs`: lokaler HTTPS-Server und Dev-Befehl mit
   temporärem Testzertifikat (OpenSSL erforderlich), Zertifikatsprüfung,
   HTTPS-Origin-Schutz, Spotify-Callback und gesperrte private Zertifikatspfade.

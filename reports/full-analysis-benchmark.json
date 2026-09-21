@@ -1,0 +1,34 @@
+{
+  "date": "2026-09-21T15:53:41.668Z",
+  "file": "RobbieWilliamsBoddies.mp3",
+  "hardware": {
+    "cpu": "Intel(R) Core(TM) i9-14900HX",
+    "logicalCpus": 32,
+    "ramGiB": 31.058345794677734,
+    "platform": "linux",
+    "arch": "x64",
+    "loadAtStart": [
+      3.33,
+      2.26,
+      2.65
+    ]
+  },
+  "method": "CPU; fresh subprocesses; no result cache; installed models; FFmpeg decoding; same show-worker code; excludes browser, HTTP and IndexedDB overhead",
+  "stages": {
+    "decode16kStereo": 0.284610321,
+    "downmix": 0.018145064999999988,
+    "beatThis": 4.653948983,
+    "discogsEffnet": 0.9691308079999998,
+    "signalAnalysisAndBaseShow": 0.9595082480000001,
+    "decode44kStereo": 0.2016744119999994,
+    "allInOneDemucsInstruments": 170.800416396,
+    "refinedShow": 0.23894824199998402
+  },
+  "durationSeconds": 263.6974375,
+  "playableSeconds": 6.886406388999999,
+  "totalSeconds": 178.127757812,
+  "realTimeFactor": 0.6755005262878219,
+  "beats": 544,
+  "sections": 16,
+  "instrumentFrames": 2637
+}

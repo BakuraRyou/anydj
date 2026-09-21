@@ -34,6 +34,40 @@ Eigene PEM-Dateien sind über `SSL_CERT_FILE` und `SSL_KEY_FILE` möglich (beide
 Der HTTPS-Dev-Befehl bindet ausschließlich an `127.0.0.1`. `.certs/` wird von Git
 ignoriert und gehört nicht zum Hosting-Paket. `pnpm run dev` bleibt der HTTP-Start.
 
+## TIDAL-Bibliothek einrichten
+
+In der Bibliothek den Tab **TIDAL → Verbindung** öffnen. Unter „Einmalige
+Einrichtung“ die Client-ID einer eigenen App aus dem
+[TIDAL Developer Dashboard](https://developer.tidal.com/dashboard) eintragen.
+Kein Client Secret verwenden. Für eine zentrale Vorgabe kann die öffentliche
+Konstante `TIDAL_CLIENT_ID` in `public/tidal-client.js` gesetzt werden; andernfalls
+wird die Eingabe nur im lokalen Browser gespeichert.
+
+Read-only-Berechtigungen: `user.read`, `collection.read`, `playlists.read`.
+Die App muss diese Scopes erhalten dürfen. Folgende Redirect URIs für die jeweils
+verwendete Umgebung registrieren (auch im Verbindungsdialog angezeigt):
+
+- Lokal: `https://127.0.0.1:3030/tidal-callback.html`
+- Hosting: `https://anydj.de/tidal-callback.html`
+
+Anmeldung mit OAuth/PKCE; Tokens liegen im Sitzungsspeicher des Browsers und werden
+bei Bedarf erneuert. Suche, Playlists, Lieblingssongs und Cover nutzen die
+öffentliche JSON:API unter `https://openapi.tidal.com/v2/`. Der Länderparameter
+stammt aus dem angemeldeten Profil (Fallback DE).
+
+In dieser Basisintegration ist kein TIDAL-Streaming für die Decks freigeschaltet.
+Über **Mehr → Datei zuordnen** lassen sich vorhandene eigene Dateien ausdrücklich
+zuordnen und anschließend einzeln oder gesammelt einreihen beziehungsweise auf
+Deck A/B laden. Die Queue spielt dabei die lokale Datei. Zuordnungen gelten für
+die Browsersitzung; erneutes Anmelden oder Trennen löscht sie. Bereits eingereihte
+lokale Dateien bleiben erhalten. Es werden keine TIDAL-Musikdateien heruntergeladen
+oder an unseren Server übertragen.
+
+Bei 403 die App-/Scope-Freigabe prüfen; 429 wird mit einer Wartezeit angezeigt.
+Ohne eigene App-ID und echte Anmeldung ist nur der simulierte Integrationstest
+möglich. Die DJ-Integrationsauswertung steht in
+[reports/tidal-integration-evaluation.md](reports/tidal-integration-evaluation.md).
+
 ## Lampeneinrichtung
 
 Stand: 19.09.2026. Nur `ESP03_SHRGB1C_01`, Firmware `1.32.0`.
