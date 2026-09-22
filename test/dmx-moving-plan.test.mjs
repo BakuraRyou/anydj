@@ -1,0 +1,46 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {movingPlanJob,movingPlanAt,createMovingPreparation} from '../public/dmx-moving-plan.js';
+import {restingHeads} from '../public/dmx-moving-model.js';
+const song=(duration=24)=>({duration,beatGrid:{beats:Array.from({length:duration*2+1},(_,i)=>i/2)},sections:[{start:0,end:8,look:'held',motif:0},{start:8,end:16,look:'lift',motif:1},{start:16,end:duration,look:'peak',motif:2}]});
+const compile=(plan,mode)=>{const job=movingPlanJob(plan,mode);while(!job.done)job.advance();return job.result;};
+test('four independent tracks are deterministic, interpolated and seek stable',()=>{
+  const plan=song(),before=JSON.stringify(plan),a=compile(plan),b=compile(plan);
+  assert.deepEqual(a.values,b.values);assert.equal(JSON.stringify(plan),before);
+  const first=movingPlanAt(a,18.125);movingPlanAt(a,1);assert.deepEqual(movingPlanAt(a,18.125),first);
+  assert.equal(new Set(first.map(p=>p.pan)).size,4);
+  const left=movingPlanAt(a,18.1),right=movingPlanAt(a,18.15);
+  first.forEach((p,i)=>assert.ok(Math.abs(p.pan-(left[i].pan+right[i].pan)/2)<1e-5));
+  assert.deepEqual(movingPlanAt(a,-3),movingPlanAt(a,0));
+  assert.deepEqual(movingPlanAt(a,Infinity),null);
+  assert.deepEqual(movingPlanAt(a,100),movingPlanAt(a,24));
+});
+test('prepared section transitions respect speed limits; wash and missing beats stay calm',()=>{
+  const a=compile(song());
+  for(let i=8;i<a.values.length;i+=8)for(let h=0;h<4;h++){
+    assert.ok(Math.abs(a.values[i+h*2]-a.values[i-8+h*2])<=70*a.step+1e-5);
+    assert.ok(Math.abs(a.values[i+h*2+1]-a.values[i-8+h*2+1])<=.8*a.step+1e-5);
+  }
+  assert.notDeepEqual(a.values,compile(song(),'wash').values);
+  const still=compile({...song(),beatGrid:null});
+  for(const t of [0,8,16,24])movingPlanAt(still,t).forEach((p,i)=>assert.ok(Math.abs(p.pan-restingHeads()[i].pan)<1e-5));
+  const long=movingPlanJob(song(10000));assert.ok(long.result.values.byteLength<=2097184);
+});
+test('preparation is opt-in, chunked, cancellable, cached and invalidated by show replacement',()=>{
+  let nextId=0;const tasks=new Map();
+  const prep=createMovingPreparation({schedule:fn=>{tasks.set(++nextId,fn);return nextId;},cancel:id=>tasks.delete(id)});
+  const step=()=>{const [id,fn]=tasks.entries().next().value;tasks.delete(id);fn();};
+  const drain=()=>{while(tasks.size)step();};
+  const a=song();
+  prep.prepare([a]);assert.equal(tasks.size,0);assert.equal(prep.read(a,1),null);
+  prep.setEnabled(true);prep.prepare([a]);assert.equal(tasks.size,1);
+  step();assert.equal(prep.stats().ready,0);
+  prep.setEnabled(false);assert.equal(tasks.size,0);
+  prep.setEnabled(true);drain();assert.equal(prep.stats().ready,1);
+  const saved=prep.read(a,12);prep.prepare([a]);assert.equal(tasks.size,0);assert.deepEqual(prep.read(a,12),saved);
+  prep.prepare([a],'wash');assert.equal(tasks.size,1);drain();assert.notDeepEqual(prep.read(a,12,'wash'),saved);
+  const replacement=song();prep.prepare([replacement]);assert.equal(prep.read(replacement,1),null);
+  drain();assert.equal(prep.stats().ready,1);
+  prep.prepare([{duration:NaN}]);drain();assert.equal(prep.stats().failed,1);
+  prep.prepare([song(60)]);assert.equal(tasks.size,1);prep.destroy();assert.equal(tasks.size,0);
+});

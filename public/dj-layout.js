@@ -45,6 +45,7 @@ export function simplifyDJLayout(decks,mixer){
  const lightOptions=document.createElement('div');lightOptions.className='dj-light-quick';
  const toolbar=light.querySelector('.stage-inline-toolbar');if(toolbar)lightOptions.append(toolbar);
  if(show)lightOptions.append(show);const lightDetails=disclosure('Lichtoptionen','dj-light-settings');lightDetails.append(lightOptions);light.append(lightDetails);
+ for(const selector of ['.stage-inline>[data-moving-heads]','.stage-inline>[data-layout-open]']){const control=light.querySelector(selector);if(control)lightOptions.append(control);}
  mixer.classList.remove('panel');light.classList.add('panel');mixer.prepend(light);
  const transition=document.createElement('section');transition.className='panel dj-mixer-transition';transition.setAttribute('aria-label','Übergänge');
  const heading=document.createElement('h2');heading.textContent='Übergänge';transition.append(heading,mixer.querySelector('.dj-crossfader'));

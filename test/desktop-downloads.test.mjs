@@ -9,3 +9,12 @@ test('download page publishes verified full installers, hash and size, and no de
 test('corrupted installers and lite manifests fail closed',async t=>{const {source,file,manifest,manifestFile}=await fixture(t);await writeFile(file,'evil installer');await assert.rejects(readDownloads(source),/SHA-256/);manifest.analysis=false;await writeFile(manifestFile,JSON.stringify(manifest));await assert.rejects(readDownloads(source),/Ungültiges/);});
 test('unsafe filenames and incomplete formats are rejected',async t=>{const {source,manifest,manifestFile}=await fixture(t);manifest.files[0].name='../secret.exe';await writeFile(manifestFile,JSON.stringify(manifest));await assert.rejects(readDownloads(source),/Ungültiger/);manifest.files=[];await writeFile(manifestFile,JSON.stringify(manifest));await assert.rejects(readDownloads(source),/Ungültiges/);});
 test('empty web build remains usable; full deploy requires actual installers',async t=>{const root=await mkdtemp(join(tmpdir(),'anydj-no-downloads-'));t.after(()=>rm(root,{recursive:true,force:true}));assert.deepEqual(await readDownloads(root),[]);await assert.rejects(readDownloads(root,{required:true}),/Keine vollständigen/);});
+
+test('website-only build ignores even broken local installers and creates no download links',async t=>{
+ const {root,source,file}=await fixture(t);await writeFile(file,'broken');
+ const output=join(root,'public');
+ const html=await buildDownloads(source,output,'<!-- DOWNLOAD_CARDS -->',{includeInstallers:false});
+ assert.doesNotMatch(html,/href="\.\/downloads\//);
+ assert.match(html,/Noch kein vollständiges Installationspaket/);
+ await assert.rejects(readFile(join(output,'downloads','AnyDj-0.1.0-win-x64.exe')),{code:'ENOENT'});
+});

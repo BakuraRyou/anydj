@@ -38,3 +38,16 @@ test('Aborting automation holds the current value including on browsers without 
  holdAudioParam({value:.42,cancelScheduledValues:t=>events.push(['cancel',t]),setValueAtTime:(v,t)=>events.push(['set',v,t])},3);
  assert.deepEqual(events,[['hold',2],['cancel',3],['set',.42,3]]);
 });
+
+test('custom points independently shape each deck and preserve handover endpoints',()=>{
+ const points=[[[0,1],[.25,.9],[.75,.2],[1,0]],[[0,0],[.25,.1],[.75,.8],[1,1]]];
+ const custom={points,style:'cut',audioProfile:{a:.05,b:.1}};
+ assert.deepEqual(transitionAudioGains(0,custom),[1,0]);assert.deepEqual(transitionAudioGains(1,custom),[0,1]);
+ assert.deepEqual(transitionAudioGains(.25,custom),[.9,.1]);
+ const middle=transitionAudioGains(.5,custom);assert.ok(Math.abs(middle[0]-.55)<1e-10);assert.ok(Math.abs(middle[1]-.45)<1e-10);
+ assert.deepEqual(transitionAudioGains(0,custom,{position:.4}),[.6,.4]);
+ for(let n=0;n<=256;n++)assert.ok(transitionAudioGains(n/256,custom).every(g=>g>=0&&g<=1));
+});
+test('invalid custom curves fall back to the standard fade without invalid audio values',()=>{
+ for(const points of [[],null,[[[0,1],[0,.4],[1,0]],[[0,0],[1,1]]],[[[0,1],[.5,NaN],[1,0]],[[0,0],[1,1]]],[[[0,.4],[1,0]],[[0,0],[1,1]]]])assert.deepEqual(transitionAudioGains(.5,{style:'smooth',points}),[.5,.5]);
+});

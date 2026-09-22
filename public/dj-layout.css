@@ -300,3 +300,27 @@
 }
 
 .dj-light-tuning{margin-top:12px;font-size:12px}.dj-light-tuning summary{cursor:pointer}.dj-light-tuning label{display:grid;gap:6px;margin:14px 0}.dj-light-tuning label>span{display:flex;justify-content:space-between;gap:12px}.dj-light-tuning input{width:100%;min-width:0}.dj-light-tuning output{color:var(--muted)}
+.dj-transition-preview{width:min(780px,calc(100vw - 24px));border-radius:16px}
+.dj-transition-preview .preview-edit{display:grid;grid-template-columns:1fr 1fr;gap:14px;border:1px solid #405665;border-radius:10px;margin:16px 0;padding:16px}
+.dj-transition-preview .preview-edit label{display:grid;gap:6px;font-size:12px;min-width:0}
+.dj-transition-preview input[type=number],.dj-transition-preview select{box-sizing:border-box;min-height:40px;min-width:0;width:100%;padding:8px;background:#101c25;color:#edf3f7;border:1px solid #526471;border-radius:6px}
+.dj-transition-preview .preview-actions{position:sticky;top:-24px;z-index:1;background:#18232c;padding:12px 0;border-block:1px solid #405665;gap:8px}
+.dj-transition-preview .preview-actions>label{width:100%;font-size:12px}.dj-transition-preview [data-choose]{margin:0}
+.dj-transition-preview .preview-details{margin:12px 0;font-size:12px}.preview-details summary{cursor:pointer;padding:8px 0}.preview-details>label{margin-top:12px}
+.dj-transition-preview [data-edit-status]{font-size:12px;color:#f4d7a6;min-height:1.4em}
+@media(max-width:500px){.dj-transition-preview{padding:16px}.dj-transition-preview .preview-edit{grid-template-columns:1fr}.dj-transition-preview .preview-actions{top:-16px}.dj-transition-preview .preview-actions>.button{flex:1;min-width:120px}.dj-transition-preview .preview-edit{gap:10px}}
+.dj-transition-preview label{margin:0}.dj-transition-preview .preview-edit label{margin:0;align-content:start}.dj-transition-preview .preview-edit{align-content:start}.dj-transition-preview p{margin:10px 0}.dj-transition-preview .preview-actions [data-choose]{order:1}.dj-transition-preview .preview-actions>label{order:2}
+
+/* One shared curve canvas for mouse, touch and keyboard editing. */
+.dj-transition-preview{width:min(820px,calc(100vw - 24px))}
+.dj-transition-preview .transition-curve-editor{min-height:220px;touch-action:none;background:#101920;border-radius:8px;overflow:visible}
+.transition-curve-editor [data-point]{cursor:grab;outline:none}
+.transition-curve-editor [data-point]:focus{stroke:white;stroke-width:2.5}
+.curve-toolbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:16px}
+.curve-toolbar button{border:1px solid #526471;border-radius:5px;background:#18232c;color:inherit;padding:8px;min-height:40px;cursor:pointer}
+.curve-toolbar [data-channel="0"][aria-pressed="true"]{border-color:#f7ad76;color:#f7ad76}
+.curve-toolbar [data-channel="1"][aria-pressed="true"]{border-color:#79ced8;color:#79ced8}
+.curve-toolbar button:disabled{opacity:.45;cursor:default}
+.dj-transition-preview .preview-details{margin:12px 0}
+.dj-transition-preview .preview-details .preview-edit{margin-top:12px}
+@media(max-width:500px){.dj-transition-preview .transition-curve-editor{min-height:180px}.curve-toolbar button{flex:1 1 100px}}

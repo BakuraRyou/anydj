@@ -3,6 +3,7 @@ const distance=(a,b)=>a.reduce((sum,v,i)=>sum+Math.abs(v-b[i]),0);
 // Color changes are held between selected musical events, rather than returning
 // to the same hue after every brightness pulse. No wall-clock color oscillator.
 export function choreographColors(plan,profile='auto') {
+  if(profile==='calm'||profile==='atmospheric')return {...plan,frames:plan.choreographyBaseFrames||plan.frames,colorEvents:[]};
   if(!plan.arrangement)return plan;
   const frames=plan.choreographyBaseFrames||plan.frames;
   const source=plan.arrangement,events=[],bars=plan.beatGrid?.downbeats||[];

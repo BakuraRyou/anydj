@@ -22,6 +22,16 @@ export function transitionAudioProfile(from,to,plan,{rateA=1,rateB=1,sameTrack=f
 }
 
 export function transitionAudioGains(progress,plan={}, {position=0,levelA=1,levelB=1}={}){
+ if(validTransitionPoints(plan.points)){
+  const t=Math.max(0,Math.min(1,progress));
+  const gains=plan.points.map(points=>{
+   const index=points.findIndex(point=>point[0]>=t);
+   if(index<=0)return points[0][1];
+   const [x,y]=points[index-1],[end,value]=points[index];
+   return y+(value-y)*(t-x)/(end-x);
+  });
+  return [(1-position)*gains[0],position+(1-position)*gains[1]];
+ }
  const p=transitionProgress(progress,plan.style),b=position+(1-position)*p,a=1-b;
  const profile=plan.audioProfile;
  if(!profile||position!==0||levelA<=0||levelB<=0)return [a,b];
@@ -32,6 +42,13 @@ export function transitionAudioGains(progress,plan={}, {position=0,levelA=1,leve
  const correction=expected>0?Math.max(1,Math.min(10**(2/20),target/expected,1/Math.max(a,b))):1;
  const scale=1+strength*(correction-1);
  return [a*scale,b*scale];
+}
+
+export function validTransitionPoints(curves){
+ return Array.isArray(curves)&&curves.length===2&&curves.every((points,channel)=>
+  Array.isArray(points)&&points.length>=2&&points.length<=32&&
+  points.every((p,i)=>Array.isArray(p)&&p.length===2&&p.every(Number.isFinite)&&p[0]>=0&&p[0]<=1&&p[1]>=0&&p[1]<=1&&(!i||p[0]>points[i-1][0]))&&
+  points[0][0]===0&&points[0][1]===1-channel&&points.at(-1)[0]===1&&points.at(-1)[1]===channel);
 }
 
 export function holdAudioParam(param,time){

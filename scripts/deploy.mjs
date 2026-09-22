@@ -1,4 +1,4 @@
-import {readFile} from 'node:fs/promises';
+import {readFile,access} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {join,resolve} from 'node:path';
 import {spawn} from 'node:child_process';
@@ -31,7 +31,7 @@ export async function pruneAfterHealthcheck({action,release,url,cleanup,readHeal
   return cleanup(release);
 }
 async function main(){
-  const args=process.argv.slice(2),allowed=new Set(['--dry-run','--check','--restart','--crash','--rollback','--skip-health','--config']);
+  const args=process.argv.slice(2),allowed=new Set(['--dry-run','--check','--restart','--crash','--rollback','--skip-health','--skip-build','--with-downloads','--config']);
   let configFile=join(root,'builder','ftp','.env');
   for(let i=0;i<args.length;i++){
     if(!allowed.has(args[i]))throw Error('Unbekannte Option: '+args[i]);
@@ -40,6 +40,8 @@ async function main(){
   if(['--check','--restart','--rollback'].filter(flag=>args.includes(flag)).length>1)throw Error('Nur eine Deployment-Aktion wählen.');
   if(args.includes('--crash')&&!args.includes('--restart'))throw Error('--crash benötigt --restart.');
   const action=args.includes('--check')?'check':args.includes('--rollback')?'rollback':args.includes('--restart')?(args.includes('--crash')?'crash':'restart'):'deploy';
+  if(args.includes('--skip-build')&&action!=='deploy')throw Error('--skip-build ist nur für Deployments vorgesehen.');
+  if(args.includes('--with-downloads')&&action!=='deploy')throw Error('--with-downloads ist nur für Deployments vorgesehen.');
   let config;
   try{config=JSON.parse(await readFile(configFile,'utf8'));}catch{throw Error('builder/ftp/.env fehlt oder enthält kein gültiges JSON. Vorlage: builder/ftp/.env.example');}
   if(typeof config?.localDir!=='string'||!config.localDir.startsWith('/')||/[\r\n\0]/.test(config.localDir)||config.localDir.split('/').some(p=>p==='.'||p==='..'))throw Error('Absoluten FTP-Zielpfad ohne . oder .. in localDir eintragen; / ist erlaubt.');
@@ -50,8 +52,21 @@ async function main(){
     if(url.protocol!=='https:'||url.username||url.password||url.search||url.hash||url.pathname!=='/')throw Error('publicUrl muss die HTTPS-Domain ohne Pfad, Zugangsdaten oder Parameter sein.');
     healthURL=new URL('/healthz',url);
   }
-  if(action==='deploy')await run(process.execPath,[join(root,'scripts','build-hosting.mjs')]);
-  console.log(`Plesk ${action}: ${config.localDir} · ${config.secure===false?'FTP':'FTPS'} · nur Website und bereitgestellte Installer; keine privaten Musikdateien oder Zugangsdaten`);
+  if(action==='deploy'){
+    if(args.includes('--skip-build')){
+      let manifest;
+      try{manifest=JSON.parse(await readFile(join(root,'dist','hosting','current.json'),'utf8'));}
+      catch{throw Error('Vorbereitetes Hosting-Paket fehlt. Zuerst npm run build:hosting ausführen oder --skip-build weglassen.');}
+      if(!/^\d{14}-[a-f0-9]{12}$/.test(manifest?.release))throw Error('Ungültiges vorbereitetes Hosting-Release. npm run build:hosting erneut ausführen.');
+      if(manifest.preserveDownloads!==!args.includes('--with-downloads'))throw Error('Hosting-Paket passt nicht zum gewählten Download-Modus. Ohne --skip-build neu bauen; Installer nur mit --with-downloads veröffentlichen.');
+      for(const file of ['index.js','package.json','public/index.html','public/downloads.html',`releases/${manifest.release}/server.mjs`]){
+        await access(join(root,'dist','hosting',file)).catch(()=>{throw Error('Hosting-Paket unvollständig: '+file);});
+      }
+      console.log('Build übersprungen: vorhandenes dist/hosting wird verwendet. Neuere Quelländerungen sind darin möglicherweise nicht enthalten.');
+    }else await run(process.execPath,[join(root,'scripts','build-hosting.mjs'),...(args.includes('--with-downloads')?['--with-downloads']:[])]);
+  }
+  console.log(`Plesk ${action}: ${config.localDir} · ${config.secure===false?'FTP':'FTPS'}`);
+  if(action==='deploy')console.log(args.includes('--with-downloads')?'Website und bereitgestellte Installer veröffentlichen.':'Website veröffentlichen; vorhandene Installer und Downloadseite bleiben auf dem Server.');
   if(args.includes('--dry-run')){
     console.log('Nur vorbereitet. Keine Verbindung zum Server hergestellt.');return;
   }

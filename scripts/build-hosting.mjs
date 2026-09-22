@@ -12,5 +12,5 @@ await cp(join(output,'public'),join(output,'releases',release,'public'),{recursi
 await cp(join(root,'builder','hosting','server.mjs'),join(output,'releases',release,'server.mjs'));
 await cp(join(root,'builder','hosting','index.js'),join(output,'index.js'));
 await writeFile(join(output,'package.json'),JSON.stringify({name:'anydj-hosting',version:'1.0.0',private:true,type:'commonjs',engines:{node:'>=22'},scripts:{start:'node index.js'}},null,2)+'\n');
-await writeFile(join(output,'current.json'),JSON.stringify({release})+'\n');
+await writeFile(join(output,'current.json'),JSON.stringify({release,preserveDownloads:!process.argv.includes('--with-downloads')})+'\n');
 console.log(`Plesk-Paket erstellt: dist/hosting · Release ${release}`);

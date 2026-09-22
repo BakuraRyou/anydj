@@ -24,4 +24,4 @@ for(const name of ['spotify-callback.html','tidal-callback.html'])await cp(join(
 for(const name of ['index.html','web.css','product-preview.webp'])await cp(join(root,'web',name),join(output,name));
 console.log('Web-Version erstellt: dist/web/ — Inhalt auf HTTPS-Webspace hochladen. Kein Node.js/Python-Server erforderlich.');
 
-await writeFile(join(output,'downloads.html'),await buildDownloads(join(root,'.build','desktop-downloads'),output,await readFile(join(root,'web','downloads.html'),'utf8')));
+await writeFile(join(output,'downloads.html'),await buildDownloads(join(root,'.build','desktop-downloads'),output,await readFile(join(root,'web','downloads.html'),'utf8'),{includeInstallers:process.argv.includes('--with-downloads')}));

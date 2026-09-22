@@ -11,7 +11,7 @@ try{
   if(!args.includes('--skip-desktop-build'))await releaseDesktop({reuseAnalysis:args.includes('--reuse-analysis')});
   await readDownloads(join(root,'.build','desktop-downloads'),{required:true});
   const forwarded=args.filter(a=>!['--reuse-analysis','--skip-desktop-build'].includes(a));
-  const child=spawn(process.execPath,[join(root,'scripts','deploy.mjs'),...forwarded],{cwd:root,stdio:'inherit'});
+  const child=spawn(process.execPath,[join(root,'scripts','deploy.mjs'),'--with-downloads',...forwarded],{cwd:root,stdio:'inherit'});
   child.once('error',e=>{console.error(e.message);process.exitCode=1;});child.once('exit',code=>{process.exitCode=code??1;});
  }
 }catch(e){console.error(e.message);process.exitCode=1;}

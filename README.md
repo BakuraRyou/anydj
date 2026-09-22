@@ -277,15 +277,26 @@ von zwei auf 16 oder 30 Sekunden erweitern. Dadurch darf die Automatik einen
 Teil des Intros überspringen. Ein mit „Cue setzen“ markierter Punkt bleibt
 exakt verbindlich, auch bei 0:00; Shift-Klick auf „Cue setzen“ hebt ihn wieder auf.
 
-„Übergang ansehen & probehören“ bietet bei vollständiger Paaranalyse bis zu
-drei Vorschläge mit Zeitpunkt, Dauer und Begründung. Die Auswahl im Dialog
-ändert zunächst nur die Vorschau; „Für Automatik übernehmen“ übernimmt sie
+„Übergang bearbeiten & probehören“ zeigt ein gemeinsames interaktives Diagramm
+für beide Titel. Kurve wählen, eigene Punkte hinzufügen und mit Maus oder Touch
+verschieben: horizontal den Zeitpunkt, vertikal die Lautstärke. Pfeiltasten
+verschieben den fokussierten Punkt; Entf löscht ihn. Rückgängig und Zurücksetzen
+sind direkt verfügbar. Start- und Endpegel bleiben für eine vollständige Übergabe
+fest. Unter „Zeitpunkte & Vorlagen“ stehen Einstiege, Dauer und Analysevorschläge.
+Hörprobe und Live-Übergang verwenden dieselben eigenen Lautstärkekurven. Die
+Änderung betrifft zunächst nur die Vorschau; „Übergang übernehmen“ übernimmt sie
 für das aktuelle Songpaar. Bereits verstrichene oder inzwischen veraltete
 Pläne werden abgelehnt. Optional lässt sich der gewählte Stil als leichte
 Präferenz speichern; unter „Automatik einstellen → Leichte Stilpräferenz“
 ist sie veränderbar oder mit „Keine“ zurücksetzbar. Einstiegssuche und Präferenz
-werden auf dem Gerät gespeichert. Die Hörprobe benötigt pausierte Decks und
-spielt über den Systemausgang, ohne die Deckpositionen oder Warteschlange zu ändern.
+werden auf dem Gerät gespeichert. Die Hörprobe läuft unabhängig von den Decks
+über den gewählten Kopfhörerausgang, ohne Deckpositionen oder Warteschlange zu
+ändern. Unter „Audioausgänge & Vorhören“ im Mixer oder direkt im Übergangseditor
+zuerst Master und dann einen anderen physischen Kopfhörerausgang wählen.
+Ohne getrennte Ausgänge bleibt das Probehören deaktiviert; Bearbeiten und
+Übernehmen sind weiterhin möglich. Bei einem Gerätewechsel oder Ausgabefehler
+stoppt nur die Hörprobe. Falls im Browser Geräte fehlen, kann „Audioausgänge
+freigeben“ mit kurzzeitigem Mikrofonzugriff die Geräteauswahl freischalten.
 
 **Farbmodi und Vorschau:** Direkt unter dem Tracknamen jedes DJ-Decks öffnet
 „Farbmodus“ eine Auswahl mit Textsuche und Farbgruppenfiltern. Neben Songanalyse,
@@ -1156,3 +1167,19 @@ Spotify-Titel spielen mit Premium über den Spotify-Player in den Decks und
 können mit lokalen Dateien in derselben Warteschlange stehen. Spotify-Titelwechsel
 erfolgen ohne Crossfade; Audioanalyse und Aufnahme verwenden lokale Dateien. Eine Spotify Client ID und konfigurierte Redirect URI sind nötig:
 [Einrichtung](SETUP.md#spotify-in-der-dj-bibliothek).
+
+### Feste Setlisten mit vorbereiteten Übergängen
+
+Im Warteschlangenmenü erstellt „+ Feste Setliste“ eine dauerhaft gespeicherte Liste.
+Titel bleiben beim Abspielen sichtbar und werden als laufend oder bereits gespielt
+markiert. Die Wiedergabe nutzt eine eigene Kopie; Änderungen an der Setliste gelten
+beim nächsten Start und verändern den laufenden Auftritt nicht.
+
+Ab dem zweiten lokalen, analysierten Titel öffnet „Übergang anlegen“ den
+Diagrammeditor für das vorherige Titelpaar. Vorbereitung und Kopfhörer-Hörprobe
+belegen keine Live-Decks. „Übergang übernehmen“ speichert Start, Einstieg, Dauer,
+Übergangsart und eigene Kurvenpunkte mit der Liste auf diesem Gerät. Beim
+Set-Start werden diese Pläne automatisch verwendet. Geänderte Nachbarpaare oder
+unpassende Titellängen müssen erneut geprüft werden. Spotify-Paare unterstützen
+keine lokalen Übergangskurven. Nach einem Neustart gegebenenfalls die Originaldateien
+wieder verbinden; die Setliste enthält keine Kopie der Audiodateien.

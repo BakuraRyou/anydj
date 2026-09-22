@@ -24,8 +24,8 @@ export async function readDownloads(root,{required=false}={}){
  return entries;
 }
 const escape=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-export async function buildDownloads(source,output,template){
- const entries=await readDownloads(source);await mkdir(join(output,'downloads'),{recursive:true});
+export async function buildDownloads(source,output,template,{includeInstallers=true}={}){
+ const entries=includeInstallers?await readDownloads(source):[];if(entries.length)await mkdir(join(output,'downloads'),{recursive:true});
  for(const entry of entries)await cp(entry.file,join(output,'downloads',entry.name));
  const cards=Object.entries(platforms).map(([platform])=>{
   const files=entries.filter(e=>e.platform===platform),linux=platform==='linux';

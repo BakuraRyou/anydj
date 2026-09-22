@@ -64,7 +64,8 @@ KI oder Aufnahme verwendet. Bestehende Kontoverbindungen einmal neu anmelden.
 ## Desktop-Downloadseite
 
 `downloads.html` ist eine eigenständige, von Startseite und DJ-Pult verlinkte Seite.
-Der Web-Build übernimmt vollständige Installer aus `.build/desktop-downloads/`
+Der Web-Build mit `npm run build:web -- --with-downloads` übernimmt vollständige
+Installer aus `.build/desktop-downloads/`
 nach Prüfung der Release-Manifeste und SHA-256-Prüfsummen. Ohne Paket zeigt die
 jeweilige Plattform einen Verfügbarkeitshinweis ohne Downloadlink. Mit Paket
 enthält die Seite Größe, Prüfsumme und Installationshinweise. Downloads sind
@@ -95,3 +96,50 @@ npm run build:web
 
 Die Aufnahme verwendet nur die synthetischen Demo-Tracks. Die Seiten benötigen
 keine externen Schriften, Bilddienste oder zusätzlichen JavaScript-Bibliotheken.
+
+## Website deployen ohne Desktop-Builds
+
+```sh
+npm run deploy:web
+```
+
+Bereitet die Website mit den aktuellen Quellen vor und veröffentlicht über die
+bestehende FTPS-Konfiguration. Baut weder Desktop-Installer noch KI-Laufzeiten.
+Veröffentlichte Installer und die zugehörige `downloads.html` bleiben auf dem Server
+erhalten. Das Downloadverzeichnis wird dort umbenannt, ohne die Pakete herunter-
+oder hochzuladen. Lokale Installer werden weder geprüft noch in das Hostingpaket
+kopiert. `npm run deploy` verhält sich genauso. Die übrigen Webdateien werden komplett
+übertragen. Beim ersten Deployment ohne vorhandene Downloads erscheint ein
+Verfügbarkeitshinweis ohne Downloadlinks.
+
+Neue Installer und Änderungen an der Downloadseite veröffentlichen:
+
+```sh
+npm run deploy:full
+# Oder bereits gebaute Installer inklusive aktualisierter Downloadseite:
+npm run deploy -- --with-downloads
+```
+
+Ein Rollback auf ein Website-Release behält die aktuell veröffentlichten Downloads
+und ihre Seite bei. Ein Rollback auf ein vollständiges Release stellt auch dessen
+Downloads wieder her und kann deshalb große Dateien übertragen.
+
+Wenn wirklich kein Build-Schritt laufen soll:
+
+```sh
+npm run deploy:web -- --skip-build
+```
+
+Verwendet unverändert das zuvor mit `npm run build:hosting` vorbereitete
+`dist/hosting`. Neuere Quelländerungen werden dabei nicht übernommen. Ohne
+vorbereitetes Paket oder bei abweichendem Download-Modus wird abgebrochen.
+Alte Hostingpakete einmal ohne `--skip-build` neu erzeugen. Vorab ohne Serververbindung prüfen:
+
+```sh
+npm run deploy:web -- --skip-build --dry-run
+```
+
+`--config /pfad/deploy.json` ist wie beim bestehenden Deploy verfügbar.
+Hardwareempfehlungen und tatsächliche Funktionsgrenzen stehen auf der
+Downloadseite unter `downloads.html#systemanforderungen`. Die empfohlene
+KI-Zielklasse ist keine gemessene Mindesthardware.

@@ -1,11 +1,19 @@
 import {choreographColors} from './color-choreography.js';
 import {arrangementLevelAt} from './show-arrangement.js';
-export const SHOW_PROFILES=['auto','party','disco'];
+export const SHOW_PROFILES=['auto','party','disco','calm','atmospheric'];
+export const movingMoodForProfile=profile=>profile==='calm'||profile==='atmospheric'?profile:profile==='party'||profile==='disco'?'energetic':'balanced';
 const clamp=value=>Math.max(0,Math.min(1,value));
 // Apply to the original plan, never to the previous preset's output. This is
 // a lighting interpretation of selected accents, not another beat detector.
 export function applyShowProfile(plan,profile='auto') {
   if(!SHOW_PROFILES.includes(profile))throw Error('Unbekannte Lichtshow.');
+  if(profile==='calm'||profile==='atmospheric'){
+    const atmospheric=profile==='atmospheric',source=plan.arrangement;
+    const arrangement=source?{...source,bases:source.bases.map(v=>v*(atmospheric?.9:.75)),accents:source.accents.map(v=>v*(atmospheric?.4:.5)),decays:source.times.map((_,i)=>(source.decays?.[i]??source.decay??.25)*(atmospheric?3:2))}:null;
+    const minimum=plan.beatTiming?.minimum??0,maximum=plan.beatTiming?.maximum??100;
+    const frames=(plan.choreographyBaseFrames||plan.frames).map((frame,i)=>({...frame,dimming:frame.state===false||frame.dimming===0?0:Math.round(arrangement?minimum+arrangementLevelAt(arrangement,i*plan.step)*(maximum-minimum):frame.dimming*(atmospheric?.85:.7))}));
+    return {...plan,showProfile:profile,frames,choreographyBaseFrames:frames,colorEvents:[],...(arrangement?{arrangement,beatTiming:{...plan.beatTiming,accents:arrangement.accents}}:{})};
+  }
   if(profile==='auto'||!plan.arrangement)return plan;
   const source=plan.arrangement,disco=profile==='disco';
   const lookAt=time=>source.lookTrack[Math.min(source.lookTrack.length-1,Math.floor(time/source.step))];

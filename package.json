@@ -30,7 +30,8 @@
     "dev:cert": "node scripts/dev-https.mjs --cert-only",
     "build:tutorial": "node scripts/build-dj-tutorial.mjs",
     "release:desktop": "node scripts/release-desktop.mjs",
-    "deploy:full": "node scripts/deploy-full.mjs"
+    "deploy:full": "node scripts/deploy-full.mjs",
+    "deploy:web": "node scripts/deploy.mjs"
   },
   "main": "desktop/main.mjs",
   "author": "AnyDj",

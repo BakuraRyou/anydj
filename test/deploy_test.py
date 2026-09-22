@@ -24,6 +24,7 @@ class FakeFTP:
         self.fail_suffix = None
         self.fail_public_swap = False
         self.events = []
+        self.transfers = []
         self.mkdir_calls = []
 
     def mkd(self, path):
@@ -54,12 +55,14 @@ class FakeFTP:
 
     def storbinary(self, command, source):
         path = command[5:]
+        self.transfers.append(command)
         if self.fail_suffix and self.fail_suffix in path:
             raise OSError('simulated upload failure')
         self.files[path] = source.read()
 
     def retrbinary(self, command, callback):
         path = command[5:]
+        self.transfers.append(command)
         if path not in self.files:
             raise ftplib.error_perm('550 missing')
         callback(self.files[path])
@@ -99,6 +102,75 @@ class DeploymentTests(unittest.TestCase):
 
     def current(self):
         return json.loads(self.ftp.files['/anydj.de/current.json'])['release']
+
+    def prepare_web_deploy(self):
+        (self.bundle / 'current.json').write_text(json.dumps({'release': NEW, 'preserveDownloads': True}))
+        for directory in ['public', 'releases/' + NEW + '/public']:
+            (self.bundle / directory / 'downloads.html').write_text('no downloads yet')
+        self.ftp.dirs.add('/anydj.de/public/downloads')
+        self.ftp.files['/anydj.de/public/downloads/AnyDj-old.exe'] = b'published installer'
+        self.ftp.files['/anydj.de/public/downloads.html'] = b'published download links'
+
+    def assert_downloads_preserved(self):
+        self.assertEqual(self.ftp.files['/anydj.de/public/downloads/AnyDj-old.exe'], b'published installer')
+        self.assertEqual(self.ftp.files['/anydj.de/public/downloads.html'], b'published download links')
+        self.assertFalse(any('AnyDj-old.exe' in command for command in self.ftp.transfers))
+        self.assertFalse(any('public-backup-' in p or 'public-stage-' in p for p in self.ftp.dirs))
+
+    def test_web_deploy_moves_installers_without_transfer(self):
+        self.prepare_web_deploy()
+        deploy.deploy(self.ftp, self.config, 'deploy', self.bundle)
+        self.assertEqual(self.current(), NEW)
+        self.assert_downloads_preserved()
+
+    def test_web_deploy_failures_restore_installers(self):
+        for failure in ['swap', 'manifest', 'staging', 'download-move']:
+            with self.subTest(failure=failure):
+                self.ftp = FakeFTP()
+                self.prepare_web_deploy()
+                if failure == 'swap':
+                    self.ftp.fail_public_swap = True
+                elif failure == 'download-move':
+                    rename = self.ftp.rename
+                    def fail_move(source, target):
+                        if '/public-backup-' in source and source.endswith('/downloads'):
+                            raise ftplib.error_perm('550 simulated download move failure')
+                        rename(source, target)
+                    self.ftp.rename = fail_move
+                else:
+                    self.ftp.fail_suffix = '/current.json.upload-' if failure == 'manifest' else 'public-stage-'
+                with self.assertRaises((OSError, ftplib.error_perm)):
+                    deploy.deploy(self.ftp, self.config, 'deploy', self.bundle)
+                self.assertEqual(self.current(), OLD)
+                self.assert_downloads_preserved()
+
+    def test_web_rollback_preserves_current_download_links_and_installers(self):
+        self.prepare_web_deploy()
+        # The previous website archive has no installers and an outdated page.
+        self.ftp.files['/anydj.de/current.json'] = json.dumps({'release': OLD, 'preserveDownloads': True}).encode()
+        self.ftp.files['/anydj.de/releases/' + OLD + '/public/downloads.html'] = b'outdated links'
+        deploy.deploy(self.ftp, self.config, 'deploy', self.bundle)
+        deploy.deploy(self.ftp, self.config, 'rollback')
+        self.assertEqual(self.current(), OLD)
+        self.assert_downloads_preserved()
+
+    def test_first_web_deploy_uses_placeholder(self):
+        self.prepare_web_deploy()
+        self.ftp.files.pop('/anydj.de/public/downloads/AnyDj-old.exe')
+        self.ftp.files.pop('/anydj.de/public/downloads.html')
+        self.ftp.dirs.remove('/anydj.de/public/downloads')
+        self.ftp.files.pop('/anydj.de/current.json')
+        deploy.deploy(self.ftp, self.config, 'deploy', self.bundle)
+        self.assertEqual(self.ftp.files['/anydj.de/public/downloads.html'], b'no downloads yet')
+
+    def test_web_bundle_rejects_accidental_installers_before_upload(self):
+        self.prepare_web_deploy()
+        directory = self.bundle / 'public/downloads'
+        directory.mkdir()
+        (directory / 'AnyDj.exe').write_bytes(b'installer')
+        with self.assertRaisesRegex(ValueError, 'keine Installer'):
+            deploy.deploy(self.ftp, self.config, 'deploy', self.bundle)
+        self.assertEqual(self.ftp.transfers, [])
 
     def test_upload_activates_after_complete_release_and_preserves_other_files(self):
         deploy.deploy(self.ftp, self.config, 'deploy', self.bundle)

@@ -67,6 +67,8 @@ def read_json(ftp, path, optional=False):
         value = json.loads(output)
         if not isinstance(value, dict) or not RELEASE.fullmatch(value.get("release", "")):
             raise ValueError()
+        if "preserveDownloads" in value and not isinstance(value["preserveDownloads"], bool):
+            raise ValueError()
         return value
     except (ValueError, TypeError):
         raise ValueError("Ungültiges Remote-Manifest. Bestehende Dateien bleiben unangetastet.") from None
@@ -154,6 +156,9 @@ def stage_public(ftp, target, manifest, current, bundle=None):
     public = posixpath.join(target, "public")
     archive = posixpath.join(target, "releases", manifest["release"], "public")
     names = remote_files(ftp, archive)
+    preserve = manifest.get("preserveDownloads", False)
+    if preserve and any(name == "downloads" or name.startswith("downloads/") for name in names):
+        raise ValueError("Website-Release darf keine Installer enthalten.")
     if "index.html" not in names:
         raise ValueError("Release enthält keine public/index.html.")
     old_names = set(remote_files(ftp, posixpath.join(target, "releases", current["release"], "public"))) if current else set()
@@ -169,6 +174,8 @@ def stage_public(ftp, target, manifest, current, bundle=None):
         # Keep unrelated hoster files (e.g. .htaccess/.well-known); remove only
         # stale files known to belong to the previously active release.
         for name in existing:
+            if preserve and name.startswith("downloads/"):
+                continue  # Move the directory on the server during activation.
             if name not in old_names and name not in names:
                 path = posixpath.join(staging, name)
                 mkdirs(ftp, posixpath.dirname(path), known)
@@ -178,7 +185,9 @@ def stage_public(ftp, target, manifest, current, bundle=None):
             progress(f"[public {index}/{len(names)}] {name}")
             path = posixpath.join(staging, name)
             mkdirs(ftp, posixpath.dirname(path), known)
-            if bundle:
+            if preserve and name == "downloads.html" and name in existing:
+                copy_remote(ftp, posixpath.join(public, name), path)
+            elif bundle:
                 with (bundle / "public" / name).open("rb") as stream:
                     atomic_write(ftp, path, stream)
             else:
@@ -194,10 +203,18 @@ def activate(ftp, target, manifest, current, bundle=None):
     staging = stage_public(ftp, target, manifest, current, bundle)
     public = posixpath.join(target, "public")
     backup = posixpath.join(target, "tmp", "public-backup-" + uuid.uuid4().hex)
+    keep_downloads = manifest.get("preserveDownloads", False) and any(
+        name == "downloads" and facts.get("type") == "dir" for name, facts in ftp.mlsd(public))
+    downloads_moved = False
     ftp.rename(public, backup)
     try:
+        if keep_downloads:
+            ftp.rename(posixpath.join(backup, "downloads"), posixpath.join(staging, "downloads"))
+            downloads_moved = True
         ftp.rename(staging, public)
     except Exception:
+        if downloads_moved:
+            ftp.rename(posixpath.join(staging, "downloads"), posixpath.join(backup, "downloads"))
         ftp.rename(backup, public)
         remove_tree(ftp, staging)
         raise
@@ -209,6 +226,8 @@ def activate(ftp, target, manifest, current, bundle=None):
         atomic_write(ftp, posixpath.join(target, "current.json"), json.dumps(manifest).encode())
     except Exception:
         ftp.rename(public, staging)
+        if downloads_moved:
+            ftp.rename(posixpath.join(staging, "downloads"), posixpath.join(backup, "downloads"))
         ftp.rename(backup, public)
         remove_tree(ftp, staging)
         if previous_written and previous:
@@ -253,10 +272,16 @@ def plan_bundle(bundle):
     release = manifest.get("release", "")
     if not RELEASE.fullmatch(release):
         raise ValueError("Ungültiges Build-Manifest.")
+    if "preserveDownloads" in manifest and not isinstance(manifest["preserveDownloads"], bool):
+        raise ValueError("Ungültiger Download-Modus im Build-Manifest.")
     files = sorted(path for path in bundle.rglob("*") if path.is_file())
     allowed = {"index.js", "package.json", "current.json"}
     for path in files:
         relative = path.relative_to(bundle).as_posix()
+        if manifest.get("preserveDownloads") and (
+                relative in ("public/downloads", "releases/" + release + "/public/downloads") or
+                relative.startswith(("public/downloads/", "releases/" + release + "/public/downloads/"))):
+            raise ValueError("Website-Release darf keine Installer enthalten.")
         if path.is_symlink() or any(part.startswith(".") for part in Path(relative).parts):
             raise ValueError("Versteckte Dateien oder Symlinks im Deployment-Paket.")
         if relative not in allowed and not relative.startswith(("releases/" + release + "/", "public/")):

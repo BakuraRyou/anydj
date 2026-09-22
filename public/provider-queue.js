@@ -1,3 +1,4 @@
+import {copySetTransition} from './setlist-transition.js';
 // Provider entries live only in the browser's saved queues, never on the server.
 export function spotifyQueueEntry(track,id=crypto.randomUUID()){
  if(!track||!/^[a-zA-Z0-9]{22}$/.test(track.id)||track.available===false)throw Error('Spotify-Titel nicht verfügbar.');
@@ -9,5 +10,8 @@ export function validQueueEntry(entry){
 }
 export function copyQueueEntry(entry,id=entry.id){
  if(!validQueueEntry(entry))throw Error('Ungültiger Warteschlangeneintrag.');
- return entry.provider==='spotify'?spotifyQueueEntry(entry.remote,id):{id,trackId:entry.trackId};
+ const copy=entry.provider==='spotify'?spotifyQueueEntry(entry.remote,id):{id,trackId:entry.trackId};
+ if(typeof entry.sourceEntryId==='string')copy.sourceEntryId=entry.sourceEntryId;
+ const transition=copySetTransition(entry.transition);if(transition&&!entry.provider)copy.transition=transition;
+ return copy;
 }

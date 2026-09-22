@@ -32,3 +32,20 @@ test('disco holds contrasting colors between musical accents and remains seek-st
  const expected=showFrameAt(disco,b.time);showFrameAt(disco,15.9);assert.deepEqual(showFrameAt(disco,b.time),expected);
  assert.deepEqual(disco.beatTiming.times,base.beatTiming.times);
 });
+
+test('quiet styles preserve song timing and silence while reducing accent contrast',()=>{
+ const base=make(windows),snapshot=structuredClone(base);
+ for(const profile of ['calm','atmospheric']){
+  const result=applyShowProfile(base,profile);
+  assert.deepEqual(result.beatGrid,base.beatGrid);
+  assert.deepEqual(result.arrangement.times,base.arrangement.times);
+  assert.ok(result.arrangement.accents.every((v,i)=>v<base.arrangement.accents[i]||v===0));
+  assert.ok(result.frames.every(f=>f.dimming>=0&&f.dimming<=75));
+  assert.deepEqual(result.colorEvents,[]);
+  const silent=applyShowProfile(make(windows.map(w=>({...w,rms:0,bass:0,flux:0}))),profile);
+  assert.ok(silent.frames.every(f=>f.dimming===0||f.dimming===5));
+  const legacy=applyShowProfile({step:1,frames:[{state:false,dimming:70},{dimming:0},{dimming:80}]},profile);
+  assert.equal(legacy.frames[0].dimming,0);assert.equal(legacy.frames[1].dimming,0);assert.ok(legacy.frames[2].dimming<80);
+ }
+ assert.deepEqual(base,snapshot);
+});
