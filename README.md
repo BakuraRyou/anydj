@@ -8,13 +8,28 @@ Doppelklick setzt die jeweilige Aufteilung zurück; „Einstellungen → Layout
 zurücksetzen“ stellt alle Standardgrößen wieder her. Auf schmalen Displays
 bleibt die gestapelte Ansicht erhalten.
 
-**Full-Modus für Parties:** Bei „Lichtshow“ auf „Full“ klicken: Weich bewegte,
+**Full-Modus für Parties:** Bei „Lichtshow“ auf „Full“ klicken: Vier weich bewegte,
 bildschirmfüllende Farbflächen folgen den Songfarben, der Helligkeit und dem
 aktuellen Crossfade. Musik und Warteschlange laufen weiter, auch ohne Lampe.
 Die Bedienung verschwindet nach kurzer Zeit und erscheint bei Mausbewegung
 oder Antippen wieder. Mit Escape oder „Schließen“ zurück zum Pult.
 Pause und Stopp schalten die Farben dunkel. Ohne Browser-Vollbildunterstützung
 füllt die Ansicht das Browserfenster.
+
+**Licht feinjustieren:** Unter „Lichtoptionen → Licht feinjustieren“ öffnet sich
+„Feinschliff“ mit Helligkeit, Farbsättigung, Farbton und Lichtimpulsen. Diese Werte
+wirken sofort auf beide Decks, Lichtmix, Full, Bühnenvorschau und echte Lampenausgabe.
+Sie werden auf dem Gerät gespeichert und lassen sich gemeinsam zurücksetzen.
+Helligkeit 0 schaltet die Ausgabe dunkel; Sättigung 0 ergibt weißes/graues Licht.
+„Lichtimpulse“ verändert den Helligkeitskontrast: 0 gleicht aktive Passagen auf
+50 % vor der globalen Dimmung an, 100 erhält den Originalverlauf, höhere Werte
+betonen den Kontrast. Die Songanalyse und gespeicherte Gerätegestaltung bleiben erhalten.
+
+**Lichtbühne einstellen:** Das Fenster bietet vier Bereiche: „Live-Look“ mit direkt
+wählbaren Lichtstilen und Farben, „Feinschliff“ für globale Regler, „Geräte“ für die
+Ausstattung und „Verbindung“ für die Hardware. „Individuell“ im Live-Look öffnet die
+Gestaltung für ganze Bühne, Gruppen, Einzelgeräte und Songabschnitte. Kopfzeile
+und Navigation bleiben beim Scrollen sichtbar; das DJ-Pult bleibt bedienbar.
 
 **Virtuelle Lichtbühne im DJ-Pult:** Im Mixer „Lichtbühne aktivieren“
 anklicken. Die Bühne ersetzt oben die Farbvorschau; „Bühne einstellen“ öffnet
@@ -981,6 +996,19 @@ verschieben Pfeiltasten den Punkt um 0,05 s, Umschalt+Pfeil um 0,5 s; auf der
 Zeitleiste springen sie um 1 bzw. 5 Sekunden. Eingabefelder behalten ihre normalen
 Tastaturfunktionen. Analyse-Einstellungen und Punktliste sind einklappbar; am
 Desktop bleibt die kompaktere Farbauswahl beim Scrollen sichtbar.
+
+### Website und Desktop-Apps gemeinsam deployen
+
+```sh
+npm run deploy:full
+```
+
+Baut die vollständige native Desktop-App inklusive KI-Modellen, stellt die
+Installer mit Prüfsummen auf der eigenen Downloadseite bereit und veröffentlicht
+Website und Pakete über das bestehende FTPS-Deployment. Build-Voraussetzungen
+und Windows-Übernahme: [vollständiger Deploy-Ablauf](builder/README.md#website-und-vollständige-desktop-apps-gemeinsam-veröffentlichen).
+Mit `-- --reuse-analysis --dry-run` werden vorhandene KI-Laufzeiten verwendet
+und die Veröffentlichung ausgelassen.
 
 ### Desktop-Anwendung / Installer
 

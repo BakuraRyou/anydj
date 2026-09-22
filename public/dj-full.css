@@ -2,9 +2,12 @@
 .dj-full-host[hidden]{display:none}
 dialog.dj-full{--full-color:#000;--full-level:0;position:fixed;inset:0;width:100%;height:100%;max-width:none;max-height:none;margin:0;padding:0;border:0;border-radius:0;overflow:hidden;background:#000;color:#fff;box-shadow:none}
 .dj-full::backdrop{background:#000;backdrop-filter:none}
-.dj-full-wash,.dj-full-glow{position:absolute;inset:-30%;pointer-events:none;opacity:var(--full-level);transition:background-color .3s linear,opacity .3s linear;background-color:var(--full-color)}
-.dj-full-wash{mask-image:radial-gradient(ellipse at 38% 45%,#000 8%,#0009 45%,transparent 72%);animation:dj-full-drift 18s ease-in-out infinite alternate}
-.dj-full-glow{mask-image:radial-gradient(ellipse at 70% 65%,#000 0%,#0005 32%,transparent 58%);animation:dj-full-drift 23s ease-in-out infinite alternate-reverse;mix-blend-mode:screen}
+.dj-full-colors{position:absolute;inset:0;overflow:hidden;background:#000}
+.dj-full-color{position:absolute;width:85%;height:85%;pointer-events:none;opacity:var(--full-level);background:var(--full-color);transition:background-color .4s linear,opacity .3s linear;mask-image:radial-gradient(ellipse,#000 20%,#000b 45%,transparent 72%);animation:dj-full-drift 18s ease-in-out infinite alternate;mix-blend-mode:screen}
+.dj-full-color:nth-child(1){left:-18%;top:-18%}
+.dj-full-color:nth-child(2){right:-18%;top:-18%;animation-duration:23s;animation-direction:alternate-reverse}
+.dj-full-color:nth-child(3){left:-18%;bottom:-18%;animation-duration:27s;animation-delay:-9s}
+.dj-full-color:nth-child(4){right:-18%;bottom:-18%;animation-duration:21s;animation-delay:-5s;animation-direction:alternate-reverse}
 .dj-full-controls{position:absolute;inset:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:24px;background:linear-gradient(#0008,transparent);transition:opacity .4s}
 .dj-full-controls span{font-size:13px;letter-spacing:.2em}
 .dj-full-controls small{display:block;margin-top:6px;font-size:11px;letter-spacing:normal;color:#fffb}
@@ -13,4 +16,7 @@ dialog.dj-full{--full-color:#000;--full-level:0;position:fixed;inset:0;width:100
 .dj-full-idle .dj-full-controls{opacity:0}
 .dj-full-idle .dj-full-controls:focus-within:has(:focus-visible){opacity:1;cursor:auto}
 @keyframes dj-full-drift{from{transform:translate(-6%,-4%) rotate(-12deg) scale(1)}to{transform:translate(7%,6%) rotate(18deg) scale(1.2)}}
-@media(prefers-reduced-motion:reduce){.dj-full-wash,.dj-full-glow{animation:none;transition:none}.dj-full-controls{transition:none}}
+@media(prefers-reduced-motion:reduce){.dj-full-color{animation:none;transition:none}.dj-full-controls{transition:none}}
+
+body:has(.dj-full[open]) .animatus-tutorial-launcher{display:none!important}
+html:has(.dj-full[open]){overflow:hidden}

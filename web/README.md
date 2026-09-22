@@ -60,3 +60,38 @@ werden Spotify-APIs verwendet. Spotify-Premium-Wiedergabe ist in den Decks
 verfügbar; die gemeinsame Warteschlange unterstützt lokale und Spotify-Titel.
 Spotify-Titel werden ohne Crossfade gewechselt und nicht für Live-Lichtanalyse,
 KI oder Aufnahme verwendet. Bestehende Kontoverbindungen einmal neu anmelden.
+
+## Desktop-Downloadseite
+
+`downloads.html` ist eine eigenständige, von Startseite und DJ-Pult verlinkte Seite.
+Der Web-Build übernimmt vollständige Installer aus `.build/desktop-downloads/`
+nach Prüfung der Release-Manifeste und SHA-256-Prüfsummen. Ohne Paket zeigt die
+jeweilige Plattform einen Verfügbarkeitshinweis ohne Downloadlink. Mit Paket
+enthält die Seite Größe, Prüfsumme und Installationshinweise. Downloads sind
+relativ verlinkt und funktionieren auch beim Hosting in einem Unterordner.
+
+Kompletter Ablauf: `npm run deploy:full`; siehe [Deployment](../builder/README.md).
+
+## Gestaltung und Produktvorschau
+
+Startseite und Downloads teilen ein responsives, dunkles Layout mit mintfarbenen
+Akzenten. Die Startseite zeigt das echte DJ-Pult aus der Browser-Demo;
+`product-preview.webp` wird mit dem Web-Build ausgeliefert. Die Downloadseite
+zeigt ausschließlich verifizierte, vorhandene Installer als Download an.
+
+```sh
+npm run build:web
+node scripts/check-site.mjs
+```
+
+Prüft beide Seiten bei 1440, 768, 390 und 320 Pixel Breite, Bild, Navigation,
+FAQ und Verfügbarkeit der Pakete. Screenshots: `/tmp/anydj-site-*.png`.
+Nach Änderungen am DJ-Pult kann die echte Produktaufnahme erneuert werden:
+
+```sh
+node scripts/check-site.mjs --capture-product
+npm run build:web
+```
+
+Die Aufnahme verwendet nur die synthetischen Demo-Tracks. Die Seiten benötigen
+keine externen Schriften, Bilddienste oder zusätzlichen JavaScript-Bibliotheken.

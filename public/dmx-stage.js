@@ -4,7 +4,7 @@ import {createStageEditor} from './dmx-editor.js';
 import {mixFixtureFrames} from './dmx-show.js';
 import {stagePatch,encodeStage,decodeStage} from './dmx-model.js';
 
-export function createDmxStage(button) {
+export function createDmxStage(button,{adjustFrame=frame=>frame}={}) {
   const panel=document.createElement('dialog');
   panel.className='dmx-stage';panel.id='dmxStage';panel.setAttribute('aria-labelledby','stageTitle');
   panel.innerHTML=`<div class="stage-heading"><div><span class="stage-badge">LICHTBÜHNE</span><h2 id="stageTitle">Virtuelle Lichtbühne</h2></div><button type="button" class="button secondary" data-close aria-label="Lichtbühne schließen">Schließen</button></div>
@@ -50,10 +50,42 @@ export function createDmxStage(button) {
   hardwareSection.querySelector('summary').append(connectionStatus);
   const preview=panel.querySelector('.stage-preview');
   if(inline){const previewSection=fold(preview,'Vorschau ausprobieren','stage-preview-section');editorHost.append(previewSection);}
+  // Keep the existing control nodes and handlers; organize them around DJ tasks.
+  panel.classList.add('stage-redesigned');
+  panel.querySelector('.stage-badge').textContent='DEIN LICHT';
+  panel.querySelector('.stage-intro').textContent='Wähle deinen Look. Passe die Wirkung an. Deine Änderungen sind sofort sichtbar.';
+  const nav=document.createElement('nav');nav.className='stage-navigation';nav.setAttribute('aria-label','Lichtbühne Bereiche');
+  const pages=document.createElement('div');pages.className='stage-pages';
+  const views={};
+  function selectView(name){for(const [key,value] of Object.entries(views)){value.page.hidden=key!==name;value.button.setAttribute('aria-pressed',String(key===name));}panel.querySelector('.stage-workspace').scrollTop=0;}
+  for(const [key,title,description] of [['look','Live-Look','Stil und Bühnenfarben'],['tuning','Feinschliff','Helligkeit und Farbwirkung'],['equipment','Geräte','Deine Bühne zusammenstellen'],['connection','Verbindung','Lampen einschalten']]){
+    const tab=document.createElement('button');tab.type='button';tab.className='stage-nav-button';tab.innerHTML=`<strong>${title}</strong><span>${description}</span>`;tab.onclick=()=>selectView(key);nav.append(tab);
+    const page=document.createElement('section');page.className='stage-page';page.dataset.stagePage=key;page.setAttribute('aria-label',title);pages.append(page);views[key]={button:tab,page};
+  }
+  panel.querySelector('.stage-heading').after(nav);editorHost.append(pages);
+  const live=views.look.page;
+  const modeLabel=editorHost.querySelector('[data-mode]').closest('label');modeLabel.hidden=true;live.append(modeLabel);
+  const modeHeading=document.createElement('h3');modeHeading.textContent='Wie soll dein Licht spielen?';live.append(modeHeading);
+  const modeButtons=document.createElement('div');modeButtons.className='stage-mode-grid';live.append(modeButtons);
+  const names={shared:['Gemeinsam','Alle Lampen folgen dem Mix'],auto:['Automatisch','Passend zum Song'],chase:['Lauflicht','Bewegung durch die Bühne'],wash:['Ruhige Flächen','Weich und zurückhaltend'],follow:['Musikimpulse','Gemeinsam im Rhythmus'],alternate:['Gruppenwechsel','Links und rechts im Wechsel'],design:['Individuell','Farben und Bewegung selbst wählen']};
+  for(const [mode,[name,description]] of Object.entries(names)){
+    const choice=document.createElement('button');choice.type='button';choice.className='stage-mode-choice';choice.dataset.stageChoice=mode;choice.innerHTML=`<strong>${name}</strong><span>${description}</span>`;
+    choice.onclick=()=>{const select=panel.querySelector('[data-mode]');select.value=mode;select.dispatchEvent(new Event('change'));};modeButtons.append(choice);
+  }
+  const automatic=editorHost.querySelector('[data-auto]');automatic.classList.add('stage-look-card');live.append(automatic);
+  const tuningHost=document.createElement('section');tuningHost.className='stage-tuning-host stage-look-card';views.tuning.page.append(tuningHost);
+  const individual=editorHost.querySelector('[data-editor]');individual.classList.add('stage-look-card');live.append(individual);
+  const previewTools=panel.querySelector('.stage-preview-section');if(previewTools)live.append(previewTools);
+  editorHost.append(editorHost.querySelector('[data-saved]'));
+  panel.querySelector('.stage-hardware button').before(connectionStatus);
+  equipmentSection.open=true;views.equipment.page.append(equipmentSection);
+  hardwareSection.open=true;views.connection.page.append(hardwareSection,panel.querySelector('.stage-technical'));
+  selectView('look');
   const demoButton=panel.querySelector('[data-demo]'),blackoutButton=panel.querySelector('[data-blackout]');
   function render(){
     if(!panel.open&&!active&&!hardware.enabled)return;
     panel.dataset.design=String(editor.enabled);panel.dataset.stageMode=editor.mode;
+    for(const choice of modeButtons.children)choice.setAttribute('aria-pressed',String(choice.dataset.stageChoice===editor.mode));
     const equipment=editor.equipment,patch=stagePatch(equipment);
     const equipmentTitle='Ausstattung · '+patch.length+' Geräte';
     if(equipmentSection.querySelector('summary').textContent!==equipmentTitle)equipmentSection.querySelector('summary').textContent=equipmentTitle;
@@ -85,8 +117,9 @@ export function createDmxStage(button) {
     editor.context(main?.sectionKey,main?.sectionName);
     fixtureNodes.forEach((node,i)=>node.setAttribute('aria-pressed',String(editor.mode==='design'&&editor.selected===`f${i}`)));
     const automatic=Object.hasOwn(STAGE_PRESETS,editor.mode)?automaticStage(inputs,editor.count,equipment,editor.mode):null;
-    if(automatic)editor.preview(automatic.palette,automatic.description);
-    const output=automatic?automatic.frames:editor.mode==='design'?mixFixtureFrames(inputs,editor.config,equipment):sample;
+    if(automatic)editor.preview(automatic.palette.map(rgb=>{const f=adjustFrame({r:rgb[0],g:rgb[1],b:rgb[2],dimming:100});return [f.r,f.g,f.b];}),automatic.description);
+    const rawOutput=automatic?automatic.frames:editor.mode==='design'?mixFixtureFrames(inputs,editor.config,equipment):sample;
+    const output=Array.isArray(rawOutput)?rawOutput.map(cells=>cells.map(adjustFrame)):adjustFrame(rawOutput);
     hardware.setDemo(demo);
     hardware.push(encodeStage(demo?null:output,equipment));
     const universe=encodeStage(blackout?null:output,equipment),fixtures=decodeStage(universe,equipment);
@@ -111,7 +144,7 @@ export function createDmxStage(button) {
   }
   function startTimer(){if(!timer)timer=setInterval(render,50);}
   function close(){panel.close();if(!active&&!hardware.enabled){demo=false;blackout=false;clearInterval(timer);timer=null;}button.setAttribute('aria-expanded',String(active));settingsButton.setAttribute('aria-expanded','false');}
-  function openSettings(){if(!panel.open)panel.show();settingsButton.setAttribute('aria-expanded','true');if(!inline)button.setAttribute('aria-expanded','true');render();startTimer();}
+  function openSettings(){selectView('look');if(!panel.open)panel.show();settingsButton.setAttribute('aria-expanded','true');if(!inline)button.setAttribute('aria-expanded','true');render();startTimer();}
   function activate(value){
     active=value;button.closest('.dj-mixer').classList.toggle('has-inline-stage',active);inline.hidden=!active;colorPreview.hidden=active;settingsButton.hidden=!active;
     button.textContent=active?'Bühne deaktivieren':'Lichtbühne aktivieren';button.setAttribute('aria-pressed',String(active));button.setAttribute('aria-expanded',String(active));
@@ -126,6 +159,8 @@ export function createDmxStage(button) {
   blackoutButton.onclick=()=>{blackout=!blackout;render();};
   if(inline){try{if(localStorage.getItem('anydj-stage-visible')==='true')activate(true);}catch{}}
   return {
+    tuningHost,
+    openSettings(view='look'){openSettings();selectView(view);},
     update(frame,isPlaying,nextStreams=[]){streams=nextStreams;current=frame;playing=isPlaying;if(playing)demo=false;render();},
     stop(){void hardware.stop();demo=false;streams=[];current=null;playing=false;render();},
     destroy(){hardware.destroy();clearInterval(timer);panel.remove();inline?.remove();settingsButton.remove();if(colorPreview)colorPreview.hidden=false;},

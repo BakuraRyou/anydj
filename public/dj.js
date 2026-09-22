@@ -1,3 +1,4 @@
+import {createLightTuning,tuneLightFrame} from './light-tuning.js';
 import {transitionAudioProfile,transitionAudioGains,scheduleTransitionGain,holdAudioParam} from './transition-audio.js';
 import {createTransitionPreview} from './transition-preview.js';
 import {createFullMode} from './dj-full.js';
@@ -34,7 +35,9 @@ import { readShow, saveShow, readLibrary, saveTrack, removeTrack, readFolder, sa
 import {scanFolder, folderChanges, audioFile} from './dj-folder.js';
 
 const $ = id => document.getElementById(id);
-const lightStage=createDmxStage($('openLightStage'));
+let lightTuning;
+const adjustLight=frame=>tuneLightFrame(frame,lightTuning?.settings);
+const lightStage=createDmxStage($('openLightStage'),{adjustFrame:adjustLight});
 const webMode=document.documentElement.dataset.edition==='web';
 if(webMode){$('djStructure').checked=false;$('djStructure').disabled=true;}
 let showProfile='auto';
@@ -146,7 +149,11 @@ const performanceControls=createPerformance({decks,mixer,ready:audioReady,
 simplifyDJLayout(decks,mixer);
 const fullButton=document.createElement('button');fullButton.type='button';fullButton.className='button secondary';fullButton.textContent='Full';fullButton.title='Party-Lichtshow im Vollbild öffnen';
 mixer.querySelector('.dj-light-heading').append(fullButton);
-const fullMode=createFullMode(fullButton);
+const fullMode=createFullMode(fullButton,{adjustFrame:adjustLight});
+lightTuning=createLightTuning(lightStage.tuningHost,()=>updateLightPreview());
+lightTuning.root.open=true;
+const tuneButton=document.createElement('button');tuneButton.type='button';tuneButton.className='button secondary';tuneButton.textContent='Licht feinjustieren';tuneButton.onclick=()=>lightStage.openSettings('tuning');
+mixer.querySelector('.dj-light-settings').append(tuneButton);
 createTransitionPreview({host:document.querySelector('.dj-mixer-transition'),
  isPlaying:()=>Boolean(spotifyDeck?.spotifyStarted&&!spotifyDeck.spotifyPaused)||decks.some(d=>!d.audio.paused),
  getPair:()=>{
@@ -606,6 +613,7 @@ function frameFor(deck,time=deck.audio.currentTime) {
   return deck.transition?transitionFrame(deck.transition.from,deck.track.plan,time,(time-deck.transition.start)/2):showFrameAt(deck.track.plan,time);
 }
 function paintColorPoint(id,frame,description){
+  frame=adjustLight(frame);if(frame?.state===false)frame=null;
   const point=$(id),color=frame?`rgb(${frame.r}, ${frame.g}, ${frame.b})`:'#364047';
   point.style.setProperty('--light-color',color);point.style.opacity=frame?String(.25+.75*frame.dimming/100):'.35';
   point.title=frame?`${description}: RGB ${frame.r}, ${frame.g}, ${frame.b} · ${frame.dimming} %`:`${description}: inaktiv`;
@@ -622,8 +630,7 @@ function updateLightPreview(){
   const active=current.some((frame,i)=>frame&&weights[i]>0);
   const mixedFrame=active?mixDeckFrames(current,weights):null;
   paintColorPoint('previewMix',mixedFrame,'Lichtmix · berechnete Vorschau');
-  fullMode.update(mixedFrame);
-  lightStage.update(mixedFrame,decks.some(deck=>!deck.audio.paused),decks.map((deck,i)=>{
+  const lightStreams=decks.map((deck,i)=>{
     const plan=deck.track?.plan,time=times[i];
     const section=plan?.sections?.find(s=>time>=s.start&&time<s.end);
     const motif=deck.track?.stageMotifs?.[plan?.sections?.indexOf(section)];
@@ -633,7 +640,9 @@ function updateLightPreview(){
     const startBeat=motif?(beatPosition(grid,motif.start)??(firstBeat>=0?firstBeat:null)):null;
     return {motifColor:motif?.color,motionBeat:absoluteBeat!==null&&startBeat!==null?absoluteBeat-startBeat:null,frame:current[i],weight:weights[i],beat:beatPosition(plan?.beatGrid?.beats||plan?.beatTiming?.times,time),look:section?.look,sectionProgress:section?(time-section.start)/Math.max(.001,section.end-section.start):0,
       accentStrength:stageAccentStrength(plan,time),washDimming:stageWashDimming(plan,time),sectionKey:section?`${deck.track.id}:${section.start}`:null,sectionName:section?`${deck.track.name} · ${section.title||section.label||section.lookLabel||'Abschnitt'}`:''};
-  }));
+  });
+  fullMode.update(mixedFrame,lightStreams);
+  lightStage.update(mixedFrame,decks.some(deck=>!deck.audio.paused),lightStreams);
 }
 // Sample the preview independently of the slower transport labels, using one
 // media-time snapshot per deck for brightness, color and stage movement.
@@ -670,7 +679,8 @@ const stopLightClock=startShowClock(()=>decks.map((deck,i)=>({key:deck.audio,tim
   const current=session; sending=true;
   try {
     const gains=deckGains(Number($('crossfader').value)).map((value,i)=>value*Number(decks[i].panel.querySelector('.dj-volume').value));
-    await api('/api/music/frame',{id:current,params:mixDeckFrames(decks.map(deck=>frameFor(deck)),gains)});
+    const frame=adjustLight(mixDeckFrames(decks.map(deck=>frameFor(deck)),gains));
+    await api('/api/music/frame',{id:current,params:frame.state?frame:{state:false}});
   } catch(error) {if(current===session) void perform(()=>stopAll().then(()=>notice(`Lichtverbindung unterbrochen: ${error.message}`,true)));}
   finally {sending=false;}
 });

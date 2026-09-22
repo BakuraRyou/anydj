@@ -298,3 +298,5 @@
  .dj-resizing-y,.dj-resizing-y *{cursor:row-resize!important;user-select:none!important}
  .dj-page .dj-resize-collections>.dj-library{min-width:0;overflow:auto}
 }
+
+.dj-light-tuning{margin-top:12px;font-size:12px}.dj-light-tuning summary{cursor:pointer}.dj-light-tuning label{display:grid;gap:6px;margin:14px 0}.dj-light-tuning label>span{display:flex;justify-content:space-between;gap:12px}.dj-light-tuning input{width:100%;min-width:0}.dj-light-tuning output{color:var(--muted)}

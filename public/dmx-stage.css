@@ -84,3 +84,36 @@
 /* Align the settings window with the central light stage and mixer. */
 .dmx-stage,.dmx-stage.stage-settings-only,.dmx-stage[data-design=true]{inset:auto auto 20px 50%;transform:translateX(-50%)}
 @media(max-width:600px){.dmx-stage,.dmx-stage.stage-settings-only,.dmx-stage[data-design=true]{inset:auto auto 12px 50%}}
+/* Task-oriented lighting desk: live look first, setup on separate pages. */
+.dmx-stage.stage-redesigned,.dmx-stage.stage-redesigned[data-design=true]{width:min(820px,calc(100vw - 40px));max-height:88dvh;inset:50% auto auto 50%;transform:translate(-50%,-50%);padding:24px;background:#111b23;border:1px solid #34434e;border-radius:20px;box-shadow:0 24px 90px #0009}
+.stage-redesigned .stage-heading,.stage-redesigned[data-design=true] .stage-heading{position:static;margin:0 0 20px;padding:0;background:transparent;border:0}
+.stage-redesigned .stage-heading h2{font-size:24px;letter-spacing:-.5px;margin:4px 0 0}
+.stage-redesigned .stage-badge{color:#a9e7ca;background:none;padding:0;font-size:10px;letter-spacing:2px}
+.stage-navigation{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;background:#0b131a;padding:5px;border-radius:12px;margin-bottom:18px}
+.stage-nav-button,.stage-mode-choice{font:inherit;min-width:0;text-align:left;cursor:pointer;color:#afbec7;background:transparent;border:1px solid transparent;border-radius:9px;padding:12px;display:grid;gap:4px}
+.stage-nav-button strong,.stage-mode-choice strong{font-size:13px;font-weight:600}.stage-nav-button span,.stage-mode-choice span{font-size:11px;line-height:1.5;color:#92a5b1}
+.stage-nav-button[aria-pressed=true]{background:#23323e;color:#fff;border-color:#3b5261}
+.stage-redesigned .stage-intro{font-size:13px;color:#a9bbc6;margin-bottom:22px;line-height:1.6}
+.stage-redesigned .stage-workspace{display:block;margin:0}.stage-redesigned .stage-editor:empty{display:none}
+.stage-page h3{font-size:14px;margin:0 0 12px}.stage-mode-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:20px}
+.stage-mode-choice{background:#192630;border-color:#2e404d;min-height:74px;align-content:center;transition:background .15s,border-color .15s}
+.stage-mode-choice:hover{background:#22343f;border-color:#709286}.stage-mode-choice[aria-pressed=true]{background:#203e35;border-color:#9eddbb;color:#ddffeb}
+.stage-mode-choice[aria-pressed=true] span{color:#acd1bc}.stage-mode-choice:last-child{grid-column:1/-1;min-height:58px}
+.stage-look-card{border:1px solid #2c3e4a;background:#16232d;border-radius:12px;padding:18px;margin:16px 0}.stage-look-card p{color:#a9bbc6;line-height:1.6}
+.stage-redesigned label{font-size:12px;color:#cfdae0}.stage-redesigned select,.stage-redesigned input[type=number]{background:#0d1820;border:1px solid #3b4f5c;border-radius:8px;min-height:40px;color:#edf4f7;width:100%;min-width:0;padding:8px}
+.stage-redesigned .stage-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.stage-redesigned .stage-form label{min-width:0;margin:0}
+.stage-redesigned .stage-auto-palette{margin:14px 0}.stage-redesigned .stage-auto-palette span{border-radius:8px;height:32px}
+.stage-tuning-host .dj-light-tuning{margin:0}.stage-tuning-host .dj-light-tuning>summary{font-size:14px;font-weight:600;list-style:none}.stage-tuning-host .dj-light-tuning>summary::-webkit-details-marker{display:none}
+.stage-tuning-host .dj-light-tuning label{margin:18px 0}.stage-tuning-host input[type=range]{accent-color:#aae7c8}
+.stage-redesigned .stage-equipment-section,.stage-redesigned .stage-connection-section{border:0;margin:0;padding:0}.stage-redesigned .stage-equipment-section>summary,.stage-redesigned .stage-connection-section>summary{display:none}
+.stage-redesigned .stage-equipment legend{font-size:18px;color:#e5edf3}.stage-redesigned .stage-device-row{padding:12px;background:#192630;border:1px solid #2e404d;border-radius:10px;margin:8px 0}
+.stage-redesigned .stage-device-row label{margin:0}.stage-redesigned .stage-preview-section,.stage-redesigned .stage-technical{border-top:1px solid #2c3e4a;margin-top:20px;padding-top:12px}
+.stage-redesigned .stage-hardware>p{font-size:13px;line-height:1.7}.stage-redesigned .stage-hardware .dmx-connection-status{background:#192630;border-radius:8px;padding:12px;margin:12px 0}
+.stage-redesigned [data-saved]:empty{display:none}
+@media(max-width:600px){.dmx-stage.stage-redesigned,.dmx-stage.stage-redesigned[data-design=true]{width:calc(100vw - 20px);max-height:92dvh;padding:18px;border-radius:16px}.stage-redesigned .stage-heading,.stage-redesigned[data-design=true] .stage-heading{margin:0 0 16px;padding:0}.stage-redesigned .stage-heading h2{font-size:20px}.stage-nav-button{padding:10px 7px;text-align:center}.stage-nav-button span{display:none}.stage-mode-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.stage-redesigned .stage-form{grid-template-columns:1fr}.stage-look-card{padding:14px}.stage-redesigned .stage-device-row{flex-wrap:wrap}}
+
+.stage-tuning-host .dj-light-tuning[open]{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 22px}.stage-tuning-host .dj-light-tuning>summary,.stage-tuning-host .dj-light-tuning>p,.stage-tuning-host .dj-light-tuning>button{grid-column:1/-1}.stage-tuning-host .dj-light-tuning>button{justify-self:start}.stage-redesigned [data-saved]{margin:14px 0 0;color:#b9d8c8}
+@media(max-width:450px){.stage-tuning-host .dj-light-tuning[open]{grid-template-columns:1fr}}
+.dmx-stage.stage-redesigned[open]{display:flex;flex-direction:column;overflow:hidden}.stage-redesigned .stage-heading,.stage-redesigned .stage-navigation,.stage-redesigned .stage-intro{flex-shrink:0}.stage-redesigned .stage-workspace{min-height:0;overflow:auto;overscroll-behavior:contain;padding-right:4px}.stage-redesigned .stage-navigation{grid-template-columns:repeat(4,minmax(0,1fr))}.stage-redesigned .stage-tuning-host{margin-top:0}.stage-redesigned .stage-mode-choice:hover:not([aria-pressed=true]){border-color:#526b78;background:#21313c}
+@media(max-width:600px){.stage-redesigned .stage-nav-button{padding:10px 3px}.stage-redesigned .stage-nav-button strong{font-size:11px}.stage-redesigned .stage-navigation{gap:2px}.stage-redesigned .stage-intro{font-size:12px;margin-bottom:14px}}
+.stage-redesigned .stage-navigation{display:grid;width:100%}.stage-redesigned .stage-nav-button{width:100%}.stage-tuning-host .dj-light-tuning[open]{display:block}.light-tuning-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px 24px}.stage-redesigned .stage-tuning-host input[type=range]{appearance:none;height:6px;min-height:6px;border:0;border-radius:99px;background:#40535e;padding:0;margin:14px 0;cursor:pointer}.stage-tuning-host input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:#b4ebcf;border:3px solid #142b24;box-shadow:0 0 0 1px #8cbea6}.stage-tuning-host input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:#b4ebcf;border:2px solid #142b24}.stage-redesigned .stage-tuning-host .dj-light-tuning label{margin:12px 0 16px}.stage-tuning-host .dj-light-tuning>button{margin-top:8px}@media(max-width:450px){.light-tuning-controls{grid-template-columns:1fr}}

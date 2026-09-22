@@ -28,7 +28,9 @@
     "deploy:rollback": "node scripts/deploy.mjs --rollback",
     "dev:https": "node scripts/dev-https.mjs",
     "dev:cert": "node scripts/dev-https.mjs --cert-only",
-    "build:tutorial": "node scripts/build-dj-tutorial.mjs"
+    "build:tutorial": "node scripts/build-dj-tutorial.mjs",
+    "release:desktop": "node scripts/release-desktop.mjs",
+    "deploy:full": "node scripts/deploy-full.mjs"
   },
   "main": "desktop/main.mjs",
   "author": "AnyDj",

@@ -12,6 +12,7 @@ async function fixture(t){
   await mkdir(join(root,'public'));await mkdir(join(root,'tmp'));
   await writeFile(join(root,'public','index.html'),'<h1>AnyDj</h1>');await writeFile(join(root,'public','dj.html'),'DJ');
   await writeFile(join(root,'public','spotify-callback.html'),'callback');
+  await writeFile(join(root,'public','product-preview.webp'),'preview-fixture');
   await writeFile(join(root,'secret.txt'),'DO NOT SERVE');
   t.after(()=>rm(root,{recursive:true,force:true}));return root;
 }
@@ -25,6 +26,7 @@ test('hosted server serves web edition and health, never local APIs or private f
   assert.match(home.headers.get('Content-Security-Policy'),/https:\/\/api.spotify.com/);
   assert.equal(await (await fetch(base+'/dj')).text(),'DJ');
   assert.equal((await fetch(base+'/spotify-callback.html?code=example')).status,200);
+  const preview=await fetch(base+'/product-preview.webp');assert.equal(preview.status,200);assert.equal(preview.headers.get('Content-Type'),'image/webp');assert.equal(await preview.text(),'preview-fixture');
   const health=await (await fetch(base+'/healthz')).json();assert.equal(health.app,'anydj');assert.equal(health.release,'test');assert.ok(health.instance);
   assert.equal((await fetch(base+'/healthz',{method:'HEAD'})).status,200);
   assert.equal(await (await fetch(base+'/',{method:'HEAD'})).text(),'');
@@ -66,4 +68,16 @@ test('Plesk CommonJS bootstrap loads selected ESM release and rejects traversal'
   await writeFile(join(root,'current.json'),JSON.stringify({release:'../../outside'}));
   const invalid=spawn(process.execPath,[join(root,'index.js')],{stdio:['ignore','ignore','pipe']});let error='';invalid.stderr.on('data',data=>{error+=data;});
   assert.equal((await once(invalid,'exit',{signal:AbortSignal.timeout(10000)}))[0],1);assert.match(error,/Invalid AnyDj release manifest/);
+});
+
+test('installer downloads support HEAD, streaming ranges and invalid-range rejection',async t=>{
+ const root=await fixture(t);await mkdir(join(root,'public','downloads'));await writeFile(join(root,'public','downloads','AnyDj.exe'),'0123456789');await writeFile(join(root,'public','downloads.html'),'Downloads');
+ const server=await createHostedServer({root,watchRestart:false});server.listen(0,'127.0.0.1');await once(server,'listening');t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve);}));
+ const base=`http://127.0.0.1:${server.address().port}`,url=base+'/downloads/AnyDj.exe';
+ assert.equal(await (await fetch(base+'/downloads')).text(),'Downloads');
+ const head=await fetch(url,{method:'HEAD'});assert.equal(head.headers.get('Content-Length'),'10');assert.equal(head.headers.get('Content-Disposition'),'attachment');assert.equal(await head.text(),'');
+ const part=await fetch(url,{headers:{Range:'bytes=2-5'}});assert.equal(part.status,206);assert.equal(part.headers.get('Content-Range'),'bytes 2-5/10');assert.equal(await part.text(),'2345');
+ assert.equal(await (await fetch(url,{headers:{Range:'bytes=-3'}})).text(),'789');
+ for(const range of ['bytes=50-','bytes=5-2','bytes=-0','bytes=0-1,5-6'])assert.equal((await fetch(url,{headers:{Range:range}})).status,416);
+ assert.equal(await (await fetch(url)).text(),'0123456789');
 });

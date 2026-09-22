@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 """FTP/explicit FTPS deployment. Credentials stay in the local JSON file."""
+import hashlib
+import tempfile
 import argparse
 import ftplib
 import io
@@ -88,7 +90,7 @@ def mkdirs(ftp, path, known=None):
 
 def atomic_write(ftp, path, data):
     temporary = path + ".upload-" + uuid.uuid4().hex
-    ftp.storbinary("STOR " + temporary, io.BytesIO(data))
+    ftp.storbinary("STOR " + temporary, data if hasattr(data, "read") else io.BytesIO(data))
     try:
         # FTP RNTO must replace atomically; never delete the live destination first.
         ftp.rename(temporary, path)
@@ -118,10 +120,20 @@ def remote_files(ftp, root):
     return sorted(files)
 
 
-def download(ftp, path):
-    data = io.BytesIO()
-    ftp.retrbinary("RETR " + path, data.write)
-    return data.getvalue()
+def copy_remote(ftp, source, destination):
+    # Rollbacks may copy multi-GB installers: spool to disk, never to RAM.
+    with tempfile.TemporaryFile() as data:
+        ftp.retrbinary("RETR " + source, data.write)
+        data.seek(0)
+        atomic_write(ftp, destination, data)
+
+
+def file_digest(path):
+    with path.open("rb") as stream:
+        digest = hashlib.sha256()
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+        return digest.hexdigest()
 
 
 def remove_tree(ftp, root):
@@ -160,14 +172,17 @@ def stage_public(ftp, target, manifest, current, bundle=None):
             if name not in old_names and name not in names:
                 path = posixpath.join(staging, name)
                 mkdirs(ftp, posixpath.dirname(path), known)
-                atomic_write(ftp, path, download(ftp, posixpath.join(public, name)))
+                copy_remote(ftp, posixpath.join(public, name), path)
         progress(f"Plesk public/: {len(names)} Webdateien bereitstellen …")
         for index, name in enumerate(names, 1):
             progress(f"[public {index}/{len(names)}] {name}")
-            data = (bundle / "public" / name).read_bytes() if bundle else download(ftp, posixpath.join(archive, name))
             path = posixpath.join(staging, name)
             mkdirs(ftp, posixpath.dirname(path), known)
-            atomic_write(ftp, path, data)
+            if bundle:
+                with (bundle / "public" / name).open("rb") as stream:
+                    atomic_write(ftp, path, stream)
+            else:
+                copy_remote(ftp, posixpath.join(archive, name), path)
         return staging
     except Exception:
         remove_tree(ftp, staging)
@@ -249,9 +264,9 @@ def plan_bundle(bundle):
     for required in ("index.js", "package.json", "public/index.html", "releases/" + release + "/server.mjs", "releases/" + release + "/public/index.html"):
         if not (bundle / required).is_file():
             raise ValueError("Unvollständiges Hosting-Paket.")
-    public_files = {p.relative_to(bundle / "public").as_posix(): p.read_bytes() for p in files if p.is_relative_to(bundle / "public")}
+    public_files = {p.relative_to(bundle / "public").as_posix(): file_digest(p) for p in files if p.is_relative_to(bundle / "public")}
     archive_root = bundle / "releases" / release / "public"
-    archived_files = {p.relative_to(archive_root).as_posix(): p.read_bytes() for p in files if p.is_relative_to(archive_root)}
+    archived_files = {p.relative_to(archive_root).as_posix(): file_digest(p) for p in files if p.is_relative_to(archive_root)}
     if public_files != archived_files:
         raise ValueError("public/ und Release-Sicherung stimmen nicht überein.")
     return manifest, files
@@ -301,7 +316,8 @@ def deploy(ftp, config, action, bundle=None, expected_release=None):
                 progress(f"[{index}/{len(uploads)}] {path.relative_to(bundle / 'releases' / manifest['release']).as_posix()}")
                 destination = posixpath.join(target, relative)
                 ensure_dir(posixpath.dirname(destination))
-                atomic_write(ftp, destination, path.read_bytes())
+                with path.open("rb") as stream:
+                    atomic_write(ftp, destination, stream)
             # Stable CommonJS bootstrap; no runtime dependencies or secrets.
             progress("Upload vollständig. Startdateien übertragen und Release aktivieren …")
             for name in ("package.json", "index.js"):

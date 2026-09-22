@@ -107,3 +107,21 @@ Der Desktop-Smoke-Test benötigt Xvfb ausschließlich auf einem Linux-Testrechne
 und verwendet ein temporäres Profil sowie eine Demo-Lampe. Ein Linux-Test
 ersetzt keinen Windows-Laufzeittest und keinen Installationstest auf einem
 sauberen Zielsystem.
+
+## Vollständiges Release für die Downloadseite
+
+`npm run release:desktop` bündelt die KI-Analyse und die App nativ für das aktuelle
+System. Die fertigen Installer samt Größen und SHA-256-Prüfsummen werden unter
+`.build/desktop-downloads/linux-x64/` bzw. `win32-x64/` bereitgestellt.
+`-- --reuse-analysis` verwendet das vorhandene KI-Paket; die App wird neu gebaut.
+Es gibt bei diesem Release-Befehl keinen Lite-Fallback und keinen Cross-Build.
+
+`npm run deploy:full` verbindet diesen Build mit Website und FTPS-Veröffentlichung.
+Details und der Ablauf für beide Plattformen: [gemeinsames Deployment](../builder/README.md#website-und-vollständige-desktop-apps-gemeinsam-veröffentlichen).
+
+## Geplante lokale Windows-VM
+
+Die Einrichtung und die noch offenen Schritte zur Funktionsgleichheit stehen in
+[Lokale Windows-Buildumgebung](windows-vm.md). Das VM-Skript bietet eine reine
+Voraussetzungsprüfung und eine explizite Erstellung; es installiert keine
+Systempakete. Windows bleibt bis zu vollständigen Laufzeittests unvalidiert.

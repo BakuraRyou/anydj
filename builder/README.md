@@ -180,3 +180,62 @@ Für Spotify im Developer Dashboard anschließend
 
 Quellen: [Plesk Node.js](https://docs.plesk.com/en-US/obsidian/customer-guide/nodejs-support.76652/),
 [Passenger-Neustarts](https://www.phusionpassenger.com/docs/advanced_guides/troubleshooting/standalone/restart_app.html).
+
+## Website und vollständige Desktop-Apps gemeinsam veröffentlichen
+
+```sh
+npm run deploy:full
+```
+
+Dieser Befehl baut auf dem aktuellen **Linux-x64- oder Windows-x64-Rechner**
+zuerst die KI-Laufzeiten und Modelle, dann die nativen Installer, erzeugt
+SHA-256-Prüfsummen und baut die Website mit der eigenständigen Seite
+`/downloads.html`. Anschließend folgt der bestehende FTPS-Upload mit
+Aktivierung, Passenger-Neustart, Healthcheck und Release-Bereinigung.
+Die Startseite und das DJ-Pult verlinken die Downloadseite.
+
+Auf dem Build-Rechner müssen `npm ci`, die drei Analyseumgebungen einschließlich
+PyInstaller und die Modellgewichte eingerichtet sein; siehe
+[Desktop-Build](../desktop/README.md). Endnutzer benötigen diese Vorbereitung nicht.
+Ein Fehler stoppt den Ablauf; es wird niemals automatisch eine Lite-Version gebaut.
+
+```sh
+# Vorhandene KI-Laufzeiten wiederverwenden; App und Installer werden neu gebaut:
+npm run deploy:full -- --reuse-analysis
+
+# Alles lokal vorbereiten, ohne Veröffentlichung (Build-Werkzeuge können Downloads benötigen):
+npm run deploy:full -- --reuse-analysis --dry-run
+
+# Bereits gebaute Pakete prüfen, Website bauen und veröffentlichen:
+npm run deploy:full -- --skip-desktop-build
+```
+
+`--config /pfad/deploy.json` wählt alternativ die FTP-Konfiguration. Die üblichen
+Befehle `npm run deploy:check` und `npm run deploy:rollback` bleiben verfügbar.
+Ein normales `npm run deploy` nimmt ebenfalls alle lokal bereitgestellten
+Desktop-Pakete mit, baut sie aber nicht neu.
+
+### Linux und Windows auf derselben Downloadseite
+
+1. Auf Linux `npm run release:desktop` ausführen: erzeugt AppImage und .deb.
+2. Auf Windows `npm run release:desktop` ausführen: erzeugt den vollständigen
+   .exe-Installer. Native Windows-Analyseumgebungen sind Voraussetzung; dieser
+   vollständige Windows-Build ist noch nicht validiert.
+3. Den gesamten Ordner `.build/desktop-downloads/win32-x64/` einschließlich
+   `manifest.json` auf den Deploy-Rechner in denselben relativen Pfad kopieren.
+   Dort bleibt `.build/desktop-downloads/linux-x64/` ebenfalls liegen.
+4. `npm run deploy:full -- --skip-desktop-build` veröffentlicht beide Plattformen.
+
+Es werden nur Installer aus diesen Manifesten aufgenommen. Größe und SHA-256
+werden vor dem Website-Build geprüft; manipulierte oder unvollständige Releases
+stoppen den Build. Nicht vorhandene Plattformen erscheinen ohne Downloadbutton.
+Die bereitgestellten Ordner müssen auch für spätere Deployments aufbewahrt bzw.
+von den Build-Rechnern übernommen werden: Der Upload enthält genau den lokalen
+Release-Bestand und übernimmt keine alten Installer automatisch vom Webserver.
+
+Downloads sind große Dateien. Das Hostingpaket hält sie in `public/` und in der
+Release-Sicherung; auch auf dem Server bleiben die Rückfall-Releases erhalten.
+Entsprechend mehrere Gigabyte Speicher und ausreichend Upload-Zeit einplanen.
+Upload, Rollback und Node-Auslieferung verwenden Streams bzw. temporäre Dateien;
+Node unterstützt Byte-Range-Requests zum Fortsetzen. Falls Plesk statisch ausliefert,
+muss der Webserver `.AppImage`, `.deb` und `.exe` als Downloads zulassen.

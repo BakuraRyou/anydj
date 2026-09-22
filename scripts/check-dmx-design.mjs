@@ -43,15 +43,16 @@ try {
   await evaluate("(()=>{if(document.querySelector('#inlineLightStage').hidden)document.querySelector('#openLightStage').click();document.querySelector('#stageSettings').click();})()");
   assert.equal(await evaluate("document.querySelector('#dmxStage').open"),true);
   assert.equal(await evaluate("document.querySelectorAll('.stage-spot').length"),4);
+  await evaluate("document.querySelector('[data-add-bar]').click()");
   assert.equal(await evaluate("document.querySelectorAll('.stage-cell').length"),8);
   await evaluate("document.querySelector('[data-demo]').click()");
   await wait("document.querySelector('.stage-status').textContent.startsWith('Demo läuft')");
   assert.ok(await evaluate("Number(document.querySelector('.stage-spot').style.getPropertyValue('--stage-power'))>0"));
   await evaluate("document.querySelector('[data-blackout]').click()");
   assert.equal(await evaluate("document.querySelector('.stage-spot').style.getPropertyValue('--stage-power')"),'0');
-  await evaluate("document.querySelector('[data-blackout]').click();document.querySelector('#dmxStage details').open=true");
-  await wait("document.querySelector('.stage-values').textContent.includes('Kanal 1–4')");
-  await writeFile(new URL('../reports/dmx-stage-desktop.png',import.meta.url),Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  await evaluate("document.querySelector('[data-blackout]').click();document.querySelector('#dmxStage .stage-technical').open=true");
+  await wait("document.querySelector('.stage-values').textContent.includes('erste Kanäle')");
+  await writeFile('/tmp/anydj-stage-design-desktop.png',Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
   await evaluate("document.querySelector('#djStop').click()");
   await wait("document.querySelector('.stage-status').textContent.startsWith('Bereit')");
   // Exercise the same component with a known live DJ frame, without audio/model dependencies.
@@ -83,7 +84,7 @@ try {
   assert.equal(await evaluate("JSON.parse(localStorage.getItem('anydj-stage-design-v1')).config.fixtures[0].colors[0]"),'#00ff00');
   await evaluate('window.fixtureStage.update(null,false);window.fixtureStage.destroy();(()=>{if(document.querySelector("#inlineLightStage").hidden)document.querySelector("#openLightStage").click();document.querySelector("#stageSettings").click();})()');
 
-  await c('Page.reload');await wait("document.querySelector('#dmxStage')");
+  const previousOrigin=await evaluate('performance.timeOrigin');await c('Page.reload');await wait(`performance.timeOrigin>${previousOrigin}&&document.querySelector('#dmxStage')`);
   await evaluate("(()=>{if(document.querySelector('#inlineLightStage').hidden)document.querySelector('#openLightStage').click();document.querySelector('#stageSettings').click();})()");
   assert.equal(await evaluate("document.querySelector('[data-mode]').value"),'design');
   await evaluate("document.querySelector('.stage-spot').click()");

@@ -1,9 +1,11 @@
+import {createReadStream} from 'node:fs';
+import {pipeline} from 'node:stream/promises';
 import http from 'node:http';
 import {readFile,realpath,stat} from 'node:fs/promises';
 import {resolve,sep,extname,join} from 'node:path';
 import {randomUUID} from 'node:crypto';
 
-const MIME={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.ico':'image/x-icon','.json':'application/json; charset=utf-8'};
+const MIME={'.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.ico':'image/x-icon','.json':'application/json; charset=utf-8','.AppImage':'application/octet-stream','.deb':'application/vnd.debian.binary-package','.exe':'application/octet-stream'};
 const CSP="default-src 'self'; script-src 'self' https://sdk.scdn.co; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://resources.tidal.com https://images.tidal.com https://*.scdn.co https://*.spotifycdn.com; media-src 'self' blob: https://*.scdn.co https://*.spotifycdn.com; connect-src 'self' https://openapi.tidal.com https://auth.tidal.com https://accounts.spotify.com https://api.spotify.com https://*.spotify.com wss://*.spotify.com https://*.scdn.co https://*.spotifycdn.com; frame-src https://sdk.scdn.co https://*.spotify.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'";
 
 export async function watchCrashRestart(appRoot,{interval=1000}={}){
@@ -37,11 +39,24 @@ export async function createHostedServer({root,release='development',appRoot=roo
         res.end(req.method==='HEAD'?undefined:JSON.stringify({app:'anydj',status:'ok',release,instance}));return;
       }
       if(pathname.split('/').some(part=>part.startsWith('.'))||pathname.includes('\\')||pathname.includes('\0'))throw Error('Not found');
-      const relative=pathname==='/'?'index.html':pathname==='/dj'?'dj.html':pathname.slice(1);
+      const relative=pathname==='/'?'index.html':pathname==='/dj'?'dj.html':pathname==='/downloads'?'downloads.html':pathname.slice(1);
       const file=await realpath(resolve(publicRoot,relative));
       if(!file.startsWith(publicRoot+sep)||!(await stat(file)).isFile()||!MIME[extname(file)])throw Error('Not found');
-      const data=await readFile(file);
-      res.writeHead(200,{'Content-Type':MIME[extname(file)],'Content-Length':data.length});res.end(req.method==='HEAD'?undefined:data);
+      const size=(await stat(file)).size,download=['.AppImage','.deb','.exe'].includes(extname(file));
+      if(download)res.setHeader('Content-Disposition','attachment');
+      res.setHeader('Accept-Ranges','bytes');
+      let start=0,end=size-1,status=200;
+      if(req.headers.range&&req.method==='GET'){
+        const match=/^bytes=(\d*)-(\d*)$/.exec(req.headers.range);
+        if(!match||(!match[1]&&!match[2])){res.writeHead(416,{'Content-Range':`bytes */${size}`});res.end();return;}
+        start=match[1]?Number(match[1]):Math.max(0,size-Number(match[2]));
+        end=match[1]?(match[2]?Math.min(size-1,Number(match[2])):size-1):size-1;
+        if(!Number.isSafeInteger(start)||!Number.isSafeInteger(end)||start>end||start>=size){res.writeHead(416,{'Content-Range':`bytes */${size}`});res.end();return;}
+        status=206;res.setHeader('Content-Range',`bytes ${start}-${end}/${size}`);
+      }
+      res.writeHead(status,{'Content-Type':MIME[extname(file)],'Content-Length':size?end-start+1:0});
+      if(req.method==='HEAD'||!size){res.end();return;}
+      await pipeline(createReadStream(file,{start,end}),res);
     }catch{if(!res.headersSent)res.writeHead(404,{'Content-Type':'text/plain; charset=utf-8'});res.end(req.method==='HEAD'?undefined:'Nicht gefunden');}
   });
   if(watchRestart){const stop=await watchCrashRestart(appRoot);server.once('close',stop);}

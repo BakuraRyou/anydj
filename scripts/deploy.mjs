@@ -51,7 +51,7 @@ async function main(){
     healthURL=new URL('/healthz',url);
   }
   if(action==='deploy')await run(process.execPath,[join(root,'scripts','build-hosting.mjs')]);
-  console.log(`Plesk ${action}: ${config.localDir} · ${config.secure===false?'FTP':'FTPS'} · keine lokalen Daten/Modelle/Zugangsdaten im Upload`);
+  console.log(`Plesk ${action}: ${config.localDir} · ${config.secure===false?'FTP':'FTPS'} · nur Website und bereitgestellte Installer; keine privaten Musikdateien oder Zugangsdaten`);
   if(args.includes('--dry-run')){
     console.log('Nur vorbereitet. Keine Verbindung zum Server hergestellt.');return;
   }

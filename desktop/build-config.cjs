@@ -7,7 +7,7 @@ module.exports = {
   productName: 'AnyDj',
   executableName: 'anydj',
   asar: true,
-  directories: {output: 'dist'},
+  directories: {output: process.env.ANYDJ_DESKTOP_OUTPUT || 'dist'},
   files: ['desktop/**/*', 'server.mjs', 'lib/**/*', 'public/**/*', 'package.json'],
   extraResources: [{from: '.build/build-flavor.json',to:'build-flavor.json'},...(analysis?[{from:analysis,to:'analysis',filter:['**/*']}]:[])],
   artifactName: '${productName}-${version}-${os}-${arch}.${ext}',
