@@ -87,7 +87,15 @@ function cuesFor(plan){
 }
 export function activityAt(source,units){
   const plan=source.movingPlan,time=source.songTime;
-  let cue=null,amount=0,expansion=1;
+  let cue=null,amount=0,expansion=1,darkness=1;
+  const blackouts=plan?.arrangement?.blackouts||[];
+  if(Number.isFinite(time)&&blackouts.length){
+    let lo=0,hi=blackouts.length;
+    while(lo<hi){const mid=(lo+hi)>>>1;if(blackouts[mid].start<=time)lo=mid+1;else hi=mid;}
+    const stop=blackouts[lo-1];
+    if(stop&&time<stop.end)darkness=1-smooth((time-stop.start)/.06);
+  }
+  if(darkness===0)return Array(units).fill(0);
   if(plan&&Number.isFinite(time)){
     const cues=cuesFor(plan);
     let lo=0,hi=cues.length;
@@ -112,12 +120,12 @@ export function activityAt(source,units){
   }):null;
   const ranks=[];order?.forEach((fixture,rank)=>{ranks[fixture]=rank;});
   return Array.from({length:units},(_,i)=>{
-    if(units<=2||!cue)return 1;
+    if(units<=2||!cue)return darkness;
     const pair=Math.min(i,units-1-i),rank=ranks[i];
     // Stage individual entrances through the measured rise/fall. This is only
     // active inside a development, not an ongoing single-fixture chase.
     const level=cue.kind==='build'?rank===0?1:smooth(expansion*(units-1)-(rank-1)):pair%2===1?1:0;
     const base=1-amount*(1-level);
-    return i===focused?base+(1-base)*emphasis:base*(1-.35*emphasis);
+    return darkness*(i===focused?base+(1-base)*emphasis:base*(1-.35*emphasis));
   });
 }

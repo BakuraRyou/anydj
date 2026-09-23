@@ -57,6 +57,30 @@ export function refineSpectralBuilds(windows,sections){
     return [{...section,end,buildEvidence},{...section,start:end}];
   });
 }
+// Short, near-silent interruptions bounded by sustained audible music.
+// Ordinary beat gaps, quiet pads and track tails are not blackout cues.
+export function musicalBlackouts(windows){
+  const values=windows.map(w=>Math.max(0,w.rms||0));
+  const sorted=[...values].sort((a,b)=>a-b),reference=sorted[Math.floor(sorted.length*.95)]||0;
+  if(reference<.025)return [];
+  const threshold=Math.min(.012,reference*.035),active=Math.max(.025,reference*.18);
+  const candidates=[];
+  const supported=(a,b)=>{
+    if(a<0||b>values.length)return false;
+    const local=values.slice(a,b);
+    return local.length&&local.filter(v=>v>=active).length/local.length>=.7;
+  };
+  for(let i=0;i<values.length;i++){
+    if(values[i]>threshold)continue;
+    const start=i;while(i<values.length&&values[i]<=threshold)i++;
+    const duration=(i-start)*.02;
+    if(duration<.28||duration>1.6||!supported(start-30,start)||!supported(i,i+18))continue;
+    candidates.push({start:start*.02,end:i*.02});
+  }
+  // Repeated interruptions belong to the groove, not to isolated stop drama.
+  return candidates.filter((cue,i)=>(!i||cue.start-candidates[i-1].end>=3)&&
+    (i===candidates.length-1||candidates[i+1].start-cue.end>=3));
+}
 export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicStyle=null,instruments=null) {
   const drama=instrumentDrama(instruments,duration);
   const prefix=[0];for(const window of windows)prefix.push(prefix.at(-1)+window.rms);
@@ -214,7 +238,7 @@ export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicSt
     }
     phrase.tone=weight?local.reduce((sum,w)=>sum+(w.tone??.5)*w.rms,0)/weight:.5;
   }
-  return {version:8,drama,patterns,step,bases,lookTrack,passages,times,accents,decays,eventSources:events.map(e=>e.source),eventSalience:events.map(e=>e.salience),decay:.25};
+  return {version:8,blackouts:musicalBlackouts(windows),drama,patterns,step,bases,lookTrack,passages,times,accents,decays,eventSources:events.map(e=>e.source),eventSalience:events.map(e=>e.salience),decay:.25};
 }
 function eventAt(arrangement,time) {
   let lo=0,hi=arrangement.times.length;

@@ -50,7 +50,9 @@ try {
        instruments:{version:1,source:'htdemucs',step:.1,drums:Array.from({length:240},(_,i)=>i>=80&&i<160?.001:i%5===0?.25:.04),bass:Array(240).fill(.05),vocals:Array(240).fill(.04),other:Array(240).fill(.02)}});
     track.refined=true;track.structureState='complete';await lib.saveTrack(track);await lib.saveShow(track,options);
   })()`);
+  await evaluate('window.__sectionBeforeReload=true');
   await c('Page.reload');
+  await wait('window.__sectionBeforeReload!==true && document.readyState==="complete"');
   await wait("document.querySelector('[aria-label=\"Abschnittslicht bearbeiten\"]')?.disabled===false");
   assert.equal(await evaluate("(async()=>{const lib=await import('/dj-library.js'),track=(await lib.readLibrary())[0],saved=await lib.readShow(track,{arrangement:'auto',mood:'auto',minimum:5,maximum:100});return saved.plan.arrangement.drama.intensity.length===240&&saved.plan.structure.instruments.drums.length===240;})()"),true);
   await evaluate("document.querySelector('[aria-label=\"Abschnittslicht bearbeiten\"]').click()");
@@ -60,7 +62,9 @@ try {
   await wait("!document.querySelector('dialog.section-editor')");
   const saved=await evaluate("(async()=>{const lib=await import('/dj-library.js');return (await lib.readLibrary())[0].sectionEdits;})()");
   assert.equal(saved.length,3);assert.equal(saved[0].movement,.35);assert.equal(saved[2].movement,.35);assert.equal(saved[1].movement,1);
+  await evaluate('window.__sectionBeforeReload=true');
   await c('Page.reload');
+  await wait('window.__sectionBeforeReload!==true && document.readyState==="complete"');
   await wait("document.querySelector('[aria-label=\"Abschnittslicht bearbeiten\"]')?.disabled===false");
   await evaluate("document.querySelector('[aria-label=\"Abschnittslicht bearbeiten\"]').click()");
   await wait("document.querySelector('dialog.section-editor')?.open");
@@ -76,19 +80,20 @@ try {
   await evaluate("document.querySelector('[aria-label=\"Abschnittslicht bearbeiten\"]').click()");
   // Exercise the new timeline with real pointer and keyboard input.
   await evaluate("document.querySelector('[data-snap]').value='free'");
+  await evaluate("document.querySelector('.le-phase .le-end').scrollIntoView({block:'center'})");
   const edge=await evaluate("(()=>{const r=document.querySelector('.le-phase .le-end').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};})()");
   await c('Input.dispatchMouseEvent',{type:'mousePressed',x:edge.x,y:edge.y,button:'left',clickCount:1});
   await c('Input.dispatchMouseEvent',{type:'mouseMoved',x:edge.x+30,y:edge.y,button:'left',buttons:1});
   await c('Input.dispatchMouseEvent',{type:'mouseReleased',x:edge.x+30,y:edge.y,button:'left',clickCount:1});
   assert.ok(await evaluate("Number(document.querySelector('[name=end]').value)>8"));
-  await evaluate("document.querySelector('[data-undo]').click()");
+  await evaluate("document.querySelector('.light-editor [data-undo]').click()");
   assert.equal(await evaluate("Number(document.querySelector('[name=end]').value)"),8);
-  await evaluate("document.querySelector('[data-redo]').click()");
+  await evaluate("document.querySelector('.light-editor [data-redo]').click()");
   assert.ok(await evaluate("Number(document.querySelector('[name=end]').value)>8"));
-  await evaluate("document.querySelector('[data-undo]').click();document.querySelector('.le-phase .le-end').focus()");
+  await evaluate("document.querySelector('.light-editor [data-undo]').click();document.querySelector('.le-phase .le-end').focus()");
   await c('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowLeft',code:'ArrowLeft',windowsVirtualKeyCode:37});
   assert.equal(await evaluate("Number(document.querySelector('[name=end]').value)"),7.9);
-  await evaluate("document.querySelector('[data-undo]').click()");
+  await evaluate("document.querySelector('.light-editor [data-undo]').click()");
   // Independent mounting works twice without a dialog or global IDs.
   assert.equal(await evaluate(`(async()=>{
     const {createLightEditor}=await import('/light-editor.js'),lib=await import('/dj-library.js');

@@ -73,6 +73,29 @@ try {
   })()`);
   assert.deepEqual(activity.map(values=>values.filter(v=>v===0).length),[0,0,0,0,4,2,3,0]);
   for(const [index,levels] of activity.entries()){if(index===6)continue;assert.equal(levels[0],levels[3]);assert.equal(levels[1],levels[2]);}
+  const musicalStop=await evaluate(`(async()=>{
+    const {createMovingHeads}=await import('/dmx-moving-heads.js');
+    const {automaticStage}=await import('/dmx-auto.js');
+    const {encodeStage,decodeStage}=await import('/dmx-model.js');
+    const scene=document.createElement('div'),controls=document.createElement('div');
+    const simulation=createMovingHeads(scene,controls),frame={state:true,r:255,g:60,b:0,dimming:50};
+    const movingPlan={arrangement:{blackouts:[{start:3,end:3.6}]}};
+    const results=[];
+    for(const spots of [3,4])for(const songTime of [2.9,3.2,3.59,3.6]){
+      const equipment={devices:Array.from({length:spots},(_,i)=>({id:String(i),type:'spot',cells:1}))};
+      const streams=[{frame,weight:1,look:'flow',movingPlan,songTime}];
+      const fixtures=decodeStage(encodeStage(automaticStage(streams,2,equipment).frames,equipment),equipment);
+      simulation.update(fixtures,frame,songTime,false,streams,'auto');
+      results.push([...scene.querySelectorAll('.stage-moving-head')].map(n=>Number(n.style.getPropertyValue('--stage-power'))));
+    }
+    simulation.destroy();return results;
+  })()`);
+  for(const offset of [0,4]){
+    assert.ok(musicalStop[offset].every(v=>v>0));
+    assert.deepEqual(musicalStop[offset+1],[0,0,0,0]);
+    assert.deepEqual(musicalStop[offset+2],[0,0,0,0]);
+    assert.ok(musicalStop[offset+3].every(v=>v>0));
+  }
   const quietBuild=await evaluate(`(async()=>{
     const {createMovingHeads}=await import('/dmx-moving-heads.js');
     const {automaticStage}=await import('/dmx-auto.js');
