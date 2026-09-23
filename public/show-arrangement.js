@@ -15,6 +15,48 @@ function style(section,energy) {
   if(['verse','inst'].includes(section.label))return 'flow';
   return {Ruhig:'held',Aufbau:'lift',Intensiv:'peak',Fließend:'flow'}[section.kind]||'flow';
 }
+// Detect sustained filter/noise rises even when mastering holds or lowers RMS.
+// Require several agreeing spectral cues and a stronger bass-led entrance next.
+export function refineSpectralBuilds(windows,sections){
+  const mean=(start,end)=>{
+    const local=windows.slice(Math.max(0,Math.floor(start/.02)),Math.min(windows.length,Math.floor(end/.02)));
+    const keys=['rms','bass','tone','flatness','rolloff'];
+    if(!local.length||local.some(w=>keys.some(k=>!Number.isFinite(w[k]))))return null;
+    return Object.fromEntries(keys.map(k=>[k,local.reduce((sum,w)=>sum+w[k],0)/local.length]));
+  };
+  return sections.flatMap((section,index)=>{
+    const length=section.end-section.start,next=sections[index+1];
+    if(length<8||length>32||!next)return [section];
+    const opening=mean(section.start,section.start+2),arrival=mean(next.start,next.start+Math.min(2,next.end-next.start));
+    if(!opening||!arrival||opening.rms<.015||arrival.rms<opening.rms*1.3||arrival.bass<Math.max(.025,opening.bass*1.5))return [section];
+    const samples=[];
+    for(let t=section.start;t+1<=section.end;t++){
+      const sample=mean(t,t+1);if(!sample)return [section];samples.push(sample);
+    }
+    let peak=-1,best=0;
+    for(let i=5;i<samples.length;i++){
+      const current=samples[i],tone=current.tone-opening.tone,flat=current.flatness-opening.flatness,roll=current.rolloff-opening.rolloff;
+      const changes=samples.slice(1,i+1).map((v,j)=>v.tone-samples[j].tone);
+      const variation=changes.reduce((sum,v)=>sum+Math.abs(v),0);
+      if(changes.filter(v=>v>.005).length<3||Math.max(...changes)>tone*.6)continue;
+      if(tone<.08||flat<.06||roll<.06||tone/Math.max(.001,variation)<.65||current.rms<opening.rms*.55)continue;
+      const score=tone+flat*.5+roll*.5;
+      if(score>best){best=score;peak=i;}
+    }
+    if(peak<0)return [section];
+    const end=section.start+peak+1;
+    // Keep an audible pre-drop withdrawal separate from the rise.
+    if(section.end-end<1)return [section];
+    let progress=0;
+    const levels=samples.slice(0,peak+1).map(v=>{
+      progress=Math.max(progress,clamp(((v.tone-opening.tone)+(v.flatness-opening.flatness)*.5+(v.rolloff-opening.rolloff)*.5)/best));
+      return progress;
+    });
+    levels.push(1);
+    const buildEvidence={kind:'spectral',step:1,levels};
+    return [{...section,end,buildEvidence},{...section,start:end}];
+  });
+}
 export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicStyle=null,instruments=null) {
   const drama=instrumentDrama(instruments,duration);
   const prefix=[0];for(const window of windows)prefix.push(prefix.at(-1)+window.rms);
@@ -66,6 +108,7 @@ export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicSt
       const sustainedBuild=section.end-section.start>=4&&closing>=.25&&closing-opening>=.2;
       look=sustainedBuild?'lift':intensity<.25?'held':end.intensity-start.intensity>.25?'lift':intensity>.6?'peak':'flow';
     }
+    if(section.buildEvidence?.kind==='spectral')look='lift';
     return {...section,intensity,look,lookLabel:looks[look]};});
   // Form and intensity are separate: a loud verse need not spend all the
   // visual contrast that should distinguish the following refrain. Labels are
@@ -85,7 +128,11 @@ export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicSt
     const section=passages[index],look=section.look;
     const energy=clamp(rms(time-.25,time+.25)/ceiling);
     const audible=rms(time-.08,time+.08)>.001;
-    const progress=clamp((time-section.start)/Math.max(1,section.end-section.start));
+    const evidence=section.buildEvidence;
+    const position=evidence?(time-section.start)/evidence.step:0;
+    const point=evidence?Math.min(evidence.levels.length-1,Math.floor(position)):0;
+    const progress=evidence?evidence.levels[point]+(evidence.levels[Math.min(point+1,evidence.levels.length-1)]-evidence.levels[point])*(position-point)
+      :clamp((time-section.start)/Math.max(1,section.end-section.start));
     const profile=musicStyleAt(musicStyle,time);
     const stem=dramaAt(drama,time);
     const next=passages[index+1];

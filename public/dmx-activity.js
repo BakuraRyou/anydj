@@ -48,12 +48,15 @@ function cuesFor(plan){
     // Detect developments within phrases, even in a verse or chorus. A section
     // label alone neither schedules a build nor suppresses measured evidence.
     const phrases=(plan.arrangement?.patterns?.phrases||[]).filter(p=>p.start>=section.start&&p.end<=section.end);
-    const builds=(phrases.length?phrases:[section]).map(p=>detect({...p,look:section.look})).filter(Boolean);
+    const evidence=section.buildEvidence;
+    const builds=evidence?.kind==='spectral'?[{start:section.start,end:section.end,look:section.look,kind:'build',direction:'rise',
+      step:evidence.step,times:evidence.levels.map((_,i)=>section.start+i*evidence.step),levels:evidence.levels}]
+      :(phrases.length?phrases:[section]).map(p=>detect({...p,look:section.look})).filter(Boolean);
     if(!builds.length){const whole=detect(section);if(whole)builds.push(whole);}
     if(builds.length){
       for(const build of builds){
         const prior=cues.at(-1);
-        const joined=prior?.kind==='build'&&prior.look===build.look&&prior.direction===build.direction&&Math.abs(prior.end-build.start)<.001
+        const joined=prior?.kind==='build'&&!prior.step&&!build.step&&prior.look===build.look&&prior.direction===build.direction&&Math.abs(prior.end-build.start)<.001
           ?detect({start:prior.start,end:build.end,look:build.look}):null;
         if(joined&&joined.direction===build.direction)cues[cues.length-1]=joined;else cues.push(build);
       }
@@ -94,7 +97,7 @@ export function activityAt(source,units){
       cue=selected;
       amount=smooth((time-cue.start)/.8)*smooth((cue.end-time)/.6);
       if(cue.kind==='build'){
-        const position=(time-cue.start)/.5,index=Math.min(cue.levels.length-1,Math.floor(position));
+        const position=(time-cue.start)/(cue.step||.5),index=Math.min(cue.levels.length-1,Math.floor(position));
         expansion=cue.levels[index]+(cue.levels[Math.min(index+1,cue.levels.length-1)]-cue.levels[index])*smooth(position-Math.floor(position));
       }
     }

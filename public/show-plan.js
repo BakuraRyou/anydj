@@ -3,14 +3,14 @@ import {songPalettes} from './song-palette.js';
 import {choreographColors,colorFrameAt} from './color-choreography.js';
 import {sectionFrameAt} from './section-lighting.js';
 import {validateMusicStyle,musicStyleAt} from './music-style.js';
-import {arrangeShow,arrangementLevelAt,arrangementMotionAt} from './show-arrangement.js';
+import {arrangeShow,refineSpectralBuilds,arrangementLevelAt,arrangementMotionAt} from './show-arrangement.js';
 import { analyzeMood, MOOD_PALETTES } from './mood-analysis.js';
 import { musicalScore } from './melody-analysis.js';
 import { validateBeatGrid } from './beat-grid.js';
 import { automaticSettings } from './automatic-settings.js';
 import { validateStructure, structureTheme, STRUCTURE_LABELS } from './song-structure.js';
 // Bump whenever generated show data or its interpretation changes.
-export const SHOW_PLAN_VERSION = 23;
+export const SHOW_PLAN_VERSION = 24;
 const clamp = v => Math.max(0, Math.min(1, v));
 const quantile = (sorted, p) => sorted[Math.floor((sorted.length - 1) * p)] || 0;
 const colors = {
@@ -125,6 +125,7 @@ export function compileShow(windows, duration, options, beatGrid = null, structu
     const kinds={start:'Ruhig',intro:'Ruhig',verse:'Fließend',chorus:'Intensiv',bridge:'Aufbau',break:'Ruhig',inst:'Fließend',solo:'Intensiv',outro:'Ruhig',end:'Ruhig'};
     sections.splice(0,sections.length,...structure.segments.map(s=>({...s,kind:kinds[s.label],title:STRUCTURE_LABELS[s.label],motif:Object.keys(STRUCTURE_LABELS).indexOf(s.label),estimated:true})));
   }
+  if(automatic)sections.splice(0,sections.length,...refineSpectralBuilds(windows,sections));
   const arrangement=automatic?arrangeShow(windows,duration,sections,beats,beatGrid?.downbeats,musicStyle,structure?.instruments):null;
   if(arrangement)sections.forEach((section,i)=>{section.role=arrangement.passages[i].role;section.emphasis=arrangement.passages[i].emphasis;section.look=arrangement.passages[i].look;section.lookLabel=arrangement.passages[i].lookLabel;});
   const palette=(options.palette==='custom'?[options.colorA,options.colorB]:colors[options.palette]||colors.sunset).map(hex=>[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)));

@@ -66,18 +66,46 @@ try {
   await wait("document.querySelector('dialog.section-editor')?.open");
   assert.equal(await evaluate("Number(document.querySelector('dialog.section-editor [name=movement]').value)"),.35);
   await evaluate("document.querySelector('dialog.section-editor [data-split-time]').value='4.1';document.querySelector('dialog.section-editor [data-split]').click()");
-  assert.equal(await evaluate("document.querySelectorAll('.section-timeline button').length"),4);
+  assert.equal(await evaluate("document.querySelectorAll('.le-phase').length"),4);
   assert.equal(await evaluate("Number(document.querySelector('dialog.section-editor [name=start]').value)"),4.003);
   assert.equal(await evaluate("document.querySelector('dialog.section-editor form').checkValidity()"),true);
   await evaluate("document.querySelector('dialog.section-editor [data-merge]').click()");
-  assert.equal(await evaluate("document.querySelectorAll('.section-timeline button').length"),3);
+  assert.equal(await evaluate("document.querySelectorAll('.le-phase').length"),3);
   await evaluate("document.querySelector('dialog.section-editor [data-close]').click()");
   assert.equal((await evaluate("(async()=>{const lib=await import('/dj-library.js');return (await lib.readLibrary())[0].sectionEdits;})()"))[0].end,8);
   await evaluate("document.querySelector('[aria-label=\"Abschnittslicht bearbeiten\"]').click()");
+  // Exercise the new timeline with real pointer and keyboard input.
+  await evaluate("document.querySelector('[data-snap]').value='free'");
+  const edge=await evaluate("(()=>{const r=document.querySelector('.le-phase .le-end').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};})()");
+  await c('Input.dispatchMouseEvent',{type:'mousePressed',x:edge.x,y:edge.y,button:'left',clickCount:1});
+  await c('Input.dispatchMouseEvent',{type:'mouseMoved',x:edge.x+30,y:edge.y,button:'left',buttons:1});
+  await c('Input.dispatchMouseEvent',{type:'mouseReleased',x:edge.x+30,y:edge.y,button:'left',clickCount:1});
+  assert.ok(await evaluate("Number(document.querySelector('[name=end]').value)>8"));
+  await evaluate("document.querySelector('[data-undo]').click()");
+  assert.equal(await evaluate("Number(document.querySelector('[name=end]').value)"),8);
+  await evaluate("document.querySelector('[data-redo]').click()");
+  assert.ok(await evaluate("Number(document.querySelector('[name=end]').value)>8"));
+  await evaluate("document.querySelector('[data-undo]').click();document.querySelector('.le-phase .le-end').focus()");
+  await c('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowLeft',code:'ArrowLeft',windowsVirtualKeyCode:37});
+  assert.equal(await evaluate("Number(document.querySelector('[name=end]').value)"),7.9);
+  await evaluate("document.querySelector('[data-undo]').click()");
+  // Independent mounting works twice without a dialog or global IDs.
+  assert.equal(await evaluate(`(async()=>{
+    const {createLightEditor}=await import('/light-editor.js'),lib=await import('/dj-library.js');
+    const track=(await lib.readLibrary())[0],saved=await lib.readShow(track,{arrangement:'auto',mood:'auto',minimum:5,maximum:100});
+    const host=document.createElement('div');document.body.append(host);
+    const one=createLightEditor(host,{plan:saved.plan,edits:[]}),two=createLightEditor(host,{plan:saved.plan});
+    one.setPosition(1);host.querySelector('[data-add]').click();
+    const independent=one.getEdits().length===1&&two.getEdits().length===3;
+    const copy=one.getEdits();copy[0].start=999;
+    const isolated=one.getEdits()[0].start===1;
+    one.destroy();two.destroy();const clean=host.children.length===0;host.remove();return independent&&isolated&&clean;
+  })()`),true);
   await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
   assert.equal(await evaluate("document.querySelector('dialog.section-editor').getBoundingClientRect().width<=innerWidth"),true);
   assert.deepEqual(errors,[]);
-  const result={instrumentPersistence:true,openFromLibrary:true,motifTransfer:true,persistence:true,beatSnappedSplit:true,merge:true,cancelPreservesSaved:true,mobileFits:true,browserErrors:0};
+  const screenshot=await c('Page.captureScreenshot',{format:'png'});await writeFile('/tmp/anydj-light-editor-mobile.png',Buffer.from(screenshot.data,'base64'));
+  const result={instrumentPersistence:true,openFromLibrary:true,motifTransfer:true,persistence:true,beatSnappedSplit:true,merge:true,cancelPreservesSaved:true,mobileFits:true,pointerResize:true,undoRedo:true,keyboardResize:true,independentInstances:true,browserErrors:0};
   console.log(JSON.stringify(result,null,2));
   await writeFile(new URL('../reports/section-lighting-browser-check.json',import.meta.url),JSON.stringify(result,null,2)+'\n');
 } finally {
