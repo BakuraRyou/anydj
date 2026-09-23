@@ -1,0 +1,254 @@
+{
+  "file": "Dope Stars Inc. - Lies Irae.mp3",
+  "method": "Fresh local FFmpeg + Beat This + style + All-In-One/Demucs analysis; current automatic show compilation; no subjective listening or hardware test",
+  "duration": 215.449,
+  "sections": [
+    {
+      "start": 34.06,
+      "end": 60,
+      "label": "verse",
+      "kind": "Fließend",
+      "title": "Strophe",
+      "motif": 2,
+      "estimated": true,
+      "role": "support",
+      "emphasis": 0.78,
+      "look": "peak",
+      "lookLabel": "Rhythmische Akzente"
+    },
+    {
+      "start": 60,
+      "end": 85.95,
+      "label": "inst",
+      "kind": "Fließend",
+      "title": "Instrumental",
+      "motif": 6,
+      "estimated": true,
+      "role": "build",
+      "emphasis": 1,
+      "look": "lift",
+      "lookLabel": "Aufbau"
+    }
+  ],
+  "phrases": [
+    {
+      "start": 53.52,
+      "end": 60,
+      "kind": "punch",
+      "section": 3,
+      "energy": 0.3801819390520115,
+      "movement": {
+        "character": "rhythmic",
+        "contrast": 0.5414326074924148,
+        "driving": 1,
+        "rate": 2.777777777777779
+      },
+      "attention": {
+        "leader": "mixed",
+        "confidence": 0,
+        "accentScale": 1,
+        "motionScale": 1,
+        "colorScale": 1
+      },
+      "tone": 0.589659827471648
+    },
+    {
+      "start": 60,
+      "end": 70.4,
+      "kind": "build",
+      "section": 4,
+      "energy": 0.05503261830705016,
+      "movement": {
+        "character": "atmospheric",
+        "contrast": 0.6317895141838263,
+        "driving": 1,
+        "rate": 0.0961538461538461
+      },
+      "attention": {
+        "leader": "other",
+        "confidence": 0.9665782724417623,
+        "accentScale": 0.8869103421243139,
+        "motionScale": 0.7801034430194991,
+        "colorScale": 0.8115172368738564
+      },
+      "tone": 0.5766377232590897
+    },
+    {
+      "start": 70.4,
+      "end": 80.76,
+      "kind": "build",
+      "section": 4,
+      "energy": 0.8782683490683018,
+      "movement": {
+        "character": "rhythmic",
+        "contrast": 0.28714508920032833,
+        "driving": 1,
+        "rate": 3.088803088803089
+      },
+      "attention": {
+        "leader": "mixed",
+        "confidence": 0,
+        "accentScale": 1,
+        "motionScale": 1,
+        "colorScale": 1
+      },
+      "tone": 0.5486704232639225
+    }
+  ],
+  "colorEvents": [
+    {
+      "time": 54.84,
+      "reason": "musical-accent"
+    },
+    {
+      "time": 69.9,
+      "reason": "sound-change"
+    },
+    {
+      "time": 71.68,
+      "reason": "musical-accent"
+    },
+    {
+      "time": 73.98,
+      "reason": "return"
+    }
+  ],
+  "motion": [
+    {
+      "time": 69.9,
+      "reason": "musical-change",
+      "travel": 1.5
+    },
+    {
+      "time": 70.72,
+      "reason": "groove",
+      "travel": 0.8199999999999932
+    },
+    {
+      "time": 71.38,
+      "reason": "groove",
+      "travel": 0.6599999999999966
+    },
+    {
+      "time": 72.34,
+      "reason": "groove",
+      "travel": 0.960000000000008
+    },
+    {
+      "time": 73.32,
+      "reason": "groove",
+      "travel": 0.9799999999999898
+    },
+    {
+      "time": 73.98,
+      "reason": "groove",
+      "travel": 0.6600000000000108
+    }
+  ],
+  "samples": [
+    {
+      "time": 58,
+      "rmsMean": 0.22200204918173605,
+      "toneMean": 0.6820437347443788,
+      "instrumentIntensityAtStart": 0.02615730025194928,
+      "percussionAtStart": 0.08719100083983093,
+      "fixtureActivity": [
+        0.29190028290408565,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "time": 60,
+      "rmsMean": 0.13280736754937628,
+      "toneMean": 0.4811958532047069,
+      "instrumentIntensityAtStart": 0.0000021444175484466535,
+      "percussionAtStart": 0.000007148058494822179,
+      "fixtureActivity": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "time": 62,
+      "rmsMean": 0.11492142020529274,
+      "toneMean": 0.45228866664327944,
+      "instrumentIntensityAtStart": 8.244099571578722e-7,
+      "percussionAtStart": 0.000002748033190526241,
+      "fixtureActivity": [
+        1,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "time": 64,
+      "rmsMean": 0.18276396895697716,
+      "toneMean": 0.5230741849292788,
+      "instrumentIntensityAtStart": 8.768493232072295e-7,
+      "percussionAtStart": 0.0000029228310773574316,
+      "fixtureActivity": [
+        1,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "time": 66,
+      "rmsMean": 0.24928331568142467,
+      "toneMean": 0.615463911302829,
+      "instrumentIntensityAtStart": 0.0000012137992535007683,
+      "percussionAtStart": 0.000004045997511669228,
+      "fixtureActivity": [
+        1,
+        0.00046608788969948467,
+        0,
+        0
+      ]
+    },
+    {
+      "time": 68,
+      "rmsMean": 0.2861870057640589,
+      "toneMean": 0.6423824591051895,
+      "instrumentIntensityAtStart": 0.0000017788043439979518,
+      "percussionAtStart": 0.0000059293478133265065,
+      "fixtureActivity": [
+        1,
+        0.03340167456409715,
+        0,
+        0
+      ]
+    },
+    {
+      "time": 70,
+      "rmsMean": 0.4343898991656821,
+      "toneMean": 0.5776220975615608,
+      "instrumentIntensityAtStart": 0.6016204298786544,
+      "percussionAtStart": 0.6592188119002417,
+      "fixtureActivity": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    {
+      "time": 72,
+      "rmsMean": 0.4339231885807242,
+      "toneMean": 0.54269083318381,
+      "instrumentIntensityAtStart": 0.9193303419319304,
+      "percussionAtStart": 0.7543388492565901,
+      "fixtureActivity": [
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  ]
+}

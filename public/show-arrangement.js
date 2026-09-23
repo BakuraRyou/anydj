@@ -58,7 +58,13 @@ export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicSt
       const values=drama.intensity.slice(Math.floor(section.start/drama.step),Math.max(Math.floor(section.start/drama.step)+1,Math.ceil(section.end/drama.step)));
       intensity=values.reduce((a,b)=>a+b,0)/values.length;
       const start=dramaAt(drama,section.start+.5),end=dramaAt(drama,Math.max(section.start,section.end-.5));
-      look=intensity<.25?'held':end.intensity-start.intensity>.25?'lift':intensity>.6?'peak':'flow';
+      // A quiet opening must not suppress the later build. Compare sustained
+      // edges so a single closing hit cannot turn a resting passage into a lift.
+      const edge=Math.max(1,Math.min(Math.round(3/drama.step),Math.floor(values.length*.2)));
+      const mean=xs=>xs.reduce((sum,v)=>sum+v,0)/xs.length;
+      const opening=mean(values.slice(0,edge)),closing=mean(values.slice(-edge));
+      const sustainedBuild=section.end-section.start>=4&&closing>=.25&&closing-opening>=.2;
+      look=sustainedBuild?'lift':intensity<.25?'held':end.intensity-start.intensity>.25?'lift':intensity>.6?'peak':'flow';
     }
     return {...section,intensity,look,lookLabel:looks[look]};});
   // Form and intensity are separate: a loud verse need not spend all the
@@ -168,16 +174,68 @@ function eventAt(arrangement,time) {
   while(lo<hi){const mid=(lo+hi)>>>1;if(arrangement.times[mid]<=time)lo=mid+1;else hi=mid;}
   return lo-1;
 }
+// Derive expression from measured phrase character, independently of section
+// labels. Keep selected events for motion, but do not turn every one into a flash.
+const expressionCache=new WeakMap();
+export function arrangementAccentProfile(arrangement,index){
+  let profiles=expressionCache.get(arrangement);
+  if(!profiles){
+    profiles=[];
+    const phrases=arrangement.patterns?.phrases||[];
+    let event=0;
+    for(const phrase of phrases){
+      const start=event;
+      while(event<arrangement.times.length&&arrangement.times[event]<phrase.end)event++;
+      const local=(arrangement.eventSalience||[]).slice(start,event).filter(Number.isFinite).sort((a,b)=>a-b);
+      const typical=local[Math.floor(local.length/2)]??0;
+      const movement=phrase.movement,attention=phrase.attention;
+      const vocal=attention?.leader==='vocals'&&attention.confidence>=.5;
+      const held=movement?.character==='atmospheric'||phrase.kind==='wash';
+      const rhythmic=movement?.character==='rhythmic'&&movement.contrast>=.3&&!vocal;
+      const section=arrangement.passages?.[phrase.section];
+      for(let i=start;i<event;i++){
+        if(arrangement.times[i]<phrase.start)continue;
+        const salience=arrangement.eventSalience?.[i];
+        const standout=Number.isFinite(salience)&&(salience>=.55||salience>=.28&&salience>=typical*1.6);
+        profiles[i]=!movement?null:standout?{kind:'pulse',gain:1}:held?{kind:'held',gain:0}:
+          rhythmic&&section?.look==='lift'?{kind:'swell',gain:.45}:
+          rhythmic&&(section?.role==='support'||section?.look==='flow')?{kind:'groove',gain:.75}:
+          rhythmic?{kind:'pulse',gain:1}:{kind:'swell',gain:vocal?.18:.3};
+      }
+    }
+    expressionCache.set(arrangement,profiles);
+  }
+  return profiles[index]||{kind:'legacy',gain:1};
+}
+function expressedAccent(arrangement,time){
+  const latest=eventAt(arrangement,time);
+  if(latest<0)return 0;
+  // Legacy plans without phrase evidence retain their stored envelope.
+  if(arrangementAccentProfile(arrangement,latest).kind==='legacy')return arrangement.accents[latest]*patternEnvelope(arrangement.patterns?.events[latest],time-arrangement.times[latest],arrangement.decays?.[latest]??arrangement.decay??.22);
+  let level=0;
+  // Overlapping tails prevent a suppressed/soft event from cutting off a hit.
+  // A bounded lookback and cached profiles keep this independent of song length.
+  for(let i=latest;i>=0&&time-arrangement.times[i]<=2;i--){
+    const profile=arrangementAccentProfile(arrangement,i),age=time-arrangement.times[i];
+    if(!profile.gain)continue;
+    const decay=arrangement.decays?.[i]??arrangement.decay??.22;
+    const rise=clamp(age/.2);
+    const envelope=profile.kind==='swell'
+      ?rise*rise*(3-2*rise)*Math.exp(-Math.max(0,age-.2)/.4)
+      :patternEnvelope(arrangement.patterns?.events[i],age,profile.kind==='groove'?Math.max(.22,decay):decay);
+    const tail=age<=1.5?1:1-(age-1.5)/.5;
+    level=Math.max(level,arrangement.accents[i]*profile.gain*envelope*tail);
+  }
+  return level;
+}
 export function arrangementMotionAt(arrangement,time) {
-  const index=eventAt(arrangement,time);
-  return index<0?0:clamp(arrangement.accents[index]/.55)*patternEnvelope(arrangement.patterns?.events[index],time-arrangement.times[index],arrangement.decays?.[index]??.22);
+  return clamp(expressedAccent(arrangement,time)/.55);
 }
 export function arrangementLevelAt(arrangement,time) {
   const position=Math.max(0,time)/arrangement.step;
   const index=Math.min(arrangement.bases.length-1,Math.floor(position));
   const interpolated=arrangement.bases[index]+(arrangement.bases[Math.min(index+1,arrangement.bases.length-1)]-arrangement.bases[index])*(position-Math.floor(position));
   if(interpolated===0)return 0;
-  const event=eventAt(arrangement,time);
-  const accent=event<0?0:arrangement.accents[event]*patternEnvelope(arrangement.patterns?.events[event],time-arrangement.times[event],arrangement.decays?.[event]??arrangement.decay);
+  const accent=expressedAccent(arrangement,time);
   return clamp(interpolated+accent);
 }

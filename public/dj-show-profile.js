@@ -1,7 +1,7 @@
 import {choreographColors} from './color-choreography.js';
 import {arrangementLevelAt} from './show-arrangement.js';
 export const SHOW_PROFILES=['auto','party','disco','calm','atmospheric'];
-export const movingMoodForProfile=profile=>profile==='calm'||profile==='atmospheric'?profile:profile==='party'||profile==='disco'?'energetic':'balanced';
+export const movingMoodForProfile=profile=>profile==='calm'||profile==='atmospheric'||profile==='disco'?profile:profile==='party'?'energetic':'balanced';
 const clamp=value=>Math.max(0,Math.min(1,value));
 // Apply to the original plan, never to the previous preset's output. This is
 // a lighting interpretation of selected accents, not another beat detector.

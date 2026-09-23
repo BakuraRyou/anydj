@@ -2,7 +2,7 @@ import {stageMotionAt} from './stage-motion.js';
 import {movingMood} from './dmx-moving-moods.js';
 import {beatPosition} from './dmx-show.js';
 import {stageAccentStrength} from './stage-motifs.js';
-import {movingHeadTargets,advanceMovingHeads,restingHeads} from './dmx-moving-model.js';
+import {movingHeadTargets,advanceMovingHeads,restingHeads,motionTangent,motionHermite} from './dmx-moving-model.js';
 import {movingCues,movingCueAt} from './dmx-moving-cues.js';
 
 export const MOVING_STEP=.05;
@@ -31,10 +31,10 @@ export function movingPlanJob(plan,mode='auto',mood='balanced'){
     return result.map((p,i)=>({pan:p.pan*(i===0||i===3?1:.55),tilt:Math.max(.55,Math.min(1.15,p.tilt+((i===0||i===3) ? .04 : -.08)))}));
   }
   return {
-    result:{version:6,duration:plan.duration,step,values,mode:modes(mode),mood},
+    result:{version:7,duration:plan.duration,step,values,mode:modes(mode),mood},
     get done(){return index===count;},
     advance(samples=128){
-      if(cues===undefined)cues=movingCues(plan,modes(mode),mood);
+      if(cues===undefined){cues=movingCues(plan,modes(mode),mood);this.result.cues=cues;}
       const end=Math.min(count,index+samples);
       for(;index<end;index++){
         const time=Math.min(plan.duration,index*step);
@@ -61,10 +61,15 @@ export function movingPlanJob(plan,mode='auto',mood='balanced'){
 }
 export function movingPlanAt(plan,time){
   if(!plan||!Number.isFinite(time))return null;
+  if(plan.cues)return movingCueAt(plan.cues,Math.max(0,Math.min(plan.duration,time)));
   const position=Math.max(0,Math.min(plan.duration,time))/plan.step;
   const last=plan.values.length/8-1,lo=Math.min(last,Math.floor(position)),hi=Math.min(last,lo+1),part=position-lo;
   return Array.from({length:4},(_,i)=>{
-    const at=key=>plan.values[lo*8+i*2+key]*(1-part)+plan.values[hi*8+i*2+key]*part;
+    const at=key=>{
+      const value=index=>plan.values[index*8+i*2+key];
+      const tangent=index=>index===0||index===last?0:motionTangent(value(index-1),value(index),value(index+1),plan.step,plan.step);
+      return motionHermite(value(lo),value(hi),tangent(lo),tangent(hi),plan.step,part);
+    };
     return {pan:at(0),tilt:at(1)};
   });
 }

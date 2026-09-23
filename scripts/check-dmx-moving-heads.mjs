@@ -62,9 +62,81 @@ try {
     }
     heads.update([],frame,0,false,[{frame,weight:1,look:'flow'}],'auto');output.push(read());
     heads.update([],frame,0,true,[{frame,weight:1,look:'flow'}],'auto');output.push(read());
+    const restPlan={sections:[{start:0,end:4,look:'flow',intensity:.7},{start:4,end:10,look:'held',intensity:.2}]};
+    const buildPlan={sections:[{start:0,end:10,look:'lift'}],arrangement:{drama:{step:.5,intensity:[.1,.1,.1,.1,.2,.3,.4,.4,.4,.4,.5,.6,.7,.8,.9,.9,.9,.9,.9,.9]}}};
+    for(const [movingPlan,songTime,look] of [[restPlan,6,'held'],[buildPlan,1,'lift'],[buildPlan,8,'lift']]){
+      const streams=[{frame,weight:1,look,movingPlan,songTime}];
+      const fixtures=decodeStage(encodeStage(automaticStage(streams,2).frames));
+      heads.update(fixtures,frame,0,false,streams,'auto');output.push(read());
+    }
     heads.destroy();return output;
   })()`);
-  assert.deepEqual(activity.map(values=>values.filter(v=>v===0).length),[2,2,1,2,4]);
+  assert.deepEqual(activity.map(values=>values.filter(v=>v===0).length),[0,0,0,0,4,2,3,0]);
+  for(const [index,levels] of activity.entries()){if(index===6)continue;assert.equal(levels[0],levels[3]);assert.equal(levels[1],levels[2]);}
+  const quietBuild=await evaluate(`(async()=>{
+    const {createMovingHeads}=await import('/dmx-moving-heads.js');
+    const {automaticStage}=await import('/dmx-auto.js');
+    const {encodeStage,decodeStage}=await import('/dmx-model.js');
+    const scene=document.createElement('div'),controls=document.createElement('div');
+    const simulation=createMovingHeads(scene,controls),zero=Array(120).fill(0);
+    const movingPlan={sections:[{start:0,end:12,look:'lift'}],arrangement:{drama:{step:.1,intensity:zero},patterns:{phrases:[{start:0,end:12}]}},structure:{instruments:{step:.1,drums:zero,bass:zero,vocals:zero,other:zero.map((_,i)=>i<25?.08-i*.001:i<40?.055:i<90?.055+(i-40)*.004:.255)}}};
+    const frame={state:true,r:255,g:40,b:0,dimming:40},result=[];
+    for(const songTime of [3,5,8,11]){
+      const streams=[{frame,weight:1,movingPlan,songTime,look:'lift'}];
+      simulation.update(decodeStage(encodeStage(automaticStage(streams,2).frames)),frame,songTime,false,streams,'auto');
+      result.push([...scene.querySelectorAll('.stage-moving-head')].map(n=>Number(n.style.getPropertyValue('--stage-power'))));
+    }
+    simulation.destroy();return result;
+  })()`);
+  const quietPower=quietBuild.map(heads=>heads.reduce((sum,v)=>sum+v,0));
+  assert.ok(quietPower[1]>quietPower[0]+.03);
+  assert.ok(quietPower[2]>quietPower[1]+.05);
+  assert.ok(quietBuild[3].every(v=>v>0));
+  const colorGroups=await evaluate(`(async()=>{
+    const {createMovingHeads}=await import('/dmx-moving-heads.js');
+    const {automaticStage}=await import('/dmx-auto.js');
+    const {encodeStage,decodeStage}=await import('/dmx-model.js');
+    const scene=document.createElement('div'),controls=document.createElement('div');
+    const simulation=createMovingHeads(scene,controls);
+    const frame={state:true,r:255,g:40,b:0,dimming:60};
+    const movingPlan={colorDirection:{events:[0,8,16,24].map(time=>({time,reason:'sound-change'}))}};
+    const results=[];
+    for(const spots of [4,2,3,5,6,7,8,'bar-7','bar-8'])for(const songTime of [1,8,16,24]){
+      const equipment={devices:typeof spots==='number'?Array.from({length:spots},(_,i)=>({id:String(i),type:'spot',cells:1})):[{id:'bar',type:'bar',cells:Number(spots.slice(4))}]};
+      const streams=[{frame,weight:1,look:'peak',movingPlan,songTime}];
+      const fixtures=decodeStage(encodeStage(automaticStage(streams,2,equipment).frames,equipment),equipment);
+      simulation.update(fixtures,frame,songTime,false,streams,'auto');
+      const colors=[...scene.querySelectorAll('.stage-moving-head')].map(n=>n.style.getPropertyValue('--stage-beam-color'));
+      results.push(colors.map(color=>colors.indexOf(color)));
+    }
+    simulation.destroy();return results;
+  })()`);
+  for(const offset of [0,4,8,12,16,20,24,28,32])assert.deepEqual(colorGroups.slice(offset,offset+4),[[0,1,0,1],[0,0,2,2],[0,1,1,0],[0,1,0,1]]);
+  const formation=await evaluate(`(async()=>{
+    const {createMovingHeads}=await import('/dmx-moving-heads.js');
+    const {stageLayout}=await import('/dmx-layout-model.js');
+    const scene=document.createElement('div'),controls=document.createElement('div'),layout=stageLayout();
+    const times=Array.from({length:48},(_,i)=>i*.5);
+    const plan={duration:24,sections:[{start:0,end:24,look:'peak'}],beatGrid:{beats:times},arrangement:{times,accents:times.map(()=>.6),patterns:{events:times.map(()=>({kind:'bounce',driving:true})),phrases:[{start:0,end:24,section:0,energy:.8,tone:.5,movement:{character:'rhythmic',driving:1}}]}}};
+    const simulation=createMovingHeads(scene,controls,{getPlans:()=>[plan],getLayout:()=>layout});
+    simulation.setMood('disco');
+    const deadline=performance.now()+5000;
+    while(!scene.textContent.includes('Choreografie bereit')){
+      if(performance.now()>deadline)throw Error('Formation preparation timed out');
+      await new Promise(resolve=>setTimeout(resolve,10));
+    }
+    const frame={state:true,r:255,g:60,b:0,dimming:80};
+    let independent=0,total=0;
+    for(let t=0;t<18;t+=.025){
+      simulation.update([],frame,t,false,[{frame,weight:1,movingPlan:plan,songTime:t,look:'peak'}],'auto');
+      if(t<3)continue;
+      const poses=[...scene.querySelectorAll('.stage-moving-head')].map(n=>({pan:parseFloat(n.style.getPropertyValue('--head-pan')),tilt:parseFloat(n.style.getPropertyValue('--head-tilt'))}));
+      const linked=([a,b])=>Math.abs(poses[a].pan+poses[b].pan)<.1&&Math.abs(poses[a].tilt-poses[b].tilt)<.002;
+      independent+=!linked([0,3])&&!linked([1,2]);total++;
+    }
+    simulation.setMood('balanced');simulation.destroy();return independent/total;
+  })()`);
+  assert.ok(formation>.8,'disco moving heads must not stay locked into inner and outer pairs');
   const pan=await evaluate("document.querySelector('.stage-moving-head').style.getPropertyValue('--head-pan')");
   await wait(`document.querySelector('.stage-moving-head').style.getPropertyValue('--head-pan')!==${JSON.stringify(pan)}`);
   for(const [width,height] of [[1280,800],[390,844]]){

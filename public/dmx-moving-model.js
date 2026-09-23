@@ -30,7 +30,9 @@ function sourcePose(source,i,mode){
 export function movingHeadTargets(streams=[],mode='auto'){
   const active=streams.filter(s=>s.frame&&s.frame.state!==false&&Number.isFinite(s.weight)&&s.weight>0);
   // A dark deck must not steer the lit deck during a transition.
-  const weights=active.map(s=>s.weight*clamp(finite(s.frame.dimming),0,100));
+  // Blend motion using the slow lighting base when available. Fast flashes
+  // must not pull the heads between two deck positions on every transient.
+  const weights=active.map(s=>s.weight*(s.frame.dimming>0?clamp(finite(s.washDimming,finite(s.frame.dimming)),0,100):0));
   const total=weights.reduce((a,b)=>a+b,0);
   if(!total)return null;
   return Array.from({length:4},(_,i)=>{
@@ -52,4 +54,41 @@ export function advanceMovingHeads(current,target,seconds){
 export function followMovingHeads(current,target,seconds){
   const dt=clamp(finite(seconds),0,.1);
   return current.map((pose,i)=>({pan:pose.pan+clamp(target[i].pan-pose.pan,-70*dt,70*dt),tilt:pose.tilt+clamp(target[i].tilt-pose.tilt,-.8*dt,.8*dt)}));
+}
+
+// A shared tangent keeps velocity continuous without overshooting either
+// neighbouring destination. At a reversal the head naturally slows to zero.
+export function motionTangent(before,value,after,left,right){
+  if(!(left>0&&right>0))return 0;
+  const a=(value-before)/left,b=(after-value)/right;
+  return a*b>0?Math.sign(a)*Math.min(Math.abs(a),Math.abs(b)):0;
+}
+export function motionHermite(a,b,va,vb,duration,t){
+  const t2=t*t,t3=t2*t;
+  return (2*t3-3*t2+1)*a+(t3-2*t2+t)*duration*va+(-2*t3+3*t2)*b+(t3-t2)*duration*vb;
+}
+
+// Generic preview motor envelope, not manufacturer DMX specifications.
+// Tilt is the preview's normalized projection coordinate, not degrees.
+export const MOVING_LIMITS={pan:{speed:70,acceleration:280,jerk:2800},tilt:{speed:.8,acceleration:3.2,jerk:32}};
+export function motionDuration(a,b,scale=1){
+  let duration=0;
+  a.forEach((p,i)=>{for(const key of ['pan','tilt']){
+    const d=Math.abs(b[i][key]-p[key]),limit=MOVING_LIMITS[key];
+    duration=Math.max(duration,1.875*d/(limit.speed*scale),Math.sqrt(6*d/(limit.acceleration*scale)),Math.cbrt(60*d/(limit.jerk*scale)));
+  }});
+  return duration;
+}
+export function motionReach(a,b,time,scale=1){
+  let fraction=1;
+  a.forEach((p,i)=>{for(const key of ['pan','tilt']){
+    const d=Math.abs(b[i][key]-p[key]),limit=MOVING_LIMITS[key];
+    if(d)fraction=Math.min(fraction,limit.speed*scale*time/(1.875*d),limit.acceleration*scale*time*time/(6*d),limit.jerk*scale*time*time*time/(60*d));
+  }});
+  return fraction;
+}
+// Quintic Hermite: shared endpoint velocity and zero endpoint acceleration.
+export function motionQuintic(a,b,va,vb,duration,t){
+  const d=b-a,u=va*duration,v=vb*duration;
+  return a+u*t+t*t*t*((10*d-6*u-4*v)+t*((-15*d+8*u+7*v)+t*(6*d-3*u-3*v)));
 }

@@ -34,7 +34,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   button.setAttribute('aria-controls',inline?inline.id:panel.id);settingsButton.setAttribute('aria-controls',panel.id);settingsButton.setAttribute('aria-expanded','false');button.setAttribute('aria-expanded','false');
   const scene=(inline||panel).querySelector('.stage-scene'),spots=scene.querySelector('.stage-spots'),bars=scene.querySelector('.stage-bars');
   const layout=createStageLayout({getFixtures:()=>stagePatch(editor.equipment),onChange:()=>render()});
-  const movingHeads=createMovingHeads(scene,inline||panel.querySelector('.stage-controls'),{getPlans:getMovingPlans,getLayout:()=>layout.value,onPreview:value=>layout.update(value),showMoodControl:false});
+  const movingHeads=createMovingHeads(scene,inline||panel.querySelector('.stage-controls'),{getPlans:getMovingPlans,getLayout:()=>layout.value,onPreview:value=>layout.update(value),showMoodControl:false,adjustFrame});
   const layoutButton=document.createElement('button');layoutButton.type='button';layoutButton.className='button secondary';layoutButton.dataset.layoutOpen='';layoutButton.textContent='Bühne & Geräte aufstellen';layoutButton.setAttribute('aria-controls','stageLayoutDialog');layoutButton.onclick=()=>layout.open(layoutButton);
   (inline||panel.querySelector('.stage-controls')).append(layoutButton);
   const nodes=[],fixtureNodes=[];
@@ -130,7 +130,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
     hardware.setDemo(demo);
     hardware.push(encodeStage(demo?null:output,equipment));
     const universe=encodeStage(blackout?null:output,equipment),fixtures=decodeStage(universe,equipment);
-    movingHeads.update(fixtures,adjustFrame(sample),t,blackout,inputs,editor.mode);
+    movingHeads.update(fixtures,adjustFrame(sample),t,blackout,inputs,editor.mode,editor.count);
     layout.setLights(fixtures);
     fixtures.forEach((f,i)=>f.cells.forEach((rgb,j)=>{
       const target=nodes[i][j];

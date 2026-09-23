@@ -41,3 +41,17 @@ export function dramaAt(drama,time) {
   const i=Math.max(0,Math.min(drama.intensity.length-1,Math.floor(time/drama.step)));
   return {intensity:drama.intensity[i],percussion:drama.percussion[i],vocalShare:drama.vocalShare[i],attack:Math.max(...drama.attacks.slice(Math.max(0,i-1),i+2))};
 }
+
+// Preserve quiet sustained instruments below the global drama noise floor.
+// This is a development signal, not a replacement for absolute show intensity.
+export function instrumentDevelopment(instruments){
+  if(!(instruments?.step>0)||!names.every(name=>Array.isArray(instruments[name])&&instruments[name].length===instruments.drums.length))return null;
+  const count=instruments.drums.length;if(!count)return null;
+  const power=Array.from({length:count},(_,i)=>names.reduce((sum,name)=>sum+instruments[name][i]**2,0));
+  if(power.some(v=>!Number.isFinite(v)))return null;
+  const prefix=[0];for(const v of power)prefix.push(prefix.at(-1)+v);
+  const radius=Math.max(1,Math.round(.5/instruments.step));
+  const energy=power.map((_,i)=>{const a=Math.max(0,i-radius),b=Math.min(count,i+radius+1);return Math.sqrt(Math.max(0,prefix[b]-prefix[a])/(b-a));});
+  const reference=Math.max(.025,quantile(energy,.95));
+  return {step:instruments.step,intensity:energy.map(v=>v<.003?0:clamp(v/reference)),local:true};
+}

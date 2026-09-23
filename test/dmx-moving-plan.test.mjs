@@ -10,7 +10,7 @@ test('four independent tracks are deterministic, interpolated and seek stable',(
   const first=movingPlanAt(a,18.125);movingPlanAt(a,1);assert.deepEqual(movingPlanAt(a,18.125),first);
   assert.equal(new Set(first.map(p=>p.pan)).size,4);
   const left=movingPlanAt(a,18.1),right=movingPlanAt(a,18.15);
-  first.forEach((p,i)=>assert.ok(Math.abs(p.pan-(left[i].pan+right[i].pan)/2)<1e-5));
+  first.forEach((p,i)=>assert.ok(p.pan>=Math.min(left[i].pan,right[i].pan)-1e-5&&p.pan<=Math.max(left[i].pan,right[i].pan)+1e-5));
   assert.deepEqual(movingPlanAt(a,-3),movingPlanAt(a,0));
   assert.deepEqual(movingPlanAt(a,Infinity),null);
   assert.deepEqual(movingPlanAt(a,100),movingPlanAt(a,24));
@@ -43,4 +43,14 @@ test('preparation is opt-in, chunked, cancellable, cached and invalidated by sho
   drain();assert.equal(prep.stats().ready,1);
   prep.prepare([{duration:NaN}]);drain();assert.equal(prep.stats().failed,1);
   prep.prepare([song(60)]);assert.equal(tasks.size,1);prep.destroy();assert.equal(tasks.size,0);
+});
+test('playback velocity is continuous across 50 ms sample boundaries without overshoot',()=>{
+ const track={duration:.2,step:.05,values:Float32Array.from([0,1,3,4,4].flatMap(p=>Array.from({length:4},()=>[p,.8]).flat()))};
+ const at=t=>movingPlanAt(track,t)[0].pan,h=.000001;
+ for(const t of [.05,.1,.15]){
+  const left=(at(t)-at(t-h))/h,right=(at(t+h)-at(t))/h;
+  assert.ok(Math.abs(left-right)<.02);
+ }
+ for(let t=0;t<=.2;t+=.001){assert.ok(at(t)>=0&&at(t)<=4);}
+ assert.equal(at(.175),4);
 });

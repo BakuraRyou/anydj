@@ -103,7 +103,11 @@ test('intense grooves follow actual accents continuously and stop moving through
  const original=structuredClone(p);
  for(const mood of ['balanced','energetic']){
   const cues=movingCues(p,'auto',mood),groove=cues.filter(c=>c.reason==='groove');
-  assert.ok(groove.length>=60);
+  assert.ok(groove.length>=30);
+  const pans=Array.from({length:1200},(_,i)=>movingCueAt(cues,1+i*.025)[0].pan);
+  assert.ok(Math.max(...pans)-Math.min(...pans)>20,'motor limits must not collapse an intense groove into tiny hops');
+  const moving=pans.slice(1).filter((pan,i)=>Math.abs(pan-pans[i])>.01).length;
+  assert.ok(moving/pans.length>.8,'fewer destinations must still produce continuous movement');
   assert.ok(groove.every(c=>p.arrangement.times.includes(c.time)&&c.time<32));
   for(let i=1;i<groove.length;i++)assert.ok(Math.abs(groove[i].travel-(groove[i].time-groove[i-1].time))<1e-9);
   assert.deepEqual(movingCueAt(cues,37),movingCueAt(cues,45));
@@ -124,4 +128,53 @@ test('groove timing follows irregular audio accents and louder hits change the p
  for(let t=.01;t<64;t+=.01){const next=movingCueAt(b,t);next.forEach((v,i)=>{
   assert.ok(Math.abs(v.pan-previous[i].pan)<=.700001);assert.ok(Math.abs(v.tilt-previous[i].tilt)<=.008001);
  });previous=next;}
+});
+test('disco rhythmic formations give all four heads distinct roles beyond inner and outer pairs',()=>{
+ const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);p.sections.forEach(s=>s.look='peak');
+ for(const mood of ['disco']){
+  const job=movingPlanJob(p,'auto',mood);while(!job.done)job.advance();
+  let independent=0,total=0;
+  for(let t=3;t<28;t+=.05){
+   const poses=movingPlanAt(job.result,t);
+   const mirrored=([a,b])=>Math.abs(poses[a].pan+poses[b].pan)<.1&&Math.abs(poses[a].tilt-poses[b].tilt)<.002;
+   if(!mirrored([0,3])&&!mirrored([1,2]))independent++;
+   total++;
+  }
+  assert.ok(independent/total>.8,'heads must not remain permanently locked into two mirror pairs');
+ }
+ const directions=movingDirections(p,true);assert.equal(directions[0].formation,'diagonal');
+ p.arrangement.patterns.phrases.forEach(ph=>ph.movement.driving=.4);
+ assert.equal(movingDirections(p,true)[0].formation,'ribbon');
+});
+test('automatic motion uses broad coherent arcs with fewer reversals than disco',()=>{
+ const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);p.sections.forEach(s=>s.look='peak');
+ const measure=mood=>{
+  const cues=movingCues(p,'auto',mood),pans=[];
+  for(let t=3;t<30;t+=.025)pans.push(movingCueAt(cues,t)[0].pan);
+  let direction=0,turns=0;
+  for(let i=1;i<pans.length;i++){
+   const delta=pans[i]-pans[i-1];if(Math.abs(delta)<.005)continue;
+   const next=Math.sign(delta);if(direction&&next!==direction)turns++;direction=next;
+  }
+  return {turns,range:Math.max(...pans)-Math.min(...pans)};
+ };
+ const normal=measure('balanced'),disco=measure('disco');
+ assert.ok(normal.turns<disco.turns*.75);
+ assert.ok(normal.range>25,'smoother must not mean tiny movements');
+ assert.equal(movingDirections(p)[0].formation,'mirror');
+ assert.equal(movingDirections(p,true)[0].formation,'diagonal');
+});
+test('automatic movement tempo follows a measured rise instead of a fixed eight-beat cycle',()=>{
+ const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);p.sections.forEach(s=>s.look='peak');
+ p.arrangement.drama={step:.5,intensity:Array.from({length:128},(_,i)=>i<64?.56:.95),percussion:Array(128).fill(.7),vocalShare:Array(128).fill(.1),attacks:Array(128).fill(.1)};
+ const cues=movingCues(p,'auto');
+ const reversals=(start,end)=>{
+  let prior=movingCueAt(cues,start)[0].pan,direction=0;const times=[];
+  for(let t=start+.025;t<end;t+=.025){const pan=movingCueAt(cues,t)[0].pan,delta=pan-prior;prior=pan;if(Math.abs(delta)<.01)continue;const next=Math.sign(delta);if(direction&&next!==direction)times.push(t);direction=next;}
+  const gaps=times.slice(1).map((t,i)=>t-times[i]).sort((a,b)=>a-b);
+  assert.ok(gaps.length>=3);return gaps[Math.floor(gaps.length/2)];
+ };
+ assert.ok(reversals(38,61)<reversals(5,29)*.85);
+ const original=structuredClone(p);assert.deepEqual(movingCues(p,'auto'),cues);assert.deepEqual(p,original);
+ const disco=movingCues(p,'auto','disco');assert.ok(disco.every(c=>c.drive===undefined&&c.settle===undefined));
 });

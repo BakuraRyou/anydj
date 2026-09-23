@@ -30,7 +30,7 @@ test('automatic activity holds without selected acoustic events',()=>{
   assert.deepEqual(a.frames,b.frames);assert.deepEqual(a,automaticStage([source()],4));
   const steady=automaticStage([source('flow',{beat:null})],4);
   assert.ok(steady.frames.flat().some(f=>f.dimming===51));
-  assert.ok(steady.frames.flat().some(f=>f.dimming===0));
+  assert.ok(steady.frames.flat().every(f=>f.dimming===51));
   assert.ok(a.frames.flat().every(f=>f.dimming<=60));
 });
 test('pause, disabled sources and zero brightness cannot light up the stage',()=>{
@@ -80,12 +80,12 @@ test('DJ presets blend both decks and respect the requested color ceiling',()=>{
     result.frames.flat().forEach((f,i)=>assert.equal(f.dimming,left[i].dimming*.25+right[i].dimming*.75));
   }
 });
-test('automatic spots and bar segments join strong accents without losing movement between hits',()=>{
+test('ordinary playback does not gate fixtures on accents',()=>{
   const render=strength=>automaticStage([source('peak',{accentStrength:strength})],4).frames.flat();
   const resting=render(0),partial=render(.5),hit=render(1);
-  assert.ok(new Set(resting.map(f=>f.dimming)).size>1);
+  assert.ok(resting.every(f=>f.dimming===60));
   assert.ok(hit.every(f=>f.dimming===60));
-  assert.deepEqual(partial,resting); // Ordinary accents do not wake resting fixtures.
+  assert.deepEqual(partial,resting); // An accent alone does not toggle fixture activity.
   for(const maximum of [0,30,100]){
     const frames=automaticStage([source('peak',{accentStrength:1,frame:{...frame,dimming:maximum}})],4).frames.flat();
     assert.ok(frames.every(f=>f.dimming===maximum));
@@ -96,4 +96,43 @@ test('automatic spots and bar segments join strong accents without losing moveme
   for(const mode of ['chase','wash','follow','alternate']){
     assert.deepEqual(automaticStage([source('peak',{accentStrength:1})],4,undefined,mode),automaticStage([source('peak',{accentStrength:0})],4,undefined,mode));
   }
+});
+test('musical color decisions change fixture groupings while retaining the palette',()=>{
+ const movingPlan={colorDirection:{events:[{time:0,reason:'entrance'},{time:8,reason:'sound-change'},{time:9,reason:'musical-accent'},{time:11,reason:'return'},{time:16,reason:'section-contrast'},{time:24,reason:'sound-change'}]}};
+ const equipment={devices:Array.from({length:4},(_,i)=>({id:String(i),type:'spot',cells:1}))};
+ const render=(time,count=2)=>automaticStage([source('peak',{movingPlan,songTime:time,beat:time*2})],count,equipment);
+ const slots=t=>{const r=render(t);return r.frames.flat().map(f=>r.palette.findIndex(c=>c[0]===f.r&&c[1]===f.g&&c[2]===f.b));};
+ assert.deepEqual(slots(1),[0,1,0,1]);
+ assert.deepEqual(slots(8),[0,0,1,1]);
+ assert.deepEqual(slots(16),[0,1,1,0]);
+ assert.deepEqual(slots(24),[1,0,1,0]);
+ assert.deepEqual(slots(4),slots(1)); // No beat-counter rotation.
+ assert.deepEqual(slots(9),slots(8));assert.deepEqual(slots(11),slots(8));
+ assert.deepEqual(slots(1),[0,1,0,1]); // Seek restores the same assignment.
+ for(const count of [1,2,3,4])for(const t of [1,8,16,24]){
+  const r=render(t,count);
+  assert.deepEqual(r.palette,render(1,count).palette);
+  assert.ok(hues(r).size<=count);
+  assert.ok(r.frames.flat().every(f=>f.dimming===60));
+ }
+ const withBar={devices:[{id:'bar',type:'bar',cells:8},...equipment.devices]};
+ assert.deepEqual(automaticStage([source('peak',{movingPlan,songTime:16})],2,withBar).frames.slice(1),render(16).frames);
+});
+
+
+test('two-color base formations never leave a permanent solo fixture across long songs',()=>{
+ const movingPlan={colorDirection:{events:Array.from({length:32},(_,i)=>({time:i*20,reason:'sound-change'}))}};
+ const equipment={devices:Array.from({length:4},(_,i)=>({id:String(i),type:'spot',cells:1}))};
+ const render=time=>automaticStage([source('peak',{movingPlan,songTime:time})],2,equipment);
+ const partners=new Set();
+ for(let i=0;i<32;i++){
+  const result=render(i*20+1),cells=result.frames.flat();
+  const slots=cells.map(f=>result.palette.findIndex(c=>c[0]===f.r&&c[1]===f.g&&c[2]===f.b));
+  assert.equal(slots.filter(v=>v===0).length,2);
+  assert.equal(slots.filter(v=>v===1).length,2);
+  partners.add(slots.findIndex((v,j)=>j!==2&&v===slots[2]));
+  assert.deepEqual(render(i*20+19).frames,result.frames,'stable between musical decisions');
+ }
+ assert.deepEqual([...partners].sort(),[0,1,3],'the third fixture must share with every other position');
+ const before=render(21);render(621);assert.deepEqual(render(21),before);
 });

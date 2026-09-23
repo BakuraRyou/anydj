@@ -53,3 +53,10 @@ test('seeks ease within motor limits, stay bounded and do not catch up after hid
     }
   }
 });
+
+test('deck flashes do not tug on movement during crossfades with a slow light base',()=>{
+ const a=source({beat:1,weight:.5,washDimming:35}),b=source({beat:7,weight:.5,washDimming:45});
+ const before=movingHeadTargets([a,b]);
+ assert.deepEqual(movingHeadTargets([{...a,frame:{state:true,dimming:10}},{...b,frame:{state:true,dimming:100}}]),before);
+ assert.deepEqual(movingHeadTargets([a,{...b,frame:{state:true,dimming:0}}]),movingHeadTargets([a]));
+});

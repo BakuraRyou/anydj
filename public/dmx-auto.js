@@ -3,7 +3,7 @@ import {passageIntensity} from './stage-motifs.js';
 import {stagePatch} from './dmx-model.js';
 export const colorCount=value=>[1,2,3,4].includes(value)?value:2;
 export const STAGE_PRESETS={
-  auto:{name:'Automatische Lichtshow',help:'Farben, Bewegung und Lichtpausen folgen der Musik. Gruppen antworten auf Akzente; große Höhepunkte verbinden die Bühne.'},
+  auto:{name:'Automatische Lichtshow',help:'Farben, Bewegung und Lichtpausen folgen der Musik. Gezielte Aufbauten und Rücknahmen gestalten besondere Passagen.'},
   chase:{name:'Lauflicht',help:'Eine weiche Lichtwelle wandert im Beat von Gerät zu Gerät. Farben und Helligkeit folgen deiner Show.'},
   wash:{name:'Ruhige Farbflächen',help:'Für Warm-up und Hintergrundlicht: Die Helligkeit folgt dem langsamen Verlauf der Show, ohne zusätzliche Beat-Impulse.'},
   follow:{name:'Musikimpulse gemeinsam',help:'Alle Geräte übernehmen die Helligkeit der vorbereiteten Show gleichzeitig, in deinen Bühnenfarben. Keine zusätzliche Blinkkurve.'},
@@ -43,6 +43,38 @@ export function automaticColorCount(limit,look,progress=0){
   if(look==='lift')return Math.min(limit,1+Math.floor(clamp(progress,0,1)*(limit-1)));
   return Math.min(limit,2);
 }
+const colorLayouts=new WeakMap();
+function colorLayoutAt(source){
+  const plan=source.movingPlan,time=source.songTime;
+  if(!plan||!Number.isFinite(time))return 0;
+  let times=colorLayouts.get(plan);
+  if(!times){
+    // Follow existing musical color decisions, never an eight-beat rotation.
+    // Accent/return pairs change hue briefly, not the spatial organization.
+    times=plan.colorDirection?.events?.filter(e=>!['musical-accent','return'].includes(e.reason)).map(e=>e.time);
+    if(!times?.length)times=(plan.sections||[]).map(s=>s.start);
+    colorLayouts.set(plan,times);
+  }
+  let lo=0,hi=times.length;
+  while(lo<hi){const mid=(lo+hi)>>>1;if(times[mid]<=time)lo=mid+1;else hi=mid;}
+  return Math.max(0,lo-1);
+}
+export function spatialColorSlots(source,units,count){
+  const layout=colorLayoutAt(source);
+  if(units<4)return Array.from({length:units},(_,i)=>(i+layout)%count);
+  // Two-color base formations stay balanced. Cycle all three pairings only
+  // at musical color decisions; no fixture keeps a long-lived solo color.
+  if(count===2){
+    const pairs=[[0,1,0,1],[0,0,1,1],[0,1,1,0]];
+    return Array.from({length:units},(_,i)=>(pairs[layout%3][i%4]+Math.floor(layout/3))%2);
+  }
+  // Change which fixtures share a color, not just A/B within fixed pairs.
+  const orders=[[0,1,2,3],[0,2,1,3],[0,1,3,2],[0,2,3,1]];
+  const order=orders[layout%orders.length];
+  return Array.from({length:units},(_,i)=>{
+    return (Math.floor(i/4)*4+order[i%4]+Math.floor(layout/4))%count;
+  });
+}
 export function automaticStage(streams,count=2,equipment,mode='auto'){
   const chase=mode==='chase';
   const simple=['wash','follow','alternate'].includes(mode);
@@ -66,15 +98,18 @@ export function automaticStage(streams,count=2,equipment,mode='auto'){
   // Spots and bar pixels each get a complete formation, so a long bar cannot
   // consume the active slots intended for the spotlights.
   const spots=patch.filter(f=>f.profile==='dimmer-rgb').length;
+  const spotColors=mode==='auto'?spatialColorSlots(main,spots,count):null;
+  const barColors=mode==='auto'?patch.map(f=>f.profile==='rgb-pixels'?spatialColorSlots(main,f.cells,count):null):[];
   const activity=mode==='auto'?active.map(s=>({spots:activityAt(s,spots),bars:patch.map(f=>f.profile==='rgb-pixels'?activityAt(s,f.cells):null)})):[];
   const calm=quiet(main.look)||mode==='auto'&&main.motionCharacter==='atmospheric',peak=main.look==='peak',build=main.look==='lift';
-  const rotation=!simple&&beat!==null&&!calm?Math.floor(beat/8)%count:0;
+  const rotation=mode!=='auto'&&!simple&&beat!==null&&!calm?Math.floor(beat/8)%count:0;
   let ordinal=0,spotIndex=-1;
   const frames=patch.map((fixture,index)=>{
     if(fixture.profile==='dimmer-rgb')spotIndex++;
     return Array.from({length:fixture.cells},(_,cell)=>{
       const cellOrdinal=ordinal,position=ordinal/units;
-      const slot=(ordinal+++rotation)%count;
+      const slot=mode==='auto'?(fixture.profile==='dimmer-rgb'?spotColors[spotIndex]:barColors[index][cell]):(ordinal+rotation)%count;
+      ordinal++;
       const [r,g,b]=palette[slot];
       // Explicit presets retain their own choreography.
       const dimming=simple?active.reduce((sum,s)=>{
@@ -104,5 +139,5 @@ export function automaticStage(streams,count=2,equipment,mode='auto'){
       return {state:true,r,g,b,dimming};
     });
   });
-  return {frames,palette,description:`${count===1?'Eine gemeinsame Farbe':`${count} Farben`} · `+(simple?STAGE_PRESETS[mode].help:chase&&beat!==null&&!calm?'Lauflicht · eine weiche Lichtwelle wandert im Beat über die Bühne.':beat===null?'Farben folgen der Musik · ohne Beat-Raster keine Laufbewegung.':calm?'Ruhige Passage · gehaltenes Licht mit ruhenden Gruppen.':peak?'Kräftige Passage · Kontrastfarben und rhythmische Wechsel.':build?'Aufbau · die Lichtbewegung wird dichter.':'Fließende Passage · Lichtgruppen antworten auf musikalische Akzente.')};
+  return {frames,palette,description:`${count===1?'Eine gemeinsame Farbe':`${count} Farben`} · `+(simple?STAGE_PRESETS[mode].help:chase&&beat!==null&&!calm?'Lauflicht · eine weiche Lichtwelle wandert im Beat über die Bühne.':beat===null?'Farben folgen der Musik · ohne Beat-Raster keine Laufbewegung.':calm?'Ruhige Passage · getragenes Licht und gezielte Rücknahmen.':peak?'Kräftige Passage · Kontrastfarben und rhythmische Wechsel.':build?'Aufbau · die Lichtbewegung wird dichter.':'Fließende Passage · gemeinsames Licht folgt der Musik.')};
 }

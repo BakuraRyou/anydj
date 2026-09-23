@@ -1,10 +1,13 @@
 // Visual preview only; these heads do not occupy DMX channels.
 import {movingHeadTargets,advanceMovingHeads,followMovingHeads,restingHeads} from './dmx-moving-model.js';
 import {createMovingPreparation} from './dmx-moving-plan.js';
+import {automaticStage} from './dmx-auto.js';
+import {encodeStage,decodeStage} from './dmx-model.js';
+const previewEquipment={devices:Array.from({length:4},(_,i)=>({id:`preview-${i}`,type:'spot',cells:1}))};
 import {activityAt} from './dmx-activity.js';
 import {projectMovingHeads} from './dmx-layout-model.js';
 import {MOVING_MOODS,movingMood} from './dmx-moving-moods.js';
-export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=null,onPreview=()=>{},showMoodControl=true}={}) {
+export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=null,onPreview=()=>{},showMoodControl=true,adjustFrame=frame=>frame}={}) {
   const storageKey='anydj-stage-moving-heads';
   let enabled=false,lastTime=null,poses=restingHeads();
   try{enabled=localStorage.getItem(storageKey)==='true';}catch{}
@@ -54,11 +57,19 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=nul
   return {
     setMood,
     prepare,
-    update(fixtures,frame,time,blackout,streams=[],nextMode='auto'){
+    update(fixtures,frame,time,blackout,streams=[],nextMode='auto',colorLimit=2){
       if(mode!==nextMode){mode=nextMode;prepare();}
       if(!enabled||document.hidden){lastTime=null;return;}
       const spots=fixtures.filter(f=>f.profile==='dimmer-rgb');
-      const colors=(spots.length?spots:fixtures).flatMap(f=>f.cells);
+      let colors=(spots.length?spots:fixtures).flatMap(f=>f.cells);
+      // These four virtual heads need a complete formation of their own.
+      // Sampling a three/five-spot rig (or a bar) can turn balanced colors into
+      // a permanent 3:1 split. Keep the real fixture output untouched.
+      if(mode==='auto'&&colors.length&&colors.length!==heads.length&&streams.length){
+        const preview=automaticStage(streams,colorLimit,previewEquipment,mode);
+        const frames=preview.frames.map(cells=>cells.map(frame=>adjustFrame(frame)));
+        colors=decodeStage(encodeStage(frames,previewEquipment),previewEquipment).flatMap(f=>f.cells);
+      }
       const fallback=!frame||frame.state===false?[0,0,0]:['r','g','b'].map(key=>Math.round(Math.max(0,Math.min(255,Number(frame[key])||0))*Math.max(0,Math.min(100,Number(frame.dimming)||0))/100));
       const lit=!blackout&&(colors.length?colors:[fallback]).some(rgb=>Math.max(...rgb)>0);
       const prepared=streams.map(s=>s.movingPlan?{...s,movingPose:preparation.read(s.movingPlan,s.songTime,mode,mood)||preparation.read(s.movingPlan,s.songTime,mode,previousMood)||restingHeads()}:{...s,movingMood:mood});

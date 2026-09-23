@@ -91,3 +91,21 @@ test('Kräftige Schläge treiben Helligkeit, ohne bei hoher Farbkontur ständig 
   assert.ok(plan.colorDirection.events.filter(e=>e.time>=22&&e.time<30).length<=1);
   assert.ok(showFrameAt(plan,26).dimming-showFrameAt(plan,26.375).dimming>15);
 });
+
+test('Ein leiser Anfang verdeckt keinen anhaltenden Aufbau; Flächen und einzelne Endschläge bleiben ruhig',async()=>{
+  const {arrangeShow}=await import('../public/show-arrangement.js');
+  const local=Array.from({length:2000},()=>({rms:.1,bass:0,flux:0,tone:.4}));
+  const sections=[{start:0,end:20,label:'verse'},{start:20,end:40,label:'chorus'}];
+  const make=kind=>{
+    const other=Array.from({length:400},(_,i)=>i>=200?.25:kind==='rise'?.04+.1*Math.max(0,(i-100)/100):
+      kind==='hit'&&i>=196?.25:kind==='oscillating'?(Math.floor(i/10)%2?.13:.04):.04);
+    const instruments={step:.1,other,drums:Array(400).fill(0),bass:Array(400).fill(0),vocals:Array(400).fill(0)};
+    return arrangeShow(local,40,sections,[],[],null,instruments);
+  };
+  const rise=make('rise');
+  assert.ok(rise.passages[0].intensity<.25,'the section average alone still resembles a rest');
+  assert.equal(rise.passages[0].look,'lift');
+  assert.ok(rise.bases[18/.125]>rise.bases[2/.125]*1.5,'the measured build must reach the brightness output');
+  assert.equal(rise.times.length,0,'a sustained rise must not invent rhythmic attacks');
+  for(const kind of ['steady','hit','oscillating'])assert.equal(make(kind).passages[0].look,'held',kind);
+});

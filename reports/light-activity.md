@@ -1,32 +1,45 @@
-# Musikalische Lichtpausen
+# Gezielte Besetzung bei Auf- und Abstiegen
 
-Die Automatik verteilt Licht auf aktive und pausierende Gruppen. Vier Spots
-verwenden normalerweise zwei aktive Geräte, in Peaks drei. Nur starke Akzente
-öffnen alle vier. Ruhige und atmosphärische Passagen halten ihre Gruppe.
-Ausgewählte Analyseereignisse lösen Gruppenwechsel aus, mit 240 ms Überblendung
-(120 ms in Peaks). Die Mindestabstände begrenzen nur die Dichte; ohne Ereignis
-wird kein Wechsel ausgelöst. Seeking liest dieselbe vorbereitete Ereignisliste.
+Im normalen Groove bleiben die Geräte gemeinsam aktiv. Beats lösen keine
+fortlaufenden Gruppenwechsel aus. Die bestehende Farbgestaltung wird nicht
+verändert.
 
-Spots und Lichtleisten erhalten getrennte Formationen. Beim Deckübergang werden
-die Helligkeiten beider Formationen gewichtet gemischt. Die Moving-Head-Vorschau
-übernimmt bevorzugt die Spots; auch ohne Geräte erhält sie Lichtpausen.
-Explizite Modi wie Lauflicht, Gruppenwechsel und gemeinsame Musikimpulse behalten
-ihre eigene Choreografie. Keine erneute Songanalyse nötig.
+Auf- und Abstiege werden innerhalb der vorhandenen musikalischen Phrasen
+untersucht, auch in Strophen und Refrains. Ein 1,5-Sekunden-Mittel der analysierten
+Instrumentenenergie trennt den Verlauf von einzelnen Schlagimpulsen. Mindestens
+vier Sekunden Dauer und 0,18 Energieänderung sind erforderlich. Die
+Nettoänderung muss mindestens 40 % der gesamten Änderung ausmachen; für große
+Aufbauten mit mindestens 0,35 Änderung im Aufbauabschnitt reichen 33 %.
+Wenn keine Phrase qualifiziert, wird auch der längere Abschnitt geprüft.
+
+Innerhalb einer solchen Entwicklung werden Köpfe einzeln gestaffelt. Eine
+Gesangsführung beginnt im Zentrum, eine Schlagzeugführung außen. Bei gemischter
+Musik variieren die Formationen zwischen Zentrum, Außenpositionen und einer
+Bewegung über die Bühne. Die Reihenfolge wechselt ausschließlich zwischen
+musikalisch belegten Entwicklungen, niemals nach einem laufenden Timer.
+Plateaus halten die erreichte Stufe. Abschnittsgrenzen werden weich eingeblendet
+und zur gemeinsamen Besetzung zurückgeführt.
+
+Pro Entwicklung darf höchstens ein deutlich herausragender analysierter Akzent
+einen einzelnen Kopf hervorheben. Die Betonung steigt weich an und endet nach
+800 ms wieder in der geplanten Formation. Ohne entsprechende Akzentdaten gibt
+es keinen zusätzlichen Einzelkopf-Effekt. Asymmetrie ist damit ein gezieltes
+Gestaltungsmittel; außerhalb der Entwicklungen bleibt das gemeinsame Bild.
+
+Längere ruhige Rücknahmen behalten eine symmetrische Besetzung, wenn die
+Abschnittsintensität gegenüber dem Vorgänger tatsächlich deutlich sinkt.
+Fehlende Analysedaten erzeugen keine künstlichen Aufbauten. Die Planung ist
+zwischengespeichert und seekbar. Explizite Modi wie Lauflicht behalten ihre
+gewählte Gestaltung.
 
 ## Prüfung
 
-407 Node-Tests sowie der Browsercheck für Moving Heads: Lichtpausen mit Spots
-und ohne Geräte, Blackout, Stop, Bewegung, Persistenz und responsive Darstellung.
+419 Node-Tests und Browsercheck bestanden. Neue Prüfungen decken Entwicklungen
+innerhalb von Strophe/Refrain, unterschiedliche Instrumentenführungen, kurzzeitige
+Einzelkopf-Betonung mit Rückkehr, Plateaus, Seeking und unveränderten Normalbetrieb ab.
 
-Stichprobe aus dem bereits analysierten `RobbieWilliamsBoddies.mp3`, ausgewertet
-in 25-ms-Schritten mit der tatsächlichen Akzenthüllkurve:
-
-| Songabschnitt | Mindestens ein Kopf vollständig aus | Alle vier vollständig aktiv | Dunkelanteil je Kopf |
-| --- | ---: | ---: | --- |
-| 10–50 s | 85 % | 1 % | 32 / 33 / 32 / 31 % |
-| 69,53–84,89 s | 75 % | 1 % | 19 / 19 / 19 / 19 % |
-| 184,73–200,09 s | 100 % | 0 % | 100 / 0 / 0 / 100 % |
-
-Die Prozente beschreiben Aktivitätsmasken, nicht gemessene reale Lampenhelligkeit.
-Während Überblendungen können kurzzeitig alle Geräte teilweise aktiv sein.
-Die ruhige Passage hält das innere Paar; die äußeren Köpfe pausieren.
+Die vorhandene Bodies-Analyse erzeugte vorher nur die symmetrischen Rücknahmen
+bei ca. 185–200 s und 246–260 s. Jetzt wirken zusätzliche Entwicklungen u. a.
+im ersten Aufbau sowie um 39–46 s, 93–100 s und 116–123 s. Diese Zeitpunkte
+wurden am vorhandenen Analyseplan überprüft; es gibt keine song- oder
+zeitpunktspezifischen Regeln im Produktionscode. Keine erneute Analyse nötig.

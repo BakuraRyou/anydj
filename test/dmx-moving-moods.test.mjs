@@ -44,3 +44,12 @@ test('cached moods remain separate and unfinished variants resume correctly',()=
   preparation.prepare([plan],'auto','atmospheric');assert.equal(task,null);assert.deepEqual(preparation.read(plan,14,'auto','atmospheric'),air);
   preparation.destroy();
 });
+test('show profiles route disco to its own movement cache without changing party or calm',async()=>{
+ const {movingMoodForProfile}=await import('../public/dj-show-profile.js');
+ assert.equal(movingMoodForProfile('auto'),'balanced');
+ assert.equal(movingMoodForProfile('party'),'energetic');
+ assert.equal(movingMoodForProfile('disco'),'disco');
+ assert.equal(movingMoodForProfile('calm'),'calm');
+ assert.equal(movingMoodForProfile('atmospheric'),'atmospheric');
+ assert.equal(movingMood('disco'),'disco');
+});

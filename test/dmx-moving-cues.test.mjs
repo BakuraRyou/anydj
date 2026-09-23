@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {movingCues,movingCueAt} from '../public/dmx-moving-cues.js';
 import {movingPlanJob,movingPlanAt} from '../public/dmx-moving-plan.js';
-import {followMovingHeads,movingHeadTargets} from '../public/dmx-moving-model.js';
+import {followMovingHeads,movingHeadTargets,MOVING_LIMITS} from '../public/dmx-moving-model.js';
 const song=(times=[2,4,6])=>({duration:12,sections:[{start:0,end:12,look:'peak'}],beatGrid:{beats:Array.from({length:25},(_,i)=>i/2)},arrangement:{times,accents:times.map(()=>.6),patterns:{phrases:[{start:0,end:12,energy:.8,tone:.5}],events:times.map((_,i)=>({kind:'bounce',alternate:i%2}))}}});
 const compile=p=>{const job=movingPlanJob(p);while(!job.done)job.advance();return job.result;};
 const symmetric=pose=>{for(const [a,b] of [[0,3],[1,2]]){assert.ok(Math.abs(pose[a].pan+pose[b].pan)<1e-5);assert.ok(Math.abs(pose[a].tilt-pose[b].tilt)<1e-5);}};
@@ -41,4 +41,47 @@ test('dense cues respect motor speed; prepared playback adds no smoothing delay'
     rendered.forEach((p,i)=>assert.ok(Math.abs(p.pan-next[i].pan)<1e-9));
     prior=next;
   }
+});
+test('connected groove destinations keep velocity instead of stopping at every hit',()=>{
+ const pose=pan=>Array.from({length:4},(_,i)=>({pan:i<2?-pan:pan,tilt:.8}));
+ const cues=[{time:0,travel:0,pose:pose(0)},...[1,2,3].map(time=>({time,travel:1,reason:'groove',pose:pose(time*10)}))];
+ const at=t=>movingCueAt(cues,t)[3].pan,h=.0001;
+ for(const t of [1,2]){
+  const left=(at(t)-at(t-h))/h,right=(at(t+h)-at(t))/h;
+  assert.ok(left>9.9&&right>9.9);assert.ok(Math.abs(left-right)<.01);
+ }
+ for(let t=0;t<3;t+=.01)assert.ok(at(t)>=-1e-9&&at(t)<=30+1e-9);
+});
+test('isolated gestures start and stop with negligible acceleration and retain holds',()=>{
+ const pose=pan=>Array.from({length:4},()=>({pan,tilt:.8}));
+ const cues=[{time:0,travel:0,pose:pose(0)},{time:2,travel:1,pose:pose(10)}];
+ const at=t=>movingCueAt(cues,t)[0].pan,h=.001;
+ assert.equal(at(.9),0);assert.equal(at(2.1),10);
+ for(const t of [1,2])assert.ok(Math.abs((at(t+h)-2*at(t)+at(t-h))/(h*h))<.11);
+});
+
+test('planned motion respects velocity, acceleration and jerk on both axes',()=>{
+ const p=song(Array.from({length:24},(_,i)=>(i+1)*.47));
+ p.arrangement.patterns.phrases[0].movement={character:'rhythmic',driving:1};
+ p.arrangement.patterns.events.forEach(e=>e.driving=true);
+ const prepared=compile(p),h=.001;
+ let a=movingPlanAt(prepared,0),b=movingPlanAt(prepared,h),c=movingPlanAt(prepared,2*h);
+ for(let t=3*h;t<11.5;t+=h){
+  const d=movingPlanAt(prepared,t);
+  d.forEach((v,i)=>{for(const key of ['pan','tilt']){
+   const limit=MOVING_LIMITS[key];
+   assert.ok(Math.abs((v[key]-c[i][key])/h)<=limit.speed*1.001);
+   assert.ok(Math.abs((v[key]-2*c[i][key]+b[i][key])/(h*h))<=limit.acceleration*1.001);
+   assert.ok(Math.abs((v[key]-3*c[i][key]+3*b[i][key]-a[i][key])/(h*h*h))<=limit.jerk*1.01);
+  }});
+  a=b;b=c;c=d;
+ }
+});
+test('an emphasized arrival brakes continuously without stopping the whole groove',()=>{
+ const pose=pan=>Array.from({length:4},()=>({pan,tilt:.8}));
+ const cues=[{time:0,travel:0,pose:pose(0)},...[1,2,3].map(time=>({time,travel:1,reason:'groove',settle:time===2?.7:0,pose:pose(time*10)}))];
+ const at=t=>movingCueAt(cues,t)[0].pan,h=.0001;
+ const left=(at(2)-at(2-h))/h,right=(at(2+h)-at(2))/h;
+ assert.ok(left>2.9&&left<3.1);assert.ok(Math.abs(left-right)<.01);
+ assert.equal(at(2),20);assert.ok(at(2.1)>20);
 });
