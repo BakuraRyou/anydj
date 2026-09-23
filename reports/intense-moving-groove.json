@@ -1,0 +1,96 @@
+{
+  "file": "RobbieWilliamsBoddies.mp3",
+  "note": "Prepared trajectories, 20 ms samples; not a measurement of physical fixtures",
+  "results": [
+    {
+      "mood": "balanced",
+      "start": 31.13,
+      "end": 46.49,
+      "before": {
+        "targets": 1,
+        "movingPercent": 4,
+        "travelDegrees": 11
+      },
+      "after": {
+        "targets": 34,
+        "movingPercent": 87,
+        "travelDegrees": 579
+      }
+    },
+    {
+      "mood": "balanced",
+      "start": 69.53,
+      "end": 84.89,
+      "before": {
+        "targets": 1,
+        "movingPercent": 4,
+        "travelDegrees": 5
+      },
+      "after": {
+        "targets": 34,
+        "movingPercent": 100,
+        "travelDegrees": 689
+      }
+    },
+    {
+      "mood": "balanced",
+      "start": 184.73,
+      "end": 200.09,
+      "before": {
+        "targets": 2,
+        "movingPercent": 2,
+        "travelDegrees": 10
+      },
+      "after": {
+        "targets": 2,
+        "movingPercent": 21,
+        "travelDegrees": 31
+      }
+    },
+    {
+      "mood": "energetic",
+      "start": 31.13,
+      "end": 46.49,
+      "before": {
+        "targets": 1,
+        "movingPercent": 1,
+        "travelDegrees": 1
+      },
+      "after": {
+        "targets": 34,
+        "movingPercent": 89,
+        "travelDegrees": 600
+      }
+    },
+    {
+      "mood": "energetic",
+      "start": 69.53,
+      "end": 84.89,
+      "before": {
+        "targets": 1,
+        "movingPercent": 1,
+        "travelDegrees": 9
+      },
+      "after": {
+        "targets": 34,
+        "movingPercent": 100,
+        "travelDegrees": 709
+      }
+    },
+    {
+      "mood": "energetic",
+      "start": 184.73,
+      "end": 200.09,
+      "before": {
+        "targets": 2,
+        "movingPercent": 1,
+        "travelDegrees": 6
+      },
+      "after": {
+        "targets": 2,
+        "movingPercent": 11,
+        "travelDegrees": 22
+      }
+    }
+  ]
+}

@@ -2,7 +2,7 @@ import {phraseMovement} from './stage-motion.js';
 import {planPatterns,patternEnvelope} from './show-patterns.js';
 import {musicStyleAt} from './music-style.js';
 import {instrumentDrama,dramaAt} from './instrument-activity.js';
-import {musicalAttention,offbeatAttacks} from './musical-attention.js';
+import {musicalAttention,offbeatAttacks,acousticSalience,selectAccentEvents} from './musical-attention.js';
 const clamp=value=>Math.max(0,Math.min(1,value));
 const step=.125;
 const looks={held:'Ruhige Passage',flow:'Klangbewegung',lift:'Aufbau',peak:'Rhythmische Akzente'};
@@ -96,7 +96,7 @@ export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicSt
     base=audible?base+(target-base)*(1-Math.exp(-step/(target>base?.35:.7))):0;
     bases.push(base);lookTrack.push(look);
   }
-  const times=[],accents=[],decays=[],selectedImpacts=[];let last=-Infinity,barIndex=0;index=0;
+  const times=[],accents=[],decays=[],selectedImpacts=[],candidates=[];let barIndex=0;index=0;
   for(const [i,time] of beats.entries()) {
     while(index+1<passages.length&&passages[index+1].start<=time)index++;
     while(barIndex<downbeats.length&&downbeats[barIndex]<time-.03)barIndex++;
@@ -108,32 +108,42 @@ export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicSt
     const impact=impacts[i],groove=look!=='held'&&grooves[i]&&(!stem||stem.percussion>.2);
     const threshold=look==='held'?.75:look==='flow'?(onBar?.16:.3):look==='lift'?.22:.14;
     const spacing=look==='held'?1.5:look==='flow'?.28:look==='lift'?.24:.22;
-    if((impact<threshold&&!groove)||time-last<spacing||energy<.15)continue;
+    if((impact<threshold&&!groove)||energy<.15)continue;
     // Accent hierarchy, not an identical flash on every beat. A weak beat
     // keeps the groove alive without competing with a downbeat or strong hit.
     const weight=clamp(Math.max(impact,groove?.32:0));
     const profile=musicStyleAt(musicStyle,time);
     const strength=profile.drive*section.emphasis*(stem ? .55+.85*stem.intensity : 1)*(look==='held'?.12:look==='flow'?.15+weight*.27:look==='lift'?.2+weight*.3:.27+weight*.36);
-    times.push(time);selectedImpacts.push(impact);accents.push(Math.min(.7,strength*(onBar?1.14:look==='flow'&&i%2===1?.72:1)));decays.push(profile.decay*(look==='held'?.5:look==='flow'?.17:look==='lift'?.16:.13));last=time;
+    const salience=acousticSalience(windows,time,ceiling);
+    const gain=Math.min(.7,strength*(onBar?1.14:look==='flow'&&i%2===1?.72:1));
+    candidates.push({time,impact,salience,priority:salience*(onBar?1.1:1)+.015,
+      strength:look==='held'&&salience>=.55?Math.max(gain,Math.min(.48,.15+.45*salience)):gain,
+      decay:profile.decay*(look==='held'?.5:look==='flow'?.17:look==='lift'?.16:.13),source:'beat',spacing,section:index});
   }
-  // Fill measured offbeat gaps without doubling grid accents or flashing pads.
-  const extra=[];let sectionIndex=0,beatIndex=0,lastExtra=-Infinity;
-  for(const event of offbeatAttacks(windows,duration,ceiling)){
-    const {time,impact}=event;
+  // Extra attacks need prominence, not merely available space in the grid.
+  // Quiet sections allow exceptional hits; they do not become beat flashers.
+  const attacks=offbeatAttacks(windows,duration,ceiling);let sectionIndex=0,localStart=0,localEnd=0;
+  for(const event of attacks){
+    const {time,impact,salience}=event;
     while(sectionIndex+1<passages.length&&passages[sectionIndex+1].start<=time)sectionIndex++;
-    while(beatIndex<times.length&&times[beatIndex]<time)beatIndex++;
+    while(localStart<attacks.length&&attacks[localStart].time<time-2)localStart++;
+    while(localEnd<attacks.length&&attacks[localEnd].time<=time+2)localEnd++;
+    const local=attacks.slice(localStart,localEnd).map(e=>e.salience).sort((a,b)=>a-b);
+    const typical=local[Math.floor(local.length/2)]||0;
     const section=passages[sectionIndex];
-    if(!section||time<section.start||time>=section.end||section.look==='held')continue;
-    const gap=section.look==='flow'?.28:.22;
-    if(time-(times[beatIndex-1]??-Infinity)<gap||(times[beatIndex]??Infinity)-time<gap||time-lastExtra<gap)continue;
+    if(!section||time<section.start||time>=section.end)continue;
+    const quiet=section.look==='held';
+    if(salience<(quiet?.55:.32)||(salience<.55&&salience<typical*1.15))continue;
+    // An aligned attack already represented by a grid candidate is one event.
+    if(candidates.some(e=>e.source==='beat'&&Math.abs(e.time-time)<=.08))continue;
     const stem=dramaAt(drama,time);
-    if(stem&&stem.percussion<.2)continue;
+    if(stem&&stem.percussion<.2&&salience<.55)continue;
     const profile=musicStyleAt(musicStyle,time);
-    const strength=Math.min(.55,profile.drive*section.emphasis*(.15+.27*impact));
-    extra.push({time,impact,strength,decay:profile.decay*.17});lastExtra=time;
+    const strength=quiet?Math.min(.48,.15+.45*salience):Math.min(.55,profile.drive*section.emphasis*(.15+.27*Math.min(1,salience/.6)));
+    candidates.push({time,impact,salience,priority:salience,strength,decay:profile.decay*(quiet?.3:.17),source:'onset',
+      spacing:quiet?1.5:section.look==='flow'?.28:section.look==='lift'?.24:.22,section:sectionIndex});
   }
-  const events=times.map((time,i)=>({time,impact:selectedImpacts[i],strength:accents[i],decay:decays[i],source:'beat'}));
-  events.push(...extra.map(e=>({...e,source:'onset'})));events.sort((a,b)=>a.time-b.time);
+  const events=selectAccentEvents(candidates);
   times.length=accents.length=decays.length=selectedImpacts.length=0;
   for(const e of events){times.push(e.time);accents.push(e.strength);decays.push(e.decay);selectedImpacts.push(e.impact);}
   const patterns=planPatterns(passages,times,downbeats,musicStyle,selectedImpacts);
@@ -151,7 +161,7 @@ export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicSt
     }
     phrase.tone=weight?local.reduce((sum,w)=>sum+(w.tone??.5)*w.rms,0)/weight:.5;
   }
-  return {version:7,drama,patterns,step,bases,lookTrack,passages,times,accents,decays,eventSources:events.map(e=>e.source),decay:.25};
+  return {version:8,drama,patterns,step,bases,lookTrack,passages,times,accents,decays,eventSources:events.map(e=>e.source),eventSalience:events.map(e=>e.salience),decay:.25};
 }
 function eventAt(arrangement,time) {
   let lo=0,hi=arrangement.times.length;

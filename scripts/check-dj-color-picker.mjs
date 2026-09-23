@@ -46,7 +46,7 @@ try {
   await evaluate(`(async()=>{window.picker= (await import('/dj-color-picker.js')).createColorPicker('Test',async(track,mode)=>{track.colorMode=mode;});
     document.body.append(picker.element);window.track={id:'test'};picker.update(track);picker.element.querySelector('summary').click();})()`);
   await wait("picker.element.open");
-  await evaluate(`window.select=picker.element.querySelector('.color-options');select.selectedIndex=2;window.selected=select.value;select.focus();
+  await evaluate(`window.select=picker.element.querySelector('.color-options');select.selectedIndex=2;select.dispatchEvent(new Event('change'));window.selected=select.value;select.focus();
     window.mutations=0;window.observer=new MutationObserver(entries=>mutations+=entries.length);observer.observe(picker.element,{subtree:true,childList:true});
     window.refresh=setInterval(()=>picker.update(track),50);`);
   await new Promise(r=>setTimeout(r,1200));
@@ -54,8 +54,41 @@ try {
   assert.equal(await evaluate("mutations"),0,'unchanged updates do not rebuild controls');
   await evaluate("clearInterval(refresh);observer.disconnect();picker.element.querySelector('.color-apply').click()");
   await wait("!picker.element.open");assert.equal(await evaluate("track.colorMode.id===selected"),true);
+  // The shared palette works without a loaded deck and survives new tracks/reloads.
+  const chooseGlobal=async id=>{
+    await evaluate("document.querySelector('.dj-light-settings').open=true;document.querySelector('#djLightPalette').open=true");
+    await evaluate(`(()=>{const p=document.querySelector('#djLightPalette'),s=p.querySelector('.color-options');p.querySelector('.color-search').value='';p.querySelector('.color-filter').value='';p.querySelector('.color-filter').dispatchEvent(new Event('change'));s.value=${JSON.stringify(id)};s.dispatchEvent(new Event('change'));p.querySelector('.color-apply').click();})()`);
+    await wait("!document.querySelector('#djLightPalette').open");
+  };
+  await chooseGlobal('warm-white');
+  assert.equal(await evaluate("JSON.parse(localStorage.getItem('anydj-light-palette')).id"),'warm-white');
+  await evaluate(`(async()=>{
+    const {compileShow}=await import('/show-plan.js'),lib=await import('/dj-library.js');
+    const options={arrangement:'auto',mood:'auto',minimum:5,maximum:100};
+    const windows=Array.from({length:400},(_,i)=>({rms:i%25<3?.3:.12,bass:i%25<3?.15:.02,flux:i%25<3?.7:0,tone:.5,beatSeq:Math.floor(i/25)}));
+    const track={id:'palette-test',name:'Palette test.mp3',size:1234,lastModified:1,order:0};
+    track.basePlan=compileShow(windows,8,{...options,palette:'sunset',saturation:100,toneFollow:.8,smoothing:.5,speed:1,intensity:1,dynamics:'balanced'});
+    await lib.saveTrack(track);await lib.saveShow(track,options);
+  })()`);
+  const origin=await evaluate('performance.timeOrigin');await c('Page.reload');
+  await wait(`performance.timeOrigin!==${origin}&&document.querySelector('[aria-label="Abschnittslicht bearbeiten"]')?.disabled===false`);
+  assert.ok((await evaluate("document.querySelector('#djLightPalette summary').textContent")).includes('Warmweiß'));
+  await evaluate(`document.querySelector('[aria-label="Abschnittslicht bearbeiten"]').click()`);
+  await wait("document.querySelector('dialog.section-editor')?.open");
+  const colors=await evaluate(`(()=>{const c=document.querySelector('dialog.section-editor canvas'),a=c.getContext('2d').getImageData(0,0,c.width,c.height).data;const colors=new Set();for(let i=0;i<a.length;i+=4)if(a[i+3])colors.add([a[i],a[i+1],a[i+2]].join(','));return [...colors];})()`);
+  assert.ok(colors.length&&colors.every(c=>c.split(',').every((v,i)=>Math.abs(Number(v)-[255,206,138][i])<=3)),'newly restored song uses the shared palette (canvas edge rounding)');
+  await evaluate("document.querySelector('dialog.section-editor [data-close]').click()");
+  await chooseGlobal('ocean');
+  await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+  await evaluate("document.querySelector('.dj-light-settings').open=true;document.querySelector('#djLightPalette').open=true");
+  assert.ok(await evaluate("document.documentElement.scrollWidth<=innerWidth"));
+  await evaluate("(()=>{const p=document.querySelector('#djLightPalette');p.querySelector('.color-name').value='Meine Palette';p.querySelector('.color-a').value='#ff0000';p.querySelector('.color-b').value='#00ff00';p.querySelector('.color-add').click();})()");
+  await wait("!document.querySelector('#djLightPalette').open");
+  assert.deepEqual(await evaluate("JSON.parse(localStorage.getItem('anydj-light-palette')).colors"),['#ff0000','#00ff00']);
+  await chooseGlobal('auto');
+  assert.equal(await evaluate("localStorage.getItem('anydj-light-palette')"),'null');
   assert.deepEqual(errors,[]);
-  console.log('Color picker passed: empty deck, stable open selection/focus during updates, apply and close.');
+  console.log('Color picker passed: deck selection, global presets, persistence, new songs, preview colors, custom palette, reset and mobile width.');
 } finally {
   ws?.close();chrome.kill('SIGKILL');app.server.closeAllConnections();
   await new Promise(resolve=>app.server.close(resolve));

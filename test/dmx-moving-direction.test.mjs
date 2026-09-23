@@ -62,9 +62,9 @@ test('prepared directions survive forward and backward seeking and leave manual 
 });
 
 
-test('unchanged music holds formation across visual phrases in every automatic mood',()=>{
+test('moderate unchanged music holds formation across visual phrases in every automatic mood',()=>{
  const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);
- p.sections.forEach(s=>s.look='peak');
+ p.sections.forEach(s=>s.look='peak');p.arrangement.patterns.phrases.forEach(p=>p.energy=.4);
  const snapshot=structuredClone(p);
  for(const mood of ['balanced','calm','atmospheric','energetic']){
   const cues=movingCues(p,'auto',mood);
@@ -75,7 +75,7 @@ test('unchanged music holds formation across visual phrases in every automatic m
 });
 test('a standout hit and a measured timbre change trigger gestures, ordinary accents do not',()=>{
  const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);
- p.sections.forEach(s=>s.look='peak');p.arrangement.accents.fill(.4);
+ p.sections.forEach(s=>s.look='peak');p.arrangement.patterns.phrases.forEach(p=>p.energy=.4);p.arrangement.accents.fill(.4);
  p.arrangement.accents[12]=.7;
  p.arrangement.patterns.phrases.slice(1).forEach(p=>p.tone=.2);
  const cues=movingCues(p,'auto');
@@ -94,4 +94,34 @@ test('a build label alone cannot cause repeated gestures; measured rising energy
  const cues=movingCues(p,'auto');
  assert.ok(cues.some(c=>c.reason==='build'));
  assert.ok(cues.filter(c=>c.reason==='build').every(c=>p.beatGrid.downbeats.includes(c.time)));
+});
+
+
+test('intense grooves follow actual accents continuously and stop moving through breaks',()=>{
+ const p=song(['rhythmic','rhythmic','atmospheric','atmospheric']);
+ p.sections[0].look=p.sections[1].look='peak';p.sections[2].look='held';
+ const original=structuredClone(p);
+ for(const mood of ['balanced','energetic']){
+  const cues=movingCues(p,'auto',mood),groove=cues.filter(c=>c.reason==='groove');
+  assert.ok(groove.length>=60);
+  assert.ok(groove.every(c=>p.arrangement.times.includes(c.time)&&c.time<32));
+  for(let i=1;i<groove.length;i++)assert.ok(Math.abs(groove[i].travel-(groove[i].time-groove[i-1].time))<1e-9);
+  assert.deepEqual(movingCueAt(cues,37),movingCueAt(cues,45));
+ }
+ for(const mood of ['calm','atmospheric'])assert.ok(!movingCues(p,'auto',mood).some(c=>c.reason==='groove'));
+ assert.deepEqual(p,original);
+});
+test('groove timing follows irregular audio accents and louder hits change the path',()=>{
+ const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);p.sections.forEach(s=>s.look='peak');
+ p.arrangement.times=p.arrangement.times.map((t,i)=>t+(i%2?.09:0));
+ const a=movingCues(p,'auto'),changed=structuredClone(p);
+ changed.arrangement.accents=changed.arrangement.accents.map((v,i)=>i%3===0?.3:v);
+ const b=movingCues(changed,'auto');
+ assert.ok(a.filter(c=>c.reason==='groove').every(c=>p.arrangement.times.includes(c.time)));
+ assert.ok(a.some((c,i)=>i>1&&Math.abs((c.time-a[i-1].time)-.5)>.05));
+ assert.notDeepEqual(a.map(c=>c.pose),b.map(c=>c.pose));
+ let previous=movingCueAt(b,0);
+ for(let t=.01;t<64;t+=.01){const next=movingCueAt(b,t);next.forEach((v,i)=>{
+  assert.ok(Math.abs(v.pan-previous[i].pan)<=.700001);assert.ok(Math.abs(v.tilt-previous[i].tilt)<=.008001);
+ });previous=next;}
 });

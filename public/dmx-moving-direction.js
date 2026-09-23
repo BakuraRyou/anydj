@@ -52,3 +52,17 @@ export function directedPose(design,ordinal,progress=0){
   return {pan,tilt:.8+depth+(outer?.04:-.04)};
  });
 }
+
+// Destinations sampled at actual musical accents. Phase is measured in beats,
+// never wall-clock seconds; strength and instrument balance shape each gesture.
+export function groovePose(beat,{energy,strength,percussion,vocals,span=1}){
+ const phase=beat*Math.PI/2;
+ const width=(12+18*clamp(energy))*(.55+.45*clamp(strength))*span;
+ return Array.from({length:4},(_,i)=>{
+  const side=i<2?-1:1,outer=i===0||i===3;
+  const scale=outer?.75+.25*clamp(percussion):.55-.25*clamp(vocals);
+  const sweep=outer?Math.cos(phase):Math.cos(phase+Math.PI/2);
+  return {pan:clamp(side*width*scale*sweep,-42,42),
+   tilt:clamp(.8+(outer?.05:-.04)+Math.sin(phase)*(.025+.065*clamp(strength))*(outer?1:.6),.55,1.15)};
+ });
+}

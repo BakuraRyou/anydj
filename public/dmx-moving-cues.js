@@ -1,4 +1,5 @@
-import {movingDirections,directedPose} from './dmx-moving-direction.js';
+import {movingDirections,directedPose,groovePose} from './dmx-moving-direction.js';
+import {beatPosition} from './dmx-show.js';
 import {restingHeads} from './dmx-moving-model.js';
 import {dramaAt} from './instrument-activity.js';
 import {MOVING_MOODS,movingMood} from './dmx-moving-moods.js';
@@ -43,6 +44,14 @@ export function movingCues(plan,mode,mood='balanced'){
     const strength=clamp(finite(arrangement.accents?.[index],0)/.7);
     if(strength<(calm?.08:.22))continue;
     const directed=mode==='auto'&&Boolean(phrase?.movement);
+    const drama=dramaAt(arrangement.drama,time);
+    const energy=clamp(finite(drama?.intensity,finite(phrase?.energy,strength)));
+    const percussion=clamp(finite(drama?.percussion,strength));
+    const rhythmicDrive=clamp(finite(drama?.percussion,finite(phrase?.movement?.driving,0)));
+    const vocals=clamp(finite(drama?.vocalShare,0));
+    const groove=directed&&!calm&&(mood==='balanced'||mood==='energetic')&&
+      energy>=.55&&rhythmicDrive>=.45&&strength>=.3&&
+      (section?.look==='peak'||energy>=.72)&&(event?.driving||phrase.movement.driving>=.5);
     let reason;
     if(directed){
       while(barIndex<downbeats.length&&downbeats[barIndex]<time-.04)barIndex++;
@@ -52,15 +61,11 @@ export function movingCues(plan,mode,mood='balanced'){
       const standout=finite(arrangement.accents?.[index],0)>=motive.threshold;
       const rise=(dramaAt(arrangement.drama,time)?.intensity??0)-(dramaAt(arrangement.drama,Math.max(section?.start??0,time-2))?.intensity??0);
       const building=section?.look==='lift'&&event?.kind==='build'&&onBar&&rise>=.08;
-      if(!entrance&&!standout&&!building)continue;
-      reason=entrance?'musical-change':building?'build':'strong-accent';
+      if(!entrance&&!standout&&!building&&!groove)continue;
+      reason=groove?'groove':entrance?'musical-change':building?'build':'strong-accent';
     }
     const previous=cues.at(-1),gap=time-previous.time;
-    if(gap<Math.max(profile.spacing,design?.spacing??0,atmospheric?4:0,calm?1.5:kind==='sweep'?.75:.38))continue;
-    const drama=dramaAt(arrangement.drama,time);
-    const energy=clamp(finite(drama?.intensity,finite(phrase?.energy,strength)));
-    const percussion=clamp(finite(drama?.percussion,strength));
-    const vocals=clamp(finite(drama?.vocalShare,0));
+    if(gap<(groove?.12:Math.max(profile.spacing,design?.spacing??0,atmospheric?4:0,calm?1.5:kind==='sweep'?.75:.38)))continue;
     const tone=clamp(finite(phrase?.tone,.5));
     const progress=clamp(finite(event?.progress,0));
     const spread=calm?5+energy*6:kind==='build'?8+24*progress:12+energy*20;
@@ -79,19 +84,22 @@ export function movingCues(plan,mode,mood='balanced'){
       if(mode==='alternate')pan=(i%2?direction:-direction)*spread*scale;
       return {pan:clamp(pan*profile.span,-42,42),tilt:clamp(.8+(.65+tone*.2+energy*.15+(outer?.05:-.05)-.8)*Math.min(1,profile.span),.55,1.15)};
     });
-    if(design){
+    if(groove){
+      const grid=plan.beatGrid?.beats||arrangement.times;
+      pose=groovePose(beatPosition(grid,time)??index,{energy,strength,percussion,vocals,span:profile.span});
+    }else if(design){
       const sectionProgress=section?clamp((time-section.start)/Math.max(.1,section.end-section.start)):progress;
       pose=directedPose(design,phraseOrdinal++,sectionProgress).map(p=>({pan:clamp(p.pan*profile.span,-42,42),tilt:clamp(.8+(p.tilt-.8)*Math.min(1,profile.span),.55,1.15)}));
     }
     // A smoothstep has peak speed 1.5 × distance / duration. Short intervals
     // reduce travel distance so a target is reachable exactly at its cue.
-    const speed=Math.min(profile.speed,design?.speed??1,atmospheric?.3:1);
+    const speed=Math.min(profile.speed,groove?.75+.25*strength:design?.speed??1,atmospheric?.3:1);
     // Bound anticipation; a future accent must not pull the heads through an
     // unrelated quiet passage. Reduce distance when the motor cannot arrive.
     const available=directed?Math.min(gap,calm?1.5:.6):gap;
     const required=1.5*distance(previous.pose,pose)/speed,fraction=required>available?available/required:1;
     const reachable=pose.map((p,i)=>({pan:previous.pose[i].pan+(p.pan-previous.pose[i].pan)*fraction,tilt:previous.pose[i].tilt+(p.tilt-previous.pose[i].tilt)*fraction}));
-    cues.push({time,...(reason?{reason}:{}),travel:Math.min(available,Math.max(profile.travel,design?.travel??0,atmospheric?3:0,calm?.8:.2,1.5*distance(previous.pose,reachable)/speed)),pose:reachable});
+    cues.push({time,...(reason?{reason}:{}),travel:groove?available:Math.min(available,Math.max(profile.travel,design?.travel??0,atmospheric?3:0,calm?.8:.2,1.5*distance(previous.pose,reachable)/speed)),pose:reachable});
     if(directed)lastEntry=phraseIndex;
     ordinal++;
   }

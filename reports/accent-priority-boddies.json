@@ -1,0 +1,40 @@
+{
+  "file": "RobbieWilliamsBoddies.mp3",
+  "duration": 263.6974375,
+  "analysis": "Stereo FFmpeg 16 kHz; existing Beat This and style results; fresh full-song instrument/structure analysis",
+  "ranges": [
+    {
+      "start": 10,
+      "end": 50,
+      "before": 111,
+      "after": 97,
+      "extraBefore": 27,
+      "extraAfter": 15
+    },
+    {
+      "start": 188,
+      "end": 194,
+      "before": 3,
+      "after": 2,
+      "extraBefore": 0,
+      "extraAfter": 1
+    }
+  ],
+  "focus": [
+    {
+      "time": 190.04,
+      "before": 27,
+      "after": 19
+    },
+    {
+      "time": 190.26,
+      "before": 24,
+      "after": 63
+    },
+    {
+      "time": 190.3,
+      "before": 24,
+      "after": 57
+    }
+  ]
+}

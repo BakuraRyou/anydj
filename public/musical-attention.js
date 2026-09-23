@@ -36,10 +36,31 @@ export function offbeatAttacks(windows,duration,reference){
   if(impact<.55||now.rms<prior.rms*1.18)continue;
   // A lasting level change is a texture transition, not a percussion flash.
   if(!windows.slice(i+2,i+8).some(w=>w.rms<now.rms*.85))continue;
-  const event={time:i*.02,impact};
+  const event={time:i*.02,impact,salience:rise/Math.max(.015,reference)};
   const previous=result.at(-1);
-  if(previous&&event.time-previous.time<.18){if(event.impact>previous.impact)result[result.length-1]=event;}
+  if(previous&&event.time-previous.time<.18){if(event.salience>previous.salience)result[result.length-1]=event;}
   else result.push(event);
  }
  return result;
+}
+
+// Preserve the uncompressed attack strength for ranking. Capped display gains
+// cannot distinguish a prominent hit from several medium attacks.
+export function acousticSalience(windows,time,reference){
+ let strength=0;
+ for(let i=Math.max(2,Math.floor((time-.06)/.02));i<Math.min(windows.length,Math.ceil((time+.06)/.02));i++){
+  const now=windows[i],a=windows[i-1],b=windows[i-2];
+  strength=Math.max(strength,now.rms-Math.max(a.rms,b.rms),(now.bass||0)-Math.max(a.bass||0,b.bass||0));
+ }
+ return strength/Math.max(.015,reference);
+}
+export function selectAccentEvents(events){
+ // Strongest first: an earlier weak event must not reserve a quiet passage's
+ // entire refractory interval. Restore chronological order for playback.
+ const selected=[];
+ for(const event of [...events].sort((a,b)=>b.priority-a.priority||a.time-b.time)){
+  if(selected.some(other=>Math.abs(event.time-other.time)<(event.section===other.section?Math.max(event.spacing,other.spacing):Math.min(event.spacing,other.spacing))-1e-8))continue;
+  selected.push(event);
+ }
+ return selected.sort((a,b)=>a.time-b.time);
 }

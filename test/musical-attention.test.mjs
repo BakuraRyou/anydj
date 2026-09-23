@@ -64,3 +64,29 @@ test('shared vocal focus reduces movement and strong color interruptions, leavin
  assert.ok(focusedColors.events.filter(e=>e.reason==='musical-accent').length<colors.events.filter(e=>e.reason==='musical-accent').length);
  assert.ok(focusedColors.events.some(e=>e.reason==='sound-change'));
 });
+
+test('weak subdivisions do not fill every gap; a prominent subdivision remains visible',()=>{
+ const w=samples().map(v=>({...v,rms:.12}));for(const t of beats.slice(1,-1)){
+  hit(w,t);
+  const i=Math.round((t+.24)/.02);for(let j=0;j<2;j++)w[i+j]={...w[i+j],rms:.18,bass:.035,flux:.5};
+ }
+ hit(w,4.24);
+ const p=arrangeShow(w,duration,sections,beats);
+ const extras=p.times.filter((_,i)=>p.eventSources[i]==='onset');
+ assert.equal(extras.length,1);assert.ok(Math.abs(extras[0]-4.24)<.001);
+ for(const t of beats.slice(1,-1))assert.ok(p.times.includes(t),`main beat missing at ${t}`);
+});
+test('a prominent hit survives in a quiet passage and displaces an earlier weaker grid event',()=>{
+ const w=Array.from({length:800},(_,i)=>({rms:i<400?.3:.03,bass:.01,flux:0,tone:.4}));
+ for(const [t,level] of [[10,.14],[10.24,.32]]){
+  const i=Math.round(t/.02);for(let j=0;j<2;j++)w[i+j]={...w[i+j],rms:level,bass:level*.5};
+ }
+ const grid=Array.from({length:32},(_,i)=>i*.5);
+ const p=arrangeShow(w,16,[{start:0,end:8,label:'chorus'},{start:8,end:16,label:'outro'}],grid);
+ assert.equal(p.passages[1].look,'held');
+ assert.ok(!p.times.includes(10),'weaker event must not reserve the quiet interval');
+ const index=p.times.findIndex(t=>Math.abs(t-10.24)<.001);
+ assert.ok(index>=0);assert.equal(p.eventSources[index],'onset');assert.ok(p.accents[index]>.3);
+ assert.equal(p.times.filter(t=>t>=8).length,1,'quiet passage must not turn into a beat flasher');
+ assert.ok(arrangementLevelAt(p,10.25)-arrangementLevelAt(p,9.5)>.25);
+});
