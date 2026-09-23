@@ -20,6 +20,7 @@ import { StructureAnalysis } from './lib/structure-analysis.mjs';
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const VERSION = '0.1.0';
 const STATIC = new Map([
+  ['/brand.css', ['brand.css', 'text/css; charset=utf-8']],
   ['/transition-timeline.js', ['transition-timeline.js', 'text/javascript; charset=utf-8']],
   ['/animatus-small.svg', ['animatus-small.svg', 'image/svg+xml']],
   ['/transition-audio.js', ['transition-audio.js', 'text/javascript; charset=utf-8']],
@@ -102,6 +103,7 @@ const STATIC = new Map([
   ['/mood-analysis.js', ['mood-analysis.js', 'text/javascript; charset=utf-8']],
   ['/show-patterns.js', ['show-patterns.js', 'text/javascript; charset=utf-8']],
   ['/show-arrangement.js', ['show-arrangement.js', 'text/javascript; charset=utf-8']],
+  ['/musical-attention.js', ['musical-attention.js', 'text/javascript; charset=utf-8']],
   ['/show-clock.js', ['show-clock.js', 'text/javascript; charset=utf-8']],
   ['/color-direction.js', ['color-direction.js', 'text/javascript; charset=utf-8']],
   ['/song-palette.js', ['song-palette.js', 'text/javascript; charset=utf-8']],

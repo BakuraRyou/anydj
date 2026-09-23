@@ -10,7 +10,7 @@ import { validateBeatGrid } from './beat-grid.js';
 import { automaticSettings } from './automatic-settings.js';
 import { validateStructure, structureTheme, STRUCTURE_LABELS } from './song-structure.js';
 // Bump whenever generated show data or its interpretation changes.
-export const SHOW_PLAN_VERSION = 20;
+export const SHOW_PLAN_VERSION = 21;
 const clamp = v => Math.max(0, Math.min(1, v));
 const quantile = (sorted, p) => sorted[Math.floor((sorted.length - 1) * p)] || 0;
 const colors = {

@@ -11,19 +11,21 @@ test('loud sustained sound and quiet driving rhythm are classified by character,
  assert.equal(phraseMovement(windows(.06,true),phrase,source(true)).character,'rhythmic');
  assert.deepEqual(phraseMovement(windows(.6,true),phrase,source(true)),phraseMovement(windows(.06,true),phrase,source(true)));
 });
-test('atmospheric automatic motion has long travel and holds while rhythmic cues stay responsive',()=>{
+test('steady automatic music holds its formation while standout rhythmic cues stay responsive',()=>{
  const p={duration:16,sections:[{start:0,end:16,look:'flow'}],arrangement:source(false)};
  const before=movingCues(p,'auto');
  p.arrangement.patterns.phrases[0].movement=phraseMovement(windows(.6,false),phrase,p.arrangement);
  const after=movingCues(p,'auto');
- assert.equal(before.length,32);assert.equal(after.length,4);
- assert.ok(after.slice(1).every(c=>c.travel>=3));
+ assert.equal(before.length,32);assert.equal(after.length,2);
+ assert.ok(after.slice(1).every(c=>c.travel<=1.5));
  const path=cues=>{let result=0,prev=movingCueAt(cues,0)[0].pan;for(let t=.025;t<16;t+=.025){const next=movingCueAt(cues,t)[0].pan;result+=Math.abs(next-prev);prev=next;}return result;};
  assert.ok(path(after)<path(before)/4);
- const rhythmic=structuredClone(p);rhythmic.arrangement.patterns.phrases[0].movement.character='rhythmic';assert.ok(movingCues(rhythmic,'auto').length>after.length);
+ const rhythmic=structuredClone(p);rhythmic.arrangement.patterns.phrases[0].movement.character='rhythmic';assert.equal(movingCues(rhythmic,'auto').length,after.length);
  // Explicit choreography overrides keep their existing behavior.
  assert.deepEqual(movingCues(p,'follow'),movingCues(rhythmic,'follow'));
  assert.deepEqual(movingCues(p,'auto','energetic'),movingCues(rhythmic,'auto','energetic'));
+ rhythmic.arrangement.accents[12]=.7;
+ assert.ok(movingCues(rhythmic,'auto').length>after.length);
  const expected=movingCueAt(after,7);movingCueAt(after,15);assert.deepEqual(movingCueAt(after,7),expected);
 });
 test('atmospheric auto output does not add a continuous wave or rotate the chosen colors',()=>{

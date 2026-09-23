@@ -15,12 +15,13 @@ export function movingDirections(plan){
   const energy=clamp(finite(phrase.energy,.4)),tone=clamp(finite(phrase.tone,.5));
   const quiet=phrase.movement.character==='atmospheric'||['held','quiet','break','outro'].includes(section.look);
   const build=!quiet&&section.look==='lift',peak=!quiet&&section.look==='peak';
-  const evidence=[energy,tone,percussion,vocals];
+  const motionScale=phrase.attention?.motionScale??1;
+  const evidence=[energy,tone,percussion,vocals,motionScale];
   const category=quiet?'atmospheric':build?'build':peak?'peak':phrase.movement.character;
   const prior=section.motif===undefined?null:memory.find(m=>m.motif===section.motif&&m.category===category&&m.evidence.every((v,i)=>Math.abs(v-evidence[i])<.2));
   let design=prior?.design;
   if(!design){
-   const shape=quiet?'arc':build?'fan':vocals>.5?'focus':percussion>.65?'pulse':tone>.6?'cross':'sweep';
+   const shape=quiet?'arc':build?'fan':phrase.attention?.leader==='vocals'||vocals>.5?'focus':percussion>.65?'pulse':tone>.6?'cross':'sweep';
    // Width, travel speed and cue density are independent controls. An ambient
    // arc can cover a wide area while taking several seconds to get there.
    design={shape,width:quiet?16+10*tone:build?28:peak?25+9*energy:12+10*energy,
@@ -28,6 +29,7 @@ export function movingDirections(plan){
     spacing:quiet?4:build?1:peak?.5:percussion>.65?.6:1.5,
     travel:quiet?3:build?1.1:peak?.3:percussion>.65?.45:1.2,
     inner: .6-.25*vocals,depth:.06+.09*tone};
+   design.speed*=motionScale;design.spacing/=motionScale;design.travel/=motionScale;
    if(section.motif!==undefined)memory.push({motif:section.motif,category,evidence,design});
   }
   return {...design,start:phrase.start,end:phrase.end,motif:section.motif,category,recalled:Boolean(prior)};

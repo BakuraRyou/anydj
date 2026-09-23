@@ -2,6 +2,7 @@ import {phraseMovement} from './stage-motion.js';
 import {planPatterns,patternEnvelope} from './show-patterns.js';
 import {musicStyleAt} from './music-style.js';
 import {instrumentDrama,dramaAt} from './instrument-activity.js';
+import {musicalAttention,offbeatAttacks} from './musical-attention.js';
 const clamp=value=>Math.max(0,Math.min(1,value));
 const step=.125;
 const looks={held:'Ruhige Passage',flow:'Klangbewegung',lift:'Aufbau',peak:'Rhythmische Akzente'};
@@ -115,16 +116,42 @@ export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicSt
     const strength=profile.drive*section.emphasis*(stem ? .55+.85*stem.intensity : 1)*(look==='held'?.12:look==='flow'?.15+weight*.27:look==='lift'?.2+weight*.3:.27+weight*.36);
     times.push(time);selectedImpacts.push(impact);accents.push(Math.min(.7,strength*(onBar?1.14:look==='flow'&&i%2===1?.72:1)));decays.push(profile.decay*(look==='held'?.5:look==='flow'?.17:look==='lift'?.16:.13));last=time;
   }
+  // Fill measured offbeat gaps without doubling grid accents or flashing pads.
+  const extra=[];let sectionIndex=0,beatIndex=0,lastExtra=-Infinity;
+  for(const event of offbeatAttacks(windows,duration,ceiling)){
+    const {time,impact}=event;
+    while(sectionIndex+1<passages.length&&passages[sectionIndex+1].start<=time)sectionIndex++;
+    while(beatIndex<times.length&&times[beatIndex]<time)beatIndex++;
+    const section=passages[sectionIndex];
+    if(!section||time<section.start||time>=section.end||section.look==='held')continue;
+    const gap=section.look==='flow'?.28:.22;
+    if(time-(times[beatIndex-1]??-Infinity)<gap||(times[beatIndex]??Infinity)-time<gap||time-lastExtra<gap)continue;
+    const stem=dramaAt(drama,time);
+    if(stem&&stem.percussion<.2)continue;
+    const profile=musicStyleAt(musicStyle,time);
+    const strength=Math.min(.55,profile.drive*section.emphasis*(.15+.27*impact));
+    extra.push({time,impact,strength,decay:profile.decay*.17});lastExtra=time;
+  }
+  const events=times.map((time,i)=>({time,impact:selectedImpacts[i],strength:accents[i],decay:decays[i],source:'beat'}));
+  events.push(...extra.map(e=>({...e,source:'onset'})));events.sort((a,b)=>a.time-b.time);
+  times.length=accents.length=decays.length=selectedImpacts.length=0;
+  for(const e of events){times.push(e.time);accents.push(e.strength);decays.push(e.decay);selectedImpacts.push(e.impact);}
   const patterns=planPatterns(passages,times,downbeats,musicStyle,selectedImpacts);
   // Phrase evidence is measured from the audio, independently of beat count.
+  let accentIndex=0;
   for(const phrase of patterns.phrases){
     phrase.energy=drama?drama.intensity.slice(Math.floor(phrase.start/drama.step),Math.ceil(phrase.end/drama.step)).reduce((a,b)=>a+b,0)/Math.max(1,Math.ceil(phrase.end/drama.step)-Math.floor(phrase.start/drama.step)):clamp(rms(phrase.start,phrase.end)/ceiling);
     const local=windows.slice(Math.floor(phrase.start/.02),Math.ceil(phrase.end/.02));
     const weight=local.reduce((sum,w)=>sum+w.rms,0);
     phrase.movement=phraseMovement(windows,phrase,{times,patterns});
+    phrase.attention=musicalAttention(instruments,phrase.start,phrase.end);
+    while(accentIndex<times.length&&times[accentIndex]<phrase.end){
+      if(times[accentIndex]>=phrase.start)accents[accentIndex]*=phrase.attention.accentScale;
+      accentIndex++;
+    }
     phrase.tone=weight?local.reduce((sum,w)=>sum+(w.tone??.5)*w.rms,0)/weight:.5;
   }
-  return {version:6,drama,patterns,step,bases,lookTrack,passages,times,accents,decays,decay:.25};
+  return {version:7,drama,patterns,step,bases,lookTrack,passages,times,accents,decays,eventSources:events.map(e=>e.source),decay:.25};
 }
 function eventAt(arrangement,time) {
   let lo=0,hi=arrangement.times.length;

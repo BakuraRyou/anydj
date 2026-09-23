@@ -23,7 +23,7 @@ import {prepareStageMotifs,stageWashDimming,stageAccentStrength} from './stage-m
 import {beatPosition} from './dmx-show.js';
 import {createDmxStage} from './dmx-stage.js';
 import {alignedStart} from './beat-sync.js';
-import {applyTrackColors} from './dj-color-modes.js';
+import {applyTrackColors,validColorMode,COLOR_MODES} from './dj-color-modes.js';
 import {createColorPicker} from './dj-color-picker.js';
 import {applySectionLighting} from './section-lighting.js';
 import {openSectionEditor} from './section-editor.js';
@@ -48,6 +48,11 @@ if(webMode){$('djStructure').checked=false;$('djStructure').disabled=true;}
 let showProfile='auto';
 try{const saved=localStorage.getItem('wiz-dj-show-profile');if(SHOW_PROFILES.includes(saved))showProfile=saved;}catch{}
 $('djShowProfile').value=showProfile;
+let globalColorMode=null;
+try{const saved=JSON.parse(localStorage.getItem('anydj-light-palette')||'null');
+  globalColorMode=validColorMode(saved)?saved:saved?.id==='legacy-auto'?COLOR_MODES.find(m=>m.id==='legacy-auto'):null;
+}catch{}
+
 const design = {arrangement:'auto', mood:'auto', minimum:5, maximum:100,...(webMode?{analysisMode:'browser'}:{})};
 let token = ''; try { token = sessionStorage.getItem('wiz-web-token') || ''; } catch {}
 let tracks = [], context, session = null, sending = false, closed = false;
@@ -155,6 +160,16 @@ const performanceControls=createPerformance({decks,mixer,ready:audioReady,
     deck.loop=null;deck.audio.currentTime=target.time;deck.audio.playbackRate=target.rate;deck.manualRate=target.rate;deck.transition=null;
   }});
 simplifyDJLayout(decks,mixer);
+const paletteSettings={colorMode:globalColorMode};
+const globalColorPicker=createColorPicker('Lichtoptionen',async(settings,mode)=>{
+  localStorage.setItem('anydj-light-palette',JSON.stringify(mode));
+  globalColorMode=mode;settings.colorMode=mode;
+  for(const track of tracks)if(track.basePlan)replacePlan(track,track.basePlan);
+  updateLightPreview();
+},{global:true});
+globalColorPicker.element.id='djLightPalette';globalColorPicker.update(paletteSettings);
+mixer.querySelector('.dj-light-settings').append(globalColorPicker.element);
+
 const fullButton=document.createElement('button');fullButton.type='button';fullButton.className='button secondary';fullButton.textContent='Full';fullButton.title='Party-Lichtshow im Vollbild öffnen';
 mixer.querySelector('.dj-light-heading').append(fullButton);
 const fullMode=createFullMode(fullButton,{adjustFrame:adjustLight});
@@ -427,14 +442,14 @@ function replacePlan(track, plan) {
     if(track.plan && !deck.audio.paused) deck.transition = {from:track.plan, start:deck.audio.currentTime};
   }
   track.basePlan=plan;
-  track.plan=applySectionLighting(applyShowProfile(applyTrackColors(plan,track.colorMode),showProfile),track.sectionEdits||[]);
+  track.plan=applySectionLighting(applyShowProfile(applyTrackColors(plan,globalColorMode??track.colorMode),showProfile),track.sectionEdits||[]);
   track.stageMotifs=prepareStageMotifs(track.plan);
   lightStage.prepareMovingHeads();
   for (const deck of decks) if (deck.track === track) drawDeck(deck);
 }
 function editSections(track,position=()=>0) {
   if(!track?.basePlan?.arrangement)return;
-  openSectionEditor({track,plan:applyShowProfile(applyTrackColors(track.basePlan,track.colorMode),showProfile),position,onSave:async edits=>{
+  openSectionEditor({track,plan:applyShowProfile(applyTrackColors(track.basePlan,globalColorMode??track.colorMode),showProfile),position,onSave:async edits=>{
     const old=track.sectionEdits;track.sectionEdits=edits;
     try{await saveTrack(track);}catch(error){track.sectionEdits=old;throw error;}
     replacePlan(track,track.basePlan);renderLibrary();

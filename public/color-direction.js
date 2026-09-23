@@ -71,7 +71,7 @@ export function planColorDirection(windows,plan){
    const to=[design[role],...design.filter((_,i)=>i!==role)];
    const prev=events.at(-1);if(prev&&time-prev.time<1)return;
    if(prev&&prev.to.every((c,i)=>c.every((v,k)=>v===to[i][k])))return;
-   const direct=role===2&&section.look==='peak';
+   const direct=role===2&&section.look==='peak'&&(phrase.attention?.colorScale??1)>.8;
    events.push({time,transition:!prev?0:direct?.18:quiet?2:1,from:prev?sampleLCH(prev,time):to,to,role,reason:why});
   };
   const entry=plan.arrangement.times.find(t=>t>=phrase.start&&t<phrase.end)??phrase.start;
@@ -79,7 +79,7 @@ export function planColorDirection(windows,plan){
   // Accents are sparse, musically selected events, followed by a return to
   // the phrase's identity, not a perpetual A/B oscillator.
   if(!quiet&&(change>=.18||roleChange)&&previous){
-   const eligible=plan.arrangement.times.map((time,i)=>({time,i})).filter(e=>e.time>entry+1&&e.time<phrase.end-1&&plan.arrangement.accents[e.i]>=.45);
+   const eligible=plan.arrangement.times.map((time,i)=>({time,i})).filter(e=>e.time>entry+1&&e.time<phrase.end-1&&plan.arrangement.accents[e.i]>=.45/(phrase.attention?.colorScale??1));
    if(eligible.length){
     const strong=eligible.reduce((a,b)=>plan.arrangement.accents[a.i]>=plan.arrangement.accents[b.i]?a:b);
     add(strong.time,section.look==='peak'?2:1,'musical-accent');

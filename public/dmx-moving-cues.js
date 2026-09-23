@@ -14,7 +14,20 @@ export function movingCues(plan,mode,mood='balanced'){
   const cues=[{time:0,travel:0,pose:restingHeads()}];
   const phrases=arrangement.patterns?.phrases||[],sections=plan.sections||[];
   const directions=mode==='auto'&&mood==='balanced'?movingDirections(plan):[];
-  let phraseIndex=0,sectionIndex=0,ordinal=0,phraseOrdinal=0,lastPhrase=-1;
+  // Lighting accents can sustain a groove; a spatial gesture needs additional
+  // evidence. A visual phrase boundary alone must not rotate the formation.
+  const motives=phrases.map((phrase,i)=>{
+    const previous=phrases[i-1];
+    const local=arrangement.times.flatMap((t,k)=>t>=phrase.start&&t<phrase.end?[finite(arrangement.accents?.[k],0)]:[]).sort((a,b)=>a-b);
+    const typical=local[Math.floor(local.length/2)]??0;
+    const changed=!previous||Math.abs(finite(phrase.energy,0)-finite(previous.energy,0))>=.15||
+      Math.abs(finite(phrase.tone,0)-finite(previous.tone,0))>=.15||
+      phrase.movement?.character!==previous.movement?.character||
+      (phrase.attention?.confidence>=.5&&previous.attention?.confidence>=.5&&phrase.attention.leader!==previous.attention.leader);
+    return {changed,threshold:Math.max(.3,typical*1.3)};
+  });
+  const downbeats=plan.beatGrid?.downbeats||[];
+  let phraseIndex=0,sectionIndex=0,ordinal=0,phraseOrdinal=0,lastPhrase=-1,lastEntry=-1,barIndex=0;
   for(let index=0;index<arrangement.times.length;index++){
     const time=arrangement.times[index];
     if(!Number.isFinite(time)||time<=0||time>plan.duration)continue;
@@ -29,6 +42,19 @@ export function movingCues(plan,mode,mood='balanced'){
     const calm=atmospheric||kind==='wash'||['held','quiet','break','outro'].includes(section?.look);
     const strength=clamp(finite(arrangement.accents?.[index],0)/.7);
     if(strength<(calm?.08:.22))continue;
+    const directed=mode==='auto'&&Boolean(phrase?.movement);
+    let reason;
+    if(directed){
+      while(barIndex<downbeats.length&&downbeats[barIndex]<time-.04)barIndex++;
+      const onBar=Math.abs((downbeats[barIndex]??Infinity)-time)<=.04;
+      const motive=motives[phraseIndex];
+      const entrance=motive.changed&&lastEntry!==phraseIndex;
+      const standout=finite(arrangement.accents?.[index],0)>=motive.threshold;
+      const rise=(dramaAt(arrangement.drama,time)?.intensity??0)-(dramaAt(arrangement.drama,Math.max(section?.start??0,time-2))?.intensity??0);
+      const building=section?.look==='lift'&&event?.kind==='build'&&onBar&&rise>=.08;
+      if(!entrance&&!standout&&!building)continue;
+      reason=entrance?'musical-change':building?'build':'strong-accent';
+    }
     const previous=cues.at(-1),gap=time-previous.time;
     if(gap<Math.max(profile.spacing,design?.spacing??0,atmospheric?4:0,calm?1.5:kind==='sweep'?.75:.38))continue;
     const drama=dramaAt(arrangement.drama,time);
@@ -60,9 +86,13 @@ export function movingCues(plan,mode,mood='balanced'){
     // A smoothstep has peak speed 1.5 × distance / duration. Short intervals
     // reduce travel distance so a target is reachable exactly at its cue.
     const speed=Math.min(profile.speed,design?.speed??1,atmospheric?.3:1);
-    const required=1.5*distance(previous.pose,pose)/speed,fraction=required>gap?gap/required:1;
+    // Bound anticipation; a future accent must not pull the heads through an
+    // unrelated quiet passage. Reduce distance when the motor cannot arrive.
+    const available=directed?Math.min(gap,calm?1.5:.6):gap;
+    const required=1.5*distance(previous.pose,pose)/speed,fraction=required>available?available/required:1;
     const reachable=pose.map((p,i)=>({pan:previous.pose[i].pan+(p.pan-previous.pose[i].pan)*fraction,tilt:previous.pose[i].tilt+(p.tilt-previous.pose[i].tilt)*fraction}));
-    cues.push({time,travel:Math.min(gap,Math.max(profile.travel,design?.travel??0,atmospheric?3:0,calm?.8:.2,1.5*distance(previous.pose,reachable)/speed)),pose:reachable});
+    cues.push({time,...(reason?{reason}:{}),travel:Math.min(available,Math.max(profile.travel,design?.travel??0,atmospheric?3:0,calm?.8:.2,1.5*distance(previous.pose,reachable)/speed)),pose:reachable});
+    if(directed)lastEntry=phraseIndex;
     ordinal++;
   }
   return cues;

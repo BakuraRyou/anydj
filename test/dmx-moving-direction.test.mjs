@@ -49,7 +49,7 @@ test('planned travel reaches acoustic cues, holds between journeys and bounds sp
   });prev=next;
  }
  const quiet=cues.filter(c=>c.time>0&&c.time<16);
- assert.ok(quiet.every(c=>c.travel>=3));assert.ok(quiet.length<=4);
+ assert.ok(quiet.every(c=>c.travel<=1.5));assert.ok(quiet.length<=1);
 });
 test('prepared directions survive forward and backward seeking and leave manual styles intact',()=>{
  const p=song(),job=movingPlanJob(p,'auto');while(!job.done)job.advance();
@@ -58,5 +58,40 @@ test('prepared directions survive forward and backward seeking and leave manual 
  assert.deepEqual(movingPlanAt(job.result,35.125),expected);
  const legacy=structuredClone(p);legacy.arrangement.patterns.phrases.forEach(x=>delete x.movement);
  for(const mode of ['follow','alternate','wash'])assert.deepEqual(movingCues(p,mode),movingCues(legacy,mode));
- for(const mood of ['calm','atmospheric','energetic'])assert.deepEqual(movingCues(p,'auto',mood),movingCues(legacy,'auto',mood));
+ for(const mood of ['calm','atmospheric','energetic'])assert.ok(movingCues(p,'auto',mood).length<movingCues(legacy,'auto',mood).length);
+});
+
+
+test('unchanged music holds formation across visual phrases in every automatic mood',()=>{
+ const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);
+ p.sections.forEach(s=>s.look='peak');
+ const snapshot=structuredClone(p);
+ for(const mood of ['balanced','calm','atmospheric','energetic']){
+  const cues=movingCues(p,'auto',mood);
+  assert.equal(cues.length,2,`${mood}: only the first musical entrance should move`);
+  assert.deepEqual(movingCueAt(cues,10),movingCueAt(cues,63));
+ }
+ assert.deepEqual(p,snapshot);
+});
+test('a standout hit and a measured timbre change trigger gestures, ordinary accents do not',()=>{
+ const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);
+ p.sections.forEach(s=>s.look='peak');p.arrangement.accents.fill(.4);
+ p.arrangement.accents[12]=.7;
+ p.arrangement.patterns.phrases.slice(1).forEach(p=>p.tone=.2);
+ const cues=movingCues(p,'auto');
+ assert.deepEqual(cues.slice(1).map(c=>[c.time,c.reason]),[[.5,'musical-change'],[6,'strong-accent'],[16,'musical-change']]);
+ assert.deepEqual(movingCueAt(cues,5),movingCueAt(cues,1));
+ assert.deepEqual(movingCueAt(cues,15),movingCueAt(cues,7));
+ assert.ok(cues.slice(1).every(c=>c.travel<=.6));
+});
+test('a build label alone cannot cause repeated gestures; measured rising energy can',()=>{
+ const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);
+ p.sections.forEach(s=>s.look='lift');
+ p.beatGrid={downbeats:Array.from({length:32},(_,i)=>i*2)};
+ p.arrangement.patterns.events.forEach(e=>e.kind='build');
+ assert.equal(movingCues(p,'auto').length,2);
+ p.arrangement.drama={step:.5,intensity:Array.from({length:128},(_,i)=>Math.min(.9,.1+i*.025)),percussion:Array(128).fill(.6),vocalShare:Array(128).fill(.1),attacks:Array(128).fill(.1)};
+ const cues=movingCues(p,'auto');
+ assert.ok(cues.some(c=>c.reason==='build'));
+ assert.ok(cues.filter(c=>c.reason==='build').every(c=>p.beatGrid.downbeats.includes(c.time)));
 });
