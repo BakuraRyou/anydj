@@ -67,7 +67,7 @@ export function createTransitionPreview({host,getPair,onChoose,routing,getUnavai
  basic.append(q('[data-edit-style]').closest('label'),q('[data-edit-duration]').closest('label'));
  const timelineHost=document.createElement('section');basic.append(timelineHost);
  const timeline=createTransitionTimeline(timelineHost,{onChange:(key,value)=>{if(!pair||!valid)return;syncFields();q('[data-edit-'+key+']').value=String(value);q('[data-edit-'+key+']').dataset.displayValue='';edit();syncFields();}});
- const advanced=document.createElement('details');advanced.className='preview-advanced';advanced.innerHTML='<summary>Zeitpunkte & Lautstärkeverlauf feinjustieren</summary>';
+ const advanced=document.createElement('section');advanced.className='preview-advanced';advanced.setAttribute('aria-label','Lautstärkekurve anpassen');advanced.innerHTML='<h4>Lautstärkekurve selbst zeichnen</h4>';
  workspace.before(basic,advanced);advanced.append(workspace);settings.prepend(q('[data-direction]').closest('label'));
  q('.preview-edit legend').textContent='Zeitpunkte in den Titeln';
  details.prepend(q('[data-alternative]').closest('label'));details.append(q('[data-volume]').closest('label'));
@@ -95,7 +95,7 @@ export function createTransitionPreview({host,getPair,onChoose,routing,getUnavai
  const editPlaces=document.createElement('button');editPlaces.type='button';editPlaces.className='button secondary';editPlaces.dataset.editPlaces='';editPlaces.textContent='Startstellen anpassen';editPlaces.onclick=()=>{const expanded=timelineHost.hidden;timelineHost.hidden=!expanded;exact.hidden=!expanded;editPlaces.setAttribute('aria-expanded',String(expanded));};editPlaces.setAttribute('aria-expanded','false');
  const proposalEditor=document.createElement('div');proposalEditor.className='proposal-editor';proposalEditor.hidden=true;
  const closeEditor=document.createElement('button');closeEditor.type='button';closeEditor.className='button secondary';closeEditor.textContent='Fertig';closeEditor.onclick=()=>{const card=proposalEditor.closest('article');proposalEditor.hidden=true;card?.removeAttribute('data-editing');card?.querySelector('[data-proposal-edit]')?.focus();};
- proposalEditor.append(basic,editPlaces,timelineHost,exact,advanced,details,closeEditor);timelineHost.hidden=exact.hidden=true;main.append(proposalEditor);advanced.querySelector('summary').textContent='Lautstärkekurve selbst zeichnen';
+ proposalEditor.append(basic,editPlaces,timelineHost,exact,advanced,details,closeEditor);timelineHost.hidden=exact.hidden=true;main.append(proposalEditor);
  const audition=document.createElement('div');audition.className='preview-audition';audition.append(q('[data-play]'),q('[data-stop]'));
  details.append(q('[data-timing]'));main.append(savedDetails);actions.prepend(audition);actions.after(keys);
  q('[data-edit-style]').closest('label').hidden=true;
@@ -124,7 +124,7 @@ export function createTransitionPreview({host,getPair,onChoose,routing,getUnavai
    const paths=[0,1].map(channel=>{const path=document.createElementNS(chart.namespaceURI,'path');path.setAttribute('fill','none');path.setAttribute('stroke',channel?'#79ced8':'#f7ad76');path.setAttribute('stroke-width','3');chart.append(path);return path;});
    const controls=document.createElement('div'),choose=document.createElement('button'),listen=document.createElement('button'),editButton=document.createElement('button');
    editButton.type='button';editButton.className='button secondary';editButton.dataset.proposalEdit=index;editButton.textContent='Anpassen';
-   editButton.onclick=()=>{selectProposal(index);stop('');proposals.querySelectorAll('[data-editing]').forEach(node=>node.removeAttribute('data-editing'));card.dataset.editing='true';card.append(proposalEditor);proposalEditor.hidden=false;advanced.open=false;timelineHost.hidden=exact.hidden=true;editPlaces.setAttribute('aria-expanded','false');q('[data-edit-duration]').focus({preventScroll:true});};
+   editButton.onclick=()=>{selectProposal(index);stop('');proposals.querySelectorAll('[data-editing]').forEach(node=>node.removeAttribute('data-editing'));card.dataset.editing='true';card.append(proposalEditor);proposalEditor.hidden=false;timelineHost.hidden=exact.hidden=true;editPlaces.setAttribute('aria-expanded','false');q('[data-edit-duration]').focus({preventScroll:true});};
    choose.type=listen.type='button';choose.className=listen.className='button secondary';choose.dataset.proposalChoose=index;listen.dataset.proposalListen=index;
    choose.onclick=()=>selectProposal(index);
    listen.onclick=()=>{if(selectedAlternative===index&&job){stop();return;}selectProposal(index);if(!valid)return;if(!output()){updateOutput();configure.click();return;}void play();};
@@ -192,7 +192,7 @@ export function createTransitionPreview({host,getPair,onChoose,routing,getUnavai
   q('[data-edit-status]').textContent='';syncFields();buildProposals();
   curveEditor.setPlan(pair?.plan,{reset:true});render();q('[data-status]').textContent=!pair?getUnavailableReason():'';
  }
- function open(){q('[data-direction]').disabled=Boolean(suppliedPair);q('[data-refresh]').disabled=Boolean(suppliedPair);q('[data-remember]').closest('label').hidden=Boolean(suppliedPair);if(routing?.routingHost){outputBar.after(routing.routingHost);routing.routingHost.open=false;routing.routingHost.hidden=true;}advanced.open=false;loadPair();resetView();if(!dialog.open)dialog.showModal();}
+ function open(){q('[data-direction]').disabled=Boolean(suppliedPair);q('[data-refresh]').disabled=Boolean(suppliedPair);q('[data-remember]').closest('label').hidden=Boolean(suppliedPair);if(routing?.routingHost){outputBar.after(routing.routingHost);routing.routingHost.open=false;routing.routingHost.hidden=true;}loadPair();resetView();if(!dialog.open)dialog.showModal();}
  function syncFields(){if(!pair)return;for(const key of ['time','cue','duration','style']){const input=q('[data-edit-'+key+']');input.value=key==='style'?pair.plan[key]:Number(pair.plan[key].toFixed(2));input.dataset.displayValue=input.value;input.dataset.exactValue=String(pair.plan[key]);if(key!=='style')input.step='.01';}}
  function edit(){
   if(!pair)return;stop('');
@@ -271,7 +271,7 @@ export function createTransitionPreview({host,getPair,onChoose,routing,getUnavai
  q('[data-position]').oninput=e=>position(+e.target.value);
  q('[data-volume]').oninput=()=>{if(job)job.master.gain.setTargetAtTime(+q('[data-volume]').value,job.ctx.currentTime,.02);};
  dialog.addEventListener('keydown',event=>{
-  if(!proposalEditor.hidden&&advanced.open&&curveEditor.key(event))return;
+  if(!proposalEditor.hidden&&curveEditor.key(event))return;
   if(event.defaultPrevented||event.repeat||event.isComposing||event.altKey)return;
   if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();q('[data-choose]').click();return;}
   if(event.ctrlKey||event.metaKey||event.target.closest('input,select,textarea,[contenteditable],button,summary,a'))return;

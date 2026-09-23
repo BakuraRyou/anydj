@@ -14,14 +14,22 @@ dj=dj.replace('<html lang="de">','<html lang="de" data-edition="web">')
  .replaceAll('href="/','href="./').replaceAll('src="/','src="./')
  .replace('class="brand" href="./"','class="brand" href="./index.html"')
  .replace(/<nav>.*?<\/nav>/,'<nav><a href="./index.html">Über die Demo</a><a href="./downloads.html">Desktop-App</a><button id="demoTracks" class="button secondary" type="button">Demo-Tracks laden</button></nav>')
+ .replace('</header>', '</header><aside class="web-analysis-notice" aria-labelledby="webAnalysisTitle"><div><strong id="webAnalysisTitle">Web-Demo · Einfache Lichtvorschau</strong><p>Für deine Lichtshow: Akzente auf Kick und Taktanfang, ruhigere Breaks und Lichtwechsel passend zu den Songabschnitten. Die Desktop-App liefert dafür die vollständige Musikanalyse und steuert unterstützte WiZ- und DMX-Lichter.</p></div><a class="button primary" href="./downloads.html" target="_blank" rel="noopener">Desktop-App herunterladen <span class="web-analysis-new-tab">(neuer Tab)</span></a></aside>')
  .replace('<label for="djLamp">Licht</label>','<label for="djLamp" hidden>Licht</label>')
  .replace('<select id="djLamp">','<select id="djLamp" hidden>')
  .replace('<details class="dj-settings">','<details class="dj-settings" hidden>')
  .replace('Lampenverbindung wird geprüft …','Web-Demo · Analyse direkt auf deinem Gerät.')
- .replace('Auto Beat</label>','Auto Beat (Desktop)</label>');
+ .replace('Auto Beat</label>','Auto Beat (Desktop)</label>')
+ .replace('</main>', '</main><footer class="web-legal-footer"><nav aria-label="Rechtliche Informationen"><a href="./impressum.html" target="_blank" rel="noopener">Impressum (neuer Tab)</a><a href="./datenschutz.html" target="_blank" rel="noopener">Datenschutz (neuer Tab)</a></nav></footer>');
 await writeFile(join(output,'dj.html'),dj);
 for(const name of ['spotify-callback.html','tidal-callback.html'])await cp(join(root,'public',name),join(output,name));
-for(const name of ['index.html','web.css','product-preview.webp'])await cp(join(root,'web',name),join(output,name));
+const header=await readFile(join(root,'web','header.html'),'utf8'),footer=await readFile(join(root,'web','footer.html'),'utf8');
+function siteLayout(html,name){
+ const active=markup=>markup.replace(/<nav[\s\S]*?<\/nav>/g,nav=>nav.replace(`href="./${name}"`, `href="./${name}" aria-current="page"`));
+ return html.replace('<!-- SITE_HEADER -->',active(header.trim())).replace('<!-- SITE_FOOTER -->',active(footer.trim()));
+}
+for(const name of ['index.html','impressum.html','datenschutz.html'])await writeFile(join(output,name),siteLayout(await readFile(join(root,'web',name),'utf8'),name));
+for(const name of ['web.css','product-preview.webp'])await cp(join(root,'web',name),join(output,name));
 console.log('Web-Version erstellt: dist/web/ — Inhalt auf HTTPS-Webspace hochladen. Kein Node.js/Python-Server erforderlich.');
 
-await writeFile(join(output,'downloads.html'),await buildDownloads(join(root,'.build','desktop-downloads'),output,await readFile(join(root,'web','downloads.html'),'utf8'),{includeInstallers:process.argv.includes('--with-downloads')}));
+await writeFile(join(output,'downloads.html'),await buildDownloads(join(root,'.build','desktop-downloads'),output,siteLayout(await readFile(join(root,'web','downloads.html'),'utf8'),'downloads.html'),{includeInstallers:process.argv.includes('--with-downloads')}));

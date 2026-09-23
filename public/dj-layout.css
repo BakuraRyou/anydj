@@ -396,7 +396,7 @@
 .dj-page{--workspace-inset:18px;--workspace-gutter:0px;--workspace-edge:calc(var(--workspace-inset) + var(--workspace-gutter))}
 .dj-page .topbar{padding-inline:var(--workspace-edge);gap:16px;align-items:center}
 .dj-page .topbar .brand{display:inline-flex;align-items:center;gap:2px;flex-shrink:0;line-height:1;letter-spacing:-.04em}
-.dj-page .dj-brand-logo{display:block;width:28px;height:28px;object-fit:contain;flex:none}
+
 .dj-page .topbar nav{gap:0}
 .dj-page .topbar nav a{padding-inline:16px;justify-content:center}
 .dj-page .dj-console .dj-deck{padding:18px var(--workspace-inset);scrollbar-gutter:stable both-edges}
@@ -424,7 +424,7 @@
 .dj-transition-preview .preview-basic>label{display:grid;gap:8px;font-size:13px}
 .dj-transition-preview .preview-basic input,.dj-transition-preview .preview-basic select{min-height:44px;font-size:14px}
 .dj-transition-preview .preview-advanced,.dj-transition-preview .preview-save{border-top:1px solid #ffffff12;padding-top:12px;margin:12px 0;font-size:12px}
-.dj-transition-preview .preview-advanced>summary,.dj-transition-preview .preview-save>summary{cursor:pointer;padding:6px 0;color:#b6c9d5}
+.dj-transition-preview .preview-save>summary{cursor:pointer;padding:6px 0;color:#b6c9d5}
 .dj-transition-preview .preview-advanced .preview-workspace{grid-template-columns:1fr;margin-top:16px;gap:12px}
 .dj-transition-preview .preview-advanced .preview-settings{display:grid;grid-template-columns:1fr 2fr;gap:16px;align-items:start}
 .dj-transition-preview .preview-advanced .preview-edit{margin:12px 0}
@@ -526,3 +526,15 @@
 .queue-transition-separator{gap:6px}
 @media(hover:none){.queue-transition-control{opacity:1;pointer-events:auto}}
 @media(prefers-reduced-motion:reduce){.queue-transition-control{transition:none}}
+
+.dj-page .web-legal-footer{padding:12px 0;font-size:12px}.web-legal-footer nav{display:flex;flex-wrap:wrap;gap:12px 24px}.web-legal-footer a{text-decoration:underline;text-underline-offset:3px}
+
+/* Keep the web edition and its analysis limits visible above the decks. */
+.web-analysis-notice{display:flex;align-items:center;justify-content:space-between;gap:12px 24px;flex:none;padding:12px 20px;background:#29251d;border-bottom:1px solid #80643d;color:#f5e6cd}
+.web-analysis-notice strong{display:block;font-size:14px;line-height:1.4}
+.web-analysis-notice p{margin:4px 0 0;font-size:12px;line-height:1.5;color:#dccbb2}
+.web-analysis-notice .button{flex-shrink:0;flex-wrap:wrap;text-align:center}
+.web-analysis-new-tab{font-size:10px;font-weight:400}
+@media(max-width:760px){.web-analysis-notice{align-items:flex-start;flex-direction:column;gap:10px;padding:12px}.web-analysis-notice .button{max-width:100%}}
+
+.dj-transition-preview .preview-advanced>h4{margin:0;padding:6px 0;font-size:12px;font-weight:600;color:#b6c9d5}

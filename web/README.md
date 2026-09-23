@@ -105,14 +105,15 @@ npm run deploy:web
 
 Bereitet die Website mit den aktuellen Quellen vor und veröffentlicht über die
 bestehende FTPS-Konfiguration. Baut weder Desktop-Installer noch KI-Laufzeiten.
-Veröffentlichte Installer und die zugehörige `downloads.html` bleiben auf dem Server
-erhalten. Das Downloadverzeichnis wird dort umbenannt, ohne die Pakete herunter-
+Veröffentlichte Installer bleiben auf dem Server erhalten. Die Downloadseite wird
+mit der aktuellen Vorlage neu erstellt; nur die veröffentlichten Downloadkarten
+mit Links, Größen und Prüfsummen werden aus der bisherigen Seite übernommen. Das Downloadverzeichnis wird dort umbenannt, ohne die Pakete herunter-
 oder hochzuladen. Lokale Installer werden weder geprüft noch in das Hostingpaket
 kopiert. `npm run deploy` verhält sich genauso. Die übrigen Webdateien werden komplett
 übertragen. Beim ersten Deployment ohne vorhandene Downloads erscheint ein
 Verfügbarkeitshinweis ohne Downloadlinks.
 
-Neue Installer und Änderungen an der Downloadseite veröffentlichen:
+Neue Installer samt Downloadkarten veröffentlichen:
 
 ```sh
 npm run deploy:full
@@ -143,3 +144,59 @@ npm run deploy:web -- --skip-build --dry-run
 Hardwareempfehlungen und tatsächliche Funktionsgrenzen stehen auf der
 Downloadseite unter `downloads.html#systemanforderungen`. Die empfohlene
 KI-Zielklasse ist keine gemessene Mindesthardware.
+
+## Rechtstexte
+
+`impressum.html` und `datenschutz.html` werden vom Web-Build übernommen und sind
+auf Startseite, Downloadseite und in der Web-Demo verlinkt. Die Links im Pult
+öffnen einen neuen Tab, um die laufende Audio-Sitzung zu erhalten.
+
+Stand 23.09.2026 ist das Impressum mit den bestätigten Betreiberangaben ergänzt.
+Die Datenschutzerklärung bleibt ein **Entwurf** mit sichtbaren Platzhaltern und
+`noindex`. Betreibername (Animatus Erik Heldt, Inhaber Erik Heldt), E-Mail,
+USt-IdNr. und Erklärung zur Verbraucherstreitbeilegung wurden aus dem vom Nutzer
+benannten [Animatus-Impressum](https://www.animatus.de/impressum) übernommen.
+Die Quellen widersprechen sich bei Anschrift und Telefon:
+
+- Impressum: Braunstraße 6, 23552 Lübeck; +49 451 50498827.
+- [Datenschutzerklärung](https://www.animatus.de/datenschutz), Stand 29.11.2023:
+  Traberstieg 13, 22941 Bargteheide; +49 4532 2650084.
+
+Der Nutzer hat ausdrücklich die Lübecker Angaben aus dem Impressum bestätigt.
+Diese Anschrift ist in beiden Rechtstexten eingetragen; die Telefonnummer ist
+im Impressum direkt anklickbar.
+Der veraltete OS-Plattform-Verweis wurde nicht übernommen:
+[Die Plattform wurde am 20.07.2025 eingestellt](https://consumer-redress.ec.europa.eu/site-relocation_en).
+Vor Veröffentlichung fehlen außerdem Hosting-/E-Mail-Anbieter, tatsächliche
+Logdaten und Löschfristen sowie gegebenenfalls Angaben zu Datenschutzbeauftragten.
+Die fremde Website-Datenschutzerklärung ist kein Nachweis dafür, welche
+Dienste AnyDj tatsächlich nutzt; ihre Diensteliste wurde nicht übernommen.
+
+Die Beschreibung der Demo basiert auf dem Quellcode: lokale Audioverarbeitung,
+Local Storage/IndexedDB sowie optionale Spotify-/TIDAL-Verbindungen mit Tokens
+im Session Storage. Die Erforderlichkeit der einzelnen Speicherzugriffe und die
+Einbindung der Streaming-Dienste müssen mit den tatsächlich eingesetzten
+Rechtsgrundlagen und gegebenenfalls einer Einwilligungssteuerung abgeglichen
+werden. Die Rechtstexte selbst implementieren keine Einwilligungssteuerung.
+Zusätzliche Dienste des Hosters sind im Quellcode nicht erkennbar.
+
+Nach Ergänzung und Prüfung die Entwurfsnotiz, alle Platzhalter und das
+`noindex`-Metaelement entfernen. Die Footer-Links bleiben erhalten. Beim
+Web-only-Deployment wird auch die Downloadseite aktualisiert; bestehende
+Downloadkarten und Installer bleiben erhalten.
+
+Geprüfte Grundlagen und Anbieterinformationen:
+
+- [§ 5 DDG – Anbieterkennzeichnung](https://www.gesetze-im-internet.de/ddg/__5.html)
+- [DSGVO, insbesondere Art. 6, 13 und 15–22](https://eur-lex.europa.eu/eli/reg/2016/679)
+- [§ 25 TDDDG – Endgerätespeicherung](https://www.gesetze-im-internet.de/ttdsg/__25.html)
+- [§ 36 VSBG – Verbraucherstreitbeilegung](https://www.gesetze-im-internet.de/vsbg/__36.html)
+- [Spotify Datenschutz](https://www.spotify.com/de/legal/privacy-policy/)
+- [TIDAL Datenschutz](https://tidal.com/privacy)
+
+Header und Footer der Website werden beim Build aus `web/header.html` und
+`web/footer.html` eingesetzt. Änderungen daran gelten für Startseite, Downloads,
+Impressum und Datenschutz. Web-Deployments lesen nur die kleine veröffentlichte
+Downloadseite zurück und übernehmen deren `download-grid`; Installer werden
+weiterhin ausschließlich auf dem Server verschoben. Ein fehlender oder nicht
+eindeutiger Downloadbereich bricht die Aktivierung ab, ohne die Live-Seite zu ändern.

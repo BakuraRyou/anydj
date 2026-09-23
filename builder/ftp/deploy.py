@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """FTP/explicit FTPS deployment. Credentials stay in the local JSON file."""
+from html.parser import HTMLParser
 import hashlib
 import tempfile
 import argparse
@@ -152,6 +153,52 @@ def remove_tree(ftp, root):
     remove_dirs(root)
 
 
+def refresh_download_page(template, published):
+    """Retain installer cards, but publish the current page shell and content."""
+    def card_range(html):
+        class Cards(HTMLParser):
+            def __init__(self):
+                super().__init__(convert_charrefs=False)
+                self.depth = 0
+                self.ranges = []
+                self.start = None
+            def source_position(self):
+                line, column = self.getpos()
+                return sum(len(part) for part in html.splitlines(keepends=True)[:line - 1]) + column
+            def handle_starttag(self, tag, attrs):
+                if tag != 'div':
+                    return
+                if self.depth:
+                    self.depth += 1
+                elif 'download-grid' in dict(attrs).get('class', '').split():
+                    self.depth = 1
+                    self.start = self.source_position() + len(self.get_starttag_text())
+            def handle_endtag(self, tag):
+                if tag == 'div' and self.depth:
+                    self.depth -= 1
+                    if not self.depth:
+                        self.ranges.append((self.start, self.source_position()))
+        parser = Cards()
+        parser.feed(html)
+        parser.close()
+        if len(parser.ranges) != 1 or parser.depth:
+            raise ValueError('Downloadseite enthält keinen eindeutigen Downloadbereich; bestehende Veröffentlichung bleibt erhalten.')
+        return parser.ranges[0]
+    start, end = card_range(template)
+    old_start, old_end = card_range(published)
+    return template[:start] + published[old_start:old_end] + template[end:]
+
+
+def read_download_page(ftp, path):
+    data = bytearray()
+    def chunk(value):
+        data.extend(value)
+        if len(data) > 2 * 1024 * 1024:
+            raise ValueError('Downloadseite zu groß.')
+    ftp.retrbinary('RETR ' + path, chunk)
+    return data.decode('utf-8')
+
+
 def stage_public(ftp, target, manifest, current, bundle=None):
     public = posixpath.join(target, "public")
     archive = posixpath.join(target, "releases", manifest["release"], "public")
@@ -186,7 +233,13 @@ def stage_public(ftp, target, manifest, current, bundle=None):
             path = posixpath.join(staging, name)
             mkdirs(ftp, posixpath.dirname(path), known)
             if preserve and name == "downloads.html" and name in existing:
-                copy_remote(ftp, posixpath.join(public, name), path)
+                if bundle:
+                    template = (bundle / "public" / name).read_text(encoding="utf-8")
+                    published = read_download_page(ftp, posixpath.join(public, name))
+                    atomic_write(ftp, path, refresh_download_page(template, published).encode('utf-8'))
+                else:
+                    # Legacy website rollbacks keep current installer links and page.
+                    copy_remote(ftp, posixpath.join(public, name), path)
             elif bundle:
                 with (bundle / "public" / name).open("rb") as stream:
                     atomic_write(ftp, path, stream)

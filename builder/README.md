@@ -248,14 +248,15 @@ npm run deploy:web
 
 Bereitet die Website mit den aktuellen Quellen vor und veröffentlicht über die
 bestehende FTPS-Konfiguration. Baut weder Desktop-Installer noch KI-Laufzeiten.
-Veröffentlichte Installer und die zugehörige `downloads.html` bleiben auf dem Server
-erhalten. Das Downloadverzeichnis wird dort umbenannt, ohne die Pakete herunter-
+Veröffentlichte Installer bleiben auf dem Server erhalten. Die Downloadseite wird
+mit der aktuellen Vorlage neu erstellt; nur die veröffentlichten Downloadkarten
+mit Links, Größen und Prüfsummen werden aus der bisherigen Seite übernommen. Das Downloadverzeichnis wird dort umbenannt, ohne die Pakete herunter-
 oder hochzuladen. Lokale Installer werden weder geprüft noch in das Hostingpaket
 kopiert. `npm run deploy` verhält sich genauso. Die übrigen Webdateien werden komplett
 übertragen. Beim ersten Deployment ohne vorhandene Downloads erscheint ein
 Verfügbarkeitshinweis ohne Downloadlinks.
 
-Neue Installer und Änderungen an der Downloadseite veröffentlichen:
+Neue Installer samt Downloadkarten veröffentlichen:
 
 ```sh
 npm run deploy:full

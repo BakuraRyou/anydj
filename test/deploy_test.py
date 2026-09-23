@@ -12,6 +12,9 @@ deploy = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(deploy)
 OLD = '20260101000000-aaaaaaaaaaaa'
 NEW = '20260201000000-bbbbbbbbbbbb'
+OLD_PAGE = b'<header>old logo</header><div class="download-grid"><article><div>size and hash</div><a href="./downloads/AnyDj-old.exe">Download</a></article></div><footer>old footer</footer>'
+TEMPLATE = '<header>new logo</header><div class="download-grid">no downloads yet</div><footer>legal links</footer>'
+UPDATED_PAGE = OLD_PAGE.replace(b'old logo', b'new logo').replace(b'old footer', b'legal links')
 
 
 class FakeFTP:
@@ -106,14 +109,14 @@ class DeploymentTests(unittest.TestCase):
     def prepare_web_deploy(self):
         (self.bundle / 'current.json').write_text(json.dumps({'release': NEW, 'preserveDownloads': True}))
         for directory in ['public', 'releases/' + NEW + '/public']:
-            (self.bundle / directory / 'downloads.html').write_text('no downloads yet')
+            (self.bundle / directory / 'downloads.html').write_text(TEMPLATE)
         self.ftp.dirs.add('/anydj.de/public/downloads')
         self.ftp.files['/anydj.de/public/downloads/AnyDj-old.exe'] = b'published installer'
-        self.ftp.files['/anydj.de/public/downloads.html'] = b'published download links'
+        self.ftp.files['/anydj.de/public/downloads.html'] = OLD_PAGE
 
-    def assert_downloads_preserved(self):
+    def assert_downloads_preserved(self, page=OLD_PAGE):
         self.assertEqual(self.ftp.files['/anydj.de/public/downloads/AnyDj-old.exe'], b'published installer')
-        self.assertEqual(self.ftp.files['/anydj.de/public/downloads.html'], b'published download links')
+        self.assertEqual(self.ftp.files['/anydj.de/public/downloads.html'], page)
         self.assertFalse(any('AnyDj-old.exe' in command for command in self.ftp.transfers))
         self.assertFalse(any('public-backup-' in p or 'public-stage-' in p for p in self.ftp.dirs))
 
@@ -121,7 +124,7 @@ class DeploymentTests(unittest.TestCase):
         self.prepare_web_deploy()
         deploy.deploy(self.ftp, self.config, 'deploy', self.bundle)
         self.assertEqual(self.current(), NEW)
-        self.assert_downloads_preserved()
+        self.assert_downloads_preserved(UPDATED_PAGE)
 
     def test_web_deploy_failures_restore_installers(self):
         for failure in ['swap', 'manifest', 'staging', 'download-move']:
@@ -152,7 +155,7 @@ class DeploymentTests(unittest.TestCase):
         deploy.deploy(self.ftp, self.config, 'deploy', self.bundle)
         deploy.deploy(self.ftp, self.config, 'rollback')
         self.assertEqual(self.current(), OLD)
-        self.assert_downloads_preserved()
+        self.assert_downloads_preserved(UPDATED_PAGE)
 
     def test_first_web_deploy_uses_placeholder(self):
         self.prepare_web_deploy()
@@ -161,7 +164,19 @@ class DeploymentTests(unittest.TestCase):
         self.ftp.dirs.remove('/anydj.de/public/downloads')
         self.ftp.files.pop('/anydj.de/current.json')
         deploy.deploy(self.ftp, self.config, 'deploy', self.bundle)
-        self.assertEqual(self.ftp.files['/anydj.de/public/downloads.html'], b'no downloads yet')
+        self.assertEqual(self.ftp.files['/anydj.de/public/downloads.html'], TEMPLATE.encode())
+
+    def test_invalid_download_page_leaves_live_release_untouched(self):
+        for invalid in [b'no grid', b'<div class="download-grid">broken', b'<div class="download-grid"></div><div class="download-grid"></div>']:
+            with self.subTest(invalid=invalid):
+                self.ftp = FakeFTP()
+                self.prepare_web_deploy()
+                self.ftp.files['/anydj.de/public/downloads.html'] = invalid
+                with self.assertRaisesRegex(ValueError, 'Downloadbereich'):
+                    deploy.deploy(self.ftp, self.config, 'deploy', self.bundle)
+                self.assertEqual(self.current(), OLD)
+                self.assertEqual(self.ftp.files['/anydj.de/public/downloads.html'], invalid)
+                self.assertEqual(self.ftp.files['/anydj.de/public/downloads/AnyDj-old.exe'], b'published installer')
 
     def test_web_bundle_rejects_accidental_installers_before_upload(self):
         self.prepare_web_deploy()

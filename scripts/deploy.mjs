@@ -66,7 +66,7 @@ async function main(){
     }else await run(process.execPath,[join(root,'scripts','build-hosting.mjs'),...(args.includes('--with-downloads')?['--with-downloads']:[])]);
   }
   console.log(`Plesk ${action}: ${config.localDir} · ${config.secure===false?'FTP':'FTPS'}`);
-  if(action==='deploy')console.log(args.includes('--with-downloads')?'Website und bereitgestellte Installer veröffentlichen.':'Website veröffentlichen; vorhandene Installer und Downloadseite bleiben auf dem Server.');
+  if(action==='deploy')console.log(args.includes('--with-downloads')?'Website und bereitgestellte Installer veröffentlichen.':'Website inklusive Downloadseite aktualisieren; veröffentlichte Installer und Downloadkarten bleiben erhalten.');
   if(args.includes('--dry-run')){
     console.log('Nur vorbereitet. Keine Verbindung zum Server hergestellt.');return;
   }
