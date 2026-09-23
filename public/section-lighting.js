@@ -1,3 +1,4 @@
+import {directionAt} from './color-direction.js';
 import {arrangementLevelAt} from './show-arrangement.js';
 const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
 export function sectionEditsFor(plan) {
@@ -62,7 +63,7 @@ export function applySectionLighting(plan,edits=[]) {
   });
   const sectionLighting=edits.map(e=>{
     const a=hex(e.colorA),b=hex(e.colorB);
-    return {start:e.start,end:e.end,palette:e.colors==='auto'?null:e.colors==='hold'?[a]:e.colors==='pair'?[a,b]:[a,b,[a[1],a[2],a[0]],[b[2],b[0],b[1]]],
+    return {start:e.start,end:e.end,movement:e.movement,palette:e.colors==='auto'?null:e.colors==='hold'?[a]:e.colors==='pair'?[a,b]:[a,b,[a[1],a[2],a[0]],[b[2],b[0],b[1]]],
       events:source.times.filter((t,i)=>t>=e.start&&t<e.end&&selected[i]&&source.accents[i]>0)};
   });
   const colorEvents=(plan.colorEvents||[]).flatMap((event,i)=>{
@@ -82,6 +83,10 @@ export function applySectionLighting(plan,edits=[]) {
 // preview frame grid. This also makes seeks independent of playback history.
 export function sectionFrameAt(plan,time,frame) {
   const section=plan.sectionLighting?.find(s=>time>=s.start&&time<s.end);
+  if(section&&!section.palette&&plan.directionActive&&section.movement<1){
+    const anchor=directionAt(plan.colorDirection,section.start)?.[0];
+    if(anchor){const rgb=[frame.r,frame.g,frame.b].map((v,c)=>Math.round(anchor[c]*(1-section.movement)+v*section.movement));return {...frame,r:rgb[0],g:rgb[1],b:rgb[2]};}
+  }
   if(!section||!section.palette)return frame;
   const base=plan.arrangement.bases[Math.min(plan.arrangement.bases.length-1,Math.floor(Math.max(0,time)/plan.arrangement.step))];
   if(!base)return frame;

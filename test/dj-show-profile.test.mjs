@@ -1,3 +1,4 @@
+import {legacyColorDirection} from '../public/color-direction.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {compileShow,showFrameAt} from '../public/show-plan.js';
@@ -6,7 +7,7 @@ import {settings} from '../lib/music.mjs';
 const duration=16,beats=Array.from({length:32},(_,i)=>i*.5);
 const grid={version:1,source:'beat-this',duration,beats,downbeats:beats.filter((_,i)=>i%4===0)};
 const windows=Array.from({length:800},(_,i)=>({rms:i%25<3?.3:.12,bass:i%25<3?.15:.02,flux:i%25<3?.7:0,tone:.5,beatSeq:Math.floor(i/25)}));
-const make=audio=>compileShow(audio,duration,settings({arrangement:'auto',maximum:75}),grid);
+const make=audio=>legacyColorDirection(compileShow(audio,duration,settings({arrangement:'auto',maximum:75}),grid));
 test('party and disco change interpretation, preserve timing and brightness limits',()=>{
  const base=make(windows),snapshot=structuredClone(base);
  const party=applyShowProfile(base,'party'),disco=applyShowProfile(base,'disco');

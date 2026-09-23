@@ -1,3 +1,7 @@
+import {makeTransitionVariant,variantProblem,bindVariant} from './transition-library.js';
+import {openTransitionLinks} from './transition-links.js';
+import {stageMotionAt} from './stage-motion.js';
+import {songPaletteAt} from './song-palette.js';
 import {copySetTransition,matchingSetTransition} from './setlist-transition.js';
 import {createLightTuning,tuneLightFrame} from './light-tuning.js';
 import {transitionAudioProfile,transitionAudioGains,scheduleTransitionGain,holdAudioParam} from './transition-audio.js';
@@ -31,7 +35,7 @@ import { analyzeStyle } from './style-analysis.js';
 import { analyzeStructure } from './structure-analysis.js';
 import { showFrameAt, transitionFrame } from './show-plan.js';
 import { deckGains, mixDeckFrames, fileIdentity, formatTime, crossfadePosition, automaticFadeSource } from './dj-model.js';
-import { readShow, saveShow, readLibrary, saveTrack, removeTrack, readFolder, saveFolder, saveFolderChanges, readQueue, saveQueue, readQueueLists, saveQueueLists } from './dj-library.js';
+import { readShow, saveShow, readLibrary, saveTrack, removeTrack, readFolder, saveFolder, saveFolderChanges, readQueue, saveQueue, readQueueLists, saveQueueLists, readTransitionLibrary, saveTransitionLibrary } from './dj-library.js';
 
 import {scanFolder, folderChanges, audioFile} from './dj-folder.js';
 
@@ -59,6 +63,7 @@ let shuffleCount=3;
 try{shuffleCount=shuffleLookahead(localStorage.getItem('anydj-shuffle-count'));}catch{}
 let queue=[],queueRunning=false,queueBusy=false,queueEpoch=0,queueDeck=null,queueMessage='';
 let activeSetId='';const setPlayed=new Set();
+let transitionVariants=[],transitionLibraryReady=false,transitionLibrarySave=Promise.resolve();
 let queueLists=[],selectedQueueList='',queueSourceName='',queueListsReady=false,queueListsSave=Promise.resolve(),queueListRevision=0;
 const viewedQueue=()=>queueLists.find(list=>list.id===selectedQueueList);
 const displayedQueue=()=>viewedQueue()?.entries||queue;
@@ -165,16 +170,18 @@ const transitionEditor=createTransitionPreview({host:document.querySelector('.dj
   if(fade||!from.track?.plan||!to.track?.plan||!from.url||!to.url||from.resumeTime!=null||to.resumeTime!=null)return null;
   if(queueRunning&&to.queueEntry!==queue[0]?.id)return null;
   const plan=plannedTransition(from);if(!plan.duration)return null;
-  const snapshot=d=>({name:d.name,track:{name:d.track.name},duration:d.track.plan.duration,url:d.url,rate:d.audio.playbackRate,pitch:d.audio.preservesPitch,
+  const snapshot=d=>({name:d.name,track:{name:d.track.name},waveform:d.track.waveform,duration:d.track.plan.duration,url:d.url,rate:d.audio.playbackRate,pitch:d.audio.preservesPitch,
    volume:Number(d.panel.querySelector('.dj-volume').value),eq:Object.fromEntries([...d.panel.querySelectorAll('[data-eq]')].map(e=>[e.dataset.eq,Number(e.value)]))});
-  return {source:from,token:plan,position:from.index===0?Number($('crossfader').value):1-Number($('crossfader').value),from:snapshot(from),to:snapshot(to),plan:{...plan}};
+  return {identities:[fileIdentity(from.track),fileIdentity(to.track)],libraryTracks:[from.track,to.track],source:from,token:plan,position:from.index===0?Number($('crossfader').value):1-Number($('crossfader').value),from:snapshot(from),to:snapshot(to),plan:{...plan}};
  },
- onChoose:(pair,choice,remember)=>{
+ onChoose:async(pair,choice,remember)=>{
+  if(pair.linkLibrary){await storeTransitionVariant(pair,choice);return true;}
+  if(pair.saveReusable)await storeTransitionVariant(pair,choice);
   if(pair.setlist){
-   const {list,entry,previous,fromPlan,toPlan}=pair.setlist,index=list.entries.indexOf(entry);
-   if(!queueLists.includes(list)||index<1||list.entries[index-1]!==previous||tracks.find(t=>t.id===previous.trackId)?.plan!==fromPlan||tracks.find(t=>t.id===entry.trackId)?.plan!==toPlan)return false;
+   const {list,entry,previous,fromPlan,toPlan}=pair.setlist,entries=list?.entries||queue,index=entries.indexOf(entry);
+   if((list?!queueLists.includes(list):Boolean(fade?.fromQueue))||index<1||entries[index-1]!==previous||tracks.find(t=>t.id===previous.trackId)?.plan!==fromPlan||tracks.find(t=>t.id===entry.trackId)?.plan!==toPlan)return false;
    const saved=copySetTransition({fromEntryId:previous.id,fromTrackId:previous.trackId,toTrackId:entry.trackId,fromDuration:pair.from.duration,toDuration:pair.to.duration,plan:choice});
-   if(!saved)return false;entry.transition=saved;persistLists();renderQueue();return queueListsSave;
+   if(!saved)return false;entry.transition=saved;if(list)persistLists();else{queueEpoch++;persistQueue();}renderQueue();return list?queueListsSave:queueSave;
   }
   const from=pair.source;
   if(fade||plannedTransition(from)!==pair.token||from.audio.currentTime>choice.time)return false;
@@ -290,7 +297,7 @@ function fadeSeconds(){return Number($('fadeDuration').value)||8;}
 function plannedTransition(deck){
   const next=decks[1-deck.index];
   if(!next?.track?.plan||(queueRunning&&next.queueEntry!==queue[0]?.id))return transitionPoint(deck.track?.plan,fadeSeconds(),deck.audio.playbackRate,$('autoBeat').checked);
-  const saved=queueRunning&&matchingSetTransition(queue[0],deck.setEntry,deck.track?.plan||{},next.track.plan,deck.audio.playbackRate,next.audio.playbackRate);
+  const saved=queueRunning&&matchingSetTransition(queue[0],deck.setEntry,deck.track?.plan||{},next.track.plan,deck.audio.playbackRate,next.audio.playbackRate,deck.track,next.track);
   const keys=[deck.track?.plan,next.track.plan,next.cue,deck.audio.playbackRate,next.audio.playbackRate,fadeSeconds(),$('autoBeat').checked,$('fadeDuration').value==='auto',next.queueEntry,deck.track,next.track,Number($('transitionEntryWindow').value),Boolean(next.cueLocked),deck.track?.windows,next.track.windows,$('transitionPreference').value,queueRunning?queue[0]?.transition:null,deck.setEntry];
   if(!deck.pairPlan||!keys.every((key,i)=>key===deck.pairPlan.keys[i]))deck.pairPlan={keys,value:saved||planTransitionPair(keys[0],keys[1],{cue:keys[2],rateA:keys[3],rateB:keys[4],seconds:keys[5],musical:keys[6],adaptive:keys[7],notBefore:deck.audio.currentTime,entryWindow:keys[11],cueLocked:keys[12],tonalA:transitionTonalSegments(keys[13]),tonalB:transitionTonalSegments(keys[14]),preferredStyle:keys[15]})};
   const value=deck.pairPlan.value;
@@ -420,14 +427,14 @@ function replacePlan(track, plan) {
     if(track.plan && !deck.audio.paused) deck.transition = {from:track.plan, start:deck.audio.currentTime};
   }
   track.basePlan=plan;
-  track.plan=applySectionLighting(applyTrackColors(applyShowProfile(plan,showProfile),track.colorMode),track.sectionEdits||[]);
+  track.plan=applySectionLighting(applyShowProfile(applyTrackColors(plan,track.colorMode),showProfile),track.sectionEdits||[]);
   track.stageMotifs=prepareStageMotifs(track.plan);
   lightStage.prepareMovingHeads();
   for (const deck of decks) if (deck.track === track) drawDeck(deck);
 }
 function editSections(track,position=()=>0) {
   if(!track?.basePlan?.arrangement)return;
-  openSectionEditor({track,plan:applyTrackColors(applyShowProfile(track.basePlan,showProfile),track.colorMode),position,onSave:async edits=>{
+  openSectionEditor({track,plan:applyShowProfile(applyTrackColors(track.basePlan,track.colorMode),showProfile),position,onSave:async edits=>{
     const old=track.sectionEdits;track.sectionEdits=edits;
     try{await saveTrack(track);}catch(error){track.sectionEdits=old;throw error;}
     replacePlan(track,track.basePlan);renderLibrary();
@@ -591,6 +598,7 @@ function renderLibrary() {
     for(const deck of decks) li.append(button(deck.name,()=>loadDeck(deck,track),!deck.audio.paused||track.missing||track.pendingChange,`Auf Deck ${deck.name} laden`));
     const enqueueButton=button('+ Queue',()=>{},track.missing||track.pendingChange,'In Warteschlange einreihen');enqueueButton.onclick=()=>enqueue(track);li.append(enqueueButton);
     if((!track.folderId && (!track.file || track.failed))||track.queuePreparationError) li.append(button('↻',()=>relink(track),false,'Erneut verknüpfen'));
+    li.append(button('Übergänge',()=>showTransitionLinks(track),!transitionLibraryReady,'Gespeicherte Übergänge'));
     li.append(button('Abschnitte',()=>editSections(track),!track.basePlan?.arrangement,'Abschnittslicht bearbeiten'));
     li.append(button('Neu berechnen',()=>recalculateShow(track),Boolean(track.phase)||track.missing||track.pendingChange,'Lichtshow neu berechnen'));
     for(const [label,offset] of [['↑',-1],['↓',1]]) li.append(button(label,async()=>{const target=index+offset;[tracks[index],tracks[target]]=[tracks[target],tracks[index]];await Promise.all(tracks.map((t,i)=>{t.order=i;return persist(t);}));renderLibrary();},index+offset<0||index+offset>=tracks.length,label==='↑'?'In Bibliothek nach oben':'In Bibliothek nach unten'));
@@ -651,7 +659,7 @@ function updateLightPreview(){
     const grid=plan?.beatGrid?.beats||plan?.beatTiming?.times;
     const firstBeat=grid?.findIndex(t=>t>=motif?.start);
     const startBeat=motif?(beatPosition(grid,motif.start)??(firstBeat>=0?firstBeat:null)):null;
-    return {movingPlan:plan,songTime:time,motifColor:motif?.color,motionBeat:absoluteBeat!==null&&startBeat!==null?absoluteBeat-startBeat:null,frame:current[i],weight:weights[i],beat:beatPosition(plan?.beatGrid?.beats||plan?.beatTiming?.times,time),look:section?.look,sectionProgress:section?(time-section.start)/Math.max(.001,section.end-section.start):0,
+    return {motionCharacter:stageMotionAt(plan,time),palette:songPaletteAt(plan,time),movingPlan:plan,songTime:time,motifColor:motif?.color,motionBeat:absoluteBeat!==null&&startBeat!==null?absoluteBeat-startBeat:null,frame:current[i],weight:weights[i],beat:beatPosition(plan?.beatGrid?.beats||plan?.beatTiming?.times,time),look:section?.look,sectionProgress:section?(time-section.start)/Math.max(.001,section.end-section.start):0,
       accentStrength:stageAccentStrength(plan,time),washDimming:stageWashDimming(plan,time),sectionKey:section?`${deck.track.id}:${section.start}`:null,sectionName:section?`${deck.track.name} · ${section.title||section.label||section.lookLabel||'Abschnitt'}`:''};
   });
   fullMode.update(mixedFrame,lightStreams);
@@ -785,6 +793,7 @@ function requestFade(index, fromQueue=false, musical=false, immediate=false) {
   const from = decks[index], to = decks[1-index];
   if (spotifyDeck?.spotifyStarted || !from.track?.plan || !to.track?.plan || from.audio.paused) return;
   if(fromQueue&&queue[0]?.provider==='spotify')return;
+  if(fromQueue&&queue[0]?.transition&&!matchingSetTransition(queue[0],from.setEntry,from.track.plan,to.track.plan,from.audio.playbackRate,to.audio.playbackRate,from.track,to.track)){pauseQueue('Gespeicherter Übergang passt nicht mehr · bitte neu wählen.');return;}
   autoFadePaused=false;
   const selectedPlan=plannedTransition(from);
   const job = fade = {from,to,starting:true,fromQueue,epoch:queueEpoch,plan:selectedPlan?.manual?{...selectedPlan,time:immediate?from.audio.currentTime:selectedPlan.time}:musical?(immediate?planTransitionPair(from.track.plan,to.track.plan,{seconds:fadeSeconds(),rateA:from.audio.playbackRate,rateB:to.audio.playbackRate,cue:to.cue,startTime:from.audio.currentTime,adaptive:$('fadeDuration').value==='auto',entryWindow:Number($('transitionEntryWindow').value),cueLocked:Boolean(to.cueLocked),tonalA:transitionTonalSegments(from.track.windows),tonalB:transitionTonalSegments(to.track.windows),preferredStyle:$('transitionPreference').value}):plannedTransition(from)):null};
@@ -979,18 +988,68 @@ $('djFolderFiles').onchange=async event=>{
 setInterval(()=>{if(!document.hidden)void syncFolder();},10000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)void syncFolder();});
 
+async function changeTransitionLibrary(change){
+ if(!transitionLibraryReady)throw Error('Übergangsbibliothek noch nicht verfügbar.');
+ const task=transitionLibrarySave.catch(()=>{}).then(async()=>{const next=change(structuredClone(transitionVariants));await saveTransitionLibrary(next);transitionVariants=next;renderQueue();renderLibrary();});
+ transitionLibrarySave=task;return task;
+}
+async function storeTransitionVariant(pair,plan){
+ const [from,to]=pair.libraryTracks||[];
+ if(!from||!to||!tracks.includes(from)||!tracks.includes(to)||pair.identities&&pair.identities.some((id,i)=>id!==fileIdentity([from,to][i])))throw Error('Titelpaar wurde geändert. Bitte erneut öffnen.');
+ const value=makeTransitionVariant(from,to,plan,{id:pair.variantId,name:pair.variantName,rateA:pair.from.rate,rateB:pair.to.rate});
+ await changeTransitionLibrary(values=>[...values.filter(v=>v.id!==value.id),value]);pair.variantId=value.id;
+}
+async function editLinkedTransition(from,to,variant){
+ const urls=[];
+ try{
+  if(!from?.plan||!to?.plan)throw Error('Beide Titel zuerst analysieren.');
+  const identities=[fileIdentity(from),fileIdentity(to)],files=await Promise.all([ensureFile(from),ensureFile(to)]);
+  if(identities.some((id,i)=>id!==fileIdentity([from,to][i])))throw Error('Dateien wurden geändert. Bitte erneut öffnen.');
+  urls.push(...files.map(f=>URL.createObjectURL(f)));
+  const snapshot=(t,i)=>({name:i?'Nächster Titel':'Ausgehender Titel',track:{name:t.name},waveform:t.waveform,duration:t.plan.duration,url:urls[i],rate:i?(variant?.rateB||1):(variant?.rateA||1),pitch:true,volume:1,eq:{trim:0,low:0,mid:0,high:0}});
+  const plan=variant&&!variantProblem(variant,from,to)?variant.plan:planTransitionPair(from.plan,to.plan,{cue:0,rateA:variant?.rateA||1,rateB:variant?.rateB||1,seconds:fadeSeconds(),musical:true,adaptive:true,notBefore:0});
+  const pair={linkLibrary:true,libraryTracks:[from,to],identities,variantId:variant?.id,variantName:variant?.name||'',from:snapshot(from,0),to:snapshot(to,1),position:0,plan:structuredClone(plan),dispose:()=>urls.forEach(url=>URL.revokeObjectURL(url))};
+  if(!transitionEditor.openPair(pair))pair.dispose();
+ }catch(error){urls.forEach(url=>URL.revokeObjectURL(url));notice(error.message,true);}
+}
+function showTransitionLinks(from,context){
+ const entries=()=>context?.deck?queue:displayedQueue();
+ const source=()=>context?.deck?(context.deck.setEntry||{id:'deck-'+context.deck.index,trackId:from.id}):context?.entry;
+ const use=context?{exists:id=>entries().some(e=>e.trackId===id&&e!==source()),apply:async(variant,method)=>{
+  if(context.deck){if(queueRunning&&context.deck!==queueDeck)throw Error('Bitte den laufenden Queue-Titel wählen.');if(context.deck.track!==from||context.deck.audio.ended)throw Error('Der Deck-Titel hat sich geändert.');}
+  else if(context.listId!==selectedQueueList||!entries().includes(context.entry))throw Error('Warteschlange wurde geändert. Bitte erneut öffnen.');
+  const live=context.deck||editingLiveQueue();if(live&&(fade||queueBusy))throw Error('Ein Wechsel oder Ladevorgang läuft. Bitte kurz warten.');
+  const to=tracks.find(t=>t.id===variant.toTrackId),issue=variantProblem(variant,from,to,context.deck?.audio.playbackRate||1,1);if(issue)throw Error(issue);
+  if(context.deck&&context.deck.audio.currentTime>=variant.plan.time)throw Error('Für diesen Durchlauf zu spät. Einen neuen Übergang erstellen.');
+  const files=await Promise.all([ensureFile(from),ensureFile(to)]);void files;
+  if(live&&(fade||queueBusy))throw Error('Wiedergabe hat sich geändert. Bitte erneut versuchen.');
+  if(context.deck&&(context.deck.track!==from||context.deck.audio.currentTime>=variant.plan.time))throw Error('Für diesen Durchlauf nicht mehr verfügbar.');
+  if(!context.deck&&(context.listId!==selectedQueueList||!entries().includes(context.entry)))throw Error('Warteschlange wurde geändert.');
+  const previous=source(),snapshot=bindVariant(variant,previous,from,to),list=entries();
+  let entry=method==='move'?list.find(e=>e.trackId===to.id&&e!==previous):null;
+  if(entry){list.splice(list.indexOf(entry),1);entry={...entry};}else entry={id:crypto.randomUUID(),trackId:to.id};
+  entry.transition=snapshot;list.splice(context.deck?0:list.indexOf(previous)+1,0,entry);
+  if(context.deck){context.deck.setEntry=previous;selectedQueueList='';queueEpoch++;persistQueue();}
+  else{if(live)queueEpoch++;persistDisplayedQueue();}
+  renderQueue();void prepareTracks();
+ }}:null;
+ openTransitionLinks({from,getTracks:()=>tracks,getVariants:()=>transitionVariants,problem:(v,a,b)=>variantProblem(v,a,b,context?(context.deck?.audio.playbackRate||1):v.rateA,context?1:v.rateB)||(!a.file&&!a.handle||!b.file&&!b.handle?'Datei verbinden':context?.deck&&context.deck.audio.currentTime>=v.plan.time?'Für diesen Durchlauf zu spät':''),onUse:use,onEdit:(to,v)=>editLinkedTransition(from,to,v),onDelete:v=>changeTransitionLibrary(values=>values.filter(x=>x.id!==v.id)),onRelink:t=>relink(t)});
+}
+void (async()=>{try{const values=await readTransitionLibrary();transitionVariants=Array.isArray(values)?values.filter(v=>v?.version===1&&typeof v.id==='string'&&copySetTransition(v)):[];transitionLibraryReady=true;renderQueue();renderLibrary();}catch{notice('Übergangsbibliothek konnte nicht geladen werden.',true);}})();
+
+
 async function editSetTransition(list,entry){
- const index=list?.entries.indexOf(entry),previous=list?.entries[index-1];
+ const entries=list?.entries||queue,index=entries.indexOf(entry),previous=entries[index-1];
  const from=tracks.find(t=>t.id===previous?.trackId),to=tracks.find(t=>t.id===entry.trackId);
  if(!from?.plan||!to?.plan)return;
  const urls=[];
  try{
   const files=await Promise.all([ensureFile(from),ensureFile(to)]);
-  if(!queueLists.includes(list)||list.entries[index]!==entry||list.entries[index-1]!==previous)throw Error('Die Reihenfolge wurde geändert. Übergang erneut öffnen.');
+  if((list?!queueLists.includes(list):entries!==queue)||entries[index]!==entry||entries[index-1]!==previous)throw Error('Die Reihenfolge wurde geändert. Übergang erneut öffnen.');
   urls.push(...files.map(file=>URL.createObjectURL(file)));
-  const snapshot=(track,i)=>({name:i?'Nächster Titel':'Ausgehender Titel',track:{name:track.name},duration:track.plan.duration,url:urls[i],rate:1,pitch:true,volume:1,eq:{trim:0,low:0,mid:0,high:0}});
-  const plan=matchingSetTransition(entry,previous,from.plan,to.plan)||planTransitionPair(from.plan,to.plan,{cue:0,rateA:1,rateB:1,seconds:fadeSeconds(),musical:true,adaptive:true,notBefore:0,entryWindow:Number($('transitionEntryWindow').value)});
-  const pair={setlist:{list,entry,previous,fromPlan:from.plan,toPlan:to.plan},from:snapshot(from,0),to:snapshot(to,1),position:0,plan:{...plan},dispose:()=>urls.forEach(url=>URL.revokeObjectURL(url))};
+  const snapshot=(track,i)=>({name:i?'Nächster Titel':'Ausgehender Titel',track:{name:track.name},waveform:track.waveform,duration:track.plan.duration,url:urls[i],rate:1,pitch:true,volume:1,eq:{trim:0,low:0,mid:0,high:0}});
+  const plan=matchingSetTransition(entry,previous,from.plan,to.plan,1,1,from,to)||planTransitionPair(from.plan,to.plan,{cue:0,rateA:1,rateB:1,seconds:fadeSeconds(),musical:true,adaptive:true,notBefore:0,entryWindow:Number($('transitionEntryWindow').value)});
+  const pair={identities:[fileIdentity(from),fileIdentity(to)],libraryTracks:[from,to],setlist:{list,entry,previous,fromPlan:from.plan,toPlan:to.plan},from:snapshot(from,0),to:snapshot(to,1),position:0,plan:{...plan},dispose:()=>urls.forEach(url=>URL.revokeObjectURL(url))};
   if(!transitionEditor.openPair(pair))pair.dispose();
  }catch(error){urls.forEach(url=>URL.revokeObjectURL(url));notice(error.message,true);}
 }
@@ -1035,7 +1094,7 @@ $('queueDeleteList').onclick=()=>{const list=viewedQueue();if(!list||!confirm('L
 
 function persistQueue() {
   const snapshot=queue.map(entry=>copyQueueEntry(entry));
-  queueSave=queueSave.then(()=>saveQueue(snapshot)).catch(()=>notice('Warteschlange konnte nicht gespeichert werden.',true));
+  queueSave=queueSave.then(()=>saveQueue(snapshot)).then(()=>true).catch(()=>{notice('Warteschlange konnte nicht gespeichert werden.',true);return false;});
 }
 function refillShuffle(){
   if(!shuffleEnabled||!queueListsReady)return;
@@ -1190,7 +1249,7 @@ function renderQueue() {
   $('queueClear').disabled=!queue.length||locked;
   $('queueStatus').textContent=editingLiveQueue()?(/^Automatik läuft(?: · Spotify)?$/.test(queueMessage)?'':queueMessage):'Feste Setliste · Titel bleiben erhalten. Änderungen gelten beim nächsten Set-Start.';
   const byId=new Map(tracks.map(track=>[track.id,track]));
-  const signature=JSON.stringify([selectedQueueList,activeSetId,[...setPlayed],decks.map(d=>[d.setEntry?.sourceEntryId,d.audio.paused,d.audio.ended]),queue,locked,queue.map(entry=>{const track=byId.get(entry.trackId);return [track?.name,analysisStatus(track,$('djStructure').checked),decks.find(d=>d.queueEntry===entry.id)?.name];})]);
+  const signature=JSON.stringify([transitionLibraryReady,transitionVariants,selectedQueueList,activeSetId,[...setPlayed],decks.map(d=>[d.setEntry?.sourceEntryId,d.audio.paused,d.audio.ended]),queue,locked,queue.map(entry=>{const track=byId.get(entry.trackId);return [track?.name,analysisStatus(track,$('djStructure').checked),decks.find(d=>d.queueEntry===entry.id)?.name];})]);
   if(signature===queueSignature)return;queueSignature=signature;
   const scroll=$('queueList').scrollTop;$('queueList').replaceChildren();
   for(const [index,entry] of queue.entries()) {
@@ -1207,11 +1266,21 @@ function renderQueue() {
     info.append(title,status);li.append(info);
     for(const [label,offset] of [['↑',-1],['↓',1]])li.append(button(label,()=>editQueue(entries=>{const current=entries.findIndex(item=>item.id===entry.id),target=current+offset;if(current>=0&&target>=0&&target<entries.length)[entries[current],entries[target]]=[entries[target],entries[current]];},editingId),locked||index+offset<0||index+offset>=queue.length,label==='↑'?'Früher abspielen':'Später abspielen'));
     li.append(button('×',()=>editQueue(entries=>{const i=entries.findIndex(item=>item.id===entry.id);if(i>=0)entries.splice(i,1);},editingId),locked,'Aus Warteschlange entfernen'));
-    if(viewedQueue()&&index>0){const previous=queue[index-1],from=byId.get(previous.trackId),ready=from?.plan&&track?.plan&&!entry.provider&&!previous.provider;
-     const saved=ready&&matchingSetTransition(entry,previous,from.plan,track.plan);
-     li.append(button(saved?'Übergang bearbeiten':entry.transition?'Übergang neu prüfen':'Übergang anlegen',()=>void editSetTransition(viewedQueue(),entry),!ready,'Übergang vom vorherigen Titel vorbereiten'));
+    if(entry.transition){li.append(button('Übergang entfernen',()=>editQueue(list=>{delete list.find(e=>e.id===entry.id)?.transition;},editingId),locked));const previous=queue[index-1]||(editingLiveQueue()?queueDeck?.setEntry:null),from=byId.get(previous?.trackId);const valid=from?.plan&&track?.plan&&matchingSetTransition(entry,previous,from.plan,track.plan,1,1,from,track);const badge=document.createElement('small');badge.textContent=valid?'Übergang: '+(entry.transition.variantName||'Gespeichert'):'Übergang passt nicht · bitte neu wählen';info.append(badge);}
+    title.title=track?.name||'Track fehlt';bindQueueDrag(li,entry.id);groupTrackActions(li);
+    if(index<queue.length-1){
+     const next=queue[index+1],nextTrack=byId.get(next.trackId),list=viewedQueue();
+     const separator=document.createElement('div');separator.className='queue-transition-separator';
+     const transitionButton=button('',()=>void editSetTransition(list,next),locked||!transitionLibraryReady||!track||Boolean(entry.provider)||Boolean(next.provider)||!track?.plan||!nextTrack?.plan,`Übergang: ${track?.name||'Titel fehlt'} → ${nextTrack?.name||'nächster Titel'}`);
+     transitionButton.className='queue-transition-button';transitionButton.setAttribute('aria-label',transitionButton.title);transitionButton.dataset.queueTransition=entry.id;
+     transitionButton.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 6h3c5 0 5 12 10 12h3M4 18h3c5 0 5-12 10-12h3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+     const confirmed=Boolean(track?.plan&&nextTrack?.plan&&matchingSetTransition(next,entry,track.plan,nextTrack.plan,1,1,track,nextTrack));
+     const state=confirmed?'confirmed':next.transition?'review':'auto',label=confirmed?'Bestätigt':next.transition?'Prüfen':'Automatisch';
+     const control=document.createElement('div');control.className='queue-transition-control';control.dataset.state=state;
+     transitionButton.title+=` · ${label}`;transitionButton.setAttribute('aria-label',transitionButton.title);
+     control.append(transitionButton);separator.append(control);li.classList.add('has-queue-transition');li.append(separator);
     }
-    title.title=track?.name||'Track fehlt';bindQueueDrag(li,entry.id);groupTrackActions(li);$('queueList').append(li);
+    $('queueList').append(li);
   }
   if(!queue.length){const li=document.createElement('li');li.className='dj-empty';li.textContent='Titel aus der Bibliothek mit „+ Warteschlange“ hinzufügen';$('queueList').append(li);}
   $('queueList').scrollTop=scroll;
@@ -1276,6 +1345,7 @@ async function advanceQueue() {
         if(epoch!==queueEpoch||!queueRunning){target.audio.pause();return;}
         queueDeck=target;consumeQueue(target);queueMessage='Automatik läuft';
       } else {
+        if(entry.transition&&!matchingSetTransition(entry,queueDeck.setEntry,queueDeck.track?.plan||{},track.plan,queueDeck.audio.playbackRate,target.audio.playbackRate,queueDeck.track,track))throw Error('Gespeicherter Übergang passt nicht mehr. Bitte neu wählen oder aus dem Eintrag entfernen.');
         queueMessage='Automatik läuft';
         const point=plannedTransition(queueDeck);
         if(track.plan&&queueDeck.audio.currentTime>=point.time)requestFade(queueDeck.index,true,$('autoBeat').checked);

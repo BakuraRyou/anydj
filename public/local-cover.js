@@ -1,3 +1,4 @@
+import {colorProfile} from './color-profile.js';
 // Embedded artwork only: no network lookups or linked pictures.
 const text=(b,a,n)=>String.fromCharCode(...b.subarray(a,a+n));
 const uint=(b,p)=>((b[p]*0x1000000)+(b[p+1]<<16)+(b[p+2]<<8)+b[p+3]);
@@ -77,9 +78,19 @@ export function createLocalCovers({save,changed}){
  }
  return {attach(info,t){
   const identity=key(t);
+  const fallback=()=>{
+   if(t.pendingChange||t.failed||t.deleted)return;
+   const profile=colorProfile(t.plan);if(!profile)return;
+   const tile=document.createElement('span');tile.className='dj-track-cover dj-color-profile';
+   tile.style.backgroundImage=profile.gradient;tile.setAttribute('role','img');
+   const description='Farbprofil der Lichtshow · ungefähre Zeitanteile: '+profile.colors.map(c=>'RGB '+c.rgb.join('/')+' '+Math.round(c.share*100)+' %').join(', ');
+   tile.setAttribute('aria-label',description);tile.title=description+' · keine zeitliche Reihenfolge';
+   info.prepend(tile);
+  };
   if(t.coverKey===identity&&typeof t.cover==='string'&&t.cover.startsWith('data:image/jpeg;base64,')){
-   const image=document.createElement('img');image.className='dj-track-cover';image.src=t.cover;image.alt='';image.width=36;image.height=36;image.loading='lazy';image.draggable=false;image.onerror=()=>image.remove();info.prepend(image);
+   const image=document.createElement('img');image.className='dj-track-cover';image.src=t.cover;image.alt='';image.width=36;image.height=36;image.loading='lazy';image.draggable=false;image.onerror=()=>{image.remove();fallback();};info.prepend(image);
   }
+  else fallback();
   if(t.coverKey!==identity&&!pending.has(t)&&(!attempts.has(t)||attempts.get(t)!==(t.file||t.handle))&&(t.file||t.handle)){
    pending.add(t);queue.push(t);void drain();
   }

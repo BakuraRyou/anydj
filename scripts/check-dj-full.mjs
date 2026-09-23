@@ -43,6 +43,22 @@ try {
   await c('Emulation.setDeviceMetricsOverride',{width:1280,height:800,deviceScaleFactor:1,mobile:false});
   await c('Page.navigate',{url:base+'/dj'});await wait("document.querySelector('.dj-full-host')");
   await evaluate(`(async()=>{const {createFullMode}=await import('/dj-full.js');window.fullTrigger=document.createElement('button');fullTrigger.textContent='Test Full';document.body.append(fullTrigger);window.fullTest=createFullMode(fullTrigger);window.testFrame={state:true,r:240,g:45,b:80,dimming:85};fullTest.update(testFrame,[{frame:testFrame,weight:1,look:'peak'}]);})()`);
+  const coverChecks=await evaluate(`(async()=>{
+    const {createLocalCovers}=await import('/local-cover.js');
+    const covers=createLocalCovers({save:async()=>{},changed:()=>{}});
+    const plan={duration:4,step:1,frames:[{r:255,g:0,b:0,dimming:80},{r:255,g:0,b:0,dimming:80},{r:255,g:0,b:0,dimming:80},{r:0,g:0,b:255,dimming:80}]};
+    const track={name:'Cover test',size:123,lastModified:0,plan};
+    const holder=document.createElement('div');document.body.append(holder);covers.attach(holder,track);
+    const fallback=Boolean(holder.querySelector('.dj-color-profile')?.style.backgroundImage.includes('linear-gradient'));
+    const accessible=holder.firstChild?.getAttribute('aria-label').includes('75 %');
+    holder.replaceChildren();covers.attach(holder,{...track,plan:null});const pending=holder.children.length===0;
+    const canvas=document.createElement('canvas');canvas.width=canvas.height=2;
+    holder.replaceChildren();covers.attach(holder,{...track,coverKey:JSON.stringify([track.name,track.size,track.lastModified]),cover:canvas.toDataURL('image/jpeg')});
+    const image=holder.querySelector('img');await image.decode();
+    const realCover=holder.children.length===1&&holder.firstChild===image;
+    holder.remove();return {fallback,accessible,pending,realCover};
+  })()`);
+  assert.deepEqual(coverChecks,{fallback:true,accessible:true,pending:true,realCover:true});
   const gesture=expression=>c('Runtime.evaluate',{expression,userGesture:true,awaitPromise:true});
   await gesture('fullTrigger.click()');await wait("document.querySelectorAll('.dj-full')[1].open");
   assert.equal(await evaluate("document.fullscreenElement===document.querySelectorAll('.dj-full-host')[1]"),true);
@@ -54,6 +70,8 @@ try {
   const before=await evaluate("[...document.querySelectorAll('.dj-full')[1].querySelectorAll('.dj-full-color')].map(n=>n.style.getPropertyValue('--full-color'))");
   await evaluate("fullTest.update({...testFrame,r:30,b:230},[{frame:testFrame,weight:.5,look:'peak'},{frame:{...testFrame,r:30,b:230},weight:.5,look:'peak'}])");
   assert.notDeepEqual(await evaluate("[...document.querySelectorAll('.dj-full')[1].querySelectorAll('.dj-full-color')].map(n=>n.style.getPropertyValue('--full-color'))"),before);
+  await evaluate("window.songColors=[[240,45,80],[25,180,110],[70,90,220],[230,190,40]];fullTest.update(testFrame,[{frame:testFrame,weight:1,look:'peak',palette:songColors}])");
+  assert.equal(await evaluate("[...document.querySelectorAll('.dj-full')[1].querySelectorAll('.dj-full-color')].every(n=>songColors.some(c=>n.style.getPropertyValue('--full-color')==='rgb('+c.join(', ')+')'))"),true,'Full must use supplied song colors instead of fixed hue offsets');
   await evaluate('fullTest.update(null)');assert.equal(await evaluate("document.querySelectorAll('.dj-full')[1].style.getPropertyValue('--full-level')"),'0');
   await evaluate("document.querySelectorAll('.dj-full')[1].dispatchEvent(new KeyboardEvent('keydown',{key:'Escape',bubbles:true}))");
   await wait('!document.fullscreenElement');
@@ -68,6 +86,15 @@ const dt=new DataTransfer();dt.items.add(createDemoFiles()[0]);const input=docum
   await wait("document.querySelector('[aria-label=\"Auf Deck A laden\"]')&&!document.querySelector('[aria-label=\"Auf Deck A laden\"]').disabled");
   await evaluate("document.querySelector('[aria-label=\"Auf Deck A laden\"]').click()");
   await wait("!document.querySelector('.dj-play').disabled");
+  const comparison=await evaluate(`(async()=>{
+    const picker=document.querySelector('.dj-color-picker'),audio=document.querySelector('.dj-deck audio');
+    const source=audio.src,time=audio.currentTime;
+    const select=picker.querySelector('.color-options'),button=picker.querySelector('.color-apply');
+    async function choose(value){picker.open=true;select.value=value;button.click();for(let i=0;i<100&&picker.open;i++)await new Promise(r=>setTimeout(r,20));if(picker.open)throw Error('Color selection timed out');}
+    await choose('legacy-auto');const old=picker.querySelector('summary span').textContent.includes('Bisherige');
+    await choose('auto');return {old,current:picker.querySelector('summary span').textContent.includes('Songanalyse'),sameAudio:audio.src===source&&audio.currentTime===time};
+  })()`);
+  assert.deepEqual(comparison,{old:true,current:true,sameAudio:true});
   await gesture("document.querySelector('.dj-play').click()");
   await wait("document.querySelector('.dj-deck audio').currentTime>.5");
   await gesture("[...document.querySelectorAll('button')].find(b=>b.textContent==='Full').click()");

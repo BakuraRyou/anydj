@@ -12,9 +12,9 @@ test('equal-energy verse and refrain retain different visual roles across profil
  assert.equal(base.sections[0].role,'support');assert.equal(base.sections[1].role,'feature');
  for(const profile of ['auto','party','disco']){
   const plan=applyShowProfile(base,profile);
-  const verse=plan.colorEvents.filter(e=>e.time<16),chorus=plan.colorEvents.filter(e=>e.time>=16&&e.time<32);
+  const verse=plan.colorDirection.events.filter(e=>e.time<16),chorus=plan.colorDirection.events.filter(e=>e.time>=16&&e.time<32);
   assert.ok(chorus.length>verse.length,profile);
-  const span=events=>Math.max(...events.map(e=>e.r))-Math.min(...events.map(e=>e.r))+Math.max(...events.map(e=>e.b))-Math.min(...events.map(e=>e.b));
+  const span=events=>new Set(events.map(e=>e.role)).size;
   assert.ok(span(chorus)>span(verse),profile);
   assert.ok(plan.arrangement.bases[24/.125]>plan.arrangement.bases[8/.125],profile);
   assert.deepEqual(plan.beatGrid,grid);

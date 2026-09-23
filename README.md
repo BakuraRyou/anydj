@@ -291,11 +291,17 @@ Präferenz speichern; unter „Automatik einstellen → Leichte Stilpräferenz�
 ist sie veränderbar oder mit „Keine“ zurücksetzbar. Einstiegssuche und Präferenz
 werden auf dem Gerät gespeichert. Die Hörprobe läuft unabhängig von den Decks
 über den gewählten Kopfhörerausgang, ohne Deckpositionen oder Warteschlange zu
-ändern. Unter „Audioausgänge & Vorhören“ im Mixer oder direkt im Übergangseditor
-zuerst Master und dann einen anderen physischen Kopfhörerausgang wählen.
+ändern. Unter „Audioausgabe“ im Mixer oder direkt im Übergangseditor
+zuerst „Master / Publikum“, danach „Kopfhörer / Vorschau“ auswählen. Beide
+Felder wenden die Auswahl direkt an; der Master ist in der Kopfhörerliste gesperrt.
+Gerätefreigabe und Aktualisierung liegen unter „Gerät fehlt? Gerätezugriff & Hilfe“.
+Master- und Kopfhörerausgang sowie Kopfhörerlautstärke werden lokal für diese
+App-Adresse gespeichert. Beim nächsten Besuch werden verfügbare Geräte nach
+der ersten Interaktion wieder aktiviert, ohne eine Hörprobe zu starten. Fehlende
+Geräte werden gemeldet; die gespeicherte Auswahl bleibt erhalten.
 Ohne getrennte Ausgänge bleibt das Probehören deaktiviert; Bearbeiten und
 Übernehmen sind weiterhin möglich. Bei einem Gerätewechsel oder Ausgabefehler
-stoppt nur die Hörprobe. Falls im Browser Geräte fehlen, kann „Audioausgänge
+stoppt nur die Hörprobe. Falls im Browser Geräte fehlen, kann „Audiogeräte
 freigeben“ mit kurzzeitigem Mikrofonzugriff die Geräteauswahl freischalten.
 
 **Farbmodi und Vorschau:** Direkt unter dem Tracknamen jedes DJ-Decks öffnet
@@ -1183,3 +1189,198 @@ Set-Start werden diese Pläne automatisch verwendet. Geänderte Nachbarpaare ode
 unpassende Titellängen müssen erneut geprüft werden. Spotify-Paare unterstützen
 keine lokalen Übergangskurven. Nach einem Neustart gegebenenfalls die Originaldateien
 wieder verbinden; die Setliste enthält keine Kopie der Audiodateien.
+
+### Klangabhängige Farbwelten (Versuch)
+
+Im automatischen Farbmodus „Songanalyse“ entstehen die Paletten aus Bass- und
+Höhenanteilen, Klanglage, Textur und tonaler Sicherheit des Audiosignals.
+Der gesamte Track gibt eine gemeinsame Farbwelt vor; die einzelnen Abschnitte
+entwickeln sie weiter. Palettenübergänge werden geglättet. Identische Analysedaten
+liefern identische Farben, ohne Zufall, Songtitel-Zuordnung oder Songpaare.
+Die Zuordnung von Klang zu Farbe ist eine gestalterische Interpretation.
+
+Rhythmische Farbwechsel verwenden diese aktuelle Palette. Lichtbühne und Full
+übernehmen sie ebenfalls, statt daraus immer dieselben Farbtonabstände zu
+konstruieren. Die vier Full-Flächen bleiben; sie können bei einer bewusst
+gewählten Einzelfarbe auch dieselbe Farbe zeigen. Manuelle Track-Paletten und
+Abschnittsfarben haben Vorrang. Für alte Tracks die Lichtshow neu berechnen;
+die Show-Cache-Version wurde auf 18 erhöht. Keine erneuten Modelldownloads nötig.
+
+### Farbprofil als Cover-Ersatz
+
+Lokale Titel ohne nutzbares eingebettetes Cover erhalten nach der Showberechnung
+in der Bibliothek einen Farbverlauf als Cover-Ersatz. Er fasst bis zu sechs
+ähnliche Farbgruppen der effektiven Lichtshow zusammen; ihre Breite entspricht
+ungefähr ihrem Anteil an der sichtbaren Zeit, nicht ihrer Helligkeit. Kurze weiche
+Übergänge verbinden die Gruppen. Es ist eine Farbverteilung, keine Zeitleiste.
+Blackouts werden ausgelassen. Der Tooltip nennt die ungefähren Zeitanteile.
+
+Vorhandene Cover haben Vorrang, auch wenn sie erst nachträglich eingelesen werden.
+Ohne Show oder bei ausschließlich dunklen Bildern wird kein Profil erfunden.
+Änderungen an Track- oder Abschnittsfarben werden bei der nächsten Darstellung
+aus dem neuen Showplan übernommen. Profile werden nur im Arbeitsspeicher pro Plan
+zwischengespeichert; es gibt keine Bildsuche, Uploads oder zusätzlichen KI-Aufrufe.
+
+### Farbdramaturgie und direkter Vergleich
+
+„Songanalyse“ verwendet jetzt eine separate Farbplanung pro musikalischer Phrase.
+Sie berücksichtigt Klangveränderungen, vorhandene Stimmungsinformationen und,
+sofern verfügbar, Instrumentaktivität. Wiederkehrende ähnliche Motive erhalten
+ihre Farbidentität zurück. Grund-, Begleit- und Akzentfarbe haben verschiedene
+Rollen; es gibt keinen dauernden Zweifarbenwechsel oder frei laufenden Regenbogen.
+Die Planung verwendet kräftige Farben unabhängig von der Klangtextur. Übergänge
+verlaufen über OKLCH mit Begrenzung auf darstellbares RGB; die vorhandene
+Dimmer-, Beat- und Bewegungsplanung bleibt erhalten.
+
+Im Farbmenü eines Decks kann direkt zwischen **Songanalyse · Farbdramaturgie**
+und **Songanalyse · Bisherige Farben (Vergleich)** gewechselt werden. Beide
+verwenden denselben Track, dieselbe Wiedergabeposition und dasselbe Lichtprofil.
+Die Wahl wird pro Track gespeichert. Das ist ein hör-/sichtbarer Vergleich,
+kein randomisierter Blindtest. Vorhandene manuelle Paletten und Abschnittsedits
+haben weiterhin Vorrang. Lichtbühne, Full und Profil-Cover verwenden dieselbe
+Farbspur.
+
+Für vorhandene Titel die Lichtshow neu berechnen (Show-Version 19). Für den
+Wechsel zwischen den beiden Farbplanungen danach ist keine neue Audioanalyse
+nötig. Der Ansatz ist gestalterisch und heuristisch; ob er besser gefällt, muss
+der Vergleich mit unterschiedlichen Songs und echten Lampen zeigen.
+
+### Atmosphärische Bewegung im Auto-Modus
+
+Automatische Bewegung berücksichtigt jetzt den Charakter der musikalischen
+Phrase: zeitlichen Pegelkontrast, Dichte ausgewählter Musikereignisse und
+vorhandene Evidenz für einen treibenden Rhythmus. Absolute Lautstärke allein
+löst keine Verlangsamung aus. Ein leiser Groove kann schnell bleiben; eine
+laute gehaltene Fläche kann atmosphärisch behandelt werden.
+
+In der automatischen, ausgewogenen Moving-Head-Steuerung haben atmosphärische
+Phrasen mindestens vier Sekunden Abstand zwischen Bewegungszielen und mindestens
+drei Sekunden Fahrzeit. Die automatische Geräteverteilung fügt dort keine
+zusätzliche umlaufende Helligkeitswelle oder Farbrotation hinzu. Die vorbereitete
+Helligkeit und Farbspur bleiben erhalten. Explizite Lauflicht- und Moving-Head-
+Stimmungen behalten ihre Steuerung. Vorhandene Shows neu berechnen (Version 20).
+
+Validiert mit Charakter-, Bewegungs- und Seekingtests sowie Browserprüfung der
+Moving Heads. Die Klassifikation bleibt eine Heuristik und sollte mit realen
+Songs und Lampen beurteilt werden. `scripts/check-auto-quiet-motion.mjs` zeigt
+weiterhin den bewusst erlaubten Fall: leiser, aber treibender Rhythmus kann
+häufige Bewegungsziele behalten.
+
+### Songabhängige Schwenkmotive
+
+Bei **Automatisch → Ausgewogen** plant die Moving-Head-Vorschau ihre Figuren aus
+Phrasencharakter, Klangfarbe, Energie und – sofern vorhanden – Instrumentenanteilen.
+Atmosphärische Abschnitte erhalten langsame Bögen, treibende Passagen kompakte
+rhythmische Figuren, gesangsbetonte Passagen einen engeren inneren Fokus.
+Aufbauten öffnen den Fächer im Verlauf des Abschnitts. Peaks können weiter und
+schneller werden. Ähnliche wiederkehrende Songmotive verwenden dieselbe Figur;
+bei deutlich veränderter musikalischer Evidenz entsteht eine neue Variante.
+
+Weite, Geschwindigkeit und Zielabstand werden getrennt geplant. Fahrten enden
+auf ausgewählten Musikereignissen, bleiben innerhalb der Bewegungsgrenzen und
+halten zwischen Fahrten ihre Position. Seeking verwendet die vorbereitete
+Zeitspur; Deck-Übergänge nutzen weiterhin die bestehende gewichtete Mischung.
+Farben und Helligkeiten werden durch diese Bewegungsplanung nicht verändert.
+Manuell gewählte Bewegungsstile behalten ihr bisheriges Verhalten.
+
+Seite neu laden und Moving Heads mit „Ausgewogen“ aktivieren. Bereits mit
+Show-Version 20 berechnete Songs benötigen keine neue Audioanalyse; ältere
+Shows einmal neu berechnen. Ohne Phrasenmetadaten bleibt die bisherige Planung
+als Fallback erhalten. Dies betrifft die **visuelle Moving-Head-Simulation**:
+Eine gerätespezifische DMX-Pan/Tilt-Ausgabe ist damit noch nicht implementiert.
+
+### Player-Tastenkürzel und Übergangseditor
+
+- **Leertaste / K:** Play/Pause für das Deck mit Tastaturfokus. Ohne Deckfokus
+  wird das einzige laufende Deck gewählt, sonst das am Crossfader gewählte Deck.
+- **← / →:** fünf Sekunden zurück/vor; mit **Shift** eine Sekunde.
+- **↑ / ↓:** Masterlautstärke um fünf Prozentpunkte ändern.
+- **Q / O:** Deck A/B Play/Pause; **W / P:** Cue.
+- **1–4 / 7–0:** Hotcues für A/B; mit Shift löschen.
+
+Eingabefelder, Regler und offene Dialoge sind vor globalen Kürzeln geschützt.
+Leertaste und Pfeiltasten behalten auf fokussierten Buttons und anderen nativen
+Bedienelementen ihre übliche Funktion. Gehaltene Tasten lösen keine wiederholten
+Transportaktionen aus.
+
+Der Übergangseditor öffnet direkt den Variantenvergleich. **Anhören** aktiviert
+und spielt eine Variante; **Anpassen** öffnet ihre Bearbeitung direkt in derselben
+Zeile. Dauer, aufklappbare Startstellen und optionale Lautstärkekurve gehören zur
+jeweiligen Variante. Ein zusätzlicher Auswahlschritt entfällt. Hörprobe und
+Übernehmen bleiben am unteren Rand erreichbar. Änderungen bleiben beim Vergleich
+erhalten. Zeitfelder zeigen höchstens zwei Nachkommastellen; unveränderte Werte
+behalten ihre berechnete Genauigkeit.
+Im Dialog startet/stoppt **Leertaste** die separate Kopfhörer-Hörprobe,
+**Strg/⌘ + Enter** übernimmt gültige Änderungen und **Esc** schließt den Dialog.
+Die laufenden Decks werden durch die Hörprobe nicht gesteuert.
+
+Im Übergangseditor stehen zusätzliche Kurvenkürzel bereit (außerhalb von
+Eingabefeldern): **1 / 2** wählen ausgehende/eingehende Kurve, **N** fügt einen
+Punkt hinzu, **Entf / Backspace** löschen den ausgewählten inneren Punkt.
+**Strg/⌘ Z** macht Kurvenänderungen rückgängig, **Strg/⌘ Shift Z** bzw.
+**Strg/⌘ Y** wiederholt sie. **Tab** fokussiert die Kurvenpunkte; Pfeiltasten
+verschieben den fokussierten Punkt, Shift vergrößert den Schritt. Die aktive
+Auswahl zeigt Zeit und Pegel. Die Audioeinrichtung bleibt zunächst eingeklappt;
+bei fehlendem Kopfhörerausgang führt ein eigener Button zur Einrichtung.
+
+### Persönliche Übergangsbibliothek
+
+Über **↗** am Warteschlangeneintrag oder **↗ Übergänge** im Deck werden die
+Verknüpfungen des Quelltitels geöffnet. „Anderen Titel verknüpfen“ sucht einen
+lokalen Zieltitel und öffnet den Editor. Dort die Variante benennen, bei Bedarf
+auf Kopfhörern probehören und speichern. Pro Richtung und Titelpaar sind mehrere
+Varianten möglich. Im normalen Deck-/Setlisten-Editor kann zusätzlich „In
+Übergangsbibliothek speichern“ aktiviert werden.
+
+„Als nächsten Titel wählen“ legt eine Kopie direkt hinter den gewählten Queue-Eintrag;
+beim Deck landet sie vorn in der aktuellen Queue. Die vorhandene Queue-Automatik
+bereitet sie vor; bei gestoppter Automatik diese mit „Start“ aktivieren. Es wird
+kein sofortiger Wechsel ausgelöst. Ein bereits eingereihter Zieltitel kann
+stattdessen ausdrücklich verschoben werden. Ein laufender Übergang wird nicht
+verändert; während seines Ladevorgangs ist erneutes Einfügen gesperrt.
+
+Eingeplante Übergänge behalten ihren eigenen Stand, auch wenn die Vorlage später
+geändert oder gelöscht wird. Falscher Vorgänger, andere Dateimetadaten, andere
+Länge oder abweichendes Tempo verhindern die Anwendung. Die Automatik pausiert
+bei einem unpassenden vorbereiteten Wechsel. „Übergang entfernen“ am Eintrag
+kehrt zur automatischen Planung zurück. Ein bereits vergangener Ausstieg kann
+für den aktuellen Deck-Durchlauf nicht mehr ausgewählt werden.
+
+Dateizugriff und Analyse bleiben erforderlich. Eine neue Lichtanalyse allein
+invalidiert die Vorlage nicht. Die Dateiprüfung verwendet Bibliotheks-ID, Name,
+Größe und Änderungsdatum, keinen Audio-Fingerprint. Die Bibliothek liegt in
+IndexedDB auf diesem Gerät/in diesem Browser und enthält keine Audiodateien.
+Web- und Desktop-Bibliotheken werden nicht synchronisiert; Export/Import ist
+noch nicht enthalten. Streaming-Titel werden nicht als Übergangsvorlagen erfasst.
+
+### Titel im Übergang zeitlich verschieben
+
+Im Übergangseditor zeigt „Ausschnitte für den Übergang“ zwei Zeitspuren.
+Den markierten Bereich ziehen, um die Wechselstelle im ausgehenden Titel bzw.
+den Einstieg im nächsten Titel zu verschieben. Der rechte Rand verändert die
+**gemeinsame Überblenddauer**. Dateigrenzen und Wiedergabetempo werden dabei
+berücksichtigt. „Details vergrößern“ zeigt den Bereich um den Übergang;
+„Ganzen Titel zeigen“ stellt die Gesamtübersicht wieder her.
+
+Fokussierte Markierungen lassen sich mit Links/Rechts um 0,1 Sekunden bewegen,
+mit Shift um eine Sekunde. Vorhandene Wellenformdaten werden dargestellt;
+ohne diese zeigt die Spur nur die Zeitachse. Die Änderungen betreffen die echte
+Hörprobe, gespeicherte Vorlagen und die spätere Wiedergabe. Während des Editierens
+werden die laufenden Decks nicht verschoben. Eigene Lautstärkepunkte bleiben beim
+Ändern der Zeitpunkte erhalten und werden auf die neue Überblenddauer skaliert.
+
+Die Vorschlagsliste zeigt berechnete Varianten mit Lautstärkekurven, Dauer,
+Ausstieg und Einstieg. „Anpassen“ aktiviert die Variante und öffnet ihre Einstellungen;
+„Anhören“ startet ihre separate Kopfhörer-Hörprobe. Ein weiterer Klick stoppt
+sie, eine andere Variante beendet die bisherige Probe. Ohne Kopfhörerausgang
+öffnet die Aktion die Audioauswahl direkt beim Vergleich. Änderungen an einer
+Variante bleiben beim Vergleich innerhalb des geöffneten Titelpaars erhalten.
+Die Kurven zeigen Lautstärke, nicht die zusätzliche Bass-EQ-Übergabe.
+
+Im Übergangsvergleich öffnet „Anpassen“ die Einstellungen direkt in der
+jeweiligen Vorschlagskarte. Dauer und Übergangsart lassen sich dort ändern,
+die Lautstärkekurve bei Bedarf aufklappen. „Startstellen anpassen“
+öffnet die Zeitachsen direkt innerhalb der Variante. Änderungen bleiben beim Variantenwechsel erhalten.
+Fehlende Übergangsarten werden als ausdrücklich gekennzeichnete Vorlagen
+ergänzt (sanft, Bassübergabe, kurze Überlagerung, kurzer Wechsel); diese sind
+keine zusätzlichen Analyseempfehlungen und beachten die verbleibende Titellänge.

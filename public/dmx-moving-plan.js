@@ -1,3 +1,4 @@
+import {stageMotionAt} from './stage-motion.js';
 import {movingMood} from './dmx-moving-moods.js';
 import {beatPosition} from './dmx-show.js';
 import {stageAccentStrength} from './stage-motifs.js';
@@ -19,7 +20,7 @@ export function movingPlanJob(plan,mode='auto',mood='balanced'){
   let cues;
   function target(section,k,time){
     const beat=beatPosition(grid,time),start=starts[k];
-    const source={movingMood:mood,frame:{state:true,dimming:100},weight:1,beat,
+    const source={motionCharacter:mood==='balanced'?stageMotionAt(plan,time):null,movingMood:mood,frame:{state:true,dimming:100},weight:1,beat,
       motionBeat:beat!==null&&start!==null&&start!==undefined?beat-start:null,
       look:section?.look,sectionProgress:section?(time-section.start)/Math.max(.001,section.end-section.start):0,
       accentStrength:stageAccentStrength(plan,time)};
@@ -30,7 +31,7 @@ export function movingPlanJob(plan,mode='auto',mood='balanced'){
     return result.map((p,i)=>({pan:p.pan*(i===0||i===3?1:.55),tilt:Math.max(.55,Math.min(1.15,p.tilt+((i===0||i===3) ? .04 : -.08)))}));
   }
   return {
-    result:{version:3,duration:plan.duration,step,values,mode:modes(mode),mood},
+    result:{version:4,duration:plan.duration,step,values,mode:modes(mode),mood},
     get done(){return index===count;},
     advance(samples=128){
       if(cues===undefined)cues=movingCues(plan,modes(mode),mood);

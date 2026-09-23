@@ -20,10 +20,14 @@ function hsv(h,s,v){
   const c=v*s,x=c*(1-Math.abs(h%2-1)),m=v-c;
   return [[c,x,0],[x,c,0],[0,c,x],[0,x,c],[x,0,c],[c,0,x]][Math.floor(h)].map(n=>Math.round(n+m));
 }
-export function automaticPalette(frame,count,look){
+export function automaticPalette(frame,count,look,sourcePalette=null){
   count=colorCount(count);
   const rgb=['r','g','b'].map(k=>clamp(Number.isFinite(frame?.[k])?frame[k]:0,0,255));
   if(count===1)return [rgb];
+  if(Array.isArray(sourcePalette)&&sourcePalette.length&&sourcePalette.every(c=>Array.isArray(c)&&c.length===3&&c.every(v=>Number.isFinite(v)&&v>=0&&v<=255))){
+    const ordered=[...sourcePalette].sort((a,b)=>a.reduce((s,v,i)=>s+(v-rgb[i])**2,0)-b.reduce((s,v,i)=>s+(v-rgb[i])**2,0));
+    return Array.from({length:count},(_,i)=>i===0?rgb:[...ordered[Math.round(i*(ordered.length-1)/(count-1))]]);
+  }
   const {h,s,v}=rgbHue(rgb);
   // A shared harmonic palette follows the source show, never a free-running rainbow.
   const offsets=quiet(look)?[0,.08,-.08,.16]:count===2?[0,.5]:count===3?[0,1/3,2/3]:[0,.08,.5,.58];
@@ -53,7 +57,7 @@ export function automaticStage(streams,count=2,equipment,mode='auto'){
   count=Math.max(...counts);
   // The prepared frame already contains musical color events and user edits.
   // A motif's opening color must not freeze that live color for the section.
-  const palettes=active.map((s,k)=>{const p=automaticPalette(s.frame,counts[k],s.look);return Array.from({length:count},(_,i)=>p[i%p.length]);});
+  const palettes=active.map((s,k)=>{const p=automaticPalette(s.frame,counts[k],s.look,s.palette);return Array.from({length:count},(_,i)=>p[i%p.length]);});
   // Blend colors per palette slot before distributing them: at most N color
   // families remain on stage, including while two decks crossfade.
   const palette=Array.from({length:count},(_,i)=>[0,1,2].map(c=>Math.round(active.reduce((sum,s,k)=>sum+palettes[k][i][c]*s.weight,0)/total)));
@@ -61,7 +65,7 @@ export function automaticStage(streams,count=2,equipment,mode='auto'){
   // Strong musical hits belong to the whole stage. Brightness-weighted
   // emphasis prevents a dark or fading deck from overriding the audible one.
   const accent=level>0?active.reduce((sum,s)=>sum+clamp(s.frame.dimming||0,0,100)*passageIntensity(s.look,s.sectionProgress)*s.weight*clamp(Number.isFinite(s.accentStrength)?s.accentStrength:0,0,1),0)/(total*level):0;
-  const calm=quiet(main.look),peak=main.look==='peak',build=main.look==='lift';
+  const calm=quiet(main.look)||mode==='auto'&&main.motionCharacter==='atmospheric',peak=main.look==='peak',build=main.look==='lift';
   const progress=clamp(Number.isFinite(main.sectionProgress)?main.sectionProgress:0,0,1);
   const period=peak?2:build?(chase?4:8-6*progress):8;
   const phase=beat===null?0:((beat/period)%1+1)%1;

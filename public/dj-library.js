@@ -69,3 +69,6 @@ export const saveShow=(track,options)=>transaction('readwrite',store=>store.put(
   structureState:track.structureState==='running'?'pending':track.structureState,
   analysisWarnings:track.analysisWarnings||[],state:track.state||'',
 },track.id),'shows');
+
+export const readTransitionLibrary=()=>transaction('readonly',store=>store.get('transitionLibrary'),'settings');
+export const saveTransitionLibrary=value=>transaction('readwrite',store=>store.put(value,'transitionLibrary'),'settings');

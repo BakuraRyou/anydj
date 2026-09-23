@@ -43,6 +43,9 @@ try {
   await c('Page.navigate',{url:base+'/dj'});await wait("document.querySelector('.transition-preview-open')");
   await evaluate("document.querySelector('.transition-preview-open').click()");
   assert.ok(await evaluate("document.querySelector('.dj-transition-preview .dj-routing')!==null"));
+  assert.ok(await evaluate("document.querySelector('.dj-transition-preview .preview-configure').checkVisibility()"));
+  await evaluate("document.querySelector('.dj-transition-preview .preview-configure').click()");
+  assert.ok(await evaluate("(()=>{const r=document.querySelector('.dj-transition-preview .dj-routing');return r.open&&r.checkVisibility()&&(r.querySelector('[data-output=cue]').checkVisibility()||r.querySelector('[data-output-select=cue]').checkVisibility());})()"));
   assert.ok(await evaluate("document.querySelector('.dj-transition-preview [data-status]').textContent.includes('Deck A')"));
   assert.equal(await evaluate("document.querySelector('.dj-transition-preview [data-play]').disabled"),true);
   await evaluate("document.querySelector('.dj-transition-preview').close()");
@@ -62,17 +65,63 @@ try {
     AudioContext.prototype.setSinkId=async function(id){previewSinks.push(id);if(failSink)throw Error('Test: Ausgang getrennt');await originalSink.call(this,'');Object.defineProperty(this,'sinkId',{configurable:true,value:id});};
     window.liveDeck=new Audio(previewURL);liveDeck.loop=true;await liveDeck.play();
     window.routingEvents=new EventTarget();window.previewOutput={deviceId:'test-headphones',label:'Test-Kopfhörer'};
-    const routingHost=document.createElement('details');routingHost.innerHTML='<summary>Audioausgänge & Vorhören</summary>';host.append(routingHost);
+    const routingHost=document.createElement('details');routingHost.className='dj-routing';routingHost.innerHTML='<summary>Audioausgänge & Vorhören</summary>';host.append(routingHost);
     window.originalAudio=window.Audio;window.previewAudio=[];window.Audio=function(...args){const a=new originalAudio(...args);previewAudio.push(a);return a;};
-    createTransitionPreview({host,getPair:direction=>{previewDirection=direction;return {from:deck(direction==='1'?'B':'A'),to:deck(direction==='1'?'A':'B'),position:0,plan:{time:1,cue:.2,duration:.6,style:'smooth',label:'Sanft'}};},routing:{routingHost,getPreviewOutput:()=>previewOutput,subscribeOutput:listener=>{routingEvents.addEventListener('change',listener);return ()=>routingEvents.removeEventListener('change',listener);}},onChoose:(_,choice)=>{previewApplied=choice;return true;}});
+    createTransitionPreview({host,getPair:direction=>{previewDirection=direction;return {from:deck(direction==='1'?'B':'A'),to:deck(direction==='1'?'A':'B'),position:0,plan:{time:1,cue:.2,duration:.612345,style:'smooth',label:'Sanft',alternatives:[{time:1,cue:.2,duration:.612345,style:'smooth',label:'Sanft'},{time:2,cue:1,duration:1,style:'bass',label:'Bassübergabe'}]}};},routing:{routingHost,getPreviewOutput:()=>previewOutput,subscribeOutput:listener=>{routingEvents.addEventListener('change',listener);return ()=>routingEvents.removeEventListener('change',listener);}},onChoose:(_,choice)=>{previewApplied=choice;return true;}});
     host.querySelector('button').click();window.previewEditor=[...document.querySelectorAll('.dj-transition-preview')].at(-1);
     window.previewEdit=(key,value)=>{const input=previewEditor.querySelector('[data-edit-'+key+']');input.value=value;input.dispatchEvent(new Event(key==='style'?'change':'input'));};
   })()`});
   assert.equal(await evaluate("previewEditor.querySelector('[data-choose]').disabled"),false);
+  assert.equal(await evaluate("previewEditor.querySelector('[data-edit-style]').checkVisibility()"),false);
+
+  assert.equal(await evaluate("previewEditor.querySelector('[data-edit-style]').checkVisibility()"),false);
+  assert.equal(await evaluate("previewEditor.querySelectorAll('[data-proposal-choose]').length"),4);
+  await evaluate("previewEditor.querySelector('[data-proposal-choose=\"1\"]').click();previewEdit('duration',1.5);previewEditor.querySelector('[data-proposal-choose=\"0\"]').click();previewEditor.querySelector('[data-proposal-choose=\"1\"]').click()");
+  assert.equal(await evaluate("previewEditor.querySelector('[data-edit-duration]').value"),'1.5','variant edits survive comparison');
+  await evaluate("previewEditor.querySelector('[data-proposal-choose=\"0\"]').click()");
+  await evaluate("previewEditor.querySelector('[data-proposal-edit=\"1\"]').click()");
+  assert.ok(await evaluate("!previewEditor.querySelector('.proposal-editor').hidden&&previewEditor.querySelector('.proposal-editor').closest('article').querySelector('[data-proposal-edit=\"1\"]')!==null&&document.activeElement===previewEditor.querySelector('[data-edit-duration]')"));
+  await evaluate("previewEditor.querySelector('[data-proposal-choose=\"0\"]').click();previewEditor.querySelector('.preview-advanced').open=false");
+
+  assert.equal(await evaluate("previewEditor.querySelector('.transition-timeline').checkVisibility()"),false);
+
+  assert.equal(await evaluate("previewEditor.querySelector('[data-choose]').checkVisibility()"),true);
+  await evaluate("previewEditor.querySelector('[data-proposal-edit=\"0\"]').click();previewEditor.querySelector('[data-edit-places]').click()");
+  assert.equal(await evaluate("previewEditor.querySelector('.transition-timeline').checkVisibility()"),true);
+
+  assert.equal(await evaluate("previewEditor.querySelector('[data-edit-duration]').value"),'0.61');
+  await evaluate("previewEdit('duration',1);previewEdit('duration',.61);previewEditor.querySelector('[data-choose]').click()");
+  assert.equal(await evaluate("previewApplied.duration"),.612345,'rounded display preserves the original value when restored');
   await evaluate("previewEdit('time',7.8)");assert.equal(await evaluate("previewEditor.querySelector('[data-play]').disabled"),true);
-  await evaluate("previewEdit('time',1.2);previewEdit('cue',.4);previewEdit('duration',.8);previewEdit('style','bass');previewEditor.querySelector('[data-choose]').click()");
+  await evaluate("previewEdit('time',1.2);previewEdit('cue',.4);previewEdit('duration',.8);previewEdit('style','bass');previewEditor.dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',ctrlKey:true,bubbles:true,cancelable:true}))");
   assert.deepEqual(await evaluate("[previewApplied.time,previewApplied.cue,previewApplied.duration,previewApplied.style]"),[1.2,.4,.8,'bass']);
   assert.equal(await evaluate("previewEditor.querySelectorAll('svg.transition-curve-editor').length"),1);
+  assert.equal(await evaluate("previewEditor.querySelector('.preview-advanced').open"),false);
+  await evaluate("previewEditor.querySelector('[data-proposal-edit=\"0\"]').click();previewEditor.querySelector('.preview-advanced').open=true");
+  await evaluate(`window.curveKey=(key,extra={})=>previewEditor.dispatchEvent(new KeyboardEvent('keydown',{key,bubbles:true,cancelable:true,...extra}));curveKey('2');curveKey('n');`);
+  assert.equal(await evaluate("previewEditor.querySelectorAll('[data-point][data-channel=\"1\"]').length"),6);
+  await evaluate("curveKey('z',{ctrlKey:true})");
+  assert.equal(await evaluate("previewEditor.querySelectorAll('[data-point][data-channel=\"1\"]').length"),5);
+  await evaluate("curveKey('z',{ctrlKey:true,shiftKey:true})");
+  assert.equal(await evaluate("previewEditor.querySelectorAll('[data-point][data-channel=\"1\"]').length"),6);
+  await evaluate("curveKey('z',{ctrlKey:true});curveKey('1');const input=previewEditor.querySelector('[data-edit-time]');input.dispatchEvent(new KeyboardEvent('keydown',{key:'n',bubbles:true,cancelable:true}))");
+  assert.equal(await evaluate("previewEditor.querySelectorAll('[data-point]').length"),10);
+  await evaluate("previewEditor.querySelector('[data-edit-places]').click()");
+  await evaluate(`const start=previewEditor.querySelector('[data-timeline-start="cue"]');start.dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',shiftKey:true,bubbles:true,cancelable:true}));previewEditor.querySelector('[data-choose]').click()`);
+  assert.ok(Math.abs(await evaluate("previewApplied.cue")-1.4)<1e-8);
+  await evaluate(`previewEditor.querySelector('[data-timeline-end="cue"]').dispatchEvent(new KeyboardEvent('keydown',{key:'ArrowRight',bubbles:true,cancelable:true}));previewEditor.querySelector('[data-choose]').click()`);
+  assert.ok(Math.abs(await evaluate("previewApplied.duration")-.9)<1e-8);
+  await evaluate("previewEdit('cue',.4);previewEdit('duration',.8)");
+  for(const [selector,key] of [['[data-timeline-start="cue"]','cue'],['[data-timeline-end="cue"]','duration']]){
+   const grip=await evaluate(`(()=>{const n=previewEditor.querySelector('${selector}');n.scrollIntoView({block:'center'});const r=n.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};})()`);
+   await c('Input.dispatchMouseEvent',{type:'mousePressed',...grip,button:'left',clickCount:1});
+   await c('Input.dispatchMouseEvent',{type:'mouseMoved',x:grip.x+20,y:grip.y,button:'left',buttons:1});
+   await c('Input.dispatchMouseEvent',{type:'mouseReleased',x:grip.x+20,y:grip.y,button:'left',clickCount:1});
+   await evaluate("previewEditor.querySelector('[data-choose]').click()");
+   assert.ok(await evaluate(`previewApplied.${key}>${key==='cue'?.4:.8}`),'drag changes '+key);
+   await evaluate("previewEdit('cue',.4);previewEdit('duration',.8)");
+  }
+
   const initialPoints=await evaluate("previewEditor.querySelectorAll('[data-point]').length");
   await evaluate("previewEditor.querySelector('[data-add]').click()");
   assert.equal(await evaluate("previewEditor.querySelectorAll('[data-point]').length"),initialPoints+1);
@@ -88,17 +137,27 @@ try {
   await c('Input.dispatchMouseEvent',{type:'mouseReleased',x:handle.x+15,y:handle.y+10,button:'left',clickCount:1});
   await evaluate("previewEditor.querySelector('[data-choose]').click()");
   assert.notEqual(await evaluate("JSON.stringify(previewApplied.points)"),before);
-  await c('Runtime.evaluate',{expression:"previewEditor.querySelector('[data-play]').click()",userGesture:true});
+  for(const step of [0,1,2]){
+    await evaluate(`previewEditor.querySelector('[data-proposal-edit="${step}"]').click()`);
+    assert.ok(await evaluate("previewEditor.querySelector('.preview-configure').checkVisibility()"));
+  }
+  await evaluate("previewEditor.querySelector('.preview-configure').click()");
+  assert.ok(await evaluate("previewEditor.querySelector('.preview-configure').textContent.includes('ändern')&&previewEditor.querySelector('.dj-routing').open"));
+
+  await c('Runtime.evaluate',{expression:"previewEditor.querySelector('[data-proposal-listen=\"0\"]').click()",userGesture:true});
   await wait("previewEditor.querySelector('[data-status]').textContent.includes('Hörprobe läuft')");
   assert.equal(await evaluate("liveDeck.paused"),false);
   assert.deepEqual(await evaluate("previewSinks"),['test-headphones']);
+  assert.ok(await evaluate("previewEditor.querySelector('.preview-proposals').checkVisibility()"));
   assert.equal(await evaluate("previewEditor.querySelector('[data-pause-play]')"),null);
   assert.ok(await evaluate("previewAudio.length===2&&previewAudio.every(a=>!a.paused&&a.currentTime>0)"));
-  await evaluate("previewEditor.querySelector('[data-stop]').click()");
+  await evaluate("previewEditor.dispatchEvent(new KeyboardEvent('keydown',{key:' ',bubbles:true,cancelable:true}))");
   assert.ok(await evaluate("previewAudio.every(a=>a.paused&&!a.getAttribute('src'))"));
   await c('Runtime.evaluate',{expression:"previewEditor.querySelector('[data-play]').click()",userGesture:true});
   await wait("previewEditor.querySelector('[data-status]').textContent.includes('Hörprobe läuft')");
   await evaluate("previewOutput=null;routingEvents.dispatchEvent(new Event('change'))");
+  await evaluate("previewEditor.querySelector('[data-proposal-listen=\"0\"]').click()");
+  assert.ok(await evaluate("previewEditor.querySelector('.preview-proposals').checkVisibility()&&previewEditor.querySelector('.dj-routing').open"));
   assert.ok(await evaluate("previewAudio.every(a=>a.paused)&&!liveDeck.paused&&previewEditor.querySelector('[data-play]').disabled"));
   await evaluate("previewOutput={deviceId:'test-headphones',label:'Test-Kopfhörer'};routingEvents.dispatchEvent(new Event('change'));failSink=true");
   await c('Runtime.evaluate',{expression:"previewEditor.querySelector('[data-play]').click()",userGesture:true});
@@ -106,18 +165,26 @@ try {
   assert.ok(await evaluate("previewAudio.every(a=>a.paused)&&!liveDeck.paused"));
   await evaluate("failSink=false;previewEditor.querySelector('[data-stop]').click();const direction=previewEditor.querySelector('[data-direction]');direction.value='1';direction.dispatchEvent(new Event('change'))");
   assert.equal(await evaluate("previewDirection"),'1');
+  await evaluate("previewEditor.querySelector('.preview-advanced').open=false;previewEditor.querySelector('[data-edit-places]').click()");
   for(const [width,height] of [[1280,900],[390,844]]){
     await c('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<500});
     assert.ok(await evaluate("previewEditor.scrollWidth<=previewEditor.clientWidth&&document.documentElement.scrollWidth<=innerWidth"));
     await writeFile(new URL(`../reports/transition-editor-${width}.png`,import.meta.url),Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
+    for(const step of [1,2]){
+     await evaluate(`previewEditor.querySelector('[data-proposal-edit="${step}"]').click()`);
+     assert.ok(await evaluate("previewEditor.scrollWidth<=previewEditor.clientWidth"));
+     await writeFile(`/tmp/anydj-editor-step-${step}-${width}.png`,Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
+    }
+    await evaluate("previewEditor.querySelector('[data-edit-places]').click()");
+
   }
   await c('Runtime.evaluate',{userGesture:true,awaitPromise:true,expression:`(async()=>{
     const {createPerformance}=await import('/dj-performance.js');
     window.routingMixer=document.createElement('section');document.body.append(routingMixer);
     window.routingContext=null;
+    Object.defineProperty(navigator.mediaDevices,'selectAudioOutput',{configurable:true,value:async()=>window.selectedDevice});
     window.routingControl=createPerformance({decks:[],mixer:routingMixer,ready:async()=>{if(!routingContext){routingContext=new AudioContext();routingControl.connect(routingContext);}await routingContext.resume();},manual:()=>{},save:()=>{},report:()=>{},sync:()=>{}});
     document.body.append(routingControl.routingHost); // Routing also works when moved into the transition dialog.
-    Object.defineProperty(navigator.mediaDevices,'selectAudioOutput',{configurable:true,value:async()=>window.selectedDevice});
     window.mediaSink=HTMLMediaElement.prototype.setSinkId;HTMLMediaElement.prototype.setSinkId=async function(id){};
     window.routingChanges=0;routingControl.subscribeOutput(()=>routingChanges++);
     window.selectedDevice={deviceId:'master',groupId:'master-group',label:'Master'};
@@ -133,6 +200,56 @@ try {
   assert.equal(await evaluate("routingControl.getPreviewOutput()"),null);
   assert.ok(await evaluate("routingChanges>0&&!liveDeck.paused"));
   await evaluate("routingControl.destroy();routingControl.routingHost.remove();routingContext.close();routingMixer.remove();HTMLMediaElement.prototype.setSinkId=mediaSink");
+  await c('Runtime.evaluate',{userGesture:true,awaitPromise:true,expression:`(async()=>{
+    Object.defineProperty(navigator.mediaDevices,'selectAudioOutput',{configurable:true,value:undefined});
+    window.originalEnumerate=navigator.mediaDevices.enumerateDevices;
+    navigator.mediaDevices.enumerateDevices=async()=>[
+      {kind:'audiooutput',deviceId:'speakers',groupId:'speakers',label:'Lautsprecher'},
+      {kind:'audiooutput',deviceId:'headphones',groupId:'headphones',label:'WH-1000XM5'},
+      {kind:'audioinput',deviceId:'mic',label:'Mikrofon'}].map(device=>Object.create(Object.defineProperties({},Object.fromEntries(Object.entries(device).map(([key,value])=>[key,{get:()=>value}])))));
+    HTMLMediaElement.prototype.setSinkId=async()=>{};
+    const {createPerformance}=await import('/dj-performance.js');
+    window.routingMixer=document.createElement('section');document.body.append(routingMixer);window.routingContext=null;
+    window.routingControl=createPerformance({decks:[],mixer:routingMixer,ready:async()=>{if(!routingContext){routingContext=new AudioContext();routingControl.connect(routingContext);}await routingContext.resume();},manual:()=>{},save:()=>{},report:()=>{},sync:()=>{}});
+    routingControl.routingHost.open=true;
+  })()`});
+  await wait("routingControl.routingHost.querySelector('[data-output-select=master]').options.length===3");
+  assert.ok(await evaluate("routingControl.routingHost.querySelector('[data-output-select=cue]').disabled"));
+  await c('Runtime.evaluate',{userGesture:true,expression:"(()=>{const s=routingControl.routingHost.querySelector('[data-output-select=master]');s.value='speakers';s.dispatchEvent(new Event('change'));})()"});
+  await wait("!routingControl.routingHost.querySelector('[data-output-select=cue]').disabled");
+  assert.ok(await evaluate("routingControl.routingHost.querySelector('[data-output-select=cue] option[value=speakers]').disabled"));
+  await c('Runtime.evaluate',{userGesture:true,expression:"(()=>{const s=routingControl.routingHost.querySelector('[data-output-select=cue]');s.value='headphones';s.dispatchEvent(new Event('change'));})()"});
+  await wait("routingControl.getPreviewOutput()?.deviceId==='headphones'");
+  assert.equal(await evaluate("routingControl.routingHost.querySelector('[data-output-select=master]').value"),'speakers');
+  assert.equal(await evaluate("routingControl.routingHost.querySelector('[data-output-select=cue]').value"),'headphones');
+  assert.equal(await evaluate("routingControl.getPreviewOutput().label"),'WH-1000XM5');
+  await evaluate("previewOutput=routingControl.getPreviewOutput();routingEvents.dispatchEvent(new Event('change'))");
+  await c('Runtime.evaluate',{userGesture:true,expression:"previewEditor.querySelector('[data-proposal-listen=\"0\"]').click()"});
+  await wait("previewEditor.querySelector('[data-status]').textContent.includes('Hörprobe läuft · WH-1000XM5')");
+  assert.equal(await evaluate("previewSinks.at(-1)"),'headphones');
+  assert.ok(await evaluate("previewEditor.querySelector('.preview-proposals [data-status]').checkVisibility()&&!liveDeck.paused"));
+  await evaluate("previewEditor.querySelector('[data-stop]').click()");
+  await evaluate("previewEditor.querySelector('.preview-output-bar').after(routingControl.routingHost);previewEditor.scrollTop=0");
+  for(const width of [1280,390]){
+    await c('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width<500});
+    assert.ok(await evaluate("previewEditor.scrollWidth<=previewEditor.clientWidth"));
+    await writeFile(`/tmp/anydj-audio-routing-${width}.png`,Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  }
+  await evaluate("(()=>{const level=routingControl.routingHost.querySelector('[data-cue-level]');level.value='0.32';level.dispatchEvent(new Event('input'));})()");
+  assert.deepEqual(await evaluate("JSON.parse(localStorage.getItem('anydj.audio-routing.v1'))"),{master:'speakers',cue:'headphones',level:.32});
+  await c('Runtime.evaluate',{userGesture:true,awaitPromise:true,expression:`(async()=>{
+    routingControl.destroy();routingControl.routingHost.remove();await routingContext.close();routingMixer.remove();
+    const {createPerformance}=await import('/dj-performance.js');
+    window.routingMixer=document.createElement('section');document.body.append(routingMixer);window.routingContext=null;
+    window.routingControl=createPerformance({decks:[],mixer:routingMixer,ready:async()=>{if(!routingContext){routingContext=new AudioContext();routingControl.connect(routingContext);}await routingContext.resume();},manual:()=>{},save:()=>{},report:()=>{},sync:()=>{}});
+  })()`});
+  await wait("routingControl.getPreviewOutput()?.deviceId==='headphones'");
+  assert.equal(await evaluate("routingControl.routingHost.querySelector('[data-output-select=master]').value"),'speakers');
+  assert.equal(await evaluate("routingControl.routingHost.querySelector('[data-cue-level]').value"),'0.32');
+  await evaluate("navigator.mediaDevices.dispatchEvent(new Event('devicechange'))");
+  assert.equal(await evaluate("routingControl.getPreviewOutput()"),null);
+  assert.equal(await evaluate("JSON.parse(localStorage.getItem('anydj.audio-routing.v1')).cue"),'headphones');
+  await evaluate("routingControl.destroy();routingControl.routingHost.remove();routingContext.close();routingMixer.remove();navigator.mediaDevices.enumerateDevices=originalEnumerate;HTMLMediaElement.prototype.setSinkId=mediaSink");
   await evaluate("previewEditor.close();window.Audio=originalAudio;AudioContext.prototype.setSinkId=originalSink;liveDeck.pause();URL.revokeObjectURL(previewURL)");
   assert.deepEqual(errors,[]);console.log('Transition editor passed: missing-pair guidance, manual edits, bounds, single-proposal apply, separate output selection, uninterrupted live audio, output loss and routing failure, real audio rehearsal, replay, direction and responsive layout.');
 

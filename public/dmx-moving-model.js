@@ -12,7 +12,7 @@ function sourcePose(source,i,mode){
   if(beat===null)return rest;
   const mood=MOVING_MOODS[movingMood(source.movingMood)];
   const progress=clamp(finite(source.sectionProgress),0,1);
-  const quiet=['held','quiet','break','outro'].includes(source.look)||mode==='wash';
+  const quiet=mode==='auto'&&source.motionCharacter==='atmospheric'||['held','quiet','break','outro'].includes(source.look)||mode==='wash';
   const peak=source.look==='peak',build=source.look==='lift';
   const accent=quiet?0:clamp(finite(source.accentStrength),0,1);
   const phase=period=>2*Math.PI*(((beat*mood.tempo)%period)/period);

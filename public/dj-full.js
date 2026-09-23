@@ -13,7 +13,7 @@ export function createFullMode(trigger,{adjustFrame=frame=>frame}={}){
   const active=latestStreams.filter(s=>s.frame&&s.frame.state!==false&&s.weight>0);
   const streams=active.length?active:latestFrame?[{frame:latestFrame,weight:1}]:[];
   const total=streams.reduce((sum,s)=>sum+s.weight,0);
-  const palettes=streams.map(s=>automaticPalette(s.frame,4,s.look));
+  const palettes=streams.map(s=>automaticPalette(s.frame,4,s.look,s.palette));
   colors.forEach((node,i)=>{
    const rgb=[0,1,2].map(c=>total?Math.round(streams.reduce((sum,s,k)=>sum+palettes[k][i][c]*s.weight,0)/total):0);
    const color=adjustFrame({r:rgb[0],g:rgb[1],b:rgb[2],dimming:100});

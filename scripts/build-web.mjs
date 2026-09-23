@@ -6,7 +6,7 @@ const root=fileURLToPath(new URL('../',import.meta.url)),output=join(root,'dist'
 await rm(output,{recursive:true,force:true});await mkdir(output,{recursive:true});
 // Only public code/styles. Never include models, music, device configuration or server files.
 for(const file of await readdir(join(root,'public'))){
-  if(/\.(js|css)$/.test(file)||file==='tutorial.json')await cp(join(root,'public',file),join(output,file));
+  if(/\.(js|css)$/.test(file)||file==='tutorial.json'||file==='animatus-small.svg')await cp(join(root,'public',file),join(output,file));
 }
 let dj=await readFile(join(root,'public','dj.html'),'utf8');
 dj=dj.replace('<html lang="de">','<html lang="de" data-edition="web">')

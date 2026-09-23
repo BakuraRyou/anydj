@@ -85,6 +85,9 @@ test('Kräftige Schläge treiben Helligkeit, ohne bei hoher Farbkontur ständig 
   const plan=compileShow(percussion,duration,settings({arrangement:'auto'}),grid,structure);
   let moving=0;
   for(let t=22;t<30;t+=.5){const a=showFrameAt(plan,t+.125),b=showFrameAt(plan,t+.375);if(['r','g','b'].reduce((sum,key)=>sum+Math.abs(a[key]-b[key]),0)>40)moving++;}
-  assert.equal(moving,0);
+  // The new phrase design may finish its entrance accent with a soft return;
+  // it must not turn every drum hit into a hue change.
+  assert.ok(moving<=2);
+  assert.ok(plan.colorDirection.events.filter(e=>e.time>=22&&e.time<30).length<=1);
   assert.ok(showFrameAt(plan,26).dimming-showFrameAt(plan,26.375).dimming>15);
 });

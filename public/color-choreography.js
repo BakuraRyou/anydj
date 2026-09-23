@@ -1,8 +1,11 @@
+import {applyColorDirection,directionAt} from './color-direction.js';
+import {songPaletteAt} from './song-palette.js';
 const rgb=frame=>[frame.r,frame.g,frame.b];
 const distance=(a,b)=>a.reduce((sum,v,i)=>sum+Math.abs(v-b[i]),0);
 // Color changes are held between selected musical events, rather than returning
 // to the same hue after every brightness pulse. No wall-clock color oscillator.
 export function choreographColors(plan,profile='auto') {
+  if(plan.directionActive&&plan.effectiveOptions?.palette!=='custom')return applyColorDirection(plan);
   if(profile==='calm'||profile==='atmospheric')return {...plan,frames:plan.choreographyBaseFrames||plan.frames,colorEvents:[]};
   if(!plan.arrangement)return plan;
   const frames=plan.choreographyBaseFrames||plan.frames;
@@ -14,11 +17,12 @@ export function choreographColors(plan,profile='auto') {
     if(!section||section.look==='held')continue;
     const local=source.times.map((time,index)=>({time,index})).filter(e=>e.time>=phrase.start&&e.time<phrase.end&&source.accents[e.index]>=.12);
     if(local.length<2)continue;
-    const a=palette[(section.motif||0)%palette.length];
-    let b=palette.reduce((best,c)=>distance(a,c)>distance(a,best)?c:best,a);
+    const musicalPalette=songPaletteAt(plan,phrase.start)||palette;
+    const a=musicalPalette[(section.motif||0)%musicalPalette.length];
+    let b=musicalPalette.reduce((best,c)=>distance(a,c)>distance(a,best)?c:best,a);
     // Automatic palettes may be very narrow. Add a complementary anchor;
     // an explicitly chosen custom palette remains under the user's control.
-    if(distance(a,b)<240&&plan.effectiveOptions?.palette!=='custom')b=a.map(v=>Math.max(10,255-v));
+    if(distance(a,b)<240&&!plan.soundPalettes?.length&&plan.effectiveOptions?.palette!=='custom')b=a.map(v=>Math.max(10,255-v));
     if(distance(a,b)<60)continue;
     let ordinal=0,last=-Infinity;
     for(const [j,{time,index}] of local.entries()){
@@ -39,8 +43,11 @@ export function choreographColors(plan,profile='auto') {
       if(phrase.kind==='sweep'&&profile!=='disco'&&j>0&&!onBar&&bars.length)continue;
       // Supporting sections use a narrower pair; a refrain opens the full
       // contrast instead of merely reversing the same two colors.
-      const partner=section.role==='support'?a.map((v,c)=>Math.round(v*.65+b[c]*.35)):b;
-      const color=(ordinal++%2?partner:a).map(v=>Math.round(v));
+      const live=songPaletteAt(plan,time);
+      const primary=live?live[(section.motif||0)%live.length]:a;
+      const contrast=live?live.reduce((best,c)=>distance(primary,c)>distance(primary,best)?c:best,primary):b;
+      const partner=section.role==='support'?primary.map((v,c)=>Math.round(v*.65+contrast[c]*.35)):contrast;
+      const color=(ordinal++%2?partner:primary).map(v=>Math.round(v));
       events.push({time,end:phrase.end,r:color[0],g:color[1],b:color[2],section:phrase.section});last=time;
     }
   }
@@ -49,6 +56,7 @@ export function choreographColors(plan,profile='auto') {
   return result;
 }
 export function colorFrameAt(plan,time,frame) {
+  if(plan.directionActive){const colors=directionAt(plan.colorDirection,time);if(colors)return {...frame,r:colors[0][0],g:colors[0][1],b:colors[0][2]};}
   const events=plan.colorEvents;
   if(!events?.length)return frame;
   let lo=0,hi=events.length;

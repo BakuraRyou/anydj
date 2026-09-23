@@ -15,12 +15,20 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
  const outputEvents=new EventTarget();
  const notifyOutput=()=>outputEvents.dispatchEvent(new Event('change'));
  let ctx,master,masterMeter,limiter,cueBus,cueAudio,cueDestination,outputs={},dead=false,recorder,recordDestination,recordUrl,recordTimer,outputBusy=false,outputEpoch=0,recordPending=false;
+ const routingKey='anydj.audio-routing.v1';
+ let savedRouting={};
+ try{const value=JSON.parse(localStorage.getItem(routingKey)||'{}');if(value&&typeof value==='object')savedRouting=value;}catch{}
+ let restoring=false,restorePending=Boolean(savedRouting.master||savedRouting.cue);
+ function persistRouting(){
+  try{localStorage.setItem(routingKey,JSON.stringify(savedRouting));}catch{q('[data-routing]').textContent+=' · Einstellungen konnten nicht gespeichert werden.';}
+ }
  const grid=d=>d.track?.plan?.beatGrid?.beats||d.track?.plan?.beatTiming?.times;
  const clampTime=(d,t)=>Math.max(0,Math.min((Number.isFinite(d.audio.duration)?d.audio.duration:d.track?.plan?.duration||0)-.01,t));
  const host=document.createElement('div');host.className='dj-master';
- host.innerHTML='<label>Master <input data-master type="range" min="0" max="1" step="0.01" value="0.8"><output data-master-value>80 %</output></label><div class="dj-level"><meter data-master-meter min="0" max="1" low="0.1" high="0.9" optimum="0.5" value="0" aria-label="Masterpegel"></meter><span data-peak>−∞ dBFS</span></div><details class="dj-routing"><summary>Audioausgänge & Vorhören</summary><p>Master und Kopfhörer müssen unterschiedliche physische Ausgänge sein. Beim Ausfall eines Ausgangs wird Vorhören ausgeschaltet.</p><button type="button" data-output="master" class="button secondary">Master-Ausgang wählen</button><button type="button" data-output="cue" class="button secondary">Kopfhörer wählen</button><p data-routing role="status">Master: Systemausgang · Vorhören aus</p><label>Kopfhörerlautstärke <input data-cue-level type="range" min="0" max="1" step="0.01" value="0.5"></label></details><details class="dj-shortcuts"><summary>Tastenkürzel</summary><p>Deck A: Q Play/Pause, W Cue, 1–4 Hotcues.<br>Deck B: O Play/Pause, P Cue, 7–0 Hotcues.<br>Shift + Hotcue löscht die Marke. Leere Marke: setzen; belegte Marke: anspringen. In Eingabefeldern sind Kürzel aus.</p></details>';
+ host.innerHTML='<label>Master <input data-master type="range" min="0" max="1" step="0.01" value="0.8"><output data-master-value>80 %</output></label><div class="dj-level"><meter data-master-meter min="0" max="1" low="0.1" high="0.9" optimum="0.5" value="0" aria-label="Masterpegel"></meter><span data-peak>−∞ dBFS</span></div><details class="dj-routing"><summary>Audioausgänge & Vorhören</summary><p>Master und Kopfhörer müssen unterschiedliche physische Ausgänge sein. Beim Ausfall eines Ausgangs wird Vorhören ausgeschaltet.</p><button type="button" data-output="master" class="button secondary">Master-Ausgang wählen</button><button type="button" data-output="cue" class="button secondary">Kopfhörer wählen</button><p data-routing role="status">Master: Systemausgang · Vorhören aus</p><label>Kopfhörerlautstärke <input data-cue-level type="range" min="0" max="1" step="0.01" value="0.5"></label></details><details class="dj-shortcuts"><summary>Tastenkürzel</summary><p>Leertaste / K: Play/Pause. ← / →: 5 Sekunden springen (Shift: 1 Sekunde). ↑ / ↓: Master ±5 %. Gilt für das fokussierte Deck, sonst das laufende bzw. am Crossfader gewählte Deck.<br>Deck A: Q Play/Pause, W Cue, 1–4 Hotcues.<br>Deck B: O Play/Pause, P Cue, 7–0 Hotcues.<br>Shift + Hotcue löscht die Marke. Leere Marke: setzen; belegte Marke: anspringen. In Eingabefeldern sind Kürzel aus.</p></details>';
  mixer.append(host);const routingHost=host.querySelector('.dj-routing');
  const q=s=>host.querySelector(s)||(routingHost.matches(s)?routingHost:routingHost.querySelector(s));
+ if(Number.isFinite(savedRouting.level))q('[data-cue-level]').value=String(Math.max(0,Math.min(1,savedRouting.level)));
  const recording=document.createElement('div');recording.className='dj-recording';
  recording.innerHTML='<button type="button" class="button secondary" data-record>Mix aufnehmen</button><a data-download hidden>Aufnahme herunterladen</a><p data-record-status role="status" class="small muted"></p>';
  host.append(recording);
@@ -46,51 +54,73 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
   }catch(e){q('[data-record]').disabled=false;report(e.message);}
  };
 
- const outputSupport=Boolean(navigator.mediaDevices?.enumerateDevices&&AudioContext.prototype.setSinkId&&HTMLMediaElement.prototype.setSinkId);
- const fallback=document.createElement('label');fallback.textContent='Verfügbarer Ausgang';
- const outputSelect=document.createElement('select');outputSelect.setAttribute('aria-label','Verfügbarer Audioausgang');fallback.append(outputSelect);
- const refresh=document.createElement('button');refresh.type='button';refresh.className='button secondary';refresh.textContent='Audioausgänge aktualisieren';
- refresh.dataset.refreshOutputs='';
+ const secureAudio=window.isSecureContext;
+ const outputSupport=Boolean(secureAudio&&navigator.mediaDevices?.enumerateDevices&&AudioContext.prototype.setSinkId&&HTMLMediaElement.prototype.setSinkId);
+ const nativePicker=Boolean(navigator.mediaDevices?.selectAudioOutput);
+ const outputFields=document.createElement('div');outputFields.className='audio-output-fields';
+ const outputSelects={};
+ routingHost.querySelector('summary').textContent='Audioausgabe';
+ routingHost.querySelector('p').textContent='Wähle zuerst die Lautsprecher für dein Publikum, dann einen separaten Ausgang für die Vorschau.';
+ for(const [kind,title,hint] of [['master','Master / Publikum','Hier läuft dein Live-Mix.'],['cue','Kopfhörer / Vorschau','Hier hörst nur du den Übergang.']]){
+  const field=document.createElement('label');field.className='audio-output-field';
+  const heading=document.createElement('strong');heading.textContent=title;
+  const description=document.createElement('span');description.textContent=hint;
+  const select=document.createElement('select');select.dataset.outputSelect=kind;select.setAttribute('aria-label',title);select.hidden=nativePicker;select.disabled=true;
+  select.add(new Option('Geräte werden gesucht …',''));select.onchange=()=>{if(select.value)void chooseOutput(kind,select.value);};outputSelects[kind]=select;
+  const button=q('[data-output='+kind+']');button.hidden=!nativePicker;button.textContent='Ausgang wählen';
+  field.append(heading,description,select,button);outputFields.append(field);
+ }
+ routingHost.querySelector('p').after(outputFields);
+ const help=document.createElement('details');help.className='audio-output-help';help.innerHTML='<summary>Gerät fehlt? Gerätezugriff & Hilfe</summary>';
+ const refresh=document.createElement('button');refresh.type='button';refresh.className='button secondary';refresh.textContent='Geräteliste aktualisieren';refresh.dataset.refreshOutputs='';
  const deviceStatus=document.createElement('p');deviceStatus.setAttribute('role','status');deviceStatus.dataset.outputDevices='';
- q('[data-output]').before(fallback,refresh);
- fallback.hidden=refresh.hidden=Boolean(navigator.mediaDevices?.selectAudioOutput)||!outputSupport;
- const unlock=document.createElement('button');unlock.type='button';unlock.className='button secondary';unlock.textContent='Audioausgänge freigeben';unlock.dataset.unlockOutputs='';
- const unlockHint=document.createElement('p');unlockHint.textContent='Falls Ausgänge fehlen: Der Browser benötigt kurz Mikrofonzugriff, um Audiogeräte freizugeben. Das Mikrofon wird danach sofort wieder geschlossen.';
- unlock.hidden=unlockHint.hidden=fallback.hidden||!navigator.mediaDevices?.getUserMedia;refresh.after(unlock,unlockHint,deviceStatus);
+ const unlock=document.createElement('button');unlock.type='button';unlock.className='button secondary';unlock.textContent='Audiogeräte freigeben';unlock.dataset.unlockOutputs='';
+ const unlockHint=document.createElement('p');unlockHint.textContent='Chrome benötigt zum Erkennen der Ausgänge kurz Mikrofonzugriff. Es wird nichts aufgenommen; der Zugriff wird direkt wieder beendet. Danach oben die Lautsprecher und Kopfhörer auswählen.';
+ unlock.hidden=unlockHint.hidden=nativePicker||!navigator.mediaDevices?.getUserMedia||!outputSupport;
+ refresh.hidden=!outputSupport;help.append(unlock,refresh,unlockHint,deviceStatus);routingHost.append(help);
  unlock.onclick=()=>refreshOutputs({requestAccess:true});
+ function syncOutputFields(){
+  for(const kind of ['master','cue']){
+   const select=outputSelects[kind];select.replaceChildren(new Option(kind==='master'?'Lautsprecher auswählen':outputs.master?'Kopfhörer auswählen':'Zuerst Master auswählen',''));
+   const devices=[...available];if(outputs[kind]&&!devices.some(d=>d.deviceId===outputs[kind].deviceId))devices.push(outputs[kind]);
+   devices.forEach((device,i)=>{const option=new Option(device.label||`Audioausgang ${i+1}`,device.deviceId);option.disabled=kind==='cue'&&Boolean(outputs.master&&(device.deviceId===outputs.master.deviceId||(device.groupId&&device.groupId===outputs.master.groupId)));select.add(option);});
+   select.value=outputs[kind]?.deviceId||(restorePending&&devices.some(d=>d.deviceId===savedRouting[kind])?savedRouting[kind]:'');select.disabled=!outputSupport||outputBusy||!devices.length||(kind==='cue'&&!outputs.master);
+  }
+ }
  let available=[];
  let discoveryEpoch=0;
  async function refreshOutputs({requestAccess=false}={}){
-  const epoch=++discoveryEpoch,selected=outputSelect.value;
+  const epoch=++discoveryEpoch;
   unlock.disabled=refresh.disabled=true;
   try{
    const {outputs,inputs}=await discoverAudioOutputs(navigator.mediaDevices,{requestAccess});
    if(dead||epoch!==discoveryEpoch)return;
    available=outputs.filter(d=>d.deviceId&&!['default','communications'].includes(d.deviceId));
-   outputSelect.replaceChildren(...available.map((d,i)=>new Option(d.label||`Audioausgang ${i+1}`,d.deviceId)));
-   if(available.some(d=>d.deviceId===selected))outputSelect.value=selected;
-   // Keep the system default visible, but never mistake its alias for a separate cue output.
+   syncOutputFields();
    if(!available.length){
-    outputSelect.add(new Option(outputs.length?'Ausgänge noch nicht freigegeben':'Keine Wiedergabeausgänge sichtbar',''));
-    deviceStatus.textContent=`${outputs.length?'Der Browser zeigt bisher nur einen anonymen Eintrag oder den Systemstandard.':'Der Browser meldet keine Wiedergabeausgänge.'} „Audioausgänge freigeben“ wählen und den Gerätezugriff erlauben. ${inputs?`${inputs} Audioeingang/-eingänge erkannt; Mikrofone sind keine Wiedergabeausgänge.`:''}`;
-   }else deviceStatus.textContent=`${available.length} Wiedergabeausgänge verfügbar. Ausgang in der Liste wählen und als Master oder Kopfhörer zuweisen.`;
+    help.open=true;
+    deviceStatus.textContent='Noch keine auswählbaren Ausgänge. „Audiogeräte freigeben“ anklicken und den Gerätezugriff erlauben.';
+   }else deviceStatus.textContent=`${available.length} Audioausgänge gefunden. Deine Auswahl oben wird direkt angewendet.`;
+   if(restorePending){q('[data-routing]').textContent='Audioauswahl gespeichert · wird beim nächsten Klick aktiviert.';if(navigator.userActivation?.hasBeenActive)void restoreOutputs();}
   }catch(e){
    if(dead||epoch!==discoveryEpoch)return;
-   deviceStatus.textContent=e.name==='NotAllowedError'?'Gerätezugriff wurde blockiert. Mikrofonberechtigung für AnyDj im Browser bzw. Betriebssystem erlauben und erneut freigeben.':e.name==='NotFoundError'?'Kein Mikrofon für die Gerätefreigabe vorhanden. Einen Browser mit direkter Ausgangswahl verwenden oder die Audiogeräte im Betriebssystem prüfen.':'Audiogeräte konnten nicht gelesen werden: '+e.message;
+   help.open=true;
+   deviceStatus.textContent=e.name==='NotAllowedError'?`Gerätezugriff für ${location.origin} wurde abgelehnt. In den Website-Einstellungen dieser Adresse Mikrofonzugriff erlauben, anschließend neu laden und erneut freigeben. Ist der Zugriff dort bereits erlaubt, die Mikrofonfreigabe des Browsers im Betriebssystem prüfen.`:e.name==='NotFoundError'?'Kein Mikrofon für die Gerätefreigabe vorhanden. Einen Browser mit direkter Ausgangswahl verwenden oder die Audiogeräte im Betriebssystem prüfen.':'Audiogeräte konnten nicht gelesen werden: '+e.message;
   }finally{if(epoch===discoveryEpoch){unlock.disabled=refresh.disabled=false;}}
  }
  refresh.onclick=()=>refreshOutputs();if(outputSupport)void refreshOutputs();
  q('.dj-routing').addEventListener('toggle',()=>{if(!dead&&routingHost.open&&outputSupport&&!unlock.disabled)void refreshOutputs();});
  for(const b of routingHost.querySelectorAll('[data-output]')){b.disabled=!outputSupport;b.onclick=()=>chooseOutput(b.dataset.output);}
- if(!outputSupport)q('[data-routing]').textContent='Getrenntes Vorhören ist in diesem Browser nicht verfügbar. Master nutzt den Systemausgang.';
- function muteCue(){for(const d of decks){d.monitor=false;if(d.cueGain)d.cueGain.gain.setValueAtTime(0,ctx.currentTime);}if(cueAudio)cueAudio.pause();outputs.cue=null;notifyOutput();}
- async function chooseOutput(kind){
+ if(!outputSupport)q('[data-routing]').textContent=secureAudio?'Dieser Browser unterstützt die benötigte Audioauswahl nicht. Einen Browser mit AudioContext.setSinkId verwenden. Master nutzt den Systemausgang.':'Audioauswahl ist unter dieser Adresse gesperrt. Auf dem Dev-Rechner http://localhost:'+location.port+'/dj öffnen oder eine vertrauenswürdige HTTPS-Adresse verwenden. Eine Netzwerk-IP über HTTP reicht nicht aus.';
+ function muteCue(){for(const d of decks){d.monitor=false;if(d.cueGain)d.cueGain.gain.setValueAtTime(0,ctx.currentTime);}if(cueAudio)cueAudio.pause();outputs.cue=null;syncOutputFields();notifyOutput();}
+ async function chooseOutput(kind,deviceId,{restored=false}={}){
+  if(!restored)restorePending=false;
   if(outputBusy)return;outputBusy=true;const epoch=outputEpoch;
-  routingHost.querySelectorAll('[data-output]').forEach(b=>b.disabled=true);
+  routingHost.querySelectorAll('[data-output]').forEach(b=>b.disabled=true);syncOutputFields();
   try{
    muteCue();
-   const device=navigator.mediaDevices.selectAudioOutput?await navigator.mediaDevices.selectAudioOutput():available.find(d=>d.deviceId===outputSelect.value);
-   if(!device){await refreshOutputs({requestAccess:true});throw Error('Bitte jetzt einen Wiedergabeausgang in der Liste wählen und erneut zuweisen. Hinweise zur Gerätefreigabe stehen oberhalb.');}
+   const device=deviceId?available.find(d=>d.deviceId===deviceId):nativePicker?await navigator.mediaDevices.selectAudioOutput():null;
+   if(!device){await refreshOutputs({requestAccess:true});throw Error('Bitte oben einen Ausgang auswählen.');}
    if(!device.deviceId||['default','communications'].includes(device.deviceId))throw Error('Bitte einen ausdrücklich benannten physischen Ausgang wählen.');
    if(kind==='cue'&&!outputs.master)throw Error('Zuerst einen eigenen Master-Ausgang wählen.');
    if(kind==='cue'&&(device.deviceId===outputs.master.deviceId||(device.groupId&&device.groupId===outputs.master.groupId)))throw Error('Kopfhörer benötigen einen anderen Ausgang als der Master.');
@@ -99,14 +129,34 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
    else {await cueAudio.setSinkId(device.deviceId);await cueAudio.play();}
    if(epoch!==outputEpoch||dead){muteCue();return;}
    outputs[kind]=device;
+   if(!restored){savedRouting[kind]=device.deviceId;if(kind==='master')delete savedRouting.cue;}
    q('[data-routing]').textContent=`Master: ${outputs.master?.label||'Systemausgang'} · Kopfhörer: ${outputs.cue?.label||'aus'}`;
+   if(!restored)persistRouting();
   }catch(e){muteCue();q('[data-routing]').textContent='Vorhören aus · '+e.message;}
-  finally{outputBusy=false;notifyOutput();routingHost.querySelectorAll('[data-output]').forEach(b=>b.disabled=!outputSupport);}
+  finally{outputBusy=false;notifyOutput();routingHost.querySelectorAll('[data-output]').forEach(b=>b.disabled=!outputSupport);syncOutputFields();}
  }
+ async function restoreOutputs(){
+  if(!outputSupport||!restorePending||restoring||outputBusy||dead||!available.length)return;
+  restoring=true;restorePending=false;
+  try{
+   if(!available.some(d=>d.deviceId===savedRouting.master)){
+    q('[data-routing]').textContent='Gespeicherter Master-Ausgang ist nicht verfügbar. Bitte einen Ausgang wählen.';return;
+   }
+   await chooseOutput('master',savedRouting.master,{restored:true});
+   if(dead||!outputs.master)return;
+   if(savedRouting.cue){
+    if(available.some(d=>d.deviceId===savedRouting.cue))await chooseOutput('cue',savedRouting.cue,{restored:true});
+    else q('[data-routing]').textContent='Master wiederhergestellt · gespeicherte Kopfhörer nicht verfügbar. Bitte neu auswählen.';
+   }
+  }finally{restoring=false;syncOutputFields();}
+ }
+ const activateSavedOutputs=()=>{void restoreOutputs();};
+ window.addEventListener('pointerdown',activateSavedOutputs,{capture:true});
+ window.addEventListener('keydown',activateSavedOutputs,{capture:true});
  const deviceChanged=()=>{outputEpoch++;outputs.master=null;muteCue();q('[data-routing]').textContent='Audiogeräte geändert · Master und Kopfhörer bitte erneut wählen.';if(outputSupport&&!unlock.disabled)void refreshOutputs();};
  navigator.mediaDevices?.addEventListener('devicechange',deviceChanged);
  q('[data-master]').oninput=()=>{q('[data-master-value]').textContent=Math.round(+q('[data-master]').value*100)+' %';if(master)master.gain.setTargetAtTime(+q('[data-master]').value,ctx.currentTime,.015);};
- q('[data-cue-level]').oninput=()=>{if(cueBus)cueBus.gain.setTargetAtTime(+q('[data-cue-level]').value,ctx.currentTime,.015);};
+ q('[data-cue-level]').oninput=()=>{savedRouting.level=+q('[data-cue-level]').value;persistRouting();if(cueBus)cueBus.gain.setTargetAtTime(+q('[data-cue-level]').value,ctx.currentTime,.015);};
  // Seeking changes the song position, not ownership of queue/fade automation.
  function seek(d,t,keepLoop=false){if(!d.track?.plan||d.resumeTime!=null)return;if(!keepLoop)d.loop=null;d.audio.currentTime=clampTime(d,t);d.transition=null;}
  function hotcue(d,i,clear=false){
@@ -202,7 +252,31 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
  const timer=setInterval(update,30);
  function reset(d){d.loop=null;d.manualRate=1;d.monitor=false;d.performanceElement.querySelector('[data-tempo]').value=0;d.performanceElement.querySelector('[data-loop-info]').textContent='Loops benötigen ein Beat-Raster.';}
  async function waveform(track,file){if(track.waveform?.version===2||!file)return;try{const buffer=await new OfflineAudioContext(2,1,16000).decodeAudioData(await file.arrayBuffer());if(!dead)track.waveform=audioEnvelope(buffer);}catch{/* Playback and light analysis report file errors separately. */}}
- function key(e){if(e.repeat||e.ctrlKey||e.altKey||e.metaKey||e.target.closest('input,select,textarea,[contenteditable],dialog'))return;const k=/^Digit[0-9]$/.test(e.code)?e.code.slice(-1):e.key.toLowerCase();let d,action;if(['q','w','1','2','3','4'].includes(k)){d=decks[0];action=k==='q'?'play':k==='w'?'cue':+k-1;}else if(['o','p','7','8','9','0'].includes(k)){d=decks[1];action=k==='o'?'play':k==='p'?'cue':['7','8','9','0'].indexOf(k);}else return;e.preventDefault();if(typeof action==='number')hotcue(d,action,e.shiftKey);else d.panel.querySelector('.dj-'+action).click();}
+ function key(e){
+  if(e.defaultPrevented||e.isComposing||e.repeat||e.ctrlKey||e.altKey||e.metaKey||document.querySelector('dialog[open]')||e.target.closest('input,select,textarea,[contenteditable],dialog,[role="slider"]'))return;
+  const k=/^Digit[0-9]$/.test(e.code)?e.code.slice(-1):e.key.toLowerCase();
+  // Space/arrow keys on native controls retain their normal activation/navigation.
+  if((k===' '||k.startsWith('arrow'))&&e.target.closest('button,a,summary,[role="button"]'))return;
+  let d,action;
+  if(['q','w','1','2','3','4'].includes(k)){d=decks[0];action=k==='q'?'play':k==='w'?'cue':+k-1;}
+  else if(['o','p','7','8','9','0'].includes(k)){d=decks[1];action=k==='o'?'play':k==='p'?'cue':['7','8','9','0'].indexOf(k);}
+  else if([' ','k','arrowleft','arrowright','arrowup','arrowdown'].includes(k)){
+   const focused=decks.find(deck=>deck.panel.contains(e.target));
+   const playing=decks.filter(deck=>deck.spotify?deck.spotifyStarted&&!deck.spotifyPaused:!deck.audio.paused);
+   d=focused||(playing.length===1?playing[0]:decks[Number(document.querySelector('#crossfader')?.value||0)<.5?0:1]);
+   if(!focused&&!d.track&&!d.spotify)d=decks.find(deck=>deck.track||deck.spotify)||d;
+   if(k==='arrowup'||k==='arrowdown'){
+    const input=q('[data-master]');input.value=Math.max(0,Math.min(1,+input.value+(k==='arrowup'?.05:-.05)));input.dispatchEvent(new Event('input'));e.preventDefault();return;
+   }
+   if(k==='arrowleft'||k==='arrowright'){
+    const input=d.panel.querySelector('.dj-seek');if(input.disabled)return;
+    input.value=Math.max(+input.min,Math.min(+input.max,+input.value+(k==='arrowleft'?-1:1)*(e.shiftKey?1:5)));
+    input.dispatchEvent(new Event('input'));e.preventDefault();return;
+   }
+   action='play';
+  }else return;
+  e.preventDefault();if(typeof action==='number')hotcue(d,action,e.shiftKey);else d.panel.querySelector('.dj-'+action).click();
+ }
  window.addEventListener('keydown',key);
  function clearTransition(){for(const d of decks)if(d.transitionFilter){const gain=d.transitionFilter.gain;holdAudioParam(gain,ctx.currentTime);gain.setTargetAtTime(0,ctx.currentTime,.02);}}
  function startTransition(from,to,duration){
@@ -216,7 +290,7 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
  }
  return {connect,reset,waveform,seek,clearTransition,startTransition,
   routingHost:q('.dj-routing'),
-  getPreviewOutput:()=>!dead&&!outputBusy&&outputs.master&&outputs.cue?{...outputs.cue}:null,
+  getPreviewOutput:()=>!dead&&!outputBusy&&outputs.master&&outputs.cue?{deviceId:outputs.cue.deviceId,groupId:outputs.cue.groupId,label:outputs.cue.label}:null,
   subscribeOutput(listener){outputEvents.addEventListener('change',listener);return ()=>outputEvents.removeEventListener('change',listener);},
-  destroy(){clearTransition();dead=true;outputEpoch++;ctx?.removeEventListener('sinkchange',muteCue);clearInterval(timer);clearTimeout(recordTimer);if(recorder?.state==='recording'){recorder.onstop=null;recorder.stop();}recordDestination?.stream.getTracks().forEach(t=>t.stop());if(recordUrl)URL.revokeObjectURL(recordUrl);muteCue();cueAudio?.srcObject?.getTracks().forEach(t=>t.stop());if(cueAudio)cueAudio.srcObject=null;window.removeEventListener('keydown',key);window.removeEventListener('beforeunload',beforeLeave);navigator.mediaDevices?.removeEventListener('devicechange',deviceChanged);}};
+  destroy(){window.removeEventListener('pointerdown',activateSavedOutputs,{capture:true});window.removeEventListener('keydown',activateSavedOutputs,{capture:true});clearTransition();dead=true;outputEpoch++;ctx?.removeEventListener('sinkchange',muteCue);clearInterval(timer);clearTimeout(recordTimer);if(recorder?.state==='recording'){recorder.onstop=null;recorder.stop();}recordDestination?.stream.getTracks().forEach(t=>t.stop());if(recordUrl)URL.revokeObjectURL(recordUrl);muteCue();cueAudio?.srcObject?.getTracks().forEach(t=>t.stop());if(cueAudio)cueAudio.srcObject=null;window.removeEventListener('keydown',key);window.removeEventListener('beforeunload',beforeLeave);navigator.mediaDevices?.removeEventListener('devicechange',deviceChanged);}};
 }

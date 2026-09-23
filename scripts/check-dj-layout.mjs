@@ -43,7 +43,7 @@ try {
   await c('Page.navigate',{url:base+'/dj'});await wait("document.querySelector('#inlineLightStage')");
   await evaluate("document.querySelector('#openLightStage').click();document.querySelector('#stageSettings').click()");
   assert.ok(await evaluate("[...document.querySelectorAll('.dj-deck-tools,.dj-light-options,.dj-audio-options,.dj-list-options')].every(d=>!d.open)"));
-  assert.equal(await evaluate("[...document.querySelector('.dj-deck').querySelectorAll('button')].filter(b=>b.checkVisibility()).length"),2,'only Play and Cue visible by default');
+  assert.equal(await evaluate("[...document.querySelector('.dj-deck').querySelectorAll('button')].filter(b=>b.checkVisibility()).length"),2,'Play and Cue visible by default');
   for(const [width,height] of [[1440,900],[1024,800],[390,844]]){
     await c('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<600});
     await evaluate("document.querySelector('[data-close]').click()");

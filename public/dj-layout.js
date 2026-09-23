@@ -83,6 +83,11 @@ export function simplifyDJLayout(decks,mixer){
  document.addEventListener('click',event=>{if(!manage.contains(event.target))manage.open=false;});
  // Escape closes the nearest disclosure and returns focus to its trigger.
  document.addEventListener('keydown',event=>{if(event.key!=='Escape'||event.defaultPrevented||event.target.closest('dialog'))return;const details=event.target.closest('details');if(details?.open){details.open=false;details.querySelector('summary').focus();event.preventDefault();}});
+ // Align non-scrolling header/library content with the deck's reserved gutters.
+ const alignmentDeck=decks[0].panel;
+ const alignEdges=()=>{const gutter=Math.max(0,(alignmentDeck.offsetWidth-alignmentDeck.clientWidth)/2);document.querySelector('.dj-page').style.setProperty('--workspace-gutter',gutter+'px');};
+ const alignmentObserver=new ResizeObserver(alignEdges);alignmentObserver.observe(alignmentDeck);alignEdges();
+ window.addEventListener('pagehide',()=>alignmentObserver.disconnect(),{once:true});
  makeResizableLayout();
 }
 

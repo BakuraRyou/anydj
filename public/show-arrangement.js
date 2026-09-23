@@ -1,3 +1,4 @@
+import {phraseMovement} from './stage-motion.js';
 import {planPatterns,patternEnvelope} from './show-patterns.js';
 import {musicStyleAt} from './music-style.js';
 import {instrumentDrama,dramaAt} from './instrument-activity.js';
@@ -120,6 +121,7 @@ export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicSt
     phrase.energy=drama?drama.intensity.slice(Math.floor(phrase.start/drama.step),Math.ceil(phrase.end/drama.step)).reduce((a,b)=>a+b,0)/Math.max(1,Math.ceil(phrase.end/drama.step)-Math.floor(phrase.start/drama.step)):clamp(rms(phrase.start,phrase.end)/ceiling);
     const local=windows.slice(Math.floor(phrase.start/.02),Math.ceil(phrase.end/.02));
     const weight=local.reduce((sum,w)=>sum+w.rms,0);
+    phrase.movement=phraseMovement(windows,phrase,{times,patterns});
     phrase.tone=weight?local.reduce((sum,w)=>sum+(w.tone??.5)*w.rms,0)/weight:.5;
   }
   return {version:6,drama,patterns,step,bases,lookTrack,passages,times,accents,decays,decay:.25};

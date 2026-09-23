@@ -10,6 +10,7 @@ export function createColorPicker(name,onChange){
  <select class="color-options" size="5" aria-label="Farbmodus auswählen"></select><p class="color-empty" hidden>Keine passenden Farbmodi.</p>
  <button class="button primary color-apply" type="button">Übernehmen</button>
  <details class="color-custom"><summary>Eigene Palette hinzufügen</summary><label>Name<input class="color-name" maxlength="60" placeholder="Meine Farben"></label><div class="color-pair"><label>Farbe A<input type="color" value="#ff0080" class="color-a"></label><label>Farbe B<input type="color" value="#00e5ff" class="color-b"></label></div><button class="button secondary color-add" type="button">Hinzufügen und anwenden</button></details>
+ <p class="small muted">Songanalyse nutzt die neue Farbdramaturgie. „Bisherige Farben (Vergleich)“ wechselt nur die Farben; Wiedergabe und Rhythmus bleiben gleich.</p>
  <p class="color-feedback small" role="status"></p></div>`;
  const q=s=>element.querySelector(s),list=q('.color-options'),search=q('.color-search'),filter=q('.color-filter');
  for(const control of [search,filter,list])control.setAttribute('aria-label',`${control===search?'Farbmodus suchen':control===filter?'Farbmodi filtern':'Farbmodus auswählen'} · Deck ${name}`);

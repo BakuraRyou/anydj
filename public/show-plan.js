@@ -1,3 +1,5 @@
+import {planColorDirection,applyColorDirection} from './color-direction.js';
+import {songPalettes} from './song-palette.js';
 import {choreographColors,colorFrameAt} from './color-choreography.js';
 import {sectionFrameAt} from './section-lighting.js';
 import {validateMusicStyle,musicStyleAt} from './music-style.js';
@@ -8,7 +10,7 @@ import { validateBeatGrid } from './beat-grid.js';
 import { automaticSettings } from './automatic-settings.js';
 import { validateStructure, structureTheme, STRUCTURE_LABELS } from './song-structure.js';
 // Bump whenever generated show data or its interpretation changes.
-export const SHOW_PLAN_VERSION = 17;
+export const SHOW_PLAN_VERSION = 20;
 const clamp = v => Math.max(0, Math.min(1, v));
 const quantile = (sorted, p) => sorted[Math.floor((sorted.length - 1) * p)] || 0;
 const colors = {
@@ -47,7 +49,8 @@ export function compileShow(windows, duration, options, beatGrid = null, structu
   if(structure!==null)structure=validateStructure(structure,duration);
   if(options.arrangement==='auto') {
     const times=beatGrid?validateBeatGrid(beatGrid,duration).beats:windows.flatMap((w,i)=>w.beatSeq>(windows[i-1]?.beatSeq??0)?[i*.02]:[]);
-    automatic=automaticSettings(windows,options,times);options={...options,...automatic.options};
+    const chosen=options.palette==='custom'?{palette:'custom',colorA:options.colorA,colorB:options.colorB}:{};
+    automatic=automaticSettings(windows,options,times);options={...options,...automatic.options,...chosen};
   }
   const sorted = windows.map(l => l.rms).sort((a,b)=>a-b);
   const ceiling = Math.max(0.015, quantile(sorted, 0.95));
@@ -130,7 +133,9 @@ export function compileShow(windows, duration, options, beatGrid = null, structu
   // into the middle of the palette, especially with the default sunset colors.
   const moods=options.mood==='auto'?analyzeMood(windows,duration):[];
   const moodColors=Object.fromEntries(Object.entries(MOOD_PALETTES).map(([key,values])=>[key,values.map(hex=>[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16)))]));
-  let blendedPalette=palette.map(rgb=>[...rgb]);
+  const sectionPalettes=automatic&&options.palette!=='custom'?songPalettes(windows,sections,palette):null;
+  const soundPalettes=[];
+  let blendedPalette=(sectionPalettes?.[0]||palette).map(rgb=>[...rgb]);
   const soundTrack=[];
   for(let t=0;t<duration;t+=0.125) {
     const hx=harmonicX(t,0.4),hy=harmonicY(t,0.4),confidence=Math.min(1,Math.hypot(hx,hy)*2);
@@ -208,12 +213,14 @@ export function compileShow(windows, duration, options, beatGrid = null, structu
     let targetPalette=theme?(moodPalette??palette).map((_,k)=>(moodPalette??palette)[(k+theme.rotation)%(moodPalette??palette).length]):moodPalette;
     // A narrow mood family must not erase every contrasting anchor from the
     // automatically selected palette during an energetic passage.
-    if(arrangement&&look==='peak'&&targetPalette&&options.palette!=='custom') {
+    if(arrangement&&look==='peak'&&targetPalette&&options.palette!=='custom'&&!sectionPalettes) {
       const center=[0,1,2].map(c=>targetPalette.reduce((sum,color)=>sum+color[c],0)/targetPalette.length);
       const distance=color=>color.reduce((sum,value,c)=>sum+(value-center[c])**2,0);
       const contrast=palette.reduce((best,color)=>distance(color)>distance(best)?color:best,palette[0]);
       targetPalette=targetPalette.map((color,k)=>k===targetPalette.length-1?contrast:color);
     }
+    if(sectionPalettes)targetPalette=sectionPalettes[sectionIndex];
+    else if(options.palette==='custom')targetPalette=null;
     if(targetPalette && audible)for(let k=0;k<palette.length;k++) {
       const pos=k/(palette.length-1)*(targetPalette.length-1),lo=Math.floor(pos),part=pos-lo;
       for(let c=0;c<3;c++) {
@@ -229,9 +236,13 @@ export function compileShow(windows, duration, options, beatGrid = null, structu
     previousSaturation=previousSaturation===undefined?targetSaturation:previousSaturation+(targetSaturation-previousSaturation)*transition;
     const saturation=previousSaturation, top=Math.max(1,...rgb);
     const [r,g,b]=rgb.map(v=>Math.max(1,Math.round(v/top*255*saturation+255*(1-saturation))));
+    if(sectionPalettes)soundPalettes.push(blendedPalette.map(color=>{const peak=Math.max(1,...color);return color.map(v=>Math.round(v/peak*255*saturation+255*(1-saturation)));}));
     frames.push({state:true,dimming:Math.round(options.minimum+strength*(options.maximum-options.minimum)),r,g,b});
   }
-  return choreographColors({version: SHOW_PLAN_VERSION,colorPalette:palette,colorCues,arrangement,beatTiming,moods,score,colorDrivers,duration,step:0.125,frames,sections,beats:beats.length,beatGrid,automatic,effectiveOptions:options,structure,musicStyle});
+  const legacy=choreographColors({version: SHOW_PLAN_VERSION,colorPalette:palette,soundPalettes,colorCues,arrangement,beatTiming,moods,score,colorDrivers,duration,step:0.125,frames,sections,beats:beats.length,beatGrid,automatic,effectiveOptions:options,structure,musicStyle});
+  if(!automatic||options.palette==='custom')return legacy;
+  const colorDirection=planColorDirection(windows,legacy);
+  return applyColorDirection({...legacy,colorDirection,legacyColors:{frames:legacy.frames,choreographyBaseFrames:legacy.choreographyBaseFrames,colorEvents:legacy.colorEvents,soundPalettes:legacy.soundPalettes}});
 }
 export function showFrameAt(plan,time) {
   if(!Number.isFinite(time)) throw Error('Ungültige Wiedergabezeit.');

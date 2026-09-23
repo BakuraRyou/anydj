@@ -1,3 +1,4 @@
+import {legacyColorDirection} from '../public/color-direction.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {colorCuesFor,compileShow,showFrameAt} from '../public/show-plan.js';
@@ -15,12 +16,12 @@ test('steady beats retain a color family; measured phrase changes cue a new one'
  assert.deepEqual(colorCuesFor({times},[{start:0,look:'held'}],bars),[]);
  assert.deepEqual(colorCuesFor({times:[]},sections,bars),[]);
 });
-test('energetic sections alternate contrasting colors on selected musical accents',()=>{
+test('legacy comparison: energetic sections alternate contrasting colors on selected musical accents',()=>{
  const duration=24,beats=Array.from({length:48},(_,i)=>i*.5);
  const grid={version:1,source:'beat-this',duration,beats,downbeats:beats.filter((_,i)=>i%4===0)};
  const windows=Array.from({length:1200},(_,i)=>({rms:i%25<3?.3:.12,bass:i%25<3?.15:.02,flux:i%25<3?.7:0,tone:.5,beatSeq:Math.floor(i/25)}));
  const structure={version:1,source:'all-in-one',duration,segments:[{start:0,end:12,label:'verse'},{start:12,end:24,label:'chorus'}]};
- const plan=compileShow(windows,duration,settings({arrangement:'auto'}),grid,structure);
+ const plan=legacyColorDirection(compileShow(windows,duration,settings({arrangement:'auto'}),grid,structure));
  assert.equal(plan.colorCues.filter(c=>c.time>=12).length,1);
  const colors=[20.375,21.375,22.375,23.375].map(time=>showFrameAt(plan,time));
  const distance=(a,b)=>['r','g','b'].reduce((sum,key)=>sum+Math.abs(a[key]-b[key]),0);
