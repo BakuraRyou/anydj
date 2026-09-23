@@ -25,11 +25,12 @@ test('crossfades preserve the palette ceiling and interpolate per color slot',()
     assert.deepEqual(result.palette[0],[128,20,128]);
   }
 });
-test('animation follows music time and holds steady without beats',()=>{
+test('automatic activity holds without selected acoustic events',()=>{
   const a=automaticStage([source()],4),b=automaticStage([source('peak',{beat:3.5})],4);
-  assert.notDeepEqual(a.frames,b.frames);assert.deepEqual(a,automaticStage([source()],4));
+  assert.deepEqual(a.frames,b.frames);assert.deepEqual(a,automaticStage([source()],4));
   const steady=automaticStage([source('flow',{beat:null})],4);
-  assert.ok(steady.frames.flat().every(f=>f.dimming===51));
+  assert.ok(steady.frames.flat().some(f=>f.dimming===51));
+  assert.ok(steady.frames.flat().some(f=>f.dimming===0));
   assert.ok(a.frames.flat().every(f=>f.dimming<=60));
 });
 test('pause, disabled sources and zero brightness cannot light up the stage',()=>{
@@ -48,7 +49,7 @@ test('Lauflicht preserves the travelling wave as a separate mode',()=>{
     assert.notDeepEqual(chase,automaticStage(streams,4,equipment).frames.flat());
   }
   const streams=[source('flow',{beat:null})];
-  assert.deepEqual(automaticStage(streams,4,equipment,'chase').frames,automaticStage(streams,4,equipment).frames);
+  assert.ok(automaticStage(streams,4,equipment,'chase').frames.flat().every(f=>f.dimming===51));
 });
 test('DJ presets retain source pulses, calm base levels and four-beat group changes',()=>{
   const equipment={devices:Array.from({length:4},(_,i)=>({id:String(i),type:'spot',cells:1}))};
@@ -84,7 +85,7 @@ test('automatic spots and bar segments join strong accents without losing moveme
   const resting=render(0),partial=render(.5),hit=render(1);
   assert.ok(new Set(resting.map(f=>f.dimming)).size>1);
   assert.ok(hit.every(f=>f.dimming===60));
-  resting.forEach((f,i)=>assert.ok(Math.abs(partial[i].dimming-(f.dimming+60)/2)<1e-9));
+  assert.deepEqual(partial,resting); // Ordinary accents do not wake resting fixtures.
   for(const maximum of [0,30,100]){
     const frames=automaticStage([source('peak',{accentStrength:1,frame:{...frame,dimming:maximum}})],4).frames.flat();
     assert.ok(frames.every(f=>f.dimming===maximum));

@@ -33,6 +33,7 @@ const STATIC = new Map([
   ['/stage-motion.js', ['stage-motion.js', 'text/javascript; charset=utf-8']],
   ['/stage-motifs.js', ['stage-motifs.js', 'text/javascript; charset=utf-8']],
   ['/dmx-connection.js', ['dmx-connection.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-activity.js', ['dmx-activity.js', 'text/javascript; charset=utf-8']],
   ['/dmx-auto.js', ['dmx-auto.js', 'text/javascript; charset=utf-8']],
   ['/dmx-show.js', ['dmx-show.js', 'text/javascript; charset=utf-8']],
   ['/dmx-editor.js', ['dmx-editor.js', 'text/javascript; charset=utf-8']],

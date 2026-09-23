@@ -32,6 +32,6 @@ test('atmospheric auto output does not add a continuous wave or rotate the chose
  const stream={frame:{state:true,r:200,g:100,b:30,dimming:30},weight:1,look:'flow',accentStrength:0,motionCharacter:'atmospheric'};
  const render=(beat,s=stream,mode='auto')=>automaticStage([{...s,beat}],2,undefined,mode).frames;
  assert.deepEqual(render(0),render(9));
- assert.notDeepEqual(render(0,{...stream,motionCharacter:'rhythmic'}),render(1,{...stream,motionCharacter:'rhythmic'}));
+ assert.deepEqual(render(0,{...stream,motionCharacter:'rhythmic'}),render(1,{...stream,motionCharacter:'rhythmic'})); // A beat alone no longer switches active groups.
  assert.notDeepEqual(render(0,stream,'chase'),render(1,stream,'chase'));
 });

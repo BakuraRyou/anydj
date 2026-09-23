@@ -46,6 +46,25 @@ try {
   await evaluate("document.querySelector('[data-moving-heads]').click();document.querySelector('#stageSettings').click();document.querySelector('[data-demo]').click();document.querySelector('[data-close]').click()");
   await wait("Number(document.querySelector('.stage-moving-head').style.getPropertyValue('--stage-power'))>0");
   assert.equal(await evaluate("document.querySelectorAll('.stage-moving-head').length"),4);
+  const activity=await evaluate(`(async()=>{
+    const {createMovingHeads}=await import('/dmx-moving-heads.js');
+    const {automaticStage}=await import('/dmx-auto.js');
+    const {encodeStage,decodeStage}=await import('/dmx-model.js');
+    const scene=document.createElement('div'),controls=document.createElement('div');
+    const heads=createMovingHeads(scene,controls);
+    const frame={state:true,r:255,g:80,b:0,dimming:60};
+    const read=()=>[...scene.querySelectorAll('.stage-moving-head')].map(n=>Number(n.style.getPropertyValue('--stage-power')));
+    const output=[];
+    for(const look of ['held','flow','peak']){
+      const streams=[{frame,weight:1,look}];
+      const fixtures=decodeStage(encodeStage(automaticStage(streams,2).frames));
+      heads.update(fixtures,frame,0,false,streams,'auto');output.push(read());
+    }
+    heads.update([],frame,0,false,[{frame,weight:1,look:'flow'}],'auto');output.push(read());
+    heads.update([],frame,0,true,[{frame,weight:1,look:'flow'}],'auto');output.push(read());
+    heads.destroy();return output;
+  })()`);
+  assert.deepEqual(activity.map(values=>values.filter(v=>v===0).length),[2,2,1,2,4]);
   const pan=await evaluate("document.querySelector('.stage-moving-head').style.getPropertyValue('--head-pan')");
   await wait(`document.querySelector('.stage-moving-head').style.getPropertyValue('--head-pan')!==${JSON.stringify(pan)}`);
   for(const [width,height] of [[1280,800],[390,844]]){

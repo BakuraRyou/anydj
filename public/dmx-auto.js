@@ -1,8 +1,9 @@
+import {activityAt} from './dmx-activity.js';
 import {passageIntensity} from './stage-motifs.js';
 import {stagePatch} from './dmx-model.js';
 export const colorCount=value=>[1,2,3,4].includes(value)?value:2;
 export const STAGE_PRESETS={
-  auto:{name:'Automatische Lichtshow',help:'Farben und Bewegung folgen der Musik. Du bestimmst die maximale Anzahl gleichzeitiger Farben.'},
+  auto:{name:'Automatische Lichtshow',help:'Farben, Bewegung und Lichtpausen folgen der Musik. Gruppen antworten auf Akzente; große Höhepunkte verbinden die Bühne.'},
   chase:{name:'Lauflicht',help:'Eine weiche Lichtwelle wandert im Beat von Gerät zu Gerät. Farben und Helligkeit folgen deiner Show.'},
   wash:{name:'Ruhige Farbflächen',help:'Für Warm-up und Hintergrundlicht: Die Helligkeit folgt dem langsamen Verlauf der Show, ohne zusätzliche Beat-Impulse.'},
   follow:{name:'Musikimpulse gemeinsam',help:'Alle Geräte übernehmen die Helligkeit der vorbereiteten Show gleichzeitig, in deinen Bühnenfarben. Keine zusätzliche Blinkkurve.'},
@@ -62,50 +63,46 @@ export function automaticStage(streams,count=2,equipment,mode='auto'){
   // families remain on stage, including while two decks crossfade.
   const palette=Array.from({length:count},(_,i)=>[0,1,2].map(c=>Math.round(active.reduce((sum,s,k)=>sum+palettes[k][i][c]*s.weight,0)/total)));
   const level=active.reduce((sum,s)=>sum+clamp(s.frame.dimming||0,0,100)*passageIntensity(s.look,s.sectionProgress)*s.weight,0)/total;
-  // Strong musical hits belong to the whole stage. Brightness-weighted
-  // emphasis prevents a dark or fading deck from overriding the audible one.
-  const accent=level>0?active.reduce((sum,s)=>sum+clamp(s.frame.dimming||0,0,100)*passageIntensity(s.look,s.sectionProgress)*s.weight*clamp(Number.isFinite(s.accentStrength)?s.accentStrength:0,0,1),0)/(total*level):0;
+  // Spots and bar pixels each get a complete formation, so a long bar cannot
+  // consume the active slots intended for the spotlights.
+  const spots=patch.filter(f=>f.profile==='dimmer-rgb').length;
+  const activity=mode==='auto'?active.map(s=>({spots:activityAt(s,spots),bars:patch.map(f=>f.profile==='rgb-pixels'?activityAt(s,f.cells):null)})):[];
   const calm=quiet(main.look)||mode==='auto'&&main.motionCharacter==='atmospheric',peak=main.look==='peak',build=main.look==='lift';
-  const progress=clamp(Number.isFinite(main.sectionProgress)?main.sectionProgress:0,0,1);
-  const period=peak?2:build?(chase?4:8-6*progress):8;
-  const phase=beat===null?0:((beat/period)%1+1)%1;
   const rotation=!simple&&beat!==null&&!calm?Math.floor(beat/8)%count:0;
-  let ordinal=0;
-  const frames=patch.map((fixture,index)=>Array.from({length:fixture.cells},(_,cell)=>{
-    const cellOrdinal=ordinal,position=ordinal/units;
-    const slot=(ordinal+++rotation)%count;
-    let intensity=1;
-    if(beat!==null&&!calm){
-      const wave=(1+Math.cos(2*Math.PI*(phase-position)))/2;
-      // Retain a lit background so every chosen color remains visible.
-      intensity=peak?.28+.72*wave:build?.65+( .15+.2*progress)*wave:.7+.3*wave;
-    }
-    if(mode==='auto')intensity+=(1-intensity)*accent;
-    const [r,g,b]=palette[slot];
-    // Keep the original automatic choreography. The separately selected
-    // Lauflicht retains the later travelling wave with complete resting phases.
-    const dimming=simple?active.reduce((sum,s)=>{
-      const source=clamp(s.frame.dimming||0,0,100);
-      const base=mode==='wash'&&source>0&&Number.isFinite(s.washDimming)?clamp(s.washDimming,0,100):source;
-      const b=Number.isFinite(s.beat)?s.beat:null;
-      const group=b===null?0:((Math.floor(b/4)%2)+2)%2;
-      const lit=mode!=='alternate'||units===1||quiet(s.look)||b===null||cellOrdinal%2===group;
-      return sum+(lit?base:0)*s.weight;
-    },0)/total:chase?active.reduce((sum,s)=>{
-      const b=Number.isFinite(s.motionBeat)?s.motionBeat:Number.isFinite(s.beat)?s.beat:null;
-      const p=clamp(Number.isFinite(s.sectionProgress)?s.sectionProgress:0,0,1);
-      let strength=1;
-      if(b!==null&&!quiet(s.look)){
-        const period=s.look==='peak'?2:s.look==='lift'?4:8;
-        const phase=((b/period)%1+1)%1;
-        const wave=(1+Math.cos(2*Math.PI*(phase-position)))/2;
-        const rest=s.look==='peak'?.4:s.look==='lift'?.5-.3*p:.05;
-        const envelope=clamp((wave-rest)/(1-rest),0,1);
-        strength=envelope*envelope*(3-2*envelope);
-      }
-      return sum+clamp(s.frame.dimming||0,0,100)*passageIntensity(s.look,s.sectionProgress)*strength*s.weight;
-    },0)/total:level*intensity;
-    return {state:true,r,g,b,dimming};
-  }));
-  return {frames,palette,description:`${count===1?'Eine gemeinsame Farbe':`${count} Farben`} · `+(simple?STAGE_PRESETS[mode].help:chase&&beat!==null&&!calm?'Lauflicht · eine weiche Lichtwelle wandert im Beat über die Bühne.':beat===null?'Farben folgen der Musik · ohne Beat-Raster keine Laufbewegung.':calm?'Ruhige Passage · verwandte Farben, gehaltenes Licht.':peak?'Kräftige Passage · Kontrastfarben und rhythmische Wechsel.':build?'Aufbau · die Lichtbewegung wird dichter.':'Fließende Passage · abgestimmte Farben und weiche Lichtwellen.')};
+  let ordinal=0,spotIndex=-1;
+  const frames=patch.map((fixture,index)=>{
+    if(fixture.profile==='dimmer-rgb')spotIndex++;
+    return Array.from({length:fixture.cells},(_,cell)=>{
+      const cellOrdinal=ordinal,position=ordinal/units;
+      const slot=(ordinal+++rotation)%count;
+      const [r,g,b]=palette[slot];
+      // Explicit presets retain their own choreography.
+      const dimming=simple?active.reduce((sum,s)=>{
+        const source=clamp(s.frame.dimming||0,0,100);
+        const base=mode==='wash'&&source>0&&Number.isFinite(s.washDimming)?clamp(s.washDimming,0,100):source;
+        const b=Number.isFinite(s.beat)?s.beat:null;
+        const group=b===null?0:((Math.floor(b/4)%2)+2)%2;
+        const lit=mode!=='alternate'||units===1||quiet(s.look)||b===null||cellOrdinal%2===group;
+        return sum+(lit?base:0)*s.weight;
+      },0)/total:chase?active.reduce((sum,s)=>{
+        const b=Number.isFinite(s.motionBeat)?s.motionBeat:Number.isFinite(s.beat)?s.beat:null;
+        const p=clamp(Number.isFinite(s.sectionProgress)?s.sectionProgress:0,0,1);
+        let strength=1;
+        if(b!==null&&!quiet(s.look)){
+          const period=s.look==='peak'?2:s.look==='lift'?4:8;
+          const phase=((b/period)%1+1)%1;
+          const wave=(1+Math.cos(2*Math.PI*(phase-position)))/2;
+          const rest=s.look==='peak'?.4:s.look==='lift'?.5-.3*p:.05;
+          const envelope=clamp((wave-rest)/(1-rest),0,1);
+          strength=envelope*envelope*(3-2*envelope);
+        }
+        return sum+clamp(s.frame.dimming||0,0,100)*passageIntensity(s.look,s.sectionProgress)*strength*s.weight;
+      },0)/total:mode==='auto'?active.reduce((sum,s,k)=>{
+        const exposure=fixture.profile==='dimmer-rgb'?activity[k].spots[spotIndex]:activity[k].bars[index][cell];
+        return sum+clamp(s.frame.dimming||0,0,100)*passageIntensity(s.look,s.sectionProgress)*exposure*s.weight;
+      },0)/total:level;
+      return {state:true,r,g,b,dimming};
+    });
+  });
+  return {frames,palette,description:`${count===1?'Eine gemeinsame Farbe':`${count} Farben`} · `+(simple?STAGE_PRESETS[mode].help:chase&&beat!==null&&!calm?'Lauflicht · eine weiche Lichtwelle wandert im Beat über die Bühne.':beat===null?'Farben folgen der Musik · ohne Beat-Raster keine Laufbewegung.':calm?'Ruhige Passage · gehaltenes Licht mit ruhenden Gruppen.':peak?'Kräftige Passage · Kontrastfarben und rhythmische Wechsel.':build?'Aufbau · die Lichtbewegung wird dichter.':'Fließende Passage · Lichtgruppen antworten auf musikalische Akzente.')};
 }

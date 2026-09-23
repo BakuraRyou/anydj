@@ -1,6 +1,7 @@
 // Visual preview only; these heads do not occupy DMX channels.
 import {movingHeadTargets,advanceMovingHeads,followMovingHeads,restingHeads} from './dmx-moving-model.js';
 import {createMovingPreparation} from './dmx-moving-plan.js';
+import {activityAt} from './dmx-activity.js';
 import {projectMovingHeads} from './dmx-layout-model.js';
 import {MOVING_MOODS,movingMood} from './dmx-moving-moods.js';
 export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=null,onPreview=()=>{},showMoodControl=true}={}) {
@@ -56,7 +57,8 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=nul
     update(fixtures,frame,time,blackout,streams=[],nextMode='auto'){
       if(mode!==nextMode){mode=nextMode;prepare();}
       if(!enabled||document.hidden){lastTime=null;return;}
-      const colors=fixtures.flatMap(f=>f.cells);
+      const spots=fixtures.filter(f=>f.profile==='dimmer-rgb');
+      const colors=(spots.length?spots:fixtures).flatMap(f=>f.cells);
       const fallback=!frame||frame.state===false?[0,0,0]:['r','g','b'].map(key=>Math.round(Math.max(0,Math.min(255,Number(frame[key])||0))*Math.max(0,Math.min(100,Number(frame.dimming)||0))/100));
       const lit=!blackout&&(colors.length?colors:[fallback]).some(rgb=>Math.max(...rgb)>0);
       const prepared=streams.map(s=>s.movingPlan?{...s,movingPose:preparation.read(s.movingPlan,s.songTime,mode,mood)||preparation.read(s.movingPlan,s.songTime,mode,previousMood)||restingHeads()}:{...s,movingMood:mood});
@@ -71,8 +73,12 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=nul
       const projected=getLayout?projectMovingHeads(getLayout(),poses):null;
       row.dataset.layout=String(!!projected);
       const preview=[];
+      const exposureSources=!colors.length&&mode==='auto'?streams.filter(s=>s.frame&&s.frame.state!==false&&s.weight>0).map(s=>({weight:s.weight*Math.max(0,s.frame.dimming||0),levels:activityAt(s,heads.length)})):[];
+      const exposureTotal=exposureSources.reduce((sum,s)=>sum+s.weight,0);
+      const defaultExposure=activityAt({},heads.length);
       heads.forEach((head,i)=>{
-        const rgb=blackout?[0,0,0]:colors.length?colors[Math.floor(i*colors.length/heads.length)]:fallback;
+        const exposure=mode!=='auto'?1:exposureTotal?exposureSources.reduce((sum,s)=>sum+s.weight*s.levels[i],0)/exposureTotal:defaultExposure[i];
+        const rgb=blackout?[0,0,0]:colors.length?colors[Math.round(i*(colors.length-1)/(heads.length-1))]:fallback.map(v=>Math.round(v*exposure));
         const power=Math.max(...rgb)/255;
         const color=power?rgb.map(v=>Math.round(v/power)):rgb;
         const {pan,tilt}=projected?{pan:projected[i].frontPan,tilt:.55+.6*projected[i].tilt/90}:poses[i];
