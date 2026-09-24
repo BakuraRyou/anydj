@@ -100,7 +100,9 @@ html:has(.stage-3d-dialog[open]){overflow:hidden}body:has(.stage-3d-dialog[open]
 .stage-3d-light-tabs{display:flex;gap:6px;margin-bottom:12px}.stage-3d-light-tabs .button{flex:1}
 .stage-3d-song-editor-hint{font-size:11px;margin:0 0 10px}
 .stage-3d .stage-3d-song-editor .light-editor{width:100%;max-width:none;padding:0;background:transparent;min-width:0}
-.stage-3d .stage-3d-song-editor .le-header,.stage-3d .stage-3d-song-editor .le-preview-card,.stage-3d .stage-3d-song-editor .le-intro{display:none}
+.stage-3d .stage-3d-song-editor .le-header,.stage-3d .stage-3d-song-editor .le-preview-card [data-set-preview],.stage-3d .stage-3d-song-editor .light-editor-preview,.stage-3d .stage-3d-song-editor .le-intro{display:none}
+.stage-3d .stage-3d-song-editor .le-preview-card{padding:12px;border-radius:8px}
+.stage-3d .stage-3d-song-editor .le-preview-card canvas{height:44px;margin-top:8px}
 .stage-3d .stage-3d-song-editor .le-workspace{display:flex;flex-direction:column;gap:12px;padding:0;min-width:0}
 .stage-3d .stage-3d-song-editor .le-main,.stage-3d .stage-3d-song-editor .le-inspector{padding:0;min-width:0;border:0;background:transparent}
 .stage-3d .stage-3d-song-editor .le-timeline-card,.stage-3d .stage-3d-song-editor .le-tools{padding:12px;border-radius:8px}
@@ -112,3 +114,13 @@ html:has(.stage-3d-dialog[open]){overflow:hidden}body:has(.stage-3d-dialog[open]
 .stage-3d-transport .stage-3d-song-position{height:24px;margin-top:5px}
 .stage-3d-transport .stage-3d-song-bottom{justify-content:flex-end}
 @media(max-width:760px){.stage-3d-workspace.has-tools.editing-song{grid-template-columns:minmax(0,1fr)}.stage-3d .stage-3d-song-editor .le-tool-grid{grid-template-columns:1fr}}
+
+/* One time axis for section editing and the draft's colour/brightness curve. */
+.stage-3d .stage-3d-song-editor .le-preview-card{display:none}
+.stage-3d .stage-3d-song-editor .le-combined canvas{position:absolute;left:0;bottom:10px;width:100%;height:44px;margin:0;border-radius:0;pointer-events:none;z-index:1;background:transparent}
+.stage-3d .stage-3d-song-editor .le-combined .le-phases{background:#16222c}
+.stage-3d .stage-3d-song-editor .le-combined .le-phase{z-index:2;background:transparent}
+.stage-3d .stage-3d-song-editor .le-combined .le-phase[data-selected=true]{background:#a5eee110}
+.stage-3d .stage-3d-song-editor .le-combined .le-move{display:flex;align-items:flex-start;padding:6px 10px;text-shadow:0 1px 3px #000}
+.stage-3d .stage-3d-song-editor .le-combined .le-move:hover{background:#ffffff0a}
+.stage-3d .stage-3d-song-editor .le-combined .le-playhead{z-index:3}

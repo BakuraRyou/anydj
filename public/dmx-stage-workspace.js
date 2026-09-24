@@ -46,6 +46,12 @@ export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,tran
       const editor=await transport.mountEditor(editorMount,{signal:pending.signal,onDispose:()=>{if(own!==epoch)return;session=null;songHint.textContent='Entwurf bleibt für diese Sitzung erhalten.';retry.hidden=false;}});
       if(own!==epoch||disposed){editor?.destroy();return;}
       pending=null;session=editor;
+      if(editor){
+        // Share the timeline's zoom, scroll and playhead with the existing light curve.
+        const track=editorMount.querySelector('.le-track'),curve=editorMount.querySelector('.le-preview-card canvas');
+        track.classList.add('le-combined');track.insertBefore(curve,track.querySelector('.le-phases'));
+        editorMount.querySelector('.le-timeline-tools strong').textContent='Lichtverlauf & Abschnitte';
+      }
       songHint.textContent=editor?'Änderungen siehst du direkt in der 3D-Vorschau. Mit „Änderungen speichern“ übernehmen.':'Für diesen Song ist noch kein Lichtplan verfügbar.';
       retry.hidden=Boolean(editor);
     }catch(error){if(own!==epoch)return;pending=null;songHint.textContent=error.message;retry.hidden=false;}

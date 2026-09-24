@@ -120,6 +120,11 @@ try {
  await evaluate("document.querySelector('[data-workspace-tab=lighting]').click()");
  await wait("document.querySelector('.section-editor-embedded .light-editor')");
  assert.equal(await evaluate("document.querySelector('dialog.section-editor')===null"),true,'manager is embedded, not a new dialog');
+ assert.equal(await evaluate("Boolean(document.querySelector('.stage-3d-song-editor .le-track canvas'))"),true,'light curve shares the editable timeline');
+ await evaluate("var zoom=document.querySelector('.stage-3d-song-editor [data-zoom]');zoom.value=3;zoom.dispatchEvent(new Event('input'))");
+ assert.equal(await evaluate("(()=>{const t=document.querySelector('.stage-3d-song-editor .le-track'),c=t.querySelector('canvas').getBoundingClientRect(),p=t.querySelector('.le-phases').getBoundingClientRect();return Math.abs(c.left-p.left)<1&&Math.abs(c.width-p.width)<1&&t.scrollWidth>t.parentElement.clientWidth*2})()"),true,'curve and sections keep the same time scale when zoomed');
+ await evaluate("zoom.value=1;zoom.dispatchEvent(new Event('input'))");
+
  await evaluate("var movement=document.querySelector('.stage-3d-song-editor [name=movement]');movement.value='1.35';movement.dispatchEvent(new Event('input',{bubbles:true}))");
  await evaluate("document.querySelector('[data-workspace-tab=room]').click();document.querySelector('[data-workspace-tab=lighting]').click()");
  assert.equal(await evaluate("document.querySelector('.stage-3d-song-editor [name=movement]').value"),'1.35','draft survives tool changes');
@@ -165,6 +170,9 @@ try {
  await evaluate("document.querySelector('[data-workspace-tab=room]').click()");
  assert.equal(await evaluate("(()=>{const r=document.querySelector('.stage-3d-transport').getBoundingClientRect();return r.top>=0&&r.bottom<=innerHeight})()"),true,'mobile music remains visible while editing room');
  await writeFile(new URL('../reports/dmx-stage-workspace-mobile.png',import.meta.url),Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ await evaluate("document.querySelector('[data-workspace-tab=lighting]').click()");
+ await wait("document.querySelector('.stage-3d-song-editor [name=movement]')");
+ assert.equal(await evaluate("(()=>{const d=document.querySelector('.stage-3d-dialog'),p=document.querySelector('.stage-3d-inspector-body'),r=document.querySelector('.stage-3d-transport').getBoundingClientRect();return d.scrollWidth<=d.clientWidth&&p.scrollWidth<=p.clientWidth&&r.bottom<=innerHeight})()"),true,'mobile embedded manager fits and keeps transport visible');
  assert.deepEqual(errors,[]);
  console.log('Stage transport passed: real audio tempo, seek, embedded manager, shared playback, save, draft retention, play/pause, empty deck, aligned playhead at desktop/mobile widths, stable analysis footer.');
 } finally {ws?.close();chrome.kill('SIGKILL');app.server.closeAllConnections();await new Promise(r=>app.server.close(r));await rm(profile,{recursive:true,force:true,maxRetries:10,retryDelay:100});await rm(fixtures,{recursive:true,force:true});}

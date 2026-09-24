@@ -10,16 +10,19 @@ liegt sie über der Vorschau; die Musikleiste bleibt weiterhin sichtbar.
 - **Raum:** Club/Bühne wählen, Raummaße und Lichtbereich einstellen.
 - **Geräte:** vorhandenen Geräteplan direkt bearbeiten, einschließlich
   Ziehen, Tastaturnavigation, Montagehöhe und symmetrischem Aufbau.
-- **Licht:** bestehende Live-Look-, Feinschliff-, Ausstattungs- und
-  Verbindungswerkzeuge direkt im Fenster. Die Originalelemente werden
-  vorübergehend eingebettet und anschließend an ihren Platz zurückgegeben.
+- **Licht:** Song-Lichtmanager direkt neben der 3D-Vorschau, mit Abschnittstimeline,
+  Farben, Bewegung, Teilen/Zusammenführen, Undo/Redo und Speichern. Unter
+  „Live-Look & Geräte“ bleiben Feinschliff, Ausstattung und Verbindung erreichbar.
 - **Standort:** Augenhöhe und Position auf der Tanzfläche; die Ansicht wird
   über „Auf die Tanzfläche“ aktiviert.
 - **Song laden:** Bibliothek des DJ-Pults nutzen oder Audiodateien hinzufügen.
   Ein laufendes Deck muss zum Songwechsel pausiert werden.
-- **Song-Licht:** vorhandenen Abschnittseditor für den ausgewählten Song
-  öffnen; dieser pausiert die DJ-Wiedergabe und kehrt beim Schließen in das
-  Arbeitsfenster zurück.
+- **Song-Licht:** nutzt die Audioinstanz des ausgewählten Decks. Positionsbalken
+  und Editor steuern dieselbe Wiedergabe; Änderungen erscheinen direkt in 3D.
+  Speichern lässt den Manager geöffnet. Ungespeicherte Entwürfe bleiben bei
+  Werkzeug-/Deckwechsel und Schließen der 3D-Ansicht für die Sitzung erhalten
+  (nicht nach einem Neuladen der Seite). Die untere Vorschau besteht nur aus
+  einem Positionsbalken ohne zusätzliche Wellenform oder Zeitinformationen.
 
 `dmx-stage-workspace.js` enthält ausschließlich die neue UI-Anordnung.
 `dmx-layout.js` und `dmx-stage.js` stellen kleine Mount-/Restore-Schnittstellen
@@ -123,7 +126,7 @@ Screenshot: `dmx-stage-3d-full.png`.
 
 ## Songsteuerung in der großen Ansicht
 
-Unter der Vorschau: Deck A/B wählen, Wellenform anklicken oder Positionsregler
+Unter der Vorschau: Deck A/B wählen, Positionsregler
 verschieben, Play/Pause und Tempo (−16 bis +16 Prozent, wie im Deck) bedienen.
 Änderungen gehen über die bestehenden Deck-Aktionen an die tatsächliche
 Wiedergabe; Musik und Licht behalten dieselbe Songzeit. Manuelle Tempoänderungen
@@ -135,14 +138,15 @@ bei aktiver Verbindung. Im Full-Modus bleiben die Songregler ausgeblendet.
 `lightStage.setTransport` die Deck-Daten und Aktionen; die 3D-Module kennen keine
 Audio- oder Queue-Interna. Zum Entfernen der 3D-Erweiterung zusätzlich diese
 Anbindung, das Transport-Modul und dessen Asset-Route entfernen.
-`dj-waveform.js` ist ein gemeinsamer Zeichner für Decks und Songsteuerung und
+`dj-waveform.js` zeichnet die Wellenformen der Decks und
 muss für die normalen Decks erhalten bleiben.
 
 Die Deck-Wellenform und ihr Positionsregler werden im selben Takt aktualisiert.
 Die Reglergeometrie berücksichtigt die Knopfbreite. Die Berechnungsinformation
 sitzt in einem festen, bei Bedarf scrollbareren Bereich am Deck-Ende.
 `node scripts/check-dmx-stage-transport.mjs` prüft mit echter Testaudiodatei
-Tempo, Sprünge, Wellenform-Klick, Play/Pause, leeres Deck, pixelgenaue Ausrichtung
+Tempo, Sprünge, integrierten Lichtmanager, gemeinsame Wiedergabe, Speichern,
+Entwurfserhalt, Play/Pause, leeres Deck, pixelgenaue Ausrichtung
 bei 10/50/90 Prozent und stabilen Statusbereich auf Desktop und Mobilgerät.
 
 ## Gemeinsamer Club-Raum
@@ -203,3 +207,14 @@ Figuren still; ausgeblendete Ansichten zeichnen weiterhin nicht.
 Geometrietest und Browserprüfung decken Aktivierung, Animation, reduzierte
 Bewegung, Platzieren/Entfernen, Mengenlimit und Abschalten ab.
 Screenshot: `dmx-stage-3d-crowd.png`.
+
+Der eigenständige Abschnittseditor bleibt außerhalb der 3D-Ansicht verfügbar.
+`node scripts/check-section-lighting.mjs` prüft dessen Bearbeitung, Speicherung,
+Wiederöffnung, mobile Bedienung und Rückgabe der Bühnenvorschau.
+Screenshot des integrierten Managers: `dmx-stage-light-manager.png`.
+
+Im Licht-Tab liegen Farb-/Helligkeitsverlauf und bearbeitbare Abschnitte jetzt
+in einer gemeinsamen Zeitleiste. Der vorhandene Verlauf-Canvas wird in die
+Timeline eingebettet und teilt Zoom, Scrollposition und Abspielstrich. Die
+separate Verlaufskarte entfällt nur im 3D-Arbeitsfenster. Der Browsercheck
+prüft zusätzlich die deckungsgleichen Zeitachsen bei dreifachem Zoom.

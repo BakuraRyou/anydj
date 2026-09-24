@@ -36,3 +36,5 @@ dialog.section-editor:has(.light-editor){width:min(1160px,96vw);max-width:96vw;m
 .light-editor .le-preview-card:has([data-set-preview]:not([hidden])) .light-editor-preview{display:none}
 .light-editor .le-preview-card:has([data-set-preview]:not([hidden])) canvas{margin-top:12px;height:24px}
 @media(max-width:600px){.light-editor [data-set-preview] .stage-scene{height:220px}}
+
+.light-editor .le-curve-heading{display:block;font-size:12px;font-weight:500;margin-bottom:8px}
