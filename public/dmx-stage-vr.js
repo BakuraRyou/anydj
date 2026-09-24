@@ -4,6 +4,11 @@ export function worldToXR(point,origin){
   const x=point[0]-origin.x,y=point[1]-origin.y,c=Math.cos(origin.yaw),s=Math.sin(origin.yaw);
   return [x*c+y*s,point[2]-(origin.floorOffset||0),x*s-y*c];
 }
+// Reuse CPU and GPU storage across frames instead of allocating per triangle/frame.
+function vertexStream(){return {data:new Float32Array(8192),length:0,push(x,y,z,r,g,b,a){
+  if(this.length+7>this.data.length){const next=new Float32Array(this.data.length*2);next.set(this.data);this.data=next;}
+  const i=this.length;this.data[i]=x;this.data[i+1]=y;this.data[i+2]=z;this.data[i+3]=r;this.data[i+4]=g;this.data[i+5]=b;this.data[i+6]=a;this.length+=7;
+}};}
 export async function createVRGraphics(session){
   const {drawStageGeometry}=await import('./dmx-stage-3d-renderer.js');
   const canvas=document.createElement('canvas'),gl=canvas.getContext('webgl',{alpha:false,antialias:true,xrCompatible:true});
@@ -21,25 +26,30 @@ export async function createVRGraphics(session){
     buffer=gl.createBuffer();gl.useProgram(program);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);
     for(const [name,size,offset] of [['position',3,0],['color',4,12]]){const a=gl.getAttribLocation(program,name);gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,size,gl.FLOAT,false,28,offset);}
     const projection=gl.getUniformLocation(program,'projection'),view=gl.getUniformLocation(program,'view');
+    const attributes=[['position',3,0],['color',4,12]].map(([name,size,offset])=>({location:gl.getAttribLocation(program,name),size,offset}));
+    const solid=vertexStream(),transparent=vertexStream(),lines=vertexStream();let vertices=new Float32Array(32768),gpuBytes=0;
     gl.enable(gl.DEPTH_TEST);gl.depthFunc(gl.LEQUAL);gl.clearColor(.025,.045,.075,1);
     consoleGraphics=createConsoleGraphics(gl);
     const colors=new Map();
     const color=value=>{if(colors.has(value))return colors.get(value);const rgb=value.startsWith('#')?[1,3,5].map(i=>parseInt(value.slice(i,i+2),16)/255):(value.match(/[\d.]+/g)||[0,0,0]).slice(0,3).map(v=>Number(v)/255);if(colors.size>1024)colors.clear();colors.set(value,rgb);return rgb;};
     return {layer,destroy,render(pose,scene,origin,overlay){
       if(gl.isContextLost())throw Error('Die VR-Grafikverbindung wurde unterbrochen.');
-      const solid=[],transparent=[],lines=[];
-      const vertex=(out,p,rgb,a)=>out.push(...worldToXR(p,origin),...rgb,a);
+      solid.length=transparent.length=lines.length=0;
+      const c=Math.cos(origin.yaw),s=Math.sin(origin.yaw),floor=origin.floorOffset||0;
+      const vertex=(out,p,rgb,a)=>{const x=p[0]-origin.x,y=p[1]-origin.y;out.push(x*c+y*s,p[2]-floor,x*s-y*c,rgb[0],rgb[1],rgb[2],a);};
       drawStageGeometry(scene.layout,scene.lights,scene.crowd,scene.motion,{polygon(points,fill,alpha=1,stroke){
-        if(fill&&points.length>=3){const out=alpha<1?transparent:solid,rgb=color(fill);for(let i=1;i<points.length-1;i++)for(const p of [points[0],points[i],points[i+1]])vertex(out,p,rgb,alpha);}
+        if(fill&&points.length>=3){const out=alpha<1?transparent:solid,rgb=color(fill);for(let i=1;i<points.length-1;i++){vertex(out,points[0],rgb,alpha);vertex(out,points[i],rgb,alpha);vertex(out,points[i+1],rgb,alpha);}}
         if(stroke){const rgb=color(stroke),n=points.length===2?1:points.length;for(let i=0;i<n;i++){vertex(lines,points[i],rgb,1);vertex(lines,points[(i+1)%points.length],rgb,1);}}
       }});
       if(overlay?.ray)for(const point of overlay.ray)lines.push(...point,.55,.95,.9,1);
       if(overlay)consoleGraphics.prepare(overlay);
-      const vertices=new Float32Array(solid.length+lines.length+transparent.length);vertices.set(solid);vertices.set(lines,solid.length);vertices.set(transparent,solid.length+lines.length);
+      const count=solid.length+lines.length+transparent.length;
+      if(count>vertices.length)vertices=new Float32Array(2**Math.ceil(Math.log2(count)));
+      vertices.set(solid.data.subarray(0,solid.length));vertices.set(lines.data.subarray(0,lines.length),solid.length);vertices.set(transparent.data.subarray(0,transparent.length),solid.length+lines.length);
       const batches=[{first:0,count:solid.length/7},{first:solid.length/7,count:lines.length/7},{first:(solid.length+lines.length)/7,count:transparent.length/7}];
-      gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferData(gl.ARRAY_BUFFER,vertices,gl.DYNAMIC_DRAW);
+      gl.bindBuffer(gl.ARRAY_BUFFER,buffer);if(vertices.byteLength>gpuBytes){gpuBytes=vertices.byteLength;gl.bufferData(gl.ARRAY_BUFFER,gpuBytes,gl.DYNAMIC_DRAW);}gl.bufferSubData(gl.ARRAY_BUFFER,0,vertices.subarray(0,count));
       gl.bindFramebuffer(gl.FRAMEBUFFER,layer.framebuffer);gl.depthMask(true);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(program);
-      for(const eye of pose.views){const v=layer.getViewport(eye);if(!v)continue;gl.viewport(v.x,v.y,v.width,v.height);gl.useProgram(program);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);for(const [name,size,offset] of [['position',3,0],['color',4,12]]){const a=gl.getAttribLocation(program,name);gl.enableVertexAttribArray(a);gl.vertexAttribPointer(a,size,gl.FLOAT,false,28,offset);}gl.uniformMatrix4fv(projection,false,eye.projectionMatrix);gl.uniformMatrix4fv(view,false,eye.transform.inverse.matrix);
+      for(const eye of pose.views){const v=layer.getViewport(eye);if(!v)continue;gl.viewport(v.x,v.y,v.width,v.height);gl.useProgram(program);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);for(const {location,size,offset} of attributes){gl.enableVertexAttribArray(location);gl.vertexAttribPointer(location,size,gl.FLOAT,false,28,offset);}gl.uniformMatrix4fv(projection,false,eye.projectionMatrix);gl.uniformMatrix4fv(view,false,eye.transform.inverse.matrix);
         batches.forEach((batch,i)=>{if(!batch.count)return;gl.depthMask(i!==2);if(i===2){gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE);}else gl.disable(gl.BLEND);gl.drawArrays(i===1?gl.LINES:gl.TRIANGLES,batch.first,batch.count);});
         if(overlay)consoleGraphics.render(eye);
       }

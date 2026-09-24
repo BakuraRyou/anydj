@@ -54,8 +54,8 @@ try {
     const {createVRGraphics}=await import('/dmx-stage-vr.js');
     // Exercise real WebGL using a simulated XR framebuffer and two eye matrices.
     WebGLRenderingContext.prototype.makeXRCompatible=async()=>{};
-    let gl;
-    window.XRWebGLLayer=class{constructor(session,context){gl=context;context.canvas.width=512;context.canvas.height=256;this.framebuffer=null;}getViewport(eye){return {x:eye.eye==='left'?0:256,y:0,width:256,height:256};}};
+    let gl,worldAllocations=0;
+    window.XRWebGLLayer=class{constructor(session,context){gl=context;const allocate=gl.bufferData.bind(gl);gl.bufferData=(target,data,usage)=>{if(typeof data==='number'&&data>=131072)worldAllocations++;return allocate(target,data,usage);};context.canvas.width=512;context.canvas.height=256;this.framebuffer=null;}getViewport(eye){return {x:eye.eye==='left'?0:256,y:0,width:256,height:256};}};
     const graphics=await createVRGraphics({});
     const projection=new Float32Array([1,0,0,0,0,1,0,0,0,0,-1.002,-1,0,0,-.2,0]);
     const eye=(name,x)=>({eye:name,projectionMatrix:projection,transform:{inverse:{matrix:new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,x,-1.7,0,1])}}});
@@ -67,11 +67,12 @@ try {
     const scene={layout:{width:8,depth:12,height:5,positions:{}},lights:[],crowd:[],motion:0,transport:{decks:[{id:'A',title:'VR control test',canPlay:true}]}};
     const overlay=ui.update({}, {}, {transform:{matrix:head}}, {inputSources:[]},scene,{x:0,y:1,yaw:0},1);
     overlay.ray=[[.2,1.4,-.2],[0,1.4,-.8]];
+    const allocationsBefore=worldAllocations;
     for(let i=0;i<3;i++)graphics.render({views:[eye('left',.032),eye('right',-.032)]},scene,{x:0,y:1,yaw:0},overlay);
     const panelPixels=new Uint8Array(4);gl.readPixels(128,88,1,1,gl.RGBA,gl.UNSIGNED_BYTE,panelPixels);
-    const error=gl.getError();graphics.destroy();return {litLeft,litRight,different,error,panelPixel:[...panelPixels]};
+    const error=gl.getError();graphics.destroy();return {litLeft,litRight,different,error,panelPixel:[...panelPixels],repeatAllocations:worldAllocations-allocationsBefore};
   })()`);
-  assert.equal(result.error,0);assert.ok(result.panelPixel[0]>10,'panel renders in eye viewport');assert.ok(result.litLeft>100);assert.ok(result.litRight>100);assert.ok(result.different>100,'left and right eye differ through parallax');
+  assert.equal(result.error,0);assert.equal(result.repeatAllocations,0,'world GPU storage is reused across frames');assert.ok(result.panelPixel[0]>10,'panel renders in eye viewport');assert.ok(result.litLeft>100);assert.ok(result.litRight>100);assert.ok(result.different>100,'left and right eye differ through parallax');
   assert.deepEqual(errors,[]);console.log('VR WebGL passed: real shader compilation, shared scene, both eye viewports, stereo parallax, no GL errors.',result);
 } finally {
   ws?.close();chrome.kill('SIGKILL');app.server.closeAllConnections();

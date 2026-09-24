@@ -25,3 +25,10 @@ test('fallback console selects deck, controls playback, and exits even when disc
  await click(.7,.25);assert.deepEqual(commands.pop(),{action:'select',deck:'B'});
  scene.controlsAvailable=false;await click(.2,.60);assert.equal(commands.length,0);await click(.8,.87);assert.equal(exited,1);
 });
+
+test('controller panel is half its original width and height, fallback remains readable',()=>{
+ const ui=createVRConsole({command:()=>{},exit:()=>{}}),left={handedness:'left',gripSpace:{}},frame={getPose:()=>({transform:{matrix:matrix(-.25,1.2,-.4)}})},scene={layout:{width:8,depth:12}};
+ const attached=ui.update(frame,{}, {transform:{matrix:matrix()}},{inputSources:[left]},scene,{x:0,y:1,yaw:0},1).panel;
+ assert.equal(attached.width,.58/2);assert.equal(attached.height,.38/2);
+ const fallback=ui.update(frame,{}, {transform:{matrix:matrix()}},{inputSources:[]},scene,{x:0,y:1,yaw:0},2).panel;assert.ok(fallback.width>attached.width);
+});

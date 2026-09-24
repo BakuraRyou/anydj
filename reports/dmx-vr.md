@@ -38,3 +38,9 @@ Die Show-Kopplung ist inzwischen als lokale Vorschau-Übertragung implementiert:
 - `test/dmx-vr-console.test.mjs`: Zeiger/Flächentreffer, Fehlklicks, Deadzone, Raumgrenzen, Drehung um den tatsächlich getrackten Kopf, Deck/Play/Seek und Exit bei Verbindungsverlust.
 - WebGL-Browsertest rendert zusätzlich Pulttextur und Zeiger über mehrere Frames und beide Augen ohne GL-Fehler.
 - Die Bedienung folgt den standardisierten XR-Eingaben: [WebXR Gamepads](https://www.w3.org/TR/webxr-gamepads-module-1/). Hardware-Komfort und reale Controller wurden hier nicht geprüft.
+
+## Kompakteres Pult und flüssigere Wiedergabe
+
+Das Controller-Pult ist jetzt 29 × 19 cm statt 58 × 38 cm groß (halbe Breite/Höhe); der controllerlose Ersatz bleibt größer. Der VR-Renderer verwendet wiederverwendbare typisierte Vertex-Puffer und vergrößert GPU-Speicher nur bei Bedarf. Koordinatentransformationen berechnen Sinus/Cosinus einmal pro Bild statt pro Vertex. Der WebGL-Browsertest prüft auch die Wiederverwendung des GPU-Puffers.
+
+Die gekoppelte Vorschau puffert 120 ms und interpoliert Lichtziele, Helligkeit und Gästeanimation zwischen empfangenen Zuständen. Das glättet Paketabstände, fügt der Lichtvorschau aber diese Verzögerung hinzu. Kopf-/Controllertracking und Musikbefehle werden nicht gepuffert. Nach längeren Aussetzern wird neu angesetzt; es werden keine Lichtwege über den letzten empfangenen Zustand hinaus vorausberechnet. Die Tests prüfen unregelmäßige Paketabstände, Geräteidentität, aktuelle Transportdaten und Unterbrechungen. Eine tatsächliche Verbesserung der Headset-Bildrate muss auf dem Gerät geprüft werden.

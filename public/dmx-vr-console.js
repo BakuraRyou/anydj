@@ -31,9 +31,9 @@ export function createVRConsole({command,exit}){
       const thumb=ra.length>=4?ra[2]:0;let turn=0;if(Math.abs(thumb)<.3)latched=false;if(Math.abs(thumb)>.7&&!latched){turn=-Math.sign(thumb)*Math.PI/6;latched=true;}
       if(scene.layout)moveVROrigin(origin,head,scene.layout,la.length>=4?[la[2],la[3]]:[0,0],turn,last?Math.max(0,(time-last)/1000):0);last=time;
       const grip=left?.gripSpace?frame.getPose?.(left.gripSpace,reference)?.transform.matrix:null;
-      const center=grip?[grip[12],grip[13]+.12,grip[14]]:[head[12]-head[8]*.8,head[13]-.25,head[14]-head[10]*.8];
+      const center=grip?[grip[12],grip[13]+.095,grip[14]]:[head[12]-head[8]*.8,head[13]-.25,head[14]-head[10]*.8];
       const normal=unit(sub([head[12],head[13],head[14]],center)),rightVector=unit([normal[2],0,-normal[0]]),up=[normal[1]*rightVector[2]-normal[2]*rightVector[1],normal[2]*rightVector[0]-normal[0]*rightVector[2],normal[0]*rightVector[1]-normal[1]*rightVector[0]];
-      panel={center,normal,right:rightVector,up,width:grip ? .38 : .50,height:grip ? .249 : .328};pointer=right||sources[0];const matrix=input(frame,pointer,reference),hit=panelHit(panel,matrix);hover=target(hit);
+      panel={center,normal,right:rightVector,up,width:grip ? .29 : .50,height:grip ? .19 : .328};pointer=right||sources[0];const matrix=input(frame,pointer,reference),hit=panelHit(panel,matrix);hover=target(hit);
       return {panel,canvasState:this.state(),ray:matrix?[[matrix[12],matrix[13],matrix[14]],hit?.point||[matrix[12]-matrix[8]*1.5,matrix[13]-matrix[9]*1.5,matrix[14]-matrix[10]*1.5]]:null};
     },
     async select(event,reference){
