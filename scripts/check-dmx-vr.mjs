@@ -73,6 +73,8 @@ try {
     const error=gl.getError();graphics.destroy();return {litLeft,litRight,different,error,panelPixel:[...panelPixels],repeatAllocations:worldAllocations-allocationsBefore};
   })()`);
   assert.equal(result.error,0);assert.equal(result.repeatAllocations,0,'world GPU storage is reused across frames');assert.ok(result.panelPixel[0]>10,'panel renders in eye viewport');assert.ok(result.litLeft>100);assert.ok(result.litRight>100);assert.ok(result.different>100,'left and right eye differ through parallax');
+  const surfaceProof=await evaluate(`(async()=>{const {renderStage3d}=await import('/dmx-stage-3d-renderer.js');const {newRoomPlan,roomPlanLayout}=await import('/dmx-ar-model.js');const plan=newRoomPlan(8,6,3);plan.style='hall';plan.environmentBrightness=20;const canvas=document.createElement('canvas');canvas.width=1000;canvas.height=650;const lights=Array.from({length:8},(_,i)=>({id:'test-'+i,type:'spot',position:{x:-3.5+i,y:5.8,height:2.7},target:{x:-3+i*.8,y:3},power:.8,color:i%2?'#ff00dd':'#baff00'}));renderStage3d(canvas.getContext('2d'),1000,650,roomPlanLayout(plan),lights,{mode:'dancer',x:0,y:.4,yaw:0,pitch:.15,eyeHeight:1.7,zoom:1},[],0);return canvas.toDataURL().split(',')[1];})()`);
+  await writeFile(new URL('../reports/dmx-surface-light-fix.png',import.meta.url),Buffer.from(surfaceProof,'base64'));
   assert.deepEqual(errors,[]);console.log('VR WebGL passed: real shader compilation, shared scene, both eye viewports, stereo parallax, no GL errors.',result);
 } finally {
   ws?.close();chrome.kill('SIGKILL');app.server.closeAllConnections();

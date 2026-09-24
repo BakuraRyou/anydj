@@ -24,9 +24,10 @@ export function projectMovingHeads(layout,poses,devices=null){
     const id=devices?.[i]?.id??`moving-${i}`,range=devices?.[i]?.motionRange??1;
     const position=fixturePosition(layout,id,i,devices?.length??4);
     pose={pan:pose.pan*range,tilt:.8+(pose.tilt-.8)*range};
-    const target={x:clamp(pose.pan/42,-1,1)*layout.width*.45,y:layout.depth*(.1+.65*clamp((pose.tilt-.55)/.6,0,1))};
+    const motionUV={x:.5+.5*clamp(pose.pan/42,-1,1),y:clamp((pose.tilt-.55)/.6,0,1)};
+    const target={x:(motionUV.x-.5)*layout.width*.9,y:layout.depth*(.1+.65*motionUV.y)};
     const dx=target.x-position.x,dy=position.y-target.y,horizontal=Math.hypot(dx,dy);
-    return {id,position,target,motionCenter:{x:0,y:layout.depth*(.1+.65*(.8-.55)/.6)},pan:Math.atan2(dx,dy)*180/Math.PI,tilt:Math.atan2(position.height,horizontal)*180/Math.PI,
+    return {id,position,target,motionUV,motionCenter:{x:0,y:layout.depth*(.1+.65*(.8-.55)/.6)},pan:Math.atan2(dx,dy)*180/Math.PI,tilt:Math.atan2(position.height,horizontal)*180/Math.PI,
       frontPan:Math.atan2(dx,position.height)*180/Math.PI,distance:Math.hypot(horizontal,position.height)};
   });
 }

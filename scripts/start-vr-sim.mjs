@@ -14,7 +14,7 @@ const assets=new Map([
   ['iwer.js','node_modules/iwer/build/iwer.module.js'],
   ['devui.js','node_modules/@iwer/devui/build/iwer-devui.module.js'],
   ['vr-sim.js','scripts/vr-sim.js'],
-  ...['vr-view.js','vr-view.css','dmx-stage-vr.js','dmx-vr-console.js','dmx-vr-playback.js','dmx-ar-model.js','dmx-ar-planner.js','dmx-ar-controls.js','dmx-ar.css','dmx-stage-3d-renderer.js'].map(name=>[name,'public/'+name]),
+  ...['vr-view.js','vr-view.css','dmx-stage-vr.js','dmx-vr-console.js','dmx-vr-playback.js','dmx-ar-model.js','dmx-room-style.js','dmx-room-mesh.js','dmx-ar-planner.js','dmx-ar-controls.js','dmx-ar.css','dmx-stage-3d-renderer.js'].map(name=>[name,'public/'+name]),
 ]);
 // Fail before opening a browser if the optional simulator packages are missing.
 await Promise.all(['iwer.js','devui.js'].map(name=>readFile(resolve(root,assets.get(name)))));

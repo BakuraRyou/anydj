@@ -93,3 +93,30 @@ test('style boundaries and deck blends are continuous and share the same beat ph
   const styles=[0,1,2,3].map(index=>stickFigureSegments(layout,person,{beat:4.25,energy:.7},index));
   for(let i=1;i<styles.length;i++)assert.notDeepEqual(styles[0],styles[i]);
 });
+
+test('dolly crosses the old zoom limit and orbit centre, reverses and keeps its eye while turning',async()=>{
+  const {moveStageCamera}=await import('../public/dmx-stage-3d-renderer.js');
+  let view={yaw:0,pitch:0,zoom:1};const start=stageCamera(layout,view,800,500).eye;
+  for(let i=0;i<100;i++)view=moveStageCamera(layout,view,800,500,1);
+  const end=stageCamera(layout,view,800,500).eye;
+  assert.equal(end[0],start[0]);assert.equal(end[2],start[2]);assert.ok(Math.abs(end[1]-start[1]-100)<1e-9);
+  assert.ok(end[1]>layout.depth,'camera can pass through the entire stage');
+  assert.deepEqual(stageCamera(layout,{...view,yaw:1,pitch:.3},800,500).eye,end,'turning does not orbit back across the room');
+  for(let i=0;i<100;i++)view=moveStageCamera(layout,view,800,500,-1);
+  assert.ok(stageCamera(layout,view,800,500).eye.every((v,i)=>Math.abs(v-start[i])<1e-9));
+  const side=moveStageCamera(layout,view,800,500,0,2);assert.equal(side.eye[0],start[0]+2);
+  assert.deepEqual(stageCamera(layout,{yaw:0,pitch:0,zoom:1},800,500).eye,start,'reset restores the fitted overview');
+});
+
+test('camera pan follows screen axes, preserves view direction and also moves ego height',async()=>{
+  const {moveStageCamera}=await import('../public/dmx-stage-3d-renderer.js');
+  for(const mode of [undefined,'dancer'])for(const yaw of [0,Math.PI/2])for(const pitch of [0,.6,Math.PI/2-.01]){
+    const view={mode,x:0,y:0,eyeHeight:1.7,yaw,pitch,zoom:1},start=stageCamera(layout,view,800,500).eye;
+    const moved=moveStageCamera(layout,view,800,500,0,2,3),end=stageCamera(layout,moved,800,500).eye;
+    assert.equal(moved.yaw,yaw);assert.equal(moved.pitch,pitch);assert.equal(moved.mode,mode);
+    assert.ok(Math.abs(Math.hypot(...end.map((v,i)=>v-start[i]))-Math.sqrt(13))<1e-9);
+    const back=moveStageCamera(layout,moved,800,500,0,-2,-3);
+    assert.ok(stageCamera(layout,back,800,500).eye.every((v,i)=>Math.abs(v-start[i])<1e-9));
+    if(mode==='dancer'&&pitch===0)assert.equal(moved.eyeHeight,4.7);
+  }
+});

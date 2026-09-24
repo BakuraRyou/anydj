@@ -1,4 +1,4 @@
-import {movingDirections,directedPose,groovePose} from './dmx-moving-direction.js';
+import {movingDirections,directedPose,groovePose,spatialPose} from './dmx-moving-direction.js';
 import {beatPosition} from './dmx-show.js';
 import {restingHeads,motionTangent,motionQuintic,motionDuration,motionReach} from './dmx-moving-model.js';
 import {dramaAt} from './instrument-activity.js';
@@ -127,11 +127,15 @@ export function movingCues(plan,mode,mood='balanced'){
         }
         lastGrooveBeat=beat;lastDrive=drive;groovePhrase=phraseIndex;phaseBeat=motionBeat;
       }
-      pose=groovePose(phaseBeat,{energy,strength,percussion,vocals,span:profile.span,formation:directionDesign?.formation||(mood==='disco'?'ribbon':'pairs'),period:mood==='disco'?4:(directionDesign?.period||16)});
+      pose=groovePose(phaseBeat,{energy,strength,percussion,vocals,span:profile.span,formation:directionDesign?.formation||(mood==='disco'?'ribbon':'pairs'),shape:directionDesign?.shape||'sweep',progress:section?clamp((time-section.start)/Math.max(.1,section.end-section.start)):progress,period:mood==='disco'?4:(directionDesign?.period||16)});
     }else if(design&&!event?.development){
       const sectionProgress=section?clamp((time-section.start)/Math.max(.1,section.end-section.start)):progress;
       const phraseBeat=(beatPosition(motionGrid,time)??time*2)-(beatPosition(motionGrid,phrase.start)??phrase.start*2);
       pose=directedPose(design,Math.floor(phraseBeat/4),sectionProgress).map(p=>({pan:clamp(p.pan*profile.span,-42,42),tilt:clamp(.8+(p.tilt-.8)*Math.min(1,profile.span),.55,1.15)}));
+    }
+    if(directed&&(design||groove)){
+      const spatialBeat=beatPosition(motionGrid,time)??time*2;
+      pose=spatialPose(pose,spatialBeat,{energy,span:profile.span});
     }
     if(!groove){lastGrooveBeat=null;groovePhrase=-1;}
     // Account for the peak speed of each interpolation curve. Short intervals
@@ -145,7 +149,7 @@ export function movingCues(plan,mode,mood='balanced'){
     const available=directed?Math.min(gap,event?.development?2:calm?1.5:groove?(connected?gap:1.2):.6):gap;
     const fraction=motionReach(previous.pose,pose,available,speed);
     const reachable=pose.map((p,i)=>({pan:previous.pose[i].pan+(p.pan-previous.pose[i].pan)*fraction,tilt:previous.pose[i].tilt+(p.tilt-previous.pose[i].tilt)*fraction}));
-    cues.push({time,...(reason?{reason}:{}),...(groove&&mood!=='disco'?{drive,settle:prominence>.75?.95:prominence*.7}:{}),travel:groove?available:Math.min(available,Math.max(profile.travel,design?.travel??0,atmospheric?3:0,calm?.8:.2,motionDuration(previous.pose,reachable,speed))),pose:reachable});
+    cues.push({time,...(reason?{reason}:{}),...(directed?{shape:directionDesign?.shape||'sweep'}:{}),...(groove&&mood!=='disco'?{drive,settle:prominence>.75?.95:prominence*.7}:{}),travel:groove?available:Math.min(available,Math.max(profile.travel,design?.travel??0,atmospheric?3:0,calm?.8:.2,motionDuration(previous.pose,reachable,speed))),pose:reachable});
     if(directed)lastEntry=phraseIndex;
     ordinal++;
   }

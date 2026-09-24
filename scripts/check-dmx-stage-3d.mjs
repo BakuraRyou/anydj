@@ -54,6 +54,17 @@ try {
   const dark=await pixels();await new Promise(r=>setTimeout(r,150));assert.equal(await pixels(),dark,'blackout must remain dark');
   await evaluate("document.querySelector('.stage-3d [data-camera=top]').click()");await new Promise(r=>setTimeout(r,80));assert.notEqual(await pixels(),dark,'camera must move');
   await evaluate("document.querySelector('.stage-3d [data-camera=reset]').click()");await new Promise(r=>setTimeout(r,80));assert.equal(await pixels(),dark,'camera reset restores projection');
+  const rightDrag=async(dx,dy)=>{
+    const point=await evaluate("(()=>{const r=document.querySelector('.stage-3d canvas').getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};})()");
+    await c('Input.dispatchMouseEvent',{type:'mouseMoved',...point});
+    await c('Input.dispatchMouseEvent',{type:'mousePressed',button:'right',buttons:2,clickCount:1,...point});
+    await c('Input.dispatchMouseEvent',{type:'mouseMoved',button:'right',buttons:2,x:point.x+dx,y:point.y+dy});
+    await c('Input.dispatchMouseEvent',{type:'mouseReleased',button:'right',buttons:0,clickCount:1,x:point.x+dx,y:point.y+dy});
+    await new Promise(r=>setTimeout(r,80));
+  };
+  await rightDrag(60,30);assert.notEqual(await pixels(),dark,'right drag pans the overview');
+  assert.equal(await evaluate("(()=>{const e=new MouseEvent('contextmenu',{bubbles:true,cancelable:true});document.querySelector('.stage-3d canvas').dispatchEvent(e);return e.defaultPrevented;})()"),true,'viewport suppresses the native context menu');
+  await evaluate("document.querySelector('.stage-3d [data-camera=reset]').click()");await new Promise(r=>setTimeout(r,80));assert.equal(await pixels(),dark,'reset also restores a panned camera');
   // Easter egg stays isolated from lighting, and reuses the existing frame updates.
   assert.equal(await evaluate("document.querySelector('[data-crowd-toggle]').hidden"),true);
   await evaluate("const secret=document.querySelector('[data-crowd-secret]');secret.click();secret.click();secret.click()");
@@ -91,6 +102,11 @@ try {
   assert.equal(await evaluate("document.querySelector('.stage-3d-dialog').open"),true);
   await evaluate("document.querySelector('[data-dancer]').click()");await new Promise(r=>setTimeout(r,100));
   assert.equal(await evaluate("document.querySelector('[data-dancer]').getAttribute('aria-pressed')"),'true');
+  const beforePan=await evaluate("[Number(document.querySelector('[data-dancer-x]').value),Number(document.querySelector('[data-dancer-height]').value)]");
+  await rightDrag(40,20);
+  const afterPan=await evaluate("[Number(document.querySelector('[data-dancer-x]').value),Number(document.querySelector('[data-dancer-height]').value)]");
+  assert.ok(afterPan[0]<beforePan[0]-.1);assert.ok(afterPan[1]>beforePan[1]+.1,'right drag also moves ego height');
+  await rightDrag(-40,-20);
   const atStart=await pixels();
   await evaluate("document.querySelector('.stage-3d canvas').focus()");
   await c('Input.dispatchKeyEvent',{type:'keyDown',key:'w',code:'KeyW',modifiers:1});await new Promise(r=>setTimeout(r,80));
@@ -115,6 +131,13 @@ try {
   await new Promise(r=>setTimeout(r,80));assert.deepEqual(await location(),afterBlur,'inspector does not move camera');
   assert.equal(await evaluate("(()=>{const e=new WheelEvent('wheel',{deltaY:-80,bubbles:true,cancelable:true});document.querySelector('.stage-3d canvas').dispatchEvent(e);return e.defaultPrevented;})()"),true,'wheel over viewport belongs to camera');
   assert.ok((await location())[1]<afterBlur[1],'wheel walks forward in ego view');
+  const beforeLongWalk=await location();
+  await evaluate("(()=>{const canvas=document.querySelector('.stage-3d canvas');for(let i=0;i<100;i++)canvas.dispatchEvent(new WheelEvent('wheel',{deltaY:-80,bubbles:true,cancelable:true}));})()");
+  assert.ok((await location())[1]<beforeLongWalk[1]-40,'wheel keeps moving past the stage and old room boundaries');
+  await evaluate("(()=>{const canvas=document.querySelector('.stage-3d canvas');for(let i=0;i<100;i++)canvas.dispatchEvent(new WheelEvent('wheel',{deltaY:80,bubbles:true,cancelable:true}));})()");
+  assert.ok(Math.abs((await location())[1]-beforeLongWalk[1])<.11,'backward wheel retraces the camera path');
+  assert.equal(await evaluate("document.querySelector('[data-camera=in]').disabled"),false,'movement buttons also work in ego mode');
+
   assert.equal(await evaluate("(()=>{const e=new WheelEvent('wheel',{deltaY:80,bubbles:true,cancelable:true});document.querySelector('.stage-3d-inspector-body').dispatchEvent(e);return e.defaultPrevented;})()"),false,'inspector scrolling remains independent');
   await evaluate("const h=document.querySelector('[data-dancer-height]');h.value='1.2';h.dispatchEvent(new Event('change'))");
   await evaluate("document.querySelector('[data-dancer-aim]').click()");await new Promise(r=>setTimeout(r,80));
@@ -129,9 +152,9 @@ try {
   await c('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape'});
   assert.equal(await evaluate("document.querySelector('.stage-3d-dialog').open"),true,'Escape restores expanded view');
   assert.equal(await evaluate("document.querySelector('.stage-3d-dialog').classList.contains('stage-3d-full')"),false);
-  // Clamp at the stage edge, even after repeated walking.
+  // Walking buttons also continue past the old stage edge.
   await evaluate("for(let i=0;i<80;i++)document.querySelector('[data-walk=forward]').click()");
-  assert.equal(await evaluate("document.querySelector('[data-dancer-distance]').value"),'0.4');
+  assert.ok(Number(await evaluate("document.querySelector('[data-dancer-distance]').value"))<-20);
   await evaluate("document.querySelector('[data-dancer-map]').dispatchEvent(new PointerEvent('pointerdown',{clientX:document.querySelector('[data-dancer-map]').getBoundingClientRect().left+120,clientY:document.querySelector('[data-dancer-map]').getBoundingClientRect().top+100,bubbles:true}))");
   assert.ok(Number(await evaluate("document.querySelector('[data-dancer-distance]').value"))>1);
   await evaluate("document.querySelector('[data-dancer-aim]').click();document.querySelector('[data-dancer]').click()");

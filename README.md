@@ -41,6 +41,38 @@ die Lichtshow direkt im Browser – auch bei „Nur Audio“ und in der Web-Demo
 Sobald ein Deck spielt, übernimmt die Musik. Pause und Stopp schalten die
 Vorschau dunkel. „Vorschau abdunkeln“ betrifft ausschließlich die Simulation.
 
+**Bewegung in der 3D-Vorschau:** Mausrad und +/− bewegen die Kamera vorwärts
+und rückwärts, auch über die Raummitte und Raumgrenzen hinaus. Nach der ersten
+Kamerafahrt dreht Linksziehen den Blick am aktuellen Standort. Rechtsziehen
+verschiebt die Kamera seitlich und nach oben/unten, auch in der Ego-Perspektive. Umschalt beschleunigt
+die Mausradbewegung. „Übersicht“ beziehungsweise „Kamera zurücksetzen“ stellt
+den Ausgangsblick wieder her; in der Ego-Perspektive setzt Zurücksetzen den
+Standort und die Blickrichtung zurück.
+
+**Raumstile in der 3D-Vorschau:** In „Deinen Raum planen“ oder „Raum & Lichtfläche“
+lässt sich zwischen Club, Veranstaltungssaal und Industriehalle wählen. Wände
+und Böden erhalten einfache Materialflächen und Bodenmuster, auch in VR. Der
+Stil wird mit dem Raum gespeichert; ältere Räume verwenden den Club-Stil. In
+der Außenansicht öffnen sich die Wände zur Kamera. „Umgebungshelligkeit“ regelt
+Raumflächen, Modelle und Hintergrund von 0 bis 100 %; Standard sind 30 %.
+Scheinwerfer und Lichtkegel behalten ihre Showhelligkeit. Der Wert wird pro
+Raum gespeichert und nach VR übertragen. AR zeigt weiterhin den echten Raum.
+
+**Eigene Raummodelle und AR-Scans:** Unter „Deinen Raum planen → Eigenes 3D-Modell importieren“
+können statische GLB-Dateien (empfohlen), glTF mit eingebetteten Daten oder OBJ
+geladen werden. Einheit, Hochachse und Drehung sind vor dem Import wählbar.
+Der Import erstellt einen neuen Raum, zentriert die Geometrie und setzt sie
+auf Bodenhöhe. Der zunächst rechteckige Plan lässt sich anschließend anpassen.
+Unter „Raumdarstellung“ kann zwischen Raumstil, vorhandenen AR-Scanflächen und
+eigenem Modell gewechselt werden. Modellgeometrie und Auswahl bleiben beim
+Speichern, JSON-Export und bei der Übertragung zur Brille erhalten.
+
+Die Vorschau übernimmt Geometrie und Materialgrundfarben, keine Fototexturen,
+Animationen oder Draco-/Meshopt-Kompression. Grenzen: 10 MB Eingabedatei,
+5.000 Modelldreiecke und 256 KB für den gespeicherten Raum; größere Modelle
+vorher vereinfachen. WebXR-Scans verwenden die von der Brille gelieferten
+Raumflächen. In AR bleibt die reale Umgebung sichtbar.
+
 **Frei zusammenstellbare Bühne:** Unter „Bühne einstellen → Deine Ausstattung“
 mit „+ Scheinwerfer“ und „+ Lichtleiste“ beliebig gemischte Geräte hinzufügen.
 Jede Lichtleiste besitzt eine eigene Segmentanzahl; „Entfernen“ nimmt nur dieses

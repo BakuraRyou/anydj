@@ -65,7 +65,8 @@ try {
   await evaluate("document.querySelector('[data-ar-draw-finish]').click()");
   assert.equal((await stored()).boundary.length,6);
   await change('name','AR integration room');
-  await evaluate("document.querySelector('[data-ar-next]').click();document.querySelector('[data-ar-template=moving]').click()");
+  await change('style','hall');assert.equal((await stored()).style,'hall');
+  await evaluate("document.querySelector('[data-ar-next]').click();document.querySelector('[data-ar-template=spot]').click()");
   assert.equal(await evaluate("document.querySelector('[data-ar-map]').dataset.mode"),'select');
   const fixture=Object.keys((await stored()).positions)[0];
   const dragPoint=async(selector,x,y,cancel=false)=>{
@@ -86,6 +87,30 @@ try {
   assert.equal((await stored()).positions[fixture].x,-1,'target drag leaves device in place');
   const targetYaw=(Math.atan2(-2,2)*180/Math.PI+360)%360;assert.equal((await stored()).positions[fixture].rotation,targetYaw);assert.equal(Number(await evaluate("document.querySelector('[data-ar-rotation]').value")),targetYaw);
   await dragPoint(target,-2,1,true);assert.deepEqual((await stored()).positions[fixture].target,{x:-3,y:2},'Escape cancels a target drag');
+  // Zoom anchors to the cursor; viewport gestures never change the room data.
+  const beforeZoom=await stored(),viewBox=()=>evaluate("document.querySelector('[data-ar-map]').getAttribute('viewBox')");
+  const fitted=await viewBox(),anchor=await mapPosition(-2,3);
+  await c('Input.dispatchMouseEvent',{type:'mouseWheel',deltaX:0,deltaY:-170,...anchor});
+  await new Promise(r=>setTimeout(r,150));
+  assert.notEqual(await viewBox(),fitted,'wheel zoom changes the visible area');
+  const anchored=await mapPosition(-2,3);assert.ok(Math.hypot(anchor.x-anchored.x,anchor.y-anchored.y)<2,'zoom keeps the cursor over its room coordinate');
+  assert.deepEqual(await stored(),beforeZoom,'zoom leaves saved geometry unchanged');
+  await dragPoint(target,-2.5,2.5);assert.deepEqual((await stored()).positions[fixture].target,{x:-2.5,y:2.5},'target drag uses zoomed coordinates');
+  await dragPoint(target,-3,2);
+  await dragPoint(body,-1.25,3.75);assert.equal((await stored()).positions[fixture].x,-1.25,'zoom allows centimetre precision');
+  await dragPoint(body,-1,4);
+  const beforePan=await stored(),zoomed=await viewBox(),panStart=await mapPosition(-2,3);
+  await c('Input.dispatchMouseEvent',{type:'mousePressed',button:'middle',clickCount:1,...panStart});
+  await c('Input.dispatchMouseEvent',{type:'mouseMoved',button:'middle',buttons:4,x:panStart.x+45,y:panStart.y+25});
+  await c('Input.dispatchMouseEvent',{type:'mouseReleased',button:'middle',clickCount:1,x:panStart.x+45,y:panStart.y+25});
+  assert.notEqual(await viewBox(),zoomed,'drag pans the zoomed map');assert.deepEqual(await stored(),beforePan,'panning never moves a fixture');
+  await evaluate("document.querySelector('[data-ar-zoom-fit]').click()");assert.equal(await viewBox(),fitted,'fit restores the entire room');
+  await evaluate("for(let i=0;i<20;i++)document.querySelector('[data-ar-zoom-in]').click()");
+  assert.equal(await evaluate("document.querySelector('[data-ar-zoom-in]').disabled"),true,'zoom is capped');
+  await evaluate("for(let i=0;i<20;i++)document.querySelector('[data-ar-zoom-out]').click()");assert.equal(await viewBox(),fitted);
+  await evaluate("document.querySelector('[data-ar-map]').focus()");
+  await c('Input.dispatchKeyEvent',{type:'keyDown',key:'+',code:'Equal'});assert.notEqual(await viewBox(),fitted);
+  await c('Input.dispatchKeyEvent',{type:'keyDown',key:'0',code:'Digit0'});assert.equal(await viewBox(),fitted,'keyboard reset fits the room');
   // Dragging moves only the selected device, and a click selects without teleporting it.
   const from=await mapPosition(-1,4);await c('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...from});
   const to=await mapPosition(-2,3);await c('Input.dispatchMouseEvent',{type:'mouseMoved',button:'left',buttons:1,...to});await c('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...to});
@@ -104,6 +129,37 @@ try {
   await change('x','99');assert.match(await evaluate("document.querySelector('[data-ar-status]').textContent"),/außerhalb/);assert.equal((await stored()).positions[fixture].x,-2);
   await change('x','-2');
   await writeFile('/tmp/anydj-ar-editor.png',Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  // Room-scoped zones share the zoomable map and survive export/reload/headset transfer.
+  await evaluate("document.querySelector('.ar-room-zones [data-zone-add]').click()");
+  const zoneId=(await stored()).zones[0].id;
+  assert.equal(await evaluate("document.querySelectorAll('[data-ar-map] [data-ar-zone]').length"),1);
+  await evaluate("const n=document.querySelector('.ar-room-zones [data-zone-name]');n.value='Sitzbereich';n.dispatchEvent(new Event('change'))");
+  await evaluate("document.querySelector('[data-ar-zoom-in]').click()");
+  const zoneBefore=(await stored()).zones[0],zonePoint=await mapPosition((zoneBefore.x-.5)*8+.15,zoneBefore.y*6+.15),positionsBefore=(await stored()).positions;
+  await c('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...zonePoint});
+  await c('Input.dispatchMouseEvent',{type:'mouseMoved',button:'left',buttons:1,x:zonePoint.x+15,y:zonePoint.y-10});
+  await c('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,x:zonePoint.x+15,y:zonePoint.y-10});
+  assert.notDeepEqual((await stored()).zones[0],zoneBefore,'zone moves in zoomed room map');assert.deepEqual((await stored()).positions,positionsBefore);
+  const handle=await evaluate("(()=>{const r=document.querySelector('[data-ar-zone-resize]').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()"),beforeResize=(await stored()).zones[0];
+  await c('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...handle});
+  await c('Input.dispatchMouseEvent',{type:'mouseMoved',button:'left',buttons:1,x:handle.x+12,y:handle.y-12});
+  await c('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,x:handle.x+12,y:handle.y-12});
+  assert.ok((await stored()).zones[0].width>beforeResize.width,'corner resizes the zone');
+  await evaluate("document.querySelector('[data-ar-zoom-fit]').click()");
+  await evaluate("document.querySelector('[data-ar-template=moving]').click()");
+  const mover=await evaluate("document.querySelector('[data-ar-fixture]').value");
+  assert.equal(await evaluate("document.querySelector('[data-ar-rotation]').closest('label').hidden"),true);
+  assert.equal(await evaluate("document.querySelector('[data-ar-motion-area]').hidden"),false);
+  assert.equal(await evaluate(`document.querySelector('[data-ar-light-target="${mover}"]')`),null);
+  await evaluate("for(const [key,value] of [['left',-3],['right',-1],['front',1],['back',4]])document.querySelector('[data-ar-area-'+key+']').value=value;document.querySelector('[data-ar-area-back]').dispatchEvent(new Event('change'))");
+  assert.deepEqual((await stored()).positions[mover].motionArea,{x:.125,y:1/6,width:.25,depth:.5});
+  await change('wall','2');await change('wall-start','15');await change('wall-end','85');await change('wall-min','1');await change('wall-max','2.5');
+  const wallTarget={wall:2,start:.15,end:.85,minHeight:1,maxHeight:2.5};
+  assert.deepEqual((await stored()).positions[mover].wallTarget,wallTarget);
+  assert.equal(await evaluate("document.querySelector('[data-ar-wall-fields]').hidden"),false);
+  await change('wall-max','99');assert.deepEqual((await stored()).positions[mover].wallTarget,wallTarget,'invalid wall height does not overwrite settings');
+  await change('wall-max','2.5');
+  const savedZones=(await stored()).zones;
   await evaluate("document.querySelector('[data-ar-next]').click()");assert.equal(await evaluate("document.querySelector('[data-ar-page=\\\"3\\\"]').hidden"),false);
   assert.equal(await evaluate("document.querySelector('[data-stage-ar]').disabled"),true);
   await evaluate("document.querySelector('[data-workspace-tab=fixtures]').click()");
@@ -117,6 +173,9 @@ try {
   await evaluate("document.querySelector('#openLightStage').click();document.querySelector('[data-stage3d-toggle]').click()");
   await wait("document.querySelector('.stage-3d-dialog').open");
   assert.equal(await evaluate("document.querySelector('[data-ar-name]').value"),'AR integration room');
+  assert.deepEqual((await stored()).zones,savedZones,'room zones survive reload');
+  assert.deepEqual((await stored()).positions[mover].motionArea,{x:.125,y:1/6,width:.25,depth:.5},'moving area survives reload');
+  assert.deepEqual((await stored()).positions[mover].wallTarget,wallTarget,'wall target survives reload');
   await evaluate("document.querySelector('[data-share-start]').click()");
   await wait("document.querySelector('[data-share-code]').textContent.length===6");
   await wait("document.querySelector('.stage-vr-share [role=status]').textContent.includes('Übertragung bereit')");
@@ -131,6 +190,8 @@ try {
   await re("(()=>{const input=document.querySelector('[data-ar-name]');input.value='From headset';input.dispatchEvent(new Event('change'));document.querySelector('[data-ar-send]').click();})()");
   await wait("document.querySelector('[data-ar-name]').value==='From headset'");
   await rw("document.querySelector('[data-ar-status]').textContent.includes('am Rechner übernommen')");
+  assert.deepEqual((await stored()).zones,savedZones,'headset transfer preserves zones');
+  assert.deepEqual((await stored()).positions[mover].wallTarget,wallTarget,'headset transfer preserves wall targets');
   await re("document.querySelector('[data-ar-status]').textContent='Warte auf zweite Übernahme';document.querySelector('[data-ar-send]').click()");
   await rw("document.querySelector('[data-ar-status]').textContent.includes('am Rechner übernommen')");
   await rc('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});

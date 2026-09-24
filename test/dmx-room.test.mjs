@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {roomSettings,roomLayout,roomLights} from '../public/dmx-room.js';
 test('room dimensions and light reach stay valid for edited or stored values',()=>{
   const room=roomSettings({enabled:true,width:Infinity,depth:3,height:1,reach:60});
-  assert.deepEqual(room,{enabled:true,width:8,depth:3,height:2,reach:3});
+  assert.deepEqual(room,{environmentBrightness:30,style:'club',enabled:true,width:8,depth:3,height:2,reach:3});
   assert.equal(roomSettings(null).depth,12);
   assert.equal(roomLayout(room).lightMin,0);
   assert.equal(roomLayout(roomSettings({...room,reach:1})).lightMin,2);

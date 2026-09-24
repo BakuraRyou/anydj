@@ -16,7 +16,8 @@ export function createVRPlayback({delay=120}={}){
       const compatible=a.scene.layout.width===b.scene.layout.width&&a.scene.layout.depth===b.scene.layout.depth;
       const scene=compatible?{...b.scene,motion:mix(a.scene.motion||0,b.scene.motion||0),lights:b.scene.lights.map(light=>{
         const prev=old.get(light.id);if(!prev||prev.type!==light.type)return light;
-        return {...light,power:mix(prev.power,light.power),target:{x:mix(prev.target.x,light.target.x),y:mix(prev.target.y,light.target.y)}};
+        const motionUV=prev.motionUV&&light.motionUV?{x:mix(prev.motionUV.x,light.motionUV.x),y:mix(prev.motionUV.y,light.motionUV.y)}:light.motionUV;
+        return {...light,...(motionUV?{motionUV}:{}),power:mix(prev.power,light.power),target:{x:mix(prev.target.x,light.target.x),y:mix(prev.target.y,light.target.y),...((prev.target.z!==undefined||light.target.z!==undefined)?{z:mix(prev.target.z||0,light.target.z||0)}:{})}};
       })}:b.scene;
       // Controls use the latest confirmed state, independent of visual buffering.
       return {...scene,transport:latest.transport,controlMessage:latest.controlMessage,controlMessageId:latest.controlMessageId};

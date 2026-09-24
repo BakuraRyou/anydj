@@ -61,12 +61,16 @@ try {
   await vc('Page.navigate',{url:local.origin});await viewerWait("document.querySelector('#joinPreview')?.hidden===false");
   await read(`document.querySelector('#previewLink').value=${JSON.stringify(code)};document.querySelector('#joinPreview').requestSubmit()`);await viewerWait("document.querySelector('#connection')?.textContent==='Live mit dem Rechner verbunden'");
   assert.ok(await read("document.querySelector('#sceneInfo').textContent.includes('8 × 6')"));
+  assert.ok(await read("localStorage.getItem('anydj-vr-access')"));
+  await read('sessionStorage.clear()');await vc('Page.navigate',{url:local.origin+'/vr-view'});
+  await viewerWait("document.querySelector('#connection')?.textContent==='Live mit dem Rechner verbunden'");
+  assert.equal(await read('location.hash'),'');
   await evaluate("document.querySelector('[data-workspace-tab=room]').click();const room=document.querySelector('[data-room-enabled]');if(!room.checked)room.click();const input=document.querySelector('[data-room-width]');input.value=14;input.dispatchEvent(new Event('change'))");
   await viewerWait("document.querySelector('#sceneInfo').textContent.includes('14 ×')");
   await vc('Page.reload');await viewerWait("document.querySelector('#connection')?.textContent==='Live mit dem Rechner verbunden'&&document.querySelector('#sceneInfo').textContent.includes('14 ×')");
-  await read(`(async()=>{const id=location.hash.slice(1);const response=await fetch('/api/vr-preview/command',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:JSON.stringify({id,control:sessionStorage.getItem('vr-control-'+id),command:{action:'select',deck:'B'}})});if(!response.ok)throw Error('VR command failed');})()`);
+  await read(`(async()=>{const pair=await (await fetch('/api/vr-preview/resume',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:JSON.stringify({token:localStorage.getItem('anydj-vr-access')})})).json();const id=pair.id;const response=await fetch('/api/vr-preview/command',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:JSON.stringify({id,control:pair.control,command:{action:'select',deck:'B'}})});if(!response.ok)throw Error('VR command failed');})()`);
   await wait("document.querySelector('[data-song-deck]').value==='B'");
-  async function music(action,value){assert.equal(await read(`(async()=>{const id=location.hash.slice(1);return (await fetch('/api/vr-preview/command',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:JSON.stringify({id,control:sessionStorage.getItem('vr-control-'+id),command:{action:${JSON.stringify(action)},deck:'A',value:${JSON.stringify(value)}}})})).status})()`),200);}
+  async function music(action,value){assert.equal(await read(`(async()=>{const pair=await (await fetch('/api/vr-preview/resume',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:JSON.stringify({token:localStorage.getItem('anydj-vr-access')})})).json();const id=pair.id;return (await fetch('/api/vr-preview/command',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:JSON.stringify({id,control:pair.control,command:{action:${JSON.stringify(action)},deck:'A',value:${JSON.stringify(value)}}})})).status})()`),200);}
   await music('playing',true);await wait("document.querySelector('.dj-play').textContent.includes('Pause')");
   await music('playing',false);await wait("!document.querySelector('.dj-play').textContent.includes('Pause')");
   await music('seek',12);await wait("Math.abs(Number(document.querySelector('.dj-seek').value)-12)<.5");
@@ -83,6 +87,14 @@ try {
   await evaluate("document.querySelector('[data-share-start]').click()");
   await viewerWait("document.querySelector('#connection').textContent==='Live mit dem Rechner verbunden'");
   assert.equal(await read('location.pathname+location.hash'),'/vr-test');
+  await vc('Network.enable');await vc('Network.setCacheDisabled',{cacheDisabled:true});
+  await vc('Network.setBlockedURLs',{urls:['*dmx-zone-motion.js*']});
+  await vc('Page.navigate',{url:local.origin+'/vr-test'});
+  await viewerWait("document.querySelector('#connection')?.textContent.includes('konnte nicht geladen werden')");
+  assert.equal(await read("document.querySelector('#recheck').textContent"),'Erneut laden');
+  await vc('Network.setBlockedURLs',{urls:[]});
+  await read("document.querySelector('#recheck').click()");
+  await viewerWait("document.querySelector('#connection')?.textContent==='Live mit dem Rechner verbunden'");
   assert.deepEqual(errors,[]);console.log('Paired preview passed: publisher, isolated viewer page, live room edit, reload/resync, remote deck selection, Play/Pause, seek and end.');
   await command('Target.closeTarget',{targetId:viewerTarget});
 } finally {

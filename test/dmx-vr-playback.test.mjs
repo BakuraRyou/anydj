@@ -18,3 +18,16 @@ test('matches moving fixtures by identity after reordering',()=>{
  const p=createVRPlayback(),a=scene(0),b=scene(100);a.lights.push({...a.lights[0],id:'b',target:{x:50,y:0}});b.lights.unshift({...b.lights[0],id:'b',target:{x:150,y:0}});p.push(a,0);p.push(b,100);
  const s=p.sample(170);assert.equal(s.lights[0].id,'b');assert.equal(s.lights[0].target.x,100);assert.equal(s.lights[1].target.x,50);
 });
+
+test('normalized moving paths remain smooth when a paired room maps buffered frames',()=>{
+ const p=createVRPlayback(),a=scene(0),b=scene(100);
+ a.lights[0].motionUV={x:.1,y:.2};b.lights[0].motionUV={x:.9,y:.8};
+ p.push(a,0);p.push(b,100);
+ assert.deepEqual(p.sample(170).lights[0].motionUV,{x:.5,y:.5});
+ assert.deepEqual(p.sample(220).lights[0].motionUV,b.lights[0].motionUV);
+});
+
+test('paired playback interpolates target height between floor and wall',()=>{
+ const p=createVRPlayback(),a=scene(0),b=scene(100);b.lights[0].target.z=2;
+ p.push(a,0);p.push(b,100);assert.equal(p.sample(170).lights[0].target.z,1);
+});

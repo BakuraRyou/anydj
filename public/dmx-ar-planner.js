@@ -1,8 +1,13 @@
-import {roomId,roomFixtureRotation,roomFixtureTarget,newRoomPlan,validateRoomPlan,roomPlanLayout,applyRoomPlan,insideRoom,triangulateFloor,deviceName,deviceTypes,planningDevice} from './dmx-ar-model.js';
+import {importRoomModel,modelFileLimit} from './dmx-room-mesh.js';
+import {createZonePlan} from './dmx-zone-plan.js';
+import {roomStyleOptions} from './dmx-room-style.js';
+import {roomId,roomFixtureRotation,roomFixtureTarget,newRoomPlan,createRoomPreview,validateRoomPlan,roomPlanLayout,applyRoomPlan,insideRoom,triangulateFloor,deviceName,deviceTypes,planningDevice} from './dmx-ar-model.js';
 
 const storageKey='anydj-ar-rooms-v1';
 export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan=null,onStartAR=()=>{},onManageShow=null}={}) {
   let plans=[],selected='',enabled=false,disposed=false,step=1,fixture='',mode='select',draft=[],pointer=null,drag=null,preview=null,arReady=false;
+  const renderRoom=createRoomPreview();let roomZones=null,zoneDrag=null;
+  let mapView={key:'',zoom:1,x:0,y:0},pan=null;
   let undo=null,storageError='',lastMessage='';
   try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved){plans=(saved.plans||[]).slice(0,20).flatMap(p=>{try{return [validateRoomPlan(p)];}catch{return [];}});selected=saved.selected;enabled=saved.enabled===true;}}catch{storageError='Deine Räume konnten nicht geladen werden. Du kannst eine Sicherung importieren.';}
   if(!plans.some(p=>p.id===selected)){selected=plans[0]?.id||'';enabled=false;}
@@ -14,27 +19,31 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
     <p data-ar-status role="status" aria-live="polite"></p>
     <div data-ar-page="1">
       <div class="ar-start" data-ar-start><button class="ar-choice" type="button" data-ar-new><strong>Maße eingeben</strong><span>Breite und Tiefe reichen für den Anfang.</span></button><button class="ar-choice" type="button" data-ar-start-draw><strong>Grundriss zeichnen</strong><span>Maße wählen, dann Ecken im Plan anklicken.</span></button><button class="ar-choice" type="button" data-ar-scan><strong>Mit der Brille erfassen</strong><span>Den echten Raum erkennen oder Ecken am Boden markieren.</span></button></div>
+      <details data-ar-model-import><summary>Eigenes 3D-Modell importieren</summary><p>GLB (empfohlen), eingebettetes glTF oder OBJ · maximal 10 MB und 5.000 Dreiecke. Geometrie und Grundfarben werden übernommen, Bildtexturen und Animationen nicht.</p><div class="ar-fields"><label>Einheit<select data-ar-model-scale><option value="1">Meter</option><option value="0.01">Zentimeter</option><option value="0.001">Millimeter</option></select></label><label>Hochachse<select data-ar-model-up><option value="y">Y (GLB / glTF)</option><option value="z">Z</option></select></label><label>Drehung<select data-ar-model-rotation><option value="0">0°</option><option value="90">90°</option><option value="180">180°</option><option value="270">270°</option></select></label></div><label class="ar-import">Modelldatei wählen<input data-ar-model-file type="file" accept=".glb,.gltf,.obj,model/gltf-binary,model/gltf+json"></label><p>Der Import legt einen neuen Raum an. Das Modell wird zentriert und auf den Boden gesetzt. Der rechteckige Grundriss lässt sich danach anpassen. Für andere Maße oder Ausrichtung die Datei erneut importieren.</p></details>
       <div data-ar-room-fields hidden><label>Wie heißt dein Raum?<input data-ar-name maxlength="80" placeholder="Zum Beispiel: Wohnzimmer"></label>
       <div class="ar-fields"><label>Breite (m)<input data-ar-width type="number" min="0.5" max="60" step="0.1" required></label><label>Tiefe (m)<input data-ar-depth type="number" min="0.5" max="60" step="0.1" required></label><label>Raumhöhe (m)<input data-ar-height type="number" min="0.5" max="15" step="0.1" required></label></div>
-      <div class="ar-actions"><button type="button" data-ar-draw>Raumecken im Plan setzen</button><button type="button" data-ar-scan-again>In der Brille erfassen</button></div></div>
+      <label>Raumdarstellung<select data-ar-representation><option value="style">Raumstil</option><option value="scan">AR-Raumscan</option><option value="model">Eigenes 3D-Modell</option></select></label><p data-ar-geometry-info></p><label>Umgebungshelligkeit <output data-ar-brightness-value></output><input data-ar-brightness type="range" min="0" max="100" step="1"></label><p>0 %: Raum dunkel · 100 %: volle Raumhelligkeit. Die Scheinwerfer leuchten unabhängig davon.</p><label>Raumstil<select data-ar-style>${roomStyleOptions()}</select></label><div class="ar-actions"><button type="button" data-ar-draw>Raumecken im Plan setzen</button><button type="button" data-ar-scan-again>In der Brille erfassen</button></div></div>
       <div class="ar-callout" data-ar-scan-help hidden><strong>So geht es in der Brille</strong><p>Öffne die Vorschau im Browser deiner Brille über HTTPS. Wähle „AR starten“. Dort führt dich eine Anleitung durch den Raumscan oder das Markieren der Ecken.</p><p>Am Rechner findest du Adresse und Kopplungscode unter „VR-Vorschau verbinden“.</p><button type="button" data-ar-scan-start>AR starten</button></div>
     </div>
     <div data-ar-map-section hidden><div class="ar-map-heading"><strong data-ar-map-title>Dein Raum von oben</strong><span data-ar-map-size></span></div>
       <p class="ar-map-hint" data-ar-map-hint></p>
       <p class="ar-map-legend">MH = Moving Head · S = Scheinwerfer · LED = LED-Bar · gelber Kreis = Lichtziel</p>
-      <svg data-ar-map tabindex="0" role="group" aria-label="Interaktiver Raumplan. Geräte anklicken oder ziehen; Escape bricht die Platzierung ab."></svg>
+      <div class="ar-map-tools" role="group" aria-label="Raumansicht"><button type="button" data-ar-zoom-out aria-label="Raumansicht verkleinern">−</button><output data-ar-zoom-level aria-label="Zoom">100 %</output><button type="button" data-ar-zoom-in aria-label="Raumansicht vergrößern">+</button><button type="button" data-ar-zoom-fit>Raum einpassen</button></div>
+      <p class="ar-map-controls">Mausrad: zoomen · Freie Fläche ziehen: Ansicht verschieben · Tastatur: + / − / 0</p>
+      <svg data-ar-map tabindex="0" role="group" aria-label="Interaktiver Raumplan. Mausrad zum Zoomen, freie Fläche zum Verschieben. Geräte anklicken oder ziehen; Escape bricht die Platzierung ab."></svg>
       <div class="ar-actions" data-ar-draw-actions hidden><button type="button" data-ar-point-undo>Letzten Punkt entfernen</button><button class="ar-primary" type="button" data-ar-draw-finish>Raumform übernehmen</button><button type="button" data-ar-cancel>Abbrechen</button></div>
       <div class="ar-actions" data-ar-place-actions hidden><button type="button" data-ar-place-cancel>Platzierung abbrechen</button></div>
     </div>
     <div data-ar-page="2" hidden>
       <div class="ar-empty" data-ar-empty><strong>Dein Raum ist bereit. Jetzt kommt das erste Gerät.</strong><p>Wähle einen Gerätetyp und tippe anschließend im Plan auf seinen Standort.</p></div>
       <div class="ar-add-types" aria-label="Gerät hinzufügen">${Object.entries(deviceTypes).map(([type,label])=>`<button type="button" data-ar-template="${type}">+ ${label}</button>`).join('')}</div>
-      <details data-ar-show-devices><summary>Geräte aus meiner Lichtshow</summary><p>Bereits in der Show konfigurierte Geräte in diesen Raum übernehmen.</p><div data-ar-available></div><button type="button" data-ar-add>Alle Showgeräte übernehmen</button><button type="button" data-ar-manage-show>Showgeräte konfigurieren</button></details>
+      <div class="ar-actions"><button type="button" data-ar-manage-show>Showgeräte, Gruppen & Lichtsteuerung</button></div><p data-ar-show-functions>Mehrfachauswahl, feste Gruppen, Gruppendrehung, symmetrische Aufstellung, Lichtgruppe, Lichtstärke und Bewegungsbereich.</p><div data-ar-room-zones></div><details data-ar-show-devices><summary>Geräte aus meiner Lichtshow</summary><p>Bereits in der Show konfigurierte Geräte in diesen Raum übernehmen.</p><div data-ar-available></div><button type="button" data-ar-add>Alle Showgeräte übernehmen</button></details>
       <div class="ar-device-list" data-ar-devices aria-label="Geräte im Raum"></div>
       <select data-ar-fixture aria-label="Ausgewähltes Gerät" hidden></select>
       <section class="ar-device-editor" data-ar-device-editor hidden><label>Gerätename<input data-ar-device-name maxlength="60"></label>
         <div class="ar-actions"><button type="button" class="ar-primary" data-ar-place>Im Plan platzieren</button><button type="button" data-ar-duplicate>Duplizieren</button><button type="button" data-ar-remove>Entfernen</button></div>
         <div class="ar-fields"><label>Höhe über dem Boden (m)<input data-ar-z type="number" min="0" max="15" step="0.1" required></label><label>Drehung (°)<input data-ar-rotation type="number" min="-360" max="360" step="15" required></label></div>
+        <fieldset data-ar-motion-area hidden><legend>Erlaubter Bewegungsbereich</legend><p>Moving Heads bewegen sich frei in dieser Bodenfläche. Ruhezonen gelten weiterhin.</p><div class="ar-fields"><label>Links (m)<input data-ar-area-left type="number" step="0.1"></label><label>Rechts (m)<input data-ar-area-right type="number" step="0.1"></label><label>Vorne (m)<input data-ar-area-front type="number" step="0.1"></label><label>Hinten (m)<input data-ar-area-back type="number" step="0.1"></label></div><button type="button" data-ar-area-reset>Gesamter Raum</button><details><summary>Wand in die Choreografie einbeziehen</summary><label>Zusätzliche Zielfläche<select data-ar-wall><option value="">Nur Boden</option></select></label><div class="ar-fields" data-ar-wall-fields hidden><label>Bereich ab (%)<input data-ar-wall-start type="number" min="0" max="98" step="1"></label><label>Bereich bis (%)<input data-ar-wall-end type="number" min="2" max="100" step="1"></label><label>Ab Höhe (m)<input data-ar-wall-min type="number" min="0" step="0.1"></label><label>Bis Höhe (m)<input data-ar-wall-max type="number" min="0.1" step="0.1"></label></div><p>Die Automatik wechselt musikalisch zwischen Boden und Wand. Außerhalb des Wandbereichs wird der Strahl ausgeblendet. Wandnummern stehen im Plan.</p></details></fieldset>
         <details><summary>Genau positionieren & Gerätemaße</summary><div class="ar-fields"><label>Seitlich zur Raummitte (m)<input data-ar-x type="number" step="0.01" required></label><label>Abstand von vorne (m)<input data-ar-y type="number" step="0.01" required></label></div>
         <p>Trage hier die Außenmaße deines Geräts ein. Die Vorschau beginnt mit Beispielmaßen.</p><div class="ar-fields"><label>Gerätebreite (m)<input data-ar-size-width type="number" min="0.01" max="12" step="0.01" required></label><label>Gerätetiefe (m)<input data-ar-size-depth type="number" min="0.01" max="12" step="0.01" required></label><label>Gerätehöhe (m)<input data-ar-size-height type="number" min="0.01" max="12" step="0.01" required></label></div></details>
       </section>
@@ -62,7 +71,7 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   function mutateFixture(changes,message='Gerät gespeichert.'){
     const plan=structuredClone(current());if(!plan?.positions[fixture])throw Error('Wähle zuerst ein Gerät aus der Liste oder im Plan.');
     const before=plan.positions[fixture],p={...before,...changes};
-    if(!['stand','truss'].includes(p.type)){
+    if(!['stand','truss','moving'].includes(p.type)){
       p.target=changes.target||roomFixtureTarget(plan,fixture,getScene()?.lights);
       if(changes.rotation!==undefined){const angle=changes.rotation*Math.PI/180,distance=Math.max(.1,Math.hypot(p.target.x-p.x,p.target.y-p.y));p.target={x:p.x+Math.sin(angle)*distance,y:p.y-Math.cos(angle)*distance};}
       p.rotation=roomFixtureRotation(p);
@@ -87,22 +96,36 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   function finishDraw(){
     if(draft.length<3)throw Error('Setze mindestens drei Ecken, bevor du die Raumform übernimmst.');
     const plan=structuredClone(current());plan.boundary=draft.map(p=>[...p]);plan.surfaces=[];
+    const hadWalls=Object.values(plan.positions).some(p=>p.wallTarget);for(const p of Object.values(plan.positions))delete p.wallTarget;
     if(Object.values(plan.positions).some(p=>!insideRoom([p.x,p.y],plan.boundary)))throw Error('Ein Gerät würde außerhalb der neuen Raumform stehen. Versetze es zuerst oder passe die Ecken an.');
     try{validateRoomPlan(plan);}catch{throw Error('Die Raumform überschneidet sich. Entferne den letzten Punkt und folge den Wänden der Reihe nach.');}
-    mode='select';draft=[];preview=null;commit(plan,{message:'Raumform übernommen. Weiter geht es mit deinen Geräten.'});
+    mode='select';draft=[];preview=null;commit(plan,{message:hadWalls?'Raumform übernommen. Bitte ordne die Wandziele den neuen Wänden zu.':'Raumform übernommen. Weiter geht es mit deinen Geräten.'});
   }
   function element(tag,attrs={},text){const node=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v] of Object.entries(attrs))node.setAttribute(k,v);if(text)node.textContent=text;return node;}
   function drawMap(){
     const plan=current(),svg=q('map');svg.replaceChildren();if(!plan)return;
-    const pad=Math.max(plan.width,plan.depth)*.12,scale=Math.max(plan.width,plan.depth)/18;
-    const bounds=svg.getBoundingClientRect(),pixelsPerMeter=Math.max(1,Math.min((bounds.width||400)/(plan.width+pad*2),(bounds.height||260)/(plan.depth+pad*2))),labelSize=13/pixelsPerMeter,hitRadius=16/pixelsPerMeter;
-    svg.setAttribute('viewBox',`${-plan.width/2-pad} ${-pad} ${plan.width+pad*2} ${plan.depth+pad*2}`);svg.dataset.mode=mode;
+    const key=`${plan.id}:${plan.width}:${plan.depth}`;
+    if(mapView.key!==key)mapView={key,zoom:1,x:0,y:plan.depth/2};
+    const pad=Math.max(plan.width,plan.depth)*.12,scale=Math.max(plan.width,plan.depth)/18/mapView.zoom;
+    const viewWidth=(plan.width+pad*2)/mapView.zoom,viewHeight=(plan.depth+pad*2)/mapView.zoom;
+    mapView.x=Math.max(-plan.width/2-pad+viewWidth/2,Math.min(plan.width/2+pad-viewWidth/2,mapView.x));
+    mapView.y=Math.max(-pad+viewHeight/2,Math.min(plan.depth+pad-viewHeight/2,mapView.y));
+    const bounds=svg.getBoundingClientRect(),pixelsPerMeter=Math.max(1,Math.min((bounds.width||400)/viewWidth,(bounds.height||260)/viewHeight)),labelSize=13/pixelsPerMeter,hitRadius=16/pixelsPerMeter;
+    svg.setAttribute('viewBox',`${mapView.x-viewWidth/2} ${mapView.y-viewHeight/2} ${viewWidth} ${viewHeight}`);svg.dataset.mode=mode;svg.dataset.panning=String(!!pan);
+    q('zoom-level').value=`${Math.round(mapView.zoom*100)} %`;q('zoom-out').disabled=mapView.zoom<=1;q('zoom-in').disabled=mapView.zoom>=8;
     const xy=p=>[p[0],plan.depth-p[1]],put=(tag,attrs,text)=>{const n=element(tag,attrs,text);svg.append(n);return n;};
     put('rect',{x:-plan.width/2,y:0,width:plan.width,height:plan.depth,fill:'#102633',rx:.04});
     for(let x=Math.ceil(-plan.width/2);x<=plan.width/2;x++)put('line',{x1:x,x2:x,y1:0,y2:plan.depth,stroke:'#25434e','stroke-width':scale*.025});
     for(let y=0;y<=plan.depth;y++)put('line',{x1:-plan.width/2,x2:plan.width/2,y1:y,y2:y,stroke:'#25434e','stroke-width':scale*.025});
     put('polygon',{points:plan.boundary.map(p=>xy(p).join(',')).join(' '),fill:mode==='draw'?'none':'#24605b',opacity:mode==='draw'?.3:.55,stroke:'#8be0c9','stroke-width':scale*.07});
     put('text',{x:0,y:-pad*.4,fill:'#bed0d8','text-anchor':'middle','font-size':scale*.7},'HINTEN');put('text',{x:0,y:plan.depth+pad*.75,fill:'#bed0d8','text-anchor':'middle','font-size':scale*.7},'VORNE');
+    for(const z of plan.zones||[]){
+      const value=zoneDrag?.id===z.id&&zoneDrag.preview?zoneDrag.preview:z,x=(value.x-.5)*plan.width,y=(1-value.y-value.depth)*plan.depth,w=value.width*plan.width,h=value.depth*plan.depth;
+      const g=put('g',{'data-ar-zone':z.id,role:'button',tabindex:0,'aria-label':z.name+' verschieben'});
+      g.append(element('rect',{x,y,width:w,height:h,fill:'#b66b4c','fill-opacity':.35,stroke:roomZones?.selected===z.id?'#ffe29b':'#c99375','stroke-width':2/pixelsPerMeter}));
+      g.append(element('text',{x:x+5/pixelsPerMeter,y:y+15/pixelsPerMeter,fill:'#ffe6c5','font-size':labelSize,'pointer-events':'none'},z.name));
+      if(roomZones?.selected===z.id)g.append(element('rect',{'data-ar-zone-resize':'',x:x+w-6/pixelsPerMeter,y:y-6/pixelsPerMeter,width:12/pixelsPerMeter,height:12/pixelsPerMeter,fill:'#ffe29b'}));
+    }
     if(mode==='draw'){
       const path=[...draft];if(preview)path.push(preview);
       if(path.length>1)put('polyline',{points:path.map(p=>xy(p).join(',')).join(' '),fill:'none',stroke:'#ffcf7a','stroke-width':scale*.1,'stroke-dasharray':preview?`${scale*.3} ${scale*.15}`:'none'});
@@ -131,6 +154,7 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
         mark('text',{x,y:y-hitRadius-4/pixelsPerMeter,fill:'#102633','font-size':labelSize,'text-anchor':'middle'},`${code} ${i+1}`);
       });
       for(const [id,p] of Object.entries(plan.positions)){
+        if(p.type==='moving'){if(id===fixture){if(p.wallTarget){const c=p.wallTarget,v=plan.boundary[c.wall],w=plan.boundary[(c.wall+1)%plan.boundary.length],at=t=>[v[0]+(w[0]-v[0])*t,plan.depth-v[1]-(w[1]-v[1])*t],a=at(c.start),b=at(c.end);put('line',{x1:a[0],y1:a[1],x2:b[0],y2:b[1],stroke:'#ffd384','stroke-width':scale*.12,'pointer-events':'none'});for(const [point,label] of [[a,'Ab'],[b,'Bis']])put('text',{x:point[0],y:point[1]-scale*.15,fill:'#ffd384','font-size':scale*.18,'text-anchor':'middle','pointer-events':'none'},label);}plan.boundary.forEach((v,j)=>{const w=plan.boundary[(j+1)%plan.boundary.length];put('text',{x:(v[0]+w[0])/2,y:plan.depth-(v[1]+w[1])/2,'font-size':scale*.22,fill:p.wallTarget?.wall===j?'#ffd384':'#b8cbd1','text-anchor':'middle','pointer-events':'none'},'W'+(j+1));});const a=p.motionArea||{x:0,y:0,width:1,depth:1};put('rect',{x:(a.x-.5)*plan.width,y:(1-a.y-a.depth)*plan.depth,width:a.width*plan.width,height:a.depth*plan.depth,fill:'#8ecbd5','fill-opacity':.10,stroke:'#8ecbd5','stroke-width':scale*.06,'stroke-dasharray':`${scale*.16} ${scale*.12}`,'pointer-events':'none'});}continue;}
         if(['stand','truss'].includes(p.type))continue;
         const moving=drag?.id===id&&preview,pos=moving&&!drag.aim?{...p,x:preview[0],y:preview[1]}:p;
         const target=moving&&drag.aim?{x:preview[0],y:preview[1]}:roomFixtureTarget(plan,id,getScene()?.lights);
@@ -151,16 +175,26 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
     q('title').textContent=step===1?'1 · Lege deinen Raum an':step===2?'2 · Stelle deine Geräte auf':'3 · Deine Aufstellung ist bereit';
     q('help').textContent=step===1?(plan?'Prüfe die Maße. Bei einer anderen Raumform kannst du die Ecken direkt im Plan setzen.':'Wähle einen einfachen Einstieg. Du kannst alles später ändern.'):step===2?'Zwei Punkte pro Leuchte: Gerät und Lichtziel direkt im Plan ziehen.':'Deine Änderungen sind gespeichert. Du kannst den Raum jetzt in der Lichtshow oder in AR verwenden.';
     q('room').replaceChildren(...plans.map(p=>new Option(p.name,p.id)));q('room').value=selected;
-    for(const k of ['name','width','depth','height']){q(k).value=plan?.[k]??'';q(k).disabled=!plan||mode==='draw';}
+    for(const k of ['name','width','depth','height']){q(k).value=plan?.[k]??'';q(k).disabled=!plan||mode==='draw'||(k!=='name'&&!!plan.mesh);}
     q('enabled').checked=enabled;q('enabled').disabled=!plan;
+    q('brightness').value=plan?.environmentBrightness??30;q('brightness-value').textContent=`${plan?.environmentBrightness??30} %`;
+    q('style').value=plan?.style||'club';q('style').disabled=plan?.representation==='model';
+    q('representation').value=plan?.representation||'style';
+    q('representation').querySelector('[value=scan]').disabled=!plan?.surfaces.length;
+    q('representation').querySelector('[value=model]').disabled=!plan?.mesh;
+    q('geometry-info').textContent=plan?.representation==='model'?`${plan.mesh.name} · ${plan.mesh.triangles.length} Dreiecke · Maße aus dem Modell. Den begehbaren Grundriss kannst du im Plan anpassen.`:plan?.representation==='scan'?`${plan.surfaces.length} erfasste Raumflächen. Die Brille liefert Flächengeometrie, keine Fototexturen.`:'Wände und Boden werden aus deinem Grundriss erzeugt.';
     q('map-size').textContent=plan?`${plan.width.toFixed(1)} × ${plan.depth.toFixed(1)} m`:'';
     q('map-title').textContent=mode==='draw'?`${draft.length} Ecken gesetzt`:'Dein Raum von oben';
     q('map-hint').textContent=mode==='aim'?'Wohin schaut die Leuchte? Klicke auf ihr Lichtziel im Raum.':mode==='draw'?(draft.length<3?'Klicke mindestens drei Ecken entlang deiner Wände an. Jeder Klick setzt einen Punkt.':'Weitere Ecken setzen oder „Raumform übernehmen“ wählen. Ein Klick auf Punkt 1 schließt den Grundriss.'):mode==='place'?`${deviceName(fixture,plan?.positions[fixture],ids.indexOf(fixture))}: Tippe auf den gewünschten Standort. Grün = innerhalb des Raumes.`:step===2?'Gerät = Standort · gelber Kreis = Lichtziel. Beide Punkte lassen sich direkt ziehen.':'Jedes kleine Rasterfeld entspricht einem Meter.';
     q('draw-actions').hidden=mode!=='draw';q('place-actions').hidden=!['place','aim'].includes(mode);q('draw-finish').disabled=draft.length<3;q('point-undo').disabled=!draft.length;
     q('empty').hidden=ids.length>0;q('device-editor').hidden=!fixture;
     q('fixture').replaceChildren(...ids.map((id,i)=>new Option(deviceName(id,plan.positions[id],i),id)));q('fixture').value=fixture;
-    q('devices').replaceChildren(...ids.map((id,i)=>{const b=document.createElement('button');b.type='button';b.className='ar-device';b.dataset.selectDevice=id;b.setAttribute('aria-pressed',String(id===fixture));const number=document.createElement('b'),name=document.createElement('span'),small=document.createElement('small');number.textContent=String(i+1);name.textContent=deviceName(id,plan.positions[id],i);small.textContent=`${deviceTypes[plan.positions[id].type]||'Lichtgerät'} · ${plan.positions[id].height.toFixed(2)} m hoch · ${roomFixtureRotation(plan.positions[id],roomFixtureTarget(plan,id,getScene()?.lights)).toFixed(1)}°`;b.append(number,name,small);b.onclick=()=>selectFixture(id);return b;}));
-    const p=plan?.positions[fixture];q('device-name').value=p?deviceName(fixture,p,ids.indexOf(fixture)):'';
+    q('devices').replaceChildren(...ids.map((id,i)=>{const b=document.createElement('button');b.type='button';b.className='ar-device';b.dataset.selectDevice=id;b.setAttribute('aria-pressed',String(id===fixture));const number=document.createElement('b'),name=document.createElement('span'),small=document.createElement('small');number.textContent=String(i+1);name.textContent=deviceName(id,plan.positions[id],i);small.textContent=`${deviceTypes[plan.positions[id].type]||'Lichtgerät'} · ${plan.positions[id].height.toFixed(2)} m hoch · ${plan.positions[id].type==='moving'?'freier Bewegungsbereich':roomFixtureRotation(plan.positions[id],roomFixtureTarget(plan,id,getScene()?.lights)).toFixed(1)+'°'}`;b.append(number,name,small);b.onclick=()=>selectFixture(id);return b;}));
+    const p=plan?.positions[fixture];q('rotation').closest('label').hidden=p?.type==='moving';q('motion-area').hidden=p?.type!=='moving';
+    if(p?.type==='moving'){const a=p.motionArea||{x:0,y:0,width:1,depth:1};for(const [key,value] of [['left',(a.x-.5)*plan.width],['right',(a.x+a.width-.5)*plan.width],['front',a.y*plan.depth],['back',(a.y+a.depth)*plan.depth]])q('area-'+key).value=Number(value.toFixed(3));}
+    q('wall').replaceChildren(new Option('Nur Boden',''),...(plan?.boundary||[]).map((_,i)=>new Option('Wand '+(i+1),String(i))));q('wall').value=p?.wallTarget?String(p.wallTarget.wall):'';q('wall-fields').hidden=!p?.wallTarget;
+    if(p?.wallTarget){const w=p.wallTarget;for(const [key,value] of [['start',w.start*100],['end',w.end*100],['min',w.minHeight],['max',w.maxHeight]])q('wall-'+key).value=value;}
+    q('device-name').value=p?deviceName(fixture,p,ids.indexOf(fixture)):'';
     for(const [key,field] of [['x','x'],['y','y'],['height','z'],['rotation','rotation']]){q(field).disabled=!p;q(field).value=key==='rotation'&&p?Number(roomFixtureRotation(p,roomFixtureTarget(plan,fixture,getScene()?.lights)).toFixed(1)):p?.[key]??'';}
     for(const k of ['width','depth','height']){q('size-'+k).disabled=!p;q('size-'+k).value=p?.size[k]??'';}
     q('back').hidden=step===1;q('next').hidden=step===3;q('next').disabled=!plan||mode==='draw'||mode==='place';q('next').textContent=step===1?'Weiter zu den Geräten →':'Aufstellung abschließen →';
@@ -169,7 +203,7 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
     q('undo').hidden=!undo;
     for(const k of ['copy','delete','export','send','draw'])q(k).disabled=!plan;
     const availableLights=available().filter(l=>!plan?.positions[l.id]);q('available').replaceChildren(...availableLights.map((l,i)=>{const b=document.createElement('button');b.type='button';b.textContent='+ '+deviceName(l.id,{name:l.name,type:l.type},i);b.onclick=()=>attempt(()=>{seed(getScene(),l.id);beginPlacement();});return b;}));q('add').disabled=!availableLights.length;q('show-devices').hidden=!available().length&&!onManageShow;q('manage-show').hidden=!onManageShow;
-    drawMap();
+    q('show-functions').hidden=!onManageShow;roomZones?.reload();drawMap();
   }
   function newPlan(draw=false){const plan=newRoomPlan();let number=1;while(plans.some(p=>p.name===plan.name))plan.name=`Mein Raum ${++number}`;fixture='';step=1;mode='select';enabled=true;commit(plan,{message:'Gib deinem Raum einen Namen und prüfe Breite und Tiefe.'});if(draw){q('help').textContent='Wie groß ist dein Raum ungefähr? Passe Breite und Tiefe der Zeichenfläche an. Wähle dann „Raumecken im Plan setzen“.';q('width').focus({preventScroll:true});}else q('name').focus({preventScroll:true});}
   const scanHelp=()=>{if(!arReady){step=1;sync();}q('scan-help').hidden=false;if(arReady)onStartAR();else notify('Öffne die Vorschau im Browser deiner Brille. Die Schritte dafür stehen direkt hier.');};
@@ -179,8 +213,22 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   q('copy').onclick=()=>attempt(()=>commit({...current(),id:roomId(),name:(current().name+' · Kopie').slice(0,80)}));
   q('delete').onclick=()=>{const plan=current();if(!plan||!confirm(`„${plan.name}“ mit allen Gerätepositionen löschen?`))return;undo={plans:structuredClone(plans),selected,enabled};plans=plans.filter(p=>p.id!==plan.id);selected=plans[0]?.id||'';if(!selected)enabled=false;step=1;mode='select';sync();persist();notify('Raum entfernt. Du kannst die Änderung rückgängig machen.');};
   q('room').onchange=()=>{selected=q('room').value;step=1;mode='select';fixture='';sync();persist();};
+  q('brightness').oninput=()=>attempt(()=>commit({...current(),environmentBrightness:Number(q('brightness').value)}));
+  q('representation').onchange=()=>attempt(()=>commit({...current(),representation:q('representation').value}));
+  q('model-file').onchange=async()=>{
+    const input=q('model-file'),file=input.files[0];if(!file)return;
+    const options={scale:Number(q('model-scale').value),up:q('model-up').value,rotation:Number(q('model-rotation').value)};
+    input.disabled=true;notify('Modell wird eingelesen …');
+    try{
+      if(file.size>modelFileLimit)throw Error('Die Modelldatei ist zu groß (maximal 10 MB).');
+      const bytes=await file.arrayBuffer();if(disposed)return;
+      const imported=importRoomModel(bytes,file.name,options),plan=validateRoomPlan({...newRoomPlan(imported.width,imported.depth,imported.height),name:file.name.replace(/\.[^.]+$/,'').slice(0,80),mesh:imported.mesh,representation:'model'});
+      step=1;mode='select';fixture='';commit(plan,{message:'Modell importiert. Prüfe den Grundriss und stelle deine Geräte auf.'+(imported.warnings.length?' '+imported.warnings.join(' '):'')});enabled=true;sync();persist();
+    }catch(error){notify(error.message,true);}finally{input.value='';input.disabled=false;}
+  };
+  q('style').onchange=()=>attempt(()=>commit({...current(),style:q('style').value}));
   q('name').onchange=()=>attempt(()=>commit({...current(),name:q('name').value}));
-  for(const k of ['width','depth','height'])q(k).onchange=()=>attempt(()=>{if(!q(k).checkValidity())throw Error('Bitte gib ein gültiges Maß in Metern ein.');const plan=structuredClone(current()),value=q(k).valueAsNumber;
+  for(const k of ['width','depth','height'])q(k).onchange=()=>attempt(()=>{if(!q(k).checkValidity())throw Error('Bitte gib ein gültiges Maß in Metern ein.');const plan=structuredClone(current()),value=q(k).valueAsNumber;if(plan.mesh)throw Error('Für andere Modellmaße bitte die Datei mit passender Einheit erneut importieren.');
     if(k!=='height'&&(plan.surfaces.length||plan.boundary.length!==4||plan.boundary.some(([x,y])=>Math.abs(x)!==plan.width/2||(y!==0&&y!==plan.depth)))&&!confirm('Durch das Ändern der Außenmaße wird der Grundriss rechteckig. Möchtest du das?')){sync();return;}
     plan[k]=value;if(k!=='height'){plan.boundary=[[-plan.width/2,0],[plan.width/2,0],[plan.width/2,plan.depth],[-plan.width/2,plan.depth]];plan.surfaces=[];}
     if(Object.values(plan.positions).some(p=>!insideRoom([p.x,p.y],plan.boundary)||p.height>plan.height))throw Error('Ein Gerät passt nicht in die neuen Maße. Versetze es zuerst oder wähle größere Raummaße.');commit(plan);
@@ -194,27 +242,65 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   q('remove').onclick=()=>attempt(()=>{const plan=structuredClone(current()),name=deviceName(fixture,plan.positions[fixture]);delete plan.positions[fixture];mode='select';commit(plan,{message:`${name} entfernt. Du kannst die Änderung rückgängig machen.`});});
   q('duplicate').onclick=()=>attempt(()=>{const plan=structuredClone(current()),p=plan.positions[fixture],added=planningDevice(plan,p.type||'spot');plan.positions[added.id]={...structuredClone(p),name:(deviceName(fixture,p)+' · Kopie').slice(0,60),x:added.position.x,y:added.position.y};fixture=added.id;commit(plan);selectFixture(fixture);});
   q('device-name').onchange=()=>attempt(()=>mutateFixture({name:q('device-name').value}));
+  for(const key of ['left','right','front','back'])q('area-'+key).onchange=()=>attempt(()=>{
+    const plan=current(),left=q('area-left').valueAsNumber,right=q('area-right').valueAsNumber,front=q('area-front').valueAsNumber,back=q('area-back').valueAsNumber;
+    if(![left,right,front,back].every(Number.isFinite)||left>=right||front>=back||left<-plan.width/2||right>plan.width/2||front<0||back>plan.depth)throw Error('Bewegungsbereich prüfen: links kleiner als rechts, vorne kleiner als hinten; alle Grenzen innerhalb des Raums.');
+    mutateFixture({motionArea:{x:left/plan.width+.5,y:front/plan.depth,width:(right-left)/plan.width,depth:(back-front)/plan.depth}},'Bewegungsbereich gespeichert.');
+  });
+  q('wall').onchange=()=>attempt(()=>mutateFixture({wallTarget:q('wall').value===''?undefined:{wall:Number(q('wall').value),start:0,end:1,minHeight:Math.min(1,current().height*.4),maxHeight:current().height*.9}},'Wandziel gespeichert.'));
+  for(const key of ['start','end','min','max'])q('wall-'+key).onchange=()=>attempt(()=>mutateFixture({wallTarget:{wall:Number(q('wall').value),start:Number(q('wall-start').value)/100,end:Number(q('wall-end').value)/100,minHeight:Number(q('wall-min').value),maxHeight:Number(q('wall-max').value)}},'Wandbereich gespeichert.'));
+  q('area-reset').onclick=()=>attempt(()=>mutateFixture({motionArea:undefined},'Moving Head nutzt den ganzen Raum.'));
   for(const [field,key] of [['x','x'],['y','y'],['z','height'],['rotation','rotation']])q(field).onchange=()=>attempt(()=>mutateFixture({[key]:q(field).valueAsNumber}));
   for(const k of ['width','depth','height'])q('size-'+k).onchange=()=>attempt(()=>{if(!q('size-'+k).checkValidity())throw Error('Bitte gib eine Gerätegröße zwischen 0,01 und 12 Metern ein.');mutateFixture({size:{...current().positions[fixture].size,[k]:q('size-'+k).valueAsNumber}});});
   q('point-undo').onclick=()=>{draft.pop();sync();};q('draw-finish').onclick=()=>attempt(finishDraw);
   q('cancel').onclick=q('place-cancel').onclick=()=>{mode='select';draft=[];preview=null;sync();notify('Bearbeitung beendet. Geräte bleiben an ihren gespeicherten Standorten.');};
   q('undo').onclick=()=>{if(!undo)return;({plans,selected,enabled}=undo);undo=null;mode='select';draft=[];preview=null;sync();persist();notify('Letzte Änderung rückgängig gemacht.');};
-  const mapPoint=e=>{const matrix=q('map').getScreenCTM();if(!matrix)return null;const p=new DOMPoint(e.clientX,e.clientY).matrixTransform(matrix.inverse());return [Math.round(p.x*10)/10,Math.round((current().depth-p.y)*10)/10];};
-  q('map').onpointerdown=e=>{if(e.button!==0)return;pointer={id:e.pointerId,x:e.clientX,y:e.clientY};const targetId=e.target.closest('[data-target-id]')?.dataset.targetId,id=targetId||e.target.closest('[data-device-id]')?.dataset.deviceId;if(mode!=='draw'&&id){mode='select';fixture=id;drag={id,aim:!!targetId,target:roomFixtureTarget(current(),id,getScene()?.lights)};sync();}q('map').setPointerCapture(e.pointerId);};
-  q('map').onpointermove=e=>{if(!current())return;if(mode==='draw'||mode==='place'||mode==='aim'||drag){preview=mapPoint(e);drawMap();}};
-  q('map').onpointerup=e=>{if(pointer?.id!==e.pointerId)return;const point=mapPoint(e),moved=Math.hypot(e.clientX-pointer.x,e.clientY-pointer.y)>4,wasDrag=drag;pointer=null;drag=null;
+  const svgPoint=e=>{const matrix=q('map').getScreenCTM();return matrix?new DOMPoint(e.clientX,e.clientY).matrixTransform(matrix.inverse()):null;};
+  const mapPoint=e=>{const p=svgPoint(e);if(!p||!current())return null;const snap=mapView.zoom>1?100:10;return [Math.round(p.x*snap)/snap,Math.round((current().depth-p.y)*snap)/snap];};
+  function zoomMap(factor,event=null){
+    if(!current()||pointer)return;
+    const before=event?svgPoint(event):null;
+    mapView.zoom=Math.max(1,Math.min(8,mapView.zoom*factor));drawMap();
+    if(before){const after=svgPoint(event);if(after){mapView.x+=before.x-after.x;mapView.y+=before.y-after.y;drawMap();}}
+  }
+  q('zoom-in').onclick=()=>zoomMap(1.25);q('zoom-out').onclick=()=>zoomMap(1/1.25);
+  q('zoom-fit').onclick=()=>{if(pointer)return;mapView.key='';drawMap();};
+  q('map').addEventListener('wheel',e=>{if(!current())return;e.preventDefault();zoomMap(Math.exp(-Math.max(-200,Math.min(200,e.deltaY*(e.deltaMode===1?16:e.deltaMode===2?260:1)))*.003),e);},{passive:false});
+  q('map').onpointerdown=e=>{
+    if(!current()||pointer||![0,1].includes(e.button))return;
+    e.preventDefault();q('map').focus({preventScroll:true});
+    pointer={id:e.pointerId,x:e.clientX,y:e.clientY};
+    const targetId=e.target.closest('[data-target-id]')?.dataset.targetId,id=targetId||e.target.closest('[data-device-id]')?.dataset.deviceId;
+    const zone=e.target.closest('[data-ar-zone]');
+    if(e.button===0&&zone&&mode==='select'&&!id){const z=current().zones.find(z=>z.id===zone.dataset.arZone);roomZones.selectZone(z.id);zoneDrag={id:z.id,start:svgPoint(e),value:{...z},resize:e.target.hasAttribute('data-ar-zone-resize')};drawMap();}
+    else if(e.button===1||(mode==='select'&&!id)){
+      const matrix=q('map').getScreenCTM();pan={x:mapView.x,y:mapView.y,scale:matrix?.a||1};
+    }else if(mode!=='draw'&&id){mode='select';fixture=id;drag={id,aim:!!targetId,target:roomFixtureTarget(current(),id,getScene()?.lights)};sync();}
+    q('map').setPointerCapture(e.pointerId);
+  };
+  q('map').onpointermove=e=>{
+    if(!current()||(pointer&&pointer.id!==e.pointerId))return;
+    if(zoneDrag){const p=svgPoint(e),z=zoneDrag.value,dx=(p.x-zoneDrag.start.x)/current().width,dy=-(p.y-zoneDrag.start.y)/current().depth,clamp=(v,a,b)=>Math.max(a,Math.min(b,v));zoneDrag.preview=zoneDrag.resize?{...z,width:clamp(z.width+dx,.02,1-z.x),depth:clamp(z.depth+dy,.02,1-z.y)}:{...z,x:clamp(z.x+dx,0,1-z.width),y:clamp(z.y+dy,0,1-z.depth)};drawMap();return;}
+    if(pan){mapView.x=pan.x-(e.clientX-pointer.x)/pan.scale;mapView.y=pan.y-(e.clientY-pointer.y)/pan.scale;drawMap();return;}
+    if(mode==='draw'||mode==='place'||mode==='aim'||drag){preview=mapPoint(e);drawMap();}
+  };
+  q('map').onpointerup=e=>{if(pointer?.id!==e.pointerId)return;if(zoneDrag){const pending=zoneDrag;zoneDrag=null;pointer=null;if(pending.preview)roomZones.setZone(pending.id,pending.preview);drawMap();return;}if(pan){pan=null;pointer=null;preview=null;drawMap();return;}const point=mapPoint(e),moved=Math.hypot(e.clientX-pointer.x,e.clientY-pointer.y)>4,wasDrag=drag;pointer=null;drag=null;
     attempt(()=>{if(!point)return;if(mode==='draw'){
       if(draft.length>=3&&Math.hypot(point[0]-draft[0][0],point[1]-draft[0][1])<Math.max(current().width,current().depth)/30){finishDraw();return;}
       if(point[0]<-current().width/2||point[0]>current().width/2||point[1]<0||point[1]>current().depth)throw Error('Setze die Ecke innerhalb des Rasters. Vergrößere bei Bedarf zuerst Breite oder Tiefe.');
       if(draft.some(p=>Math.hypot(p[0]-point[0],p[1]-point[1])<.05))throw Error('Hier ist bereits eine Ecke. Setze den nächsten Punkt entlang der Wand.');if(draft.length>=128)throw Error('Du kannst bis zu 128 Ecken setzen.');draft.push(point);preview=null;sync();notify(`Ecke ${draft.length} gesetzt. ${draft.length<3?'Setze die nächste Ecke.':'Weitere Ecke setzen oder Raumform übernehmen.'}`);
     }else if(wasDrag?.aim&&moved){mutateFixture({target:{x:point[0],y:point[1]}},'Lichtziel gespeichert. Der Kreis markiert den Zielpunkt.');mode='select';preview=null;sync();}
     else if(mode==='place'||wasDrag&&!wasDrag.aim&&moved){mutateFixture({x:point[0],y:point[1],...(wasDrag&&!['stand','truss'].includes(current().positions[fixture].type)?{target:wasDrag.target}:{})},'Standort gespeichert. Das Lichtziel bleibt an seinem Platz.');mode='select';preview=null;sync();}else if(!wasDrag&&step===2)notify('Ziehe den Gerätemarker oder seinen gelben Zielkreis direkt an den gewünschten Ort.');});drawMap();};
-  q('map').onpointercancel=q('map').onlostpointercapture=()=>{pointer=null;drag=null;preview=null;drawMap();};
+  q('map').onpointercancel=q('map').onlostpointercapture=()=>{pointer=null;pan=null;zoneDrag=null;drag=null;preview=null;drawMap();};
   q('map').onpointerleave=()=>{if(!drag){preview=null;drawMap();}};
-  q('map').onkeydown=e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();pointer=null;drag=null;q('cancel').click();}if((e.key==='Enter'||e.key===' ')&&e.target.dataset.deviceId){e.preventDefault();selectFixture(e.target.dataset.deviceId);}};
+  q('map').onkeydown=e=>{if(['+','=','-','0'].includes(e.key)){e.preventDefault();e.stopPropagation();if(e.key==='0')q('zoom-fit').click();else zoomMap(e.key==='-'?1/1.25:1.25);return;}if(e.key==='Escape'){e.preventDefault();e.stopPropagation();pointer=null;pan=null;zoneDrag=null;drag=null;q('cancel').click();}if((e.key==='Enter'||e.key===' ')&&e.target.dataset.deviceId){e.preventDefault();selectFixture(e.target.dataset.deviceId);}};
   q('export').onclick=()=>{const blob=new Blob([JSON.stringify(current())],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='anydj-raum.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
   q('import').onchange=async()=>{try{const file=q('import').files[0];if(!file)return;if(file.size>256000)throw Error('Die Raumdatei ist zu groß (maximal 256 KB).');const value=JSON.parse(await file.text());if(disposed)return;validateRoomPlan(value);step=1;enabled=true;mode='select';commit(value,{message:'Raum importiert. Prüfe die Maße und fahre mit den Geräten fort.'});}catch(e){notify(e.message,true);}finally{q('import').value='';}};
   q('send').onclick=async()=>{q('send').disabled=true;try{await sendPlan(current());notify('Aufstellung gesendet. Wir warten auf die Bestätigung des Rechners.');}catch(e){notify(e.message,true);}finally{if(!disposed)q('send').disabled=!current();}};
+  roomZones=createZonePlan(q('room-zones'),{getLayout:()=>current()||{width:8,depth:6},getSettings:()=>({zones:current()?.zones||[],aims:{}}),onSave:value=>attempt(()=>commit({...current(),zones:value.zones},{message:'Ruhezonen im Raum gespeichert.'})),onChange:()=>drawMap()});
+  roomZones.panel.classList.add('ar-room-zones');roomZones.panel.querySelector('h3').textContent='Ruhezonen';roomZones.panel.querySelector('p').textContent='Zone hinzufügen, dann das Rechteck oben im Raumplan verschieben. Die helle Ecke verändert die Größe.';
+  const importZones=document.createElement('button');importZones.type='button';importZones.textContent='Bisherige Showzonen übernehmen';importZones.dataset.arImportZones='';
+  importZones.onclick=()=>attempt(()=>{const saved=JSON.parse(localStorage.getItem('anydj-3d-zones-v1')||'null');if(!saved?.zones?.length){notify('Keine bisherigen Showzonen gespeichert.');return;}commit({...current(),zones:[...(current().zones||[]),...saved.zones.map(z=>({...z,id:roomId()}))]},{message:'Showzonen übernommen. Prüfe ihre Position im Raum.'});});roomZones.panel.querySelector('.stage-3d-zone-actions').append(importZones);
   sync();if(storageError)notify(storageError,true);
-  return {root,get plan(){return current();},get active(){return enabled&&!!current();},get layout(){return enabled&&current()?roomPlanLayout(current()):null;},scene(scene,ar=false){return enabled&&current()?applyRoomPlan(scene,current(),ar):scene;},seed,save:commit,use(plan){validateRoomPlan(plan);enabled=true;commit(plan);},notify,openStep(value){root.open=true;go(value);},setARSupport(value){if(arReady===value)return;arReady=value;sync();},destroy(){disposed=true;root.remove();}};
+  return {root,get plan(){return current();},get active(){return enabled&&!!current();},get layout(){return enabled&&current()?roomPlanLayout(current()):null;},scene(scene,ar=false){return enabled&&current()?renderRoom(scene,current(),ar):scene;},seed,save:commit,use(plan){validateRoomPlan(plan);enabled=true;commit(plan);},notify,openStep(value){root.open=true;go(value);},setARSupport(value){if(arReady===value)return;arReady=value;sync();},destroy(){disposed=true;roomZones?.destroy();root.remove();}};
 }

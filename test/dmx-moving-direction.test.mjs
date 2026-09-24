@@ -178,3 +178,45 @@ test('automatic movement tempo follows a measured rise instead of a fixed eight-
  const original=structuredClone(p);assert.deepEqual(movingCues(p,'auto'),cues);assert.deepEqual(p,original);
  const disco=movingCues(p,'auto','disco');assert.ok(disco.every(c=>c.drive===undefined&&c.settle===undefined));
 });
+
+test('groove shapes describe distinct paths instead of reusing ellipses',async()=>{
+ const {groovePose}=await import('../public/dmx-moving-direction.js');
+ const path=shape=>Array.from({length:65},(_,i)=>groovePose(i/4,{shape,energy:.8,strength:.8,percussion:.8,vocals:.1,formation:'mirror',period:16})[0]);
+ const area=points=>Math.abs(points.slice(1).reduce((n,p,i)=>n+points[i].pan*p.tilt-p.pan*points[i].tilt,0));
+ for(const shape of ['sweep','pulse','cross','arc'])assert.ok(area(path(shape))<1e-8,shape+' retraces an open path rather than orbiting');
+ assert.ok(area(path('orbit'))>1);
+ assert.equal(new Set(path('sweep').map(p=>p.tilt)).size,1);
+ assert.ok(new Set(path('cross').map(p=>p.tilt)).size>10);
+ const width=points=>Math.max(...points.map(p=>p.pan))-Math.min(...points.map(p=>p.pan));
+ assert.ok(width(path('focus'))<width(path('sweep'))*.3);
+});
+test('actual automatic groove cues honor the musical shape and keep circles exceptional',()=>{
+ const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);p.sections.forEach(s=>s.look='peak');
+ assert.ok(movingCues(p,'auto').filter(c=>c.reason==='groove').every(c=>c.shape==='pulse'));
+ p.arrangement.drama={step:.5,intensity:Array(128).fill(.9),percussion:Array(128).fill(.55),vocalShare:Array(128).fill(.6),attacks:Array(128).fill(.1)};
+ assert.equal(movingDirections(p)[0].shape,'focus');
+ assert.ok(movingCues(p,'auto').filter(c=>c.reason==='groove').some(c=>c.shape==='focus'));
+ p.arrangement.drama.vocalShare.fill(.1);p.arrangement.patterns.phrases.forEach(ph=>{ph.energy=.9;ph.tone=.8;});
+ assert.equal(movingDirections(p,true)[0].shape,'orbit');
+ assert.notEqual(movingDirections(p)[0].shape,'orbit','balanced does not default to a circle at peaks');
+ p.sections.forEach(s=>s.look='lift');assert.ok(movingDirections(p,true).every(d=>d.shape==='fan'));
+});
+test('ribbon formations preserve a fan opening rather than replacing it with a sweep',()=>{
+ const design={shape:'fan',formation:'ribbon',width:28,depth:.1,inner:.5,category:'build'};
+ assert.deepEqual(directedPose(design,0,.5),directedPose(design,2,.5));
+ assert.notDeepEqual(directedPose(design,0,.1),directedPose(design,0,.9));
+});
+
+test('automatic choreography gives every head depth and area instead of a permanent central lane',()=>{
+ const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);p.sections.forEach(s=>s.look='peak');
+ const cues=movingCues(p,'auto');
+ for(let head=0;head<4;head++){
+  const points=Array.from({length:560},(_,i)=>movingCueAt(cues,4+i*.1)[head]);
+  const xs=points.map(p=>p.pan/42),ys=points.map(p=>(p.tilt-.85)/.3);
+  const mean=a=>a.reduce((s,v)=>s+v,0)/a.length,mx=mean(xs),my=mean(ys);
+  const xx=mean(xs.map(x=>(x-mx)**2)),yy=mean(ys.map(y=>(y-my)**2)),xy=mean(xs.map((x,i)=>(x-mx)*(ys[i]-my)));
+  assert.ok(Math.max(...ys)-Math.min(...ys)>.7,`head ${head} reaches front and back`);
+  assert.ok(Math.min(...xs)<-.15&&Math.max(...xs)>.15,`head ${head} leaves its central role`);
+  assert.ok(xx*yy-xy*xy>.002,`head ${head} covers area instead of a line`);
+ }
+});

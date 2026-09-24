@@ -1,3 +1,7 @@
+import {validateRoomMesh,surfaceTriangles} from './dmx-room-mesh.js';
+import {zoneLights} from './dmx-zone-plan.js';
+import {createZoneMotion,blockedSegment,zoneObstacles} from './dmx-zone-motion.js';
+import {roomStyleId,environmentBrightness} from './dmx-room-style.js';
 // Portable room plans use metres: x across the room, y towards the back, z up.
 // Headset anchors and XR reference-space coordinates deliberately stay on the headset.
 export const roomId=()=>globalThis.crypto?.randomUUID?.()||'room-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
@@ -45,16 +49,31 @@ export function validateRoomPlan(value) {
     if (!id || id.length > 100 || ['__proto__','constructor','prototype'].includes(id) || !p || !finite(p.x,-30,30) || !finite(p.y,0,60) || !finite(p.height,0,height) || !finite(p.rotation,-360,360) || !insideRoom([p.x,p.y],boundary)) fail();
     if (!['width','depth','height'].every(k=>finite(p.size?.[k],.01,12))) fail();
     if(p.target&&(!finite(p.target.x,-width/2,width/2)||!finite(p.target.y,0,depth)||!insideRoom([p.target.x,p.target.y],boundary)))fail();
-    positions[id] = {...(typeof p.name==='string'?{name:p.name.trim().slice(0,60)}:{}),...(typeof p.type==='string'?{type:p.type.slice(0,30)}:{}),...(p.target?{target:{x:p.target.x,y:p.target.y}}:{}),x:p.x,y:p.y,height:p.height,rotation:roomFixtureRotation(p),size:{width:p.size.width,depth:p.size.depth,height:p.size.height}};
+    if(p.wallTarget&&(!Number.isInteger(p.wallTarget.wall)||p.wallTarget.wall<0||p.wallTarget.wall>=boundary.length||!finite(p.wallTarget.start,0,1)||!finite(p.wallTarget.end,0,1)||p.wallTarget.end-p.wallTarget.start<.02||!finite(p.wallTarget.minHeight,0,height)||!finite(p.wallTarget.maxHeight,0,height)||p.wallTarget.maxHeight-p.wallTarget.minHeight<.1))throw Error('Wandbereich und Höhen müssen innerhalb des Raums liegen.');
+    if(p.motionArea&&(!finite(p.motionArea.x,0,1)||!finite(p.motionArea.y,0,1)||!finite(p.motionArea.width,.02,1)||!finite(p.motionArea.depth,.02,1)||p.motionArea.x+p.motionArea.width>1.000001||p.motionArea.y+p.motionArea.depth>1.000001))fail();
+    if(p.motionArea){const a=p.motionArea,left=(a.x-.5)*width,right=(a.x+a.width-.5)*width,front=a.y*depth,back=(a.y+a.depth)*depth;if([[left,front],[right,front],[right,back],[left,back],[(left+right)/2,(front+back)/2]].some(q=>!insideRoom(q,boundary)))throw Error('Der Bewegungsbereich muss innerhalb der Raumfläche liegen.');
+      for(let i=0;i<boundary.length;i++){const p=boundary[i],q=boundary[(i+1)%boundary.length];let low=0,high=1;for(const [axis,min,max] of [[0,left+1e-7,right-1e-7],[1,front+1e-7,back-1e-7]]){const d=q[axis]-p[axis];if(Math.abs(d)<1e-9){if(p[axis]<=min||p[axis]>=max){high=-1;break;}}else{const t1=(min-p[axis])/d,t2=(max-p[axis])/d;low=Math.max(low,Math.min(t1,t2));high=Math.min(high,Math.max(t1,t2));}}if(high>low)throw Error('Der Bewegungsbereich darf keine Aussparung oder Wand im Grundriss kreuzen.');}
+    }
+    positions[id] = {...(p.wallTarget?{wallTarget:{wall:p.wallTarget.wall,start:p.wallTarget.start,end:p.wallTarget.end,minHeight:p.wallTarget.minHeight,maxHeight:p.wallTarget.maxHeight}}:{}),...(typeof p.name==='string'?{name:p.name.trim().slice(0,60)}:{}),...(typeof p.type==='string'?{type:p.type.slice(0,30)}:{}),...(p.target?{target:{x:p.target.x,y:p.target.y}}:{}),...(p.motionArea?{motionArea:{x:p.motionArea.x,y:p.motionArea.y,width:p.motionArea.width,depth:p.motionArea.depth}}:{}),x:p.x,y:p.y,height:p.height,rotation:p.type==='moving'?p.rotation:roomFixtureRotation(p),size:{width:p.size.width,depth:p.size.depth,height:p.size.height}};
   }
   const surfaces = [];
   if (!Array.isArray(value.surfaces) || value.surfaces.length > 128) fail();
   for (const surface of value.surfaces) {
     if (!surface || !Array.isArray(surface.points) || surface.points.length < 3 || surface.points.length > 128 || surface.points.some(p=>!Array.isArray(p)||p.length!==3||p.some(n=>!finite(n,-100,100)))) fail();
+    surfaceTriangles(surface.points);
     surfaces.push({kind:['floor','wall','surface'].includes(surface.kind)?surface.kind:'surface',points:surface.points.map(p=>[...p])});
   }
-  const result={version:1,id:value.id,name:value.name.trim()||'Mein Raum',width,depth,height,boundary:boundary.map(p=>[...p]),surfaces,positions};
-  if(new TextEncoder().encode(JSON.stringify(result)).length>256000)throw Error('Raumplan zu groß (maximal 256 KB).');
+  const result={version:1,id:value.id,name:value.name.trim()||'Mein Raum',width,depth,height,boundary:boundary.map(p=>[...p]),surfaces,positions,style:roomStyleId(value.style),environmentBrightness:environmentBrightness(value.environmentBrightness)};
+  if(value.mesh!==undefined){result.mesh=validateRoomMesh(value.mesh);if(result.mesh.vertices.some(p=>Math.abs(p[0])>width/2+.001||p[1]<-.001||p[1]>depth+.001||p[2]<-.001||p[2]>height+.001))fail();}
+  result.representation=value.representation==='model'&&result.mesh?'model':value.representation==='style'?'style':surfaces.length?'scan':result.mesh?'model':'style';
+  if(value.zones!==undefined){
+    if(!Array.isArray(value.zones)||value.zones.length>24)fail();
+    const ids=new Set();result.zones=value.zones.map(z=>{
+      if(!z||typeof z.id!=='string'||!/^[\w-]{1,80}$/.test(z.id)||ids.has(z.id)||typeof z.name!=='string'||z.name.length>60||!finite(z.width,.02,1)||!finite(z.depth,.02,1)||!finite(z.x,0,1-z.width+1e-9)||!finite(z.y,0,1-z.depth+1e-9))fail();
+      ids.add(z.id);return {id:z.id,name:z.name,x:z.x,y:z.y,width:z.width,depth:z.depth};
+    });
+  }
+  if(new TextEncoder().encode(JSON.stringify(result)).length>256000)throw Error('Raumplan zu groß (maximal 256 KB). Bitte das Modell vor dem Import vereinfachen.');
   return result;
 }
 
@@ -63,7 +82,7 @@ export function newRoomPlan(width=8,depth=6,height=3) {
 }
 
 export function roomPlanLayout(plan) {
-  return {width:plan.width,depth:plan.depth,height:plan.height,room:true,lightMin:0,positions:plan.positions,roomPlan:plan};
+  return {width:plan.width,depth:plan.depth,height:plan.height,room:true,lightMin:0,positions:plan.positions,roomPlan:plan,zones:plan.zones||[]};
 }
 
 export function roomFixtureTarget(plan,id,lights=[]){
@@ -76,7 +95,7 @@ export function roomFixtureTarget(plan,id,lights=[]){
 
 export function applyRoomPlan(scene, plan, ar=false) {
   if (!scene || !plan) return scene;
-  plan={...plan,positions:Object.fromEntries(Object.entries(plan.positions).map(([id,p])=>{if(!p.target&&!['moving','spot','bar'].includes(p.type))return [id,p];const target=roomFixtureTarget(plan,id,scene.lights);return [id,{...p,target,rotation:roomFixtureRotation(p,target)}];}))};
+  plan={...plan,positions:Object.fromEntries(Object.entries(plan.positions).map(([id,p])=>{if(p.type==='moving'||!p.target&&!['spot','bar'].includes(p.type))return [id,p];const target=roomFixtureTarget(plan,id,scene.lights);return [id,{...p,target,rotation:roomFixtureRotation(p,target)}];}))};
   // Planned fixtures are virtual preview devices. Reuse current show frames by
   // fixture type; never invent brightness or change the hardware inventory.
   const frames=[...scene.lights],groups=new Map(),assigned=new Map();
@@ -95,16 +114,35 @@ export function applyRoomPlan(scene, plan, ar=false) {
     const p=plan.positions[light.id],center=centers.get(light.id),source=scene.layout.positions?.[light.id]||{x:center.x/center.count,y:center.y/center.count};
     const dx=light.position.x-source.x,dy=light.position.y-source.y,a=p.rotation*Math.PI/180;
     let target=p.target?{...p.target}:{...light.target};
-    if(light.type==='moving'&&p.target&&Number.isFinite(light.motionCenter?.x)&&Number.isFinite(light.motionCenter?.y)){
-      const offset={x:light.target.x-light.motionCenter.x,y:light.target.y-light.motionCenter.y};
-      const candidate={x:p.target.x+offset.x,y:p.target.y+offset.y};
-      if(insideRoom([candidate.x,candidate.y],plan.boundary))target=candidate;
-      else{let low=0,high=1;for(let i=0;i<16;i++){const t=(low+high)/2;if(insideRoom([p.target.x+offset.x*t,p.target.y+offset.y*t],plan.boundary))low=t;else high=t;}target={x:p.target.x+offset.x*low,y:p.target.y+offset.y*low};}
+    if(light.type==='moving'){
+      const range=p.motionArea||{x:0,y:0,width:1,depth:1};
+      const nx=Math.max(0,Math.min(1,Number.isFinite(light.motionUV?.x)?light.motionUV.x:light.target.x/(scene.layout.width*.9)+.5));
+      const ny=Math.max(0,Math.min(1,Number.isFinite(light.motionUV?.y)?light.motionUV.y:(light.target.y/scene.layout.depth-.1)/.65));
+      target={x:(range.x+range.width*nx-.5)*plan.width,y:(range.y+range.depth*ny)*plan.depth};
+      if(!insideRoom([target.x,target.y],plan.boundary)){
+        // Retain the nearest valid destination for concave floor plans.
+        const candidates=triangulateFloor(plan.boundary).map(t=>({x:t.reduce((n,v)=>n+v[0],0)/3,y:t.reduce((n,v)=>n+v[1],0)/3}));
+        const anchor=candidates.sort((a,b)=>Math.hypot(a.x-target.x,a.y-target.y)-Math.hypot(b.x-target.x,b.y-target.y))[0];
+        if(anchor){let low=0,high=1;for(let i=0;i<20;i++){const t=(low+high)/2;if(insideRoom([anchor.x+(target.x-anchor.x)*t,anchor.y+(target.y-anchor.y)*t],plan.boundary))low=t;else high=t;}target={x:anchor.x+(target.x-anchor.x)*low,y:anchor.y+(target.y-anchor.y)*low};}
+      }
     }
-    return {...light,aimed:!!p.target,target,aimRotation:p.target?roomFixtureRotation(p,target):p.rotation,position:{...p,x:p.x+dx*Math.cos(a)-dy*Math.sin(a),y:p.y+dx*Math.sin(a)+dy*Math.cos(a)},modelSize:p.size,rotation:p.rotation};
+
+    return {...light,...(light.type==='moving'&&p.motionArea?{motionBounds:{left:(p.motionArea.x-.5)*plan.width,right:(p.motionArea.x+p.motionArea.width-.5)*plan.width,bottom:p.motionArea.y*plan.depth,top:(p.motionArea.y+p.motionArea.depth)*plan.depth}}:{}),aimed:light.type==='moving'||!!p.target,target,aimRotation:light.type==='moving'||p.target?roomFixtureRotation(p,target):p.rotation,position:{...p,x:p.x+dx*Math.cos(a)-dy*Math.sin(a),y:p.y+dx*Math.sin(a)+dy*Math.cos(a)},modelSize:p.size,rotation:p.rotation};
   });
   for(const [id,p] of Object.entries(plan.positions))if(!centers.has(id))lights.push({id,type:p.type||'spot',aimed:!!p.target,position:p,target:roomFixtureTarget(plan,id),color:'#7595a4',power:0,modelSize:p.size,rotation:p.rotation});
   return {...scene,layout:{...roomPlanLayout(plan),ar},lights,crowd:ar?[]:scene.crowd};
+}
+
+// Apply exclusion zones after room placement, so both geometry and targets use room coordinates.
+export function createRoomPreview(){
+  const motion=createZoneMotion();let room='';
+  return (scene,plan,ar=false,now=performance.now()/1000)=>{
+    if(!scene||!plan)return scene;
+    if(room!==plan.id){motion.reset();room=plan.id;}
+    const result=applyRoomPlan(scene,plan,ar),settings={zones:plan.zones||[],aims:{}};
+    result.lights=motion.update(zoneLights(result.lights,result.layout,settings),result.layout,settings,now).map(light=>wallChoreography(light,plan)).map(light=>({...light,aimRotation:roomFixtureRotation(light.position,light.target)}));
+    return result;
+  };
 }
 
 export function xrToRoom(point,origin) {
@@ -138,7 +176,7 @@ export function roomFromFloor(points, surfaces=[], previous=null) {
   const converted=surfaces.map(s=>({kind:s.kind,points:captureVertices(s.points).map(p=>xrToRoom(p,origin))}));
   const tops=converted.filter(s=>s.kind==='wall').flatMap(s=>s.points.map(p=>p[2]));
   const height=Math.max(.5,Math.min(15,tops.length?Math.max(...tops):previous?.height||3));
-  const plan=validateRoomPlan({version:1,id:roomId(),name:previous?.name?`${previous.name} · Aufnahme`.slice(0,80):'Aufgenommener Raum',width,depth,height,boundary,surfaces:converted,positions:{}});
+  const plan=validateRoomPlan({version:1,id:roomId(),style:previous?.style,environmentBrightness:previous?.environmentBrightness,name:previous?.name?`${previous.name} · Aufnahme`.slice(0,80):'Aufgenommener Raum',width,depth,height,boundary,surfaces:converted,positions:{}});
   return {plan,origin};
 }
 
@@ -210,4 +248,40 @@ export function roomFixtureHit(matrix,origin,plan) {
     if(near<=far&&(!best||near<best.distance))best={id,distance:near};
   }
   return best;
+}
+
+
+// Analytic ray/surface intersection: one pass over the floor-plan edges, no
+// shadow maps or mesh ray tracing. Routing first supplies a safe floor gesture.
+export function wallChoreography(light,plan){
+ const config=plan.positions[light.id]?.wallTarget;
+ if(light.type!=='moving'||!config||!light.motionUV)return light;
+ const clamp=v=>Math.max(0,Math.min(1,v)),smooth=v=>{v=clamp(v);return v*v*(3-2*v);};
+ const blend=smooth((light.motionUV.y-.48)/.35);
+ if(blend<=0)return light;
+ const a=plan.boundary[config.wall],b=plan.boundary[(config.wall+1)%plan.boundary.length];
+ const u=config.start+(config.end-config.start)*(.1+.8*clamp(light.motionUV.x));
+ const wall={x:a[0]+(b[0]-a[0])*u,y:a[1]+(b[1]-a[1])*u,z:config.minHeight+(config.maxHeight-config.minHeight)*(.2+.8*clamp(light.motionUV.x))};
+ const origin={x:light.position.x,y:light.position.y,z:light.position.height+(light.modelSize?.height||0)*.71};
+ const direction={x:light.target.x+(wall.x-light.target.x)*blend-origin.x,y:light.target.y+(wall.y-light.target.y)*blend-origin.y,z:wall.z*blend-origin.z};
+ let hit=direction.z<0?-origin.z/direction.z:Infinity,wallIndex=-1,wallU=0;
+ for(let i=0;i<plan.boundary.length;i++){
+  const p=plan.boundary[i],q=plan.boundary[(i+1)%plan.boundary.length],ex=q[0]-p[0],ey=q[1]-p[1],den=direction.x*ey-direction.y*ex;
+  if(Math.abs(den)<1e-9)continue;
+  const dx=p[0]-origin.x,dy=p[1]-origin.y,t=(dx*ey-dy*ex)/den,v=(dx*direction.y-dy*direction.x)/den;
+  if(t>1e-7&&t<hit&&v>=0&&v<=1){hit=t;wallIndex=i;wallU=v;}
+ }
+ if(!Number.isFinite(hit))return {...light,power:0};
+ const target={x:origin.x+direction.x*hit,y:origin.y+direction.y*hit,z:Math.max(0,origin.z+direction.z*hit)};
+ let level=1;
+ if(wallIndex>=0){
+  level=wallIndex===config.wall?smooth((target.z-config.minHeight)/.15)*smooth((wallU-config.start)/.03)*smooth((config.end-wallU)/.03):0;
+  if(target.z>config.maxHeight+1e-6)level=0;
+ }
+ // Ruhezonen apply to the projected path as well, including wall approaches.
+ const boxes=zoneObstacles({width:plan.width,depth:plan.depth},plan.zones||[],.25);
+ if(blockedSegment(light.target,target,boxes)||boxes.some(b=>target.x>b.left&&target.x<b.right&&target.y>b.bottom&&target.y<b.top))level=0;
+ const bounds=light.motionBounds;
+ if(wallIndex<0&&bounds&&(target.x<bounds.left||target.x>bounds.right||target.y<bounds.bottom||target.y>bounds.top))level=0;
+ return {...light,target,wallIndex,power:light.power*level};
 }

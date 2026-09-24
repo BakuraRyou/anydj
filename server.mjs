@@ -1,3 +1,4 @@
+import {createVRAuth} from './lib/vr-auth.mjs';
 import {createVRPreviewRelay} from './lib/vr-preview.mjs';
 import http from 'node:http';
 import https from 'node:https';
@@ -24,6 +25,7 @@ const STATIC = new Map([
   ['/vr-test', ['vr-view.html', 'text/html; charset=utf-8']],
   ['/vr-test/', ['vr-view.html', 'text/html; charset=utf-8']],
   ['/vr-view', ['vr-view.html', 'text/html; charset=utf-8']],
+  ['/vr-view-boot.js', ['vr-view-boot.js', 'text/javascript; charset=utf-8']],
   ['/vr-view.js', ['vr-view.js', 'text/javascript; charset=utf-8']],
   ['/vr-view.css', ['vr-view.css', 'text/css; charset=utf-8']],
   ['/dmx-vr-share.js', ['dmx-vr-share.js', 'text/javascript; charset=utf-8']],
@@ -62,12 +64,15 @@ const STATIC = new Map([
   ['/dmx-ar-planner.js', ['dmx-ar-planner.js', 'text/javascript; charset=utf-8']],
   ['/dmx-ar-controls.js', ['dmx-ar-controls.js', 'text/javascript; charset=utf-8']],
   ['/dmx-ar.css', ['dmx-ar.css', 'text/css; charset=utf-8']],
+  ['/dmx-room-mesh.js', ['dmx-room-mesh.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-room-style.js', ['dmx-room-style.js', 'text/javascript; charset=utf-8']],
   ['/dmx-room.js', ['dmx-room.js', 'text/javascript; charset=utf-8']],
   ['/dmx-zone-plan.js', ['dmx-zone-plan.js', 'text/javascript; charset=utf-8']],
   ['/dmx-zone-motion.js', ['dmx-zone-motion.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-workspace.js', ['dmx-stage-workspace.js', 'text/javascript; charset=utf-8']],
   ['/dmx-vr-setup.js', ['dmx-vr-setup.js', 'text/javascript; charset=utf-8']],
   ['/dmx-vr-playback.js', ['dmx-vr-playback.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-surface-light.js', ['dmx-surface-light.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-vr.js', ['dmx-stage-vr.js', 'text/javascript; charset=utf-8']],
   ['/dmx-vr-console.js', ['dmx-vr-console.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-3d.js', ['dmx-stage-3d.js', 'text/javascript; charset=utf-8']],
@@ -368,7 +373,7 @@ export async function createApp({
     if (entry.count > (frame ? 1400 : 360)) throw new AppError('Zu viele Anfragen. Bitte kurz pausieren.', 429, 'RATE_LIMIT');
   };
 
-  const previewRelay=createVRPreviewRelay();let previewBridge=null,bridgeTask=null;
+  const previewAuth=createVRAuth(dataDir),previewRelay=createVRPreviewRelay();let previewBridge=null,bridgeTask=null;
   const createServer = tls ? handler => https.createServer(tls, handler) : handler => http.createServer(handler);
   const server = createServer(async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -404,8 +409,9 @@ export async function createApp({
         json(res, 200, { version: VERSION, demo, tokenRequired: Boolean(token) && !tokenMatches(req.headers.authorization, token) }); return;
       }
       if(path==='/api/vr-preview/command'&&req.method==='POST'){if(req.headers['x-anydj-local']!=='1')throw new AppError('Steuerung benötigt den lokalen Anfrageheader.',403);const body=await bodyJSON(req,270000);json(res,200,previewRelay.command(body.id,body.control,body.command));return;}
+      if(path==='/api/vr-preview/resume'&&req.method==='POST'){if(req.headers['x-anydj-local']!=='1')throw new AppError('Lokaler Anfrageheader fehlt.',403);const body=await bodyJSON(req);await previewAuth.verify(body.token);json(res,200,previewRelay.pairTest());return;}
       if(path==='/api/vr-preview/test-connect'&&req.method==='GET'){json(res,200,previewRelay.pairTest());return;}
-      if(path==='/api/vr-preview/pair'&&req.method==='GET'){json(res,200,previewRelay.pair(url.searchParams.get('code'),req.socket.remoteAddress||'unknown'));return;}
+      if(path==='/api/vr-preview/pair'&&req.method==='GET'){const paired=previewRelay.pair(url.searchParams.get('code'),req.socket.remoteAddress||'unknown');json(res,200,{...paired,token:await previewAuth.issue()});return;}
       if(path==='/api/vr-preview/stream'&&req.method==='GET'){previewRelay.stream(url.searchParams.get('id'),req,res);return;}
       if (token && !tokenMatches(req.headers.authorization, token)) {
         throw new AppError('Bitte den Web-Zugangscode aus dem Server-Terminal eingeben.', 401, 'UNAUTHORIZED');
@@ -606,8 +612,8 @@ export async function createApp({
   });
   async function previewAddresses(){
     if(!bridgeTask)bridgeTask=(async()=>{
-      const allowed=new Set(['/vr-test','/vr-test/','/api/vr-preview/test-connect','/vr-view','/vr-view.js','/vr-view.css','/dmx-stage-vr.js','/dmx-vr-console.js','/dmx-vr-playback.js','/dmx-ar-model.js','/dmx-ar-planner.js','/dmx-ar-controls.js','/dmx-ar.css','/dmx-stage-3d-renderer.js','/api/vr-preview/stream','/api/vr-preview/pair']);
-      previewBridge=(previewTls?https.createServer.bind(https,previewTls):http.createServer)((req,res)=>{let path=(req.url||'').split('?')[0];if(req.method==='GET'&&(path==='/'||path==='/vr-view/')){req.url='/vr-view'+(req.url.includes('?')?req.url.slice(req.url.indexOf('?')):'');path='/vr-view';}if(req.method==='GET'&&path==='/favicon.ico'){res.writeHead(204);res.end();return;}if(!(req.method==='POST'&&path==='/api/vr-preview/command')&&(req.method!=='GET'||!allowed.has(path))){res.writeHead(403);res.end('Dieser Zugang ist nur für die VR-Vorschau.');return;}server.emit('request',req,res);});
+      const allowed=new Set(['/vr-test','/vr-test/','/api/vr-preview/test-connect','/vr-view','/vr-view-boot.js','/vr-view.js','/vr-view.css','/dmx-stage-vr.js','/dmx-vr-console.js','/dmx-vr-playback.js','/dmx-surface-light.js','/dmx-zone-plan.js','/dmx-zone-motion.js','/dmx-ar-model.js','/dmx-room-style.js','/dmx-room-mesh.js','/dmx-ar-planner.js','/dmx-ar-controls.js','/dmx-ar.css','/dmx-stage-3d-renderer.js','/api/vr-preview/stream','/api/vr-preview/pair']);
+      previewBridge=(previewTls?https.createServer.bind(https,previewTls):http.createServer)((req,res)=>{let path=(req.url||'').split('?')[0];if(req.method==='GET'&&(path==='/'||path==='/vr-view/')){req.url='/vr-view'+(req.url.includes('?')?req.url.slice(req.url.indexOf('?')):'');path='/vr-view';}if(req.method==='GET'&&path==='/favicon.ico'){res.writeHead(204);res.end();return;}if(!(req.method==='POST'&&['/api/vr-preview/command','/api/vr-preview/resume'].includes(path))&&(req.method!=='GET'||!allowed.has(path))){res.writeHead(403);res.end('Dieser Zugang ist nur für die VR-Vorschau.');return;}server.emit('request',req,res);});
       await new Promise((resolve,reject)=>{previewBridge.once('error',reject);previewBridge.listen(previewPort,'0.0.0.0',resolve);});
       return previewBridge.address().port;
     })().catch(error=>{previewBridge?.close();previewBridge=null;bridgeTask=null;if(error.code==='EADDRINUSE')throw new AppError(`Der VR-Vorschau-Port ${previewPort} ist bereits belegt. Beende die andere AnyDj-Instanz oder lege VR_PREVIEW_PORT fest.`,409);throw error;});

@@ -1,10 +1,24 @@
-import {applyRoomPlan} from './dmx-ar-model.js';
+import {sceneEnvironmentBrightness} from './dmx-room-style.js';
+import {createRoomPreview,insideRoom,triangulateFloor,xrToRoom} from './dmx-ar-model.js';
 import {createARControls} from './dmx-ar-controls.js';
 import {createVRConsole,createConsoleGraphics} from './dmx-vr-console.js';
 // Optional WebXR adapter. No XR session or GPU resources until the user enters VR.
 export function worldToXR(point,origin){
   const x=point[0]-origin.x,y=point[1]-origin.y,c=Math.cos(origin.yaw),s=Math.sin(origin.yaw);
   return [x*c+y*s,point[2]-(origin.floorOffset||0),x*s-y*c];
+}
+// Place the first tracked head pose at the preview start, not at the runtime's
+// arbitrary room-scale origin. Subsequent real movement remains unchanged.
+export function vrEntryOrigin(head,scene,start,floor=true){
+  const layout=scene.layout,{width,depth}=layout;
+  let x=Number.isFinite(start.x)?start.x:0,y=Number.isFinite(start.y)?start.y:depth*.35;
+  const boundary=layout.roomPlan?.boundary;
+  if(boundary&&!insideRoom([x,y],boundary)){
+    const triangles=triangulateFloor(boundary).sort((a,b)=>Math.abs((b[1][0]-b[0][0])*(b[2][1]-b[0][1])-(b[1][1]-b[0][1])*(b[2][0]-b[0][0]))-Math.abs((a[1][0]-a[0][0])*(a[2][1]-a[0][1])-(a[1][1]-a[0][1])*(a[2][0]-a[0][0])));
+    if(triangles.length){x=triangles[0].reduce((n,p)=>n+p[0],0)/3;y=triangles[0].reduce((n,p)=>n+p[1],0)/3;}
+  }else if(!boundary){x=Math.max(-width/2+.3,Math.min(width/2-.3,x));const min=layout.room?0:-Math.max(4,depth);if(y<min+.3||y>depth-.3)y=layout.room?depth*.35:-Math.max(4,depth)*.4;}
+  const yaw=(start.yaw||0)-Math.atan2(head[8],head[10]),c=Math.cos(yaw),s=Math.sin(yaw);
+  return {...start,x:x-c*head[12]-s*head[14],y:y-s*head[12]+c*head[14],yaw,floorOffset:floor?0:(start.eyeHeight||1.7)-head[13]};
 }
 // Reuse CPU and GPU storage across frames instead of allocating per triangle/frame.
 function vertexStream(){return {data:new Float32Array(8192),length:0,push(x,y,z,r,g,b,a){
@@ -40,7 +54,7 @@ export async function createVRGraphics(session){
       solid.length=transparent.length=lines.length=0;
       const c=Math.cos(origin.yaw),s=Math.sin(origin.yaw),floor=origin.floorOffset||0;
       const vertex=(out,p,rgb,a)=>{const x=p[0]-origin.x,y=p[1]-origin.y;out.push(x*c+y*s,p[2]-floor,x*s-y*c,rgb[0],rgb[1],rgb[2],a);};
-      drawStageGeometry(scene.layout,scene.lights,scene.crowd,scene.motion,{polygon(points,fill,alpha=1,stroke){
+      drawStageGeometry(scene.layout,scene.lights,scene.crowd,scene.motion,{eye:pose.transform?.matrix?xrToRoom([pose.transform.matrix[12],pose.transform.matrix[13],pose.transform.matrix[14]],origin):null,polygon(points,fill,alpha=1,stroke){
         if(fill&&points.length>=3){const out=alpha<1?transparent:solid,rgb=color(fill);for(let i=1;i<points.length-1;i++){vertex(out,points[0],rgb,alpha);vertex(out,points[i],rgb,alpha);vertex(out,points[i+1],rgb,alpha);}}
         if(stroke){const rgb=color(stroke),n=points.length===2?1:points.length;for(let i=0;i<n;i++){vertex(lines,points[i],rgb,1);vertex(lines,points[(i+1)%points.length],rgb,1);}}
       }});
@@ -52,6 +66,7 @@ export async function createVRGraphics(session){
       vertices.set(solid.data.subarray(0,solid.length));vertices.set(lines.data.subarray(0,lines.length),solid.length);vertices.set(transparent.data.subarray(0,transparent.length),solid.length+lines.length);
       const batches=[{first:0,count:solid.length/7},{first:solid.length/7,count:lines.length/7},{first:(solid.length+lines.length)/7,count:transparent.length/7}];
       gl.bindBuffer(gl.ARRAY_BUFFER,buffer);if(vertices.byteLength>gpuBytes){gpuBytes=vertices.byteLength;gl.bufferData(gl.ARRAY_BUFFER,gpuBytes,gl.DYNAMIC_DRAW);}gl.bufferSubData(gl.ARRAY_BUFFER,0,vertices.subarray(0,count));
+      if(!ar){const ambient=sceneEnvironmentBrightness(scene.layout)/100;gl.clearColor(.025*ambient,.045*ambient,.075*ambient,1);}
       gl.bindFramebuffer(gl.FRAMEBUFFER,layer.framebuffer);gl.depthMask(true);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);gl.useProgram(program);
       for(const eye of pose.views){const v=layer.getViewport(eye);if(!v)continue;gl.viewport(v.x,v.y,v.width,v.height);gl.useProgram(program);gl.bindBuffer(gl.ARRAY_BUFFER,buffer);for(const {location,size,offset} of attributes){gl.enableVertexAttribArray(location);gl.vertexAttribPointer(location,size,gl.FLOAT,false,28,offset);}gl.uniformMatrix4fv(projection,false,eye.projectionMatrix);gl.uniformMatrix4fv(view,false,eye.transform.inverse.matrix);
         batches.forEach((batch,i)=>{if(!batch.count)return;gl.depthMask(i!==2);if(i===2){gl.enable(gl.BLEND);if(ar)gl.blendFuncSeparate(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA,gl.ONE,gl.ONE_MINUS_SRC_ALPHA);else gl.blendFunc(gl.SRC_ALPHA,gl.ONE);}else gl.disable(gl.BLEND);gl.drawArrays(i===1?gl.LINES:gl.TRIANGLES,batch.first,batch.count);});
@@ -62,6 +77,7 @@ export async function createVRGraphics(session){
   }catch(error){destroy();throw error;}
 }
 export function createStageVR({button,arButton=null,planner=null,status,getScene,getOrigin,onActive=()=>{},onSupport=()=>{},onCommand=()=>{},xr=globalThis.navigator?.xr,secure=globalThis.isSecureContext,createGraphics=createVRGraphics}){
+  const roomPreview=createRoomPreview();
   let session=null,graphics=null,reference=null,origin=null,busy=false,disposed=false,generation=0,active=false,controls=null,mode='immersive-vr';
   const message=text=>{status.textContent=text;};
   function reset(){controls?.destroy?.();controls=null;graphics?.destroy();graphics=null;reference=null;session=null;busy=false;if(active){active=false;onActive(false);}button.textContent='VR starten';button.setAttribute('aria-pressed','false');button.disabled=disposed;if(arButton){arButton.textContent='AR starten';arButton.setAttribute('aria-pressed','false');arButton.disabled=true;}}
@@ -90,11 +106,15 @@ export function createStageVR({button,arButton=null,planner=null,status,getScene
       const select=event=>void controls.select(event,reference);own.addEventListener('select',select);own.addEventListener('end',()=>own.removeEventListener('select',select),{once:true});
       button.textContent='VR beenden';button.disabled=false;button.setAttribute('aria-pressed','true');busy=false;message('VR aktiv · linkes Pult mit rechtem Trigger bedienen. Linker Stick: gehen · rechter Stick: drehen.');
       if(mode==='immersive-ar'){button.disabled=true;button.textContent='VR starten';button.setAttribute('aria-pressed','false');arButton.textContent='AR beenden';arButton.disabled=false;arButton.setAttribute('aria-pressed','true');message('AR aktiv · Raumplan am linken Controller, rechter Trigger zum Bedienen.');}
+      let entryPlaced=false;
       const frame=(time,xrFrame)=>{
         if(session!==own||disposed)return;
         own.requestAnimationFrame(frame);
         if(own.visibilityState==='hidden')return;
-        try{const pose=xrFrame.getViewerPose(reference);if(pose){const scene=getScene(time/1000);if(!scene)return;const overlay=controls.update(xrFrame,reference,pose,own,scene,origin,time);graphics.render(pose,controls.scene?controls.scene(scene):planner?.active?planner.scene(scene):scene.roomPlan?applyRoomPlan(scene,scene.roomPlan):scene,controls.origin||origin,overlay);}}catch(error){failureMessage=`XR wurde beendet: ${error.message}`;message(failureMessage);void stop();}
+        try{const pose=xrFrame.getViewerPose(reference);if(pose){const scene=getScene(time/1000);if(!scene)return;const display=mode==='immersive-ar'?scene:scene.roomPlan?roomPreview(scene,scene.roomPlan):scene;
+          if(mode==='immersive-vr'&&!entryPlaced&&pose.transform?.matrix&&display.layout){origin=vrEntryOrigin(pose.transform.matrix,display,origin,floor);entryPlaced=true;}
+          const overlay=controls.update(xrFrame,reference,pose,own,display,origin,time);
+          graphics.render(pose,controls.scene?controls.scene(display):display,controls.origin||origin,overlay);}}catch(error){failureMessage=`XR wurde beendet: ${error.message}`;message(failureMessage);void stop();}
       };own.requestAnimationFrame(frame);
     }catch(error){failureMessage=error.name==='NotAllowedError'?'VR wurde nicht freigegeben. Du kannst es erneut versuchen.':`VR konnte nicht gestartet werden: ${error.message}`;if(own)await own.end().catch(()=>{});if(!disposed&&(!session||session===own)){reset();message(error.name==='NotAllowedError'?'XR wurde nicht freigegeben. Du kannst es erneut versuchen.':`XR konnte nicht gestartet werden: ${error.message}`);if(arButton)void support().then(()=>{if(!disposed)message(failureMessage);});}}
     finally{if(attempt===generation)busy=false;}

@@ -195,10 +195,10 @@ try {
  await evaluate("document.querySelector('[data-workspace-tab=lighting]').click()");
  await wait("document.querySelector('.stage-3d-song-editor [name=movement]')");
  assert.equal(await evaluate("(()=>{const d=document.querySelector('.stage-3d-dialog'),p=document.querySelector('.stage-3d-inspector-body'),r=document.querySelector('.stage-3d-transport').getBoundingClientRect();return d.scrollWidth<=d.clientWidth&&p.scrollWidth<=p.clientWidth&&r.bottom<=innerHeight})()"),true,'mobile embedded manager fits and keeps transport visible');
- await evaluate("document.querySelector('[data-workspace-tab=fixtures]').click();document.querySelector('[data-zone-add]').click()");
+ await evaluate("document.querySelector('[data-workspace-tab=fixtures]').click();document.querySelector('.stage-device-inventory [data-zone-add]').click()");
  await wait("document.querySelector('[data-layout-zone]')");
  assert.equal(await evaluate("JSON.parse(localStorage.getItem('anydj-3d-zones-v1')).zones.length"),1,'shared manager saves zones');
- await evaluate("var zoneName=document.querySelector('[data-zone-name]');zoneName.value='Tische';zoneName.dispatchEvent(new Event('change'))");
+ await evaluate("var zoneName=document.querySelector('.stage-device-inventory [data-zone-name]');zoneName.value='Tische';zoneName.dispatchEvent(new Event('change'))");
  await evaluate("document.querySelector('[data-layout-map]').scrollIntoView({block:'center'})");
  var zonePoint=await evaluate("(()=>{const zone=document.querySelector('[data-layout-zone]'),r=zone.getBoundingClientRect();for(var y=r.top+3;y<r.bottom-2;y+=4)for(var x=r.left+3;x<r.right-2;x+=4)if(document.elementFromPoint(x,y)===zone)return {x,y};throw Error('Zone is not reachable in shared plan')})()");
  var zoneBefore=await evaluate("JSON.parse(localStorage.getItem('anydj-3d-zones-v1')).zones[0].x");
@@ -227,7 +227,7 @@ try {
  await evaluate("document.querySelector('.stage-3d-inspector-body').scrollTop=0");
  await new Promise(r=>setTimeout(r,120));
  await writeFile(new URL('../reports/dmx-device-manager.png',import.meta.url),Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
- await evaluate("document.querySelector('[data-zone-delete]').click()");
+ await evaluate("document.querySelector('.stage-device-inventory [data-zone-delete]').click()");
  assert.equal(await evaluate("JSON.parse(localStorage.getItem('anydj-3d-zones-v1')).zones.length"),0,'zone removed');
  assert.deepEqual(errors,[]);
  console.log('Stage transport passed: real audio tempo, seek, embedded manager, shared playback, save, draft retention, play/pause, empty deck, aligned playhead at desktop/mobile widths, stable analysis footer.');

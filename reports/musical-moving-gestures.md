@@ -37,3 +37,51 @@ beanstandeten Musikpassagen steht aus. Die Prüfung behauptet keine universell
 passende räumliche Interpretation. Zum Ausprobieren reicht ein Neuladen der
 DJ-Seite: Bewegungsspuren werden pro Sitzung neu vorbereitet; eine neue
 Instrumentenanalyse ist für bereits vorbereitete aktuelle Shows nicht nötig.
+
+## Musikalische Bewegungsformen statt Standardellipse
+
+Der Groove-Pfad verwendet jetzt die aus Phrasen, Instrumentverteilung und Abschnitt abgeleitete Form. Zuvor wurde diese verworfen und die Formation überwiegend mit einem Pan-Kosinus/Tilt-Sinus-Paar dargestellt.
+
+- Sweep: seitlicher Schwenk bei fester Tiefe.
+- Pulse: rhythmisches Öffnen/Schließen mit fester Tiefe je Gruppe.
+- Cross: gegenläufige diagonale Fahrten mit gekoppeltem Pan/Tilt.
+- Focus: gebündelte innere Köpfe, zurückhaltende äußere Bewegungen bei Gesang.
+- Fan: progressives Öffnen im Aufbau, unabhängig von der Zyklusphase.
+- Arc: Hin-/Rückweg auf einem Bogen, keine geschlossene Ellipse.
+- Orbit: bewusste Kreisfahrt nur in Disco-Peaks mit hoher Energie/Tonalität, moderatem Schlagzeuganteil und wenig Gesang.
+
+Formationen versetzen und skalieren diese Wege, ohne die gewählte Form zu überschreiben. Motivwiederholung bleibt deterministisch. Bestehende Cue-Zeiten, Reise-/Geschwindigkeitsgrenzen, Akzentbremsung, ruhige Haltephasen und Ruhezonensteuerung bleiben erhalten. Vorberechnete Bewegungsdaten tragen Version 9; Neuladen bereitet die Bewegungen mit der vorhandenen Analyse erneut vor. Ältere Pläne ohne Bewegungsmetadaten behalten den bisherigen Fallback.
+
+Validiert mit geometrischen Pfadtests (offene Wege gegenüber Orbit), durchgängiger Auswahl aus musikalischen Daten, Fächerverhalten in Ribbon-Formation sowie bestehenden Zeit-/Motor-/Ruhezonenprüfungen. 199 DMX-/VR-Tests bestanden. Moving-Heads-Browsercheck bestanden; synthetischer Fünf-Minuten-Song kooperativ in 221 ms vorbereitet. Keine subjektive Prüfung mit realer Lichtanlage.
+
+## Freier Bewegungsbereich für Moving Heads im Raumplan
+
+Moving Heads verwenden im Raum-/AR-/VR-Plan keinen festen Zielpunkt mehr als versetztes Animationszentrum. Ihre Showbewegung wird in die Raumfläche bzw. einen expliziten Bereich abgebildet, unabhängig von gespeicherter Montagerotation oder altem Lichtziel. Die tatsächliche Kopfausrichtung folgt dem aktuellen Ziel. Feste Spots/Bars behalten ihre Ziel- und Rotationseinstellungen; Gruppendrehung im Show-Gerätemanager bleibt erhalten.
+
+Im Raum-Gerätemanager ersetzen vier metrische Bereichsgrenzen (links, rechts, vorne, hinten) die individuelle Drehung. Der ausgewählte Bereich ist im Plan markiert; Moving Heads erhalten dort keinen festen Zielgriff mehr. „Gesamter Raum“ entfernt die individuelle Begrenzung. Intern ist `motionArea` normalisiert und wird bei Speicherung, Export/Import und Übertragung validiert. Rechteckige Teilbereiche müssen vollständig im Grundriss liegen; sie dürfen keine Aussparung kreuzen. Ruhezonenpfade beachten zusätzliche Grenzen; eine Bereichsänderung verwirft alte Ausweichwege.
+
+Dies ist die Zielabbildung der bestehenden Raumvorschau, keine Änderung der physischen Pan-/Tilt-Grenzen oder der Hardware-Montagekalibrierung. Die musikalischen Cue-/Geschwindigkeitsgrenzen bleiben erhalten. 202 DMX-/VR-Tests bestanden, anschließend sieben Zonenspezialtests nach der Weg-Invalidierung. Browsercheck prüft weiterhin feste Spots und zusätzlich ausgeblendete Mover-Rotation, Bereichseingabe, fehlenden festen Zielgriff und Persistenz nach Neuladen.
+
+
+## Korrektur: Bewegungen kleben am Raumrand
+
+Die eigene Raumvorschau lieferte bisher Bühnenziele zusammen mit den abweichenden Zielraummaßen an die Raumabbildung. Zusätzlich konnte die Zuschauer-Ausrichtung negative Tiefenwerte liefern. Die anschließende Normalisierung schnitt diese Werte am Rand ab. Der aktive Raumplan erhält jetzt die ursprünglichen Bühnenkoordinaten ohne Zuschauer-Umleitung. Moving Heads transportieren zusätzlich normalisierte `motionUV`-Pfade, die direkt in den gewählten Raum-/Gerätebereich abgebildet werden. Die gekoppelte VR-Vorschau interpoliert diese Pfade im Netzwerkpuffer mit; die Raumanzeige verwendet die Maße des Raumplans.
+
+Regression: 41 aufeinanderfolgende Ziele einer 24 × 18 m Bühne werden ohne Randplateau in einen Bereich eines 4 × 4 m Raums übertragen, auch bei bereits umgeleiteten Vorschaukoordinaten. 204 DMX-/VR-Tests bestanden. Raum-/AR-Browsercheck und gekoppelte VR-Vorschau einschließlich Verbindung, Raumbearbeitung und Fernsteuerung bestanden. Keine Prüfung mit realer VR-Brille.
+
+
+## Räumliche Verlagerung statt dauerhafter Mittellinie
+
+Sweep/Pulse hatten bewusst feste Tiefen, Cross eine an Pan gekoppelte Tiefe; die inneren Köpfe blieben zusätzlich zentriert. Die automatische Choreografie verschiebt nun ihre lokalen Gesten über acht musikalische Beats zwischen räumlichen Arbeitsbereichen. Versetzte Rollen führen jeden Kopf auch nach vorne, hinten und seitlich. Eine glatte Quintik verbindet die Bereiche; begrenzte Mischungen vermeiden Rand-Clipping. Die Verlagerung wird vor der bestehenden Erreichbarkeits-/Geschwindigkeitsprüfung in die akustischen Cues eingerechnet, läuft also nicht unabhängig durch musikalische Pausen. Manuelle Modi bleiben unverändert. Planversion 10.
+
+Regression prüft für jeden der vier Köpfe in einer synthetischen rhythmischen Passage die Tiefenausdehnung, beide Seiten und eine zweidimensionale Flächenverteilung statt einer Linie. Bestehende Geschwindigkeits-, Pausen-, Seeking- und Ruhezonenprüfungen bestehen. Insgesamt 205 DMX-/VR-Tests und Moving-Heads-Browsercheck bestanden; Fünf-Minuten-Testplan im Browser in 197 ms vorbereitet. Die gestalterische Wirkung im konkreten Nutzersong und in einer echten VR-Brille wurde nicht geprüft.
+
+## Wandziele in der Raumchoreografie
+
+Im Raum-Gerätemanager kann jeder Moving Head unter „Erlaubter Bewegungsbereich → Wand in die Choreografie einbeziehen“ zusätzlich eine Wand wählen. Start/Ende in Prozent und minimale/maximale Höhe in Metern begrenzen den Wandbereich. Wandnummern und der ausgewählte Abschnitt erscheinen im Grundriss. „Nur Boden“ bleibt die Voreinstellung. Ein neu gezeichneter Grundriss entfernt die bisherigen Wandzuordnungen und fordert zur Neuzuordnung auf.
+
+Die musikalische normalisierte Tiefe steuert die Verlagerung vom gerouteten Bodenweg zur Wand. Die Richtung wird kontinuierlich überblendet; ein analytischer Strahltest liefert den ersten Treffer auf Boden oder Grundrisswand, einschließlich konkaver Räume. Unterhalb der erlaubten Wandhöhe wird ausgeblendet; nicht freigegebene Wände und projizierte Ruhezonen werden dunkel durchfahren. Die Bodenbereichsgrenzen bleiben für beleuchtete Bodentreffer gültig. Die Raumvorschau nutzt echte Zielhöhe, Kopfausrichtung, einen zur Wand orientierten und am erlaubten Wandbereich abgeschnittenen Lichtfleck sowie vereinfachtes reflektiertes Licht. Desktop und VR verwenden dieselbe Geometrie. Wandparameter werden validiert, gespeichert und zur gekoppelten Vorschau übertragen. Höhenwerte werden im Netzwerkpuffer interpoliert.
+
+Dies erweitert die Raum-/VR-Vorschau; physische Geräteansteuerung und Montagekalibrierung sind damit noch nicht auf Wandziele umgestellt. Bei erfassten Raumoberflächen dient weiterhin der extrudierte Grundriss als Zielgeometrie, kein detailliertes Mesh-Raytracing. Flächenlicht bleibt eine Näherung ohne echte Schatten.
+
+210 DMX-/VR-Tests bestanden: Parameterprüfung, stetiger Boden-/Wandübergang, konkave Verdeckung, Ruhezonen, vertikale begrenzte Lichtflecken und Zielhöheninterpolation. Raum-Browsercheck bestätigt Bearbeitung, Neuladen und Headset-Rückübertragung der Wandparameter. Bestehender WebGL-Stereotest bestanden, ohne GL-Fehler oder wiederholte Pufferallokation. Mikrobenchmark der zusätzlichen Zielgeometrie: 32 Moving Heads, rechteckiger Raum, 10.000 Durchläufe nach Warmup, ca. 0,003 ms pro Frame in Node; dies ist keine Messung der gesamten Darstellung oder einer echten VR-Brille.

@@ -25,7 +25,7 @@ Es wurden keine Zertifikate installiert, Firewall-Regeln geändert, öffentliche
 
 Der Sender übermittelt vollständige Szenenschnappschüsse mit Raum, Lichtfläche, Gerätestandorten, Lichtzielen/Farben/Helligkeit, Ruhezonen, optionalen Gästen und dem Startpunkt. Positionen der Gerätegruppen sind dadurch bereits enthalten. Analyse und Musikwiedergabe bleiben auf dem Rechner; Kopfbewegungen verarbeitet der Headset-Renderer lokal.
 
-Bei verbundenem Empfänger werden bis zu 20 Schnappschüsse pro Sekunde gesendet; ohne Empfänger etwa zwei. Es gibt höchstens eine laufende Upload-Anfrage. Lichtziele, Helligkeit und Gästeanimation werden mit einem 120-ms-Wiedergabepuffer interpoliert, um unregelmäßige Paketabstände zu überbrücken. Kopftracking und Steuerbefehle bleiben unmittelbar. SSE stellt bei Wiederverbindung den neuesten vollständigen Stand zu, statt alte Bewegungen abzuarbeiten. Bei länger als drei Sekunden ausbleibenden Daten zeigt die Seite den Verbindungsverlust und dunkelt die veralteten Lichtzustände ab. Ein Serverneustart oder Ablauf erfordert einen neuen Link; kurze Netzunterbrechungen überbrückt die Seite automatisch.
+Bei verbundenem Empfänger werden bis zu 20 Schnappschüsse pro Sekunde gesendet; ohne Empfänger etwa zwei. Es gibt höchstens eine laufende Upload-Anfrage. Lichtziele, Helligkeit und Gästeanimation werden mit einem 120-ms-Wiedergabepuffer interpoliert, um unregelmäßige Paketabstände zu überbrücken. Kopftracking und Steuerbefehle bleiben unmittelbar. SSE stellt bei Wiederverbindung den neuesten vollständigen Stand zu, statt alte Bewegungen abzuarbeiten. Bei länger als drei Sekunden ausbleibenden Daten zeigt die Seite den Verbindungsverlust und dunkelt die veralteten Lichtzustände ab. Mit gespeicherter Kopplung verbindet sich die Seite nach Serverneustart oder Sitzungsablauf automatisch erneut; kurze Netzunterbrechungen überbrückt sie ebenfalls.
 
 Sitzungen sind nur im Speicher, auf vier Sender und jeweils vier Empfänger begrenzt, mit maximal 1 MiB pro Schnappschuss. Nach zwei Minuten ohne Senderdaten laufen sie ab. Schreibzugriff benötigt zusätzlich zum bestehenden App-Zugang eine eigene Senderkennung; der Leselink gewährt diesen Zugriff nicht. Die beim Koppeln erhaltene Controller-Berechtigung erlaubt nur Deck-Auswahl, Play/Pause, Positionssprung und Tempo. Langsame Empfänger verursachen keinen unbegrenzten Rückstau. Bei Backend-Ende werden die Vorschau-Verbindungen geschlossen.
 
@@ -67,3 +67,17 @@ Gespeichert wird nur die Startpräferenz, keine Sitzungsschlüssel und kein lauf
 Nach dem Update die App neu laden und die Übertragung einmal starten, um die Präferenz zu setzen. Der Befehl `npm run vr:sim` bleibt ein separater Simulator-Start.
 
 `node scripts/check-vr-autostart.mjs` prüft aktives Wiederaufnehmen nach Neuladen, Live-Szenendaten bei versteckter Bühne, neue Sitzungsschlüssel, einen Backend-Ausfall, einen gemeinsamen Neustart von App-Seite und Backend sowie dauerhaftes Ausschalten durch expliziten Stopp.
+
+## Fehlerbehebung: Vorschau bleibt beim Verbindungsaufbau stehen
+
+Die Raum-/AR-Module importieren `dmx-zone-plan.js` und `dmx-zone-motion.js`. Diese fehlten in der Freigabeliste des separaten Vorschau-Listeners, sodass der Browser HTTP 403 erhielt und das Vorschau-Modul überhaupt nicht ausführte. Beide Abhängigkeiten werden jetzt auch über den Vorschau-Port ausgeliefert. Ein Regressionstest lädt den vollständigen Importgraphen über diesen Port, einschließlich dynamischer Imports.
+
+Ein kleiner vorgeschalteter Loader fängt Fehler beim Laden/Ausführen der Vorschau ab und zeigt eine Fehlermeldung mit „Erneut laden“, statt den unveränderten Verbindungsstatus stehen zu lassen. Der Browsercheck prüft zusätzlich einen absichtlich blockierten Modul-Download und die erfolgreiche Wiederverbindung nach erneutem Laden. Nach diesem Server-Fix den Backend-Prozess neu starten, Übertragung starten und `/vr-test` im Headset neu laden.
+
+## Kopplung merken
+
+Nach gültiger Code-Eingabe stellt der Server einen signierten Vorschau-Token mit 180 Tagen Laufzeit aus. Der Browser speichert ihn unter `anydj-vr-access` in LocalStorage; der Code selbst wird nicht gespeichert. Beim nächsten Öffnen von `/vr-view` oder der Vorschau-Startseite wird automatisch die zuletzt gestartete aktive Übertragung verbunden. Gibt es noch keine, wartet die Seite und versucht es erneut. Nach Sitzungsende oder Verbindungsverlust erfolgt ebenfalls eine automatische Wiederverbindung. Ein ungültiger/abgelaufener Token führt zurück zur Code-Eingabe.
+
+Der Signaturschlüssel liegt mit Dateimodus 0600 in `dataDir/vr-pairing.key` und bleibt bei Server-Neustarts erhalten. Token werden nur am Vorschau-Resume-Endpunkt akzeptiert, nicht als App- oder Senderberechtigung. `/vr-test` bleibt der ausdrücklich freigegebene Zugang ohne Code. Ein Wechsel von Hostname/IP, Port oder Browserprofil sowie gelöschte Browserdaten erfordert erneut einmaliges Koppeln, weil der Browserspeicher an die Adresse gebunden ist. Wird der Server-Schlüssel gelöscht, werden bestehende Token ungültig.
+
+Geprüft: neues Serverobjekt mit demselben Datenverzeichnis, neuer Sitzungscode, Warten ohne aktive Show, manipulierte Token, Trennung von Senderberechtigungen sowie erneutes Öffnen der Viewer-Seite mit geleertem SessionStorage im Browser. Neun Relay-Tests und Browsercheck bestanden.

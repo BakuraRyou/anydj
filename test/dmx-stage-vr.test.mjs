@@ -47,3 +47,26 @@ test('availability can be rechecked after connecting without selecting hardware'
  s.xr.isSessionSupported=async()=>false;await s.controller.checkSupport();assert.equal(s.button.disabled,true);assert.equal(states.at(-1),'no-headset');
  s.xr.isSessionSupported=async()=>true;await s.controller.checkSupport();assert.equal(s.button.disabled,false);assert.equal(states.at(-1),'ready');s.controller.destroy();
 });
+
+test('VR entry compensates arbitrary physical position and heading and starts inside the club',async()=>{
+ const {vrEntryOrigin}=await import('../public/dmx-stage-vr.js');
+ const head=[0,0,-1,0,0,1,0,0,1,0,0,0,8,1.6,-7,1],scene={layout:{width:8,depth:12,room:true}};
+ const origin=vrEntryOrigin(head,scene,{x:0,y:-3,yaw:0,eyeHeight:1.7});
+ const headWorld=[origin.x+Math.cos(origin.yaw)*8+Math.sin(origin.yaw)*-7,origin.y+Math.sin(origin.yaw)*8-Math.cos(origin.yaw)*-7];
+ assert.ok(Math.abs(headWorld[0])<1e-9);assert.ok(headWorld[1]>0&&headWorld[1]<12);assert.equal(origin.yaw,-Math.PI/2);
+ assert.deepEqual(worldToXR([headWorld[0],headWorld[1],1.6],origin),[8,1.6,-7]);
+ const local=vrEntryOrigin(head,scene,{x:0,y:2,yaw:0,eyeHeight:1.7},false);assert.ok(Math.abs(local.floorOffset-.1)<1e-9);
+});
+test('a saved local AR planner does not replace the live VR show',async()=>{
+ let replaced=0;const scene={layout:{width:8,depth:12,room:true},lights:[{id:'live',power:1}],crowd:[]};
+ const s=setup({getScene:()=>scene,planner:{active:true,scene(){replaced++;return {lights:[]};}}});await tick();s.button.onclick();await tick();s.session.frame(10,{getViewerPose:()=>({views:[]})});
+ assert.equal(replaced,0);assert.equal(s.events.find(v=>v?.scene)?.scene,scene);s.controller.destroy();
+});
+
+test('first real tracked VR frame renders the live scene from a recentered in-room origin',async()=>{
+ const scene={layout:{width:8,depth:12,room:true},lights:[],crowd:[]},head=[1,0,0,0,0,1,0,0,0,0,1,0,30,1.7,40,1];
+ const s=setup({getScene:()=>scene,getOrigin:()=>({x:0,y:-5,yaw:0,eyeHeight:1.7})});await tick();s.button.onclick();await tick();
+ s.session.frame(100,{getViewerPose:()=>({views:[],transform:{matrix:head}})});
+ const rendered=s.events.find(v=>v?.scene);assert.equal(rendered.scene,scene);assert.ok(Math.abs(rendered.origin.x+30)<1e-9);assert.ok(rendered.origin.y-40>0&&rendered.origin.y-40<12);
+ const initial={...rendered.origin};head[12]+=1;s.session.frame(120,{getViewerPose:()=>({views:[],transform:{matrix:head}})});assert.equal(rendered.origin.x,initial.x,'physical movement after entry is preserved');s.controller.destroy();
+});

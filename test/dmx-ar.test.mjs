@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {alignedOrigin,applyRoomPlan,area,detectedRoomSurfaces,floorRay,insideRoom,newRoomPlan,roomFromFloor,roomFixtureHit,triangulateFloor,validateRoomPlan,xrToRoom} from '../public/dmx-ar-model.js';
+import {alignedOrigin,applyRoomPlan,wallChoreography,createRoomPreview,area,detectedRoomSurfaces,floorRay,insideRoom,newRoomPlan,roomFromFloor,roomFixtureHit,triangulateFloor,validateRoomPlan,xrToRoom} from '../public/dmx-ar-model.js';
 import {worldToXR,createStageVR} from '../public/dmx-stage-vr.js';
 import {createARControls} from '../public/dmx-ar-controls.js';
 import {drawStageGeometry} from '../public/dmx-stage-3d-renderer.js';
@@ -56,10 +56,10 @@ test('floor rays reject backwards, parallel and distant intersections',()=>{
 
 test('AR renderer emits no opaque floor and renders measured device dimensions',()=>{
   const plan=newRoomPlan(4,5,3);plan.positions.lamp={...fixture,rotation:90};
-  const value=applyRoomPlan(scene(),plan,true),polygons=[];
+  const source=scene();source.lights[0].type='bar';const value=applyRoomPlan(source,plan,true),polygons=[];
   drawStageGeometry(value.layout,value.lights,[],0,{polygon:(points,fill,alpha)=>polygons.push({points,fill,alpha})});
   assert.equal(polygons.some(p=>p.fill==='#182c3b'),false);
-  const body=polygons.filter(p=>['#344454','#40566a','#263747','#2a3d50','#60788a'].includes(p.fill)).flatMap(p=>p.points);
+  const body=polygons.filter(p=>['#222b34','#303c47','#151d25','#1b252e','#46535e'].includes(p.fill)).flatMap(p=>p.points);
   assert.ok(body.length);assert.ok(Math.abs(Math.max(...body.map(p=>p[0]))-.1)<1e-7);assert.ok(Math.abs(Math.max(...body.map(p=>p[1]))-2.2)<1e-7);
 });
 
@@ -247,7 +247,7 @@ test('room light targets survive serialization and affect the scene without movi
  const plan=newRoomPlan();plan.positions.lamp={...fixture,target:{x:-2,y:4}};
  const saved=validateRoomPlan(JSON.parse(JSON.stringify(plan)));
  assert.deepEqual(saved.positions.lamp.target,{x:-2,y:4});
- const before=scene(),result=applyRoomPlan(before,saved);
+ const before=scene();before.lights[0].type='spot';const result=applyRoomPlan(before,saved);
  assert.deepEqual(result.lights[0].target,{x:-2,y:4});
  assert.equal(result.lights[0].position.x,fixture.x);
  assert.deepEqual(before.lights[0].target,{x:0,y:1});
@@ -273,9 +273,9 @@ test('target direction determines persisted yaw, including after moving the fixt
 
 test('unlit 3D fixtures turn and tilt with the target rather than only changing the beam',()=>{
  const geometry=target=>{
-  const plan=newRoomPlan();plan.positions.lamp={...fixture,type:'spot',target};
+  const plan=newRoomPlan();plan.environmentBrightness=100;plan.positions.lamp={...fixture,type:'spot',target};
   const rendered=applyRoomPlan({...scene(),lights:[]},plan),faces=[];
-  drawStageGeometry(rendered.layout,rendered.lights,[],0,{polygon:(points,fill)=>{if(['#344454','#40566a','#263747','#2a3d50','#60788a'].includes(fill))faces.push(points);}});
+  drawStageGeometry(rendered.layout,rendered.lights,[],0,{polygon:(points,fill)=>{if(['#222b34','#303c47','#151d25','#1b252e','#46535e'].includes(fill))faces.push(points);}});
   assert.equal(rendered.lights[0].power,0);return faces;
  };
  assert.notDeepEqual(geometry({x:2,y:2}),geometry({x:-2,y:2}),'housing rotates when target crosses sides');
@@ -296,16 +296,16 @@ test('new room fixtures follow live show color and intensity, including blackout
  assert.ok(applyRoomPlan({...source,lights:[]},plan).lights.every(l=>l.power===0),'no source remains dark');
 });
 
-test('live moving head targets animate around the planned aim while fixed spots stay fixed',async()=>{
+test('live moving heads use the room area while fixed spots stay aimed',async()=>{
  const {projectMovingHeads,stageLayout}=await import('../public/dmx-layout-model.js');
- const plan=newRoomPlan();plan.positions={head:{...fixture,type:'moving',target:{x:0,y:3}},spot:{...fixture,type:'spot',x:1,target:{x:0,y:3}}};
+ const plan=newRoomPlan();plan.environmentBrightness=100;plan.positions={head:{...fixture,type:'moving',target:{x:0,y:3}},spot:{...fixture,type:'spot',x:1,target:{x:0,y:3}}};
  const before=structuredClone(plan),layout=stageLayout();
  const frame=pan=>{const head={...projectMovingHeads(layout,[{pan,tilt:.8}],[{id:'source',motionRange:1}])[0],type:'moving',power:.7,color:'#ffffff'};return applyRoomPlan({layout,lights:[head,{...head,id:'fixed',type:'spot'}],crowd:[]},plan);};
  const left=frame(-10),right=frame(10),a=left.lights.find(l=>l.id==='head'),b=right.lights.find(l=>l.id==='head');
- assert.ok(a.target.x<0&&b.target.x>0);assert.equal(a.target.y,3);assert.notEqual(a.aimRotation,b.aimRotation);
+ assert.ok(a.target.x<0&&b.target.x>0);assert.equal(a.target.y,2.5);assert.notEqual(a.aimRotation,b.aimRotation);
  assert.deepEqual(a.position,b.position);assert.equal(a.rotation,b.rotation,'mount rotation stays fixed');
  assert.deepEqual(left.lights.find(l=>l.id==='spot').target,right.lights.find(l=>l.id==='spot').target);
- const geometry=scene=>{const faces=[];drawStageGeometry(scene.layout,scene.lights,[],0,{polygon:(points,fill)=>{if(['#344454','#40566a','#263747','#2a3d50','#60788a'].includes(fill))faces.push(points);}});return faces;};
+ const geometry=scene=>{const faces=[];drawStageGeometry(scene.layout,scene.lights.map(l=>({...l,power:0})),[],0,{polygon:(points,fill)=>{if(['#222b34','#303c47','#151d25','#1b252e','#46535e'].includes(fill))faces.push(points);}});return faces;};
  assert.notDeepEqual(geometry(left),geometry(right),'head geometry moves even with identical color and brightness');
  assert.deepEqual(plan,before);
 });
@@ -320,4 +320,102 @@ test('room light footprints illuminate only the ground inside a concave boundary
  for(const ar of [false,true]){const result=applyRoomPlan({...source,lights:source.lights.map(l=>({...l,power:ar?1:0}))},plan,ar),ground=[];
  drawStageGeometry(result.layout,result.lights,[],0,{polygon:(points,fill,alpha,stroke,width,emissive)=>{if(emissive&&points.every(p=>Math.abs(p[2]-.012)<1e-8))ground.push(points);}});
  assert.equal(ground.length,0,ar?'AR does not paint over the real floor':'blackout emits no floor light');}
+});
+
+
+test('room zones survive validation and apply after placement, without changing source frames',async()=>{
+  const {createRoomPreview}=await import('../public/dmx-ar-model.js');
+  const plan=newRoomPlan();plan.positions.spot={type:'spot',x:-2,y:5,height:2,rotation:0,size:{width:.3,depth:.3,height:.4},target:{x:0,y:3}};
+  plan.zones=[{id:'tables',name:'Tische',x:.4,y:.4,width:.2,depth:.2}];
+  const valid=validateRoomPlan(JSON.parse(JSON.stringify(plan)));assert.deepEqual(valid.zones,plan.zones);
+  assert.throws(()=>validateRoomPlan({...plan,zones:[{...plan.zones[0],width:2}]}));
+  assert.throws(()=>validateRoomPlan({...plan,zones:[plan.zones[0],plan.zones[0]]}));
+  const source={layout:{width:8,depth:6,positions:{}},lights:[{id:'other',type:'spot',position:{x:3,y:4,height:2},target:{x:3,y:1},power:.8,color:'#ffffff'}]},saved=structuredClone(source);
+  const render=createRoomPreview(),result=render(source,valid,false,0);
+  assert.deepEqual(result.lights[0].target,{x:0,y:3});assert.ok(Math.abs(result.lights[0].power-.08)<1e-9);assert.deepEqual(result.layout.zones,plan.zones);assert.deepEqual(source,saved);
+  assert.equal(render({...source,lights:source.lights.map(l=>({...l,power:0}))},valid,false,.1).lights[0].power,0);
+  assert.equal(render(source,{...valid,zones:[]},false,.2).lights[0].power,.8);
+});
+
+test('room moving heads respect zones at their placed aim and remain dark during blackout',async()=>{
+  const {createRoomPreview}=await import('../public/dmx-ar-model.js');
+  const plan=newRoomPlan();plan.positions.moving={type:'moving',x:0,y:5,height:2,rotation:0,size:{width:.3,depth:.3,height:.4},target:{x:0,y:3}};
+  plan.zones=[{id:'full',name:'Ganze Fläche',x:0,y:0,width:1,depth:1}];
+  const source={layout:{width:8,depth:6,positions:{}},lights:[{id:'source',type:'moving',position:{x:0,y:5,height:2},target:{x:2,y:1},power:1,color:'#ffffff'}]},render=createRoomPreview();let out;
+  for(let i=0;i<100;i++)out=render(source,plan,false,i*.02);
+  assert.ok(out.lights[0].power<.1);assert.ok(Number.isFinite(out.lights[0].aimRotation));
+  out=render({...source,lights:source.lights.map(l=>({...l,power:0}))},plan,false,2);assert.equal(out.lights[0].power,0);
+});
+
+test('moving destinations are independent of mount rotation and legacy aim, and map into a saved area',()=>{
+ const plan=newRoomPlan();plan.positions.lamp={...fixture,type:'moving',rotation:90,target:{x:-2,y:4},motionArea:{x:.25,y:.2,width:.5,depth:.6}};
+ const saved=validateRoomPlan(JSON.parse(JSON.stringify(plan)));assert.deepEqual(saved.positions.lamp.motionArea,plan.positions.lamp.motionArea);
+ const source=scene(),a=applyRoomPlan(source,saved).lights[0];
+ const changed=structuredClone(saved);changed.positions.lamp.rotation=270;changed.positions.lamp.target={x:3,y:5};
+ assert.deepEqual(applyRoomPlan(source,changed).lights[0].target,a.target);
+ for(const x of [-3.6,0,3.6])for(const y of [.6,2.225,4.5]){source.lights[0].target={x,y};const l=applyRoomPlan(source,saved).lights[0];assert.ok(l.target.x>=-2&&l.target.x<=2);assert.ok(l.target.y>=1.2-1e-9&&l.target.y<=4.8+1e-9);}
+ assert.throws(()=>validateRoomPlan({...plan,positions:{lamp:{...plan.positions.lamp,motionArea:{x:0,y:0,width:-1,depth:1}}}}));
+});
+
+test('allowed moving area rejects a wall recess crossing its interior',()=>{
+ const plan=newRoomPlan();plan.boundary=[[-4,0],[4,0],[4,6],[2,6],[2,2],[1,2],[1,6],[-4,6]];
+ plan.positions.lamp={...fixture,type:'moving',motionArea:{x:.125,y:.5,width:.75,depth:1/3}};
+ assert.throws(()=>validateRoomPlan(plan),/Aussparung|innerhalb/);
+});
+
+test('moving animation spans the interior even when source and room sizes differ or preview targets were redirected',async()=>{
+ const {stageLayout,projectMovingHeads}=await import('../public/dmx-layout-model.js');
+ const source=stageLayout({width:24,depth:18}),plan=newRoomPlan(4,4,3);plan.positions.lamp={...fixture,type:'moving',motionArea:{x:.1,y:.1,width:.8,depth:.8}};
+ const points=[];
+ for(let i=0;i<=40;i++){
+  const u=i/40,head=projectMovingHeads(source,[{pan:(u-.5)*84,tilt:.55+.6*u}],[{id:'lamp'}])[0];
+  const frame={layout:source,lights:[{...head,type:'moving',power:1,color:'#ffffff'}],crowd:[]};
+  const expected={x:(.1+.8*u-.5)*4,y:(.1+.8*u)*4},target=applyRoomPlan(frame,plan).lights[0].target;
+  assert.ok(Math.abs(target.x-expected.x)<1e-8);assert.ok(Math.abs(target.y-expected.y)<1e-8);points.push(target);
+  // UV choreography survives legacy dancer redirection and a transformed layout.
+  frame.layout={...frame.layout,width:4,depth:4};frame.lights[0].target={x:head.target.x,y:-head.target.y};
+  assert.deepEqual(applyRoomPlan(frame,plan).lights[0].target,target);
+ }
+ assert.equal(new Set(points.map(p=>p.y.toFixed(5))).size,41,'no clipped plateau at the room edge');
+});
+
+
+test('wall choreography persists bounded wall targets and rejects invalid heights or edges',()=>{
+ const p=newRoomPlan(8,6,4);p.positions.lamp={...fixture,type:'moving',wallTarget:{wall:2,start:.1,end:.9,minHeight:1,maxHeight:3}};
+ assert.deepEqual(validateRoomPlan(JSON.parse(JSON.stringify(p))).positions.lamp.wallTarget,p.positions.lamp.wallTarget);
+ for(const patch of [{wall:9},{start:.95},{minHeight:3.5},{maxHeight:5},{minHeight:NaN}]){
+  const invalid=structuredClone(p);Object.assign(invalid.positions.lamp.wallTarget,patch);assert.throws(()=>validateRoomPlan(invalid),/Wand/);
+ }
+});
+test('wall journeys intersect the real floor and wall continuously and respect exclusions',()=>{
+ const p=newRoomPlan(8,6,4);p.positions.lamp={...fixture,height:3,type:'moving',wallTarget:{wall:2,start:.1,end:.9,minHeight:1,maxHeight:3}};
+ const light={...scene().lights[0],position:{x:0,y:2,height:3},target:{x:0,y:4},motionUV:{x:.5,y:0}};
+ let previous=null,floor=false,wall=false;
+ for(let i=0;i<=200;i++){
+  light.motionUV.y=i/200;const value=wallChoreography(light,p),t=value.target;
+  assert.ok(insideRoom([t.x,t.y],p.boundary));assert.ok((t.z||0)>=0&&(t.z||0)<=3);
+  if(previous)assert.ok(Math.hypot(t.x-previous.x,t.y-previous.y,(t.z||0)-(previous.z||0))<.15,'no jump at floor/wall seam');
+  if(value.wallIndex===2&&value.power>0){wall=true;assert.ok(t.z>=1);assert.ok(Math.abs(t.y-6)<1e-8);}else if(!t.z)floor=true;
+  previous=t;
+ }
+ assert.ok(floor&&wall);
+ p.zones=[{id:'table',x:.4,y:.8,width:.2,depth:.2}];
+ assert.equal(wallChoreography(light,p).power,0,'excluded wall approach is dark');
+ delete p.positions.lamp.wallTarget;assert.equal(wallChoreography(light,p),light,'existing floor choreography is unchanged without opt-in');
+});
+test('wall lighting renders a vertical clipped footprint and elevated beam in the shared XR geometry',()=>{
+ const p=newRoomPlan(8,6,4);p.positions.lamp={...fixture,height:3,type:'moving',wallTarget:{wall:2,start:.2,end:.8,minHeight:1,maxHeight:3}};
+ const source=scene();source.lights[0].motionUV={x:.5,y:1};
+ const value=createRoomPreview()(source,p,false,0),light=value.lights[0];assert.equal(light.wallIndex,2);assert.ok(light.target.z>1);
+ const patches=[],beams=[];
+ drawStageGeometry(value.layout,value.lights,[],0,{polygon:(points,color,alpha,stroke,width,emissive)=>{if(emissive)patches.push(points);},beam:(from,to)=>{beams.push(to);return true;}});
+ assert.ok(patches.length>0);assert.equal(beams[0][2],light.target.z);
+ for(const points of patches)for(const point of points){assert.ok(Math.abs(point[1]-5.994)<1e-7);assert.ok(point[2]>=1-1e-8&&point[2]<=3+1e-8);assert.ok(Math.abs(point[0])<=2.4+1e-8);}
+});
+
+test('wall rays stop at a nearer wall in a concave room rather than passing through it',()=>{
+ const p=newRoomPlan(8,6,4);p.boundary=[[-4,0],[4,0],[4,2],[0,2],[0,6],[-4,6]];
+ p.positions.lamp={...fixture,x:3,y:1,height:3,type:'moving',wallTarget:{wall:4,start:0,end:1,minHeight:1,maxHeight:3}};
+ const l={...scene().lights[0],position:{x:3,y:1,height:3},target:{x:3,y:1.5},motionUV:{x:.5,y:1}};
+ const value=wallChoreography(l,p);assert.equal(value.wallIndex,2);assert.equal(value.power,0);assert.ok(Math.abs(value.target.y-2)<1e-8);
 });

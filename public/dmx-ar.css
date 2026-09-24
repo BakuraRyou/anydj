@@ -2,3 +2,7 @@
 .stage-ar-planner [data-ar-status]{position:sticky;top:-14px;z-index:2;background:#10212bf5;padding:10px 0;margin:0 0 10px}
 
 .stage-ar-planner [data-target-id]{cursor:crosshair}.stage-ar-planner [data-target-id]:focus-visible{outline:2px solid #ffe29b}
+
+.ar-map-tools{display:flex;align-items:center;gap:7px;margin:8px 0}.ar-map-tools output{min-width:54px;text-align:center;font-size:12px;font-variant-numeric:tabular-nums}.ar-map-tools [data-ar-zoom-fit]{margin-left:auto}.stage-ar-planner .ar-map-controls{font-size:11px;color:#b5ccd6}.stage-ar-planner svg[data-mode=select]{cursor:grab}.stage-ar-planner svg[data-panning=true]{cursor:grabbing}
+
+.ar-room-zones [data-zone-map],.ar-room-zones [data-zone-fixture],.ar-room-zones [data-zone-help],.ar-room-zones [data-zone-aim]{display:none!important}.ar-room-zones{border-top:1px solid #375460;margin:12px 0;padding:8px 0}.ar-room-zones .stage-3d-zone-actions{display:flex;flex-wrap:wrap;gap:8px}.ar-room-zones small{display:block;font-size:11px;line-height:1.5;color:#b5ccd6}.stage-ar-planner [data-ar-zone]{cursor:move}.stage-ar-planner [data-ar-zone-resize]{cursor:nesw-resize}

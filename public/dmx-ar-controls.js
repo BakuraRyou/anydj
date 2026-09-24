@@ -1,8 +1,9 @@
 import {createVRConsole,panelHit} from './dmx-vr-console.js';
-import {deviceName,planningDevice,roomFixtureHit,area,alignedOrigin,detectedRoomSurfaces,floorRay,insideRoom,roomFromFloor,xrToRoom,applyRoomPlan} from './dmx-ar-model.js';
+import {deviceName,planningDevice,roomFixtureHit,area,alignedOrigin,detectedRoomSurfaces,floorRay,insideRoom,roomFromFloor,xrToRoom,createRoomPreview} from './dmx-ar-model.js';
 
 const anchorKey=id=>'anydj-ar-anchor-'+id;
 export function createARControls({planner,session,reference,floorAvailable,exit,command}) {
+  const roomPreview=createRoomPreview();
   const base=createVRConsole({command,exit,locomotion:false});
   let overlay=null,scene=null,origin={x:0,y:0,yaw:0,floorOffset:0,eyeHeight:1.7},aligned=false,floorReady=floorAvailable,floor=0;
   let mode='idle',points=[],surfaces=[],floorIndex=0,fixtureIndex=0,lastPlanes=-Infinity,notice='Zeige mit dem rechten Controller auf eine Schaltfläche. Drücke kurz den Zeigefinger-Trigger.';
@@ -35,7 +36,7 @@ export function createARControls({planner,session,reference,floorAvailable,exit,
     const m=input(frame,grab.source),g=grab.source.gripSpace?frame.getPose(grab.source.gripSpace,reference)?.transform.matrix:m;
     if(!m||!g||!aligned||!Array.from(session.inputSources||[]).includes(grab.source)){cancelMove();notice='Greifen unterbrochen. Der gespeicherte Standort bleibt erhalten.';return;}
     const p=xrToRoom(rayPoint(m,grab.distance),origin),height=p[2]+grab.offset[2];
-    grab.preview={...grab.original,x:p[0]+grab.offset[0],y:p[1]+grab.offset[1],height:height>=-.05&&height<.06?0:height,rotation:((grab.original.rotation+(yaw(g)-grab.yaw)*180/Math.PI)%360+360)%360};
+    grab.preview={...grab.original,x:p[0]+grab.offset[0],y:p[1]+grab.offset[1],height:height>=-.05&&height<.06?0:height,rotation:grab.original.type==='moving'?grab.original.rotation:((grab.original.rotation+(yaw(g)-grab.yaw)*180/Math.PI)%360+360)%360};
     grab.valid=validPosition(grab.preview);previewFixture={id:grab.id,position:grab.preview,valid:grab.valid};
   }
   function squeezeStart(event){
@@ -78,6 +79,7 @@ export function createARControls({planner,session,reference,floorAvailable,exit,
     else items=aligned?[
       ['devices','Weiter: Geräte aufstellen'],['align','Aufstellung neu ausrichten'],['scan','Neuen Raum erkennen'],['manual','Neue Raumecken setzen'],['exit','AR beenden']]:[
       ...(planner.plan?[['align','Gespeicherten Raum ausrichten']]:[]),['scan','Raum automatisch erkennen'],['manual','Raumecken selbst setzen'],...(!floorReady?[['floor','Bodenhöhe festlegen']]:[]),['exit','AR beenden']];
+    if(position()?.type==='moving')items=items.filter(([id])=>id!=='rotate-left'&&id!=='rotate-right');
     labels=Object.fromEntries(items);const columns=items.length>8?3:2,rows=Math.ceil(items.length/columns),height=Math.min(.135,.52/rows);
     buttons=items.map(([id],i)=>[id,.025+(i%columns)*(.95/columns),.43+Math.floor(i/columns)*(height+.012),.95/columns-.015,height]);
   }
@@ -86,12 +88,12 @@ export function createARControls({planner,session,reference,floorAvailable,exit,
     if(mode==='align')return {title:'1 · Richte den Raum aus',lines:[points.length?'Jetzt Punkt B: vorne rechts auf dem Boden.':'Zuerst Punkt A: vorne links auf dem Boden.',`A und B liegen ${planner.plan.width.toFixed(2)} m auseinander.`, 'Zeigen und den rechten Zeigefinger-Trigger kurz drücken.',notice]};
     if(mode==='floor')return {title:'Zuerst die Bodenhöhe festlegen',lines:['Halte den rechten Controller direkt an den Boden.','Drücke dort den rechten Zeigefinger-Trigger.','Danach geht es mit deinem Raum weiter.',notice]};
     const id=selected(),p=position(),name=deviceName(id,p,fixtureIndex);
-    if(mode==='grab')return {title:`${name} · in deiner Hand`,lines:[grab?.valid?'Grün: Loslassen stellt die Leuchte ab.':'Rot: Bewege die Leuchte zurück in den Raum.','Controller bewegen = Standort und Höhe.','Controller drehen = Leuchte drehen.',notice]};
+    if(mode==='grab')return {title:`${name} · in deiner Hand`,lines:[grab?.valid?'Grün: Loslassen stellt die Leuchte ab.':'Rot: Bewege die Leuchte zurück in den Raum.','Controller bewegen = Standort und Höhe.',p?.type==='moving'?'Die Animation bestimmt die Kopfrichtung.':'Controller drehen = Leuchte drehen.',notice]};
     if(mode==='place')return {title:`2 · ${name} aufstellen`,lines:[groundPoint?(groundValid?'Grüne Vorschau: Hier kannst du das Gerät abstellen.':'Rote Vorschau: Wähle einen Punkt innerhalb des Raumes.'):'Zeige mit dem rechten Controller nach unten auf den Boden.', 'Bewege die Vorschau zum gewünschten Standort.', 'Trigger: abstellen · Greiftaste halten: frei anheben und drehen.',notice]};
     if(page==='scan'){const list=choices(),candidate=list[floorIndex%list.length];return {title:'1 · Prüfe den erkannten Boden',lines:[candidate?`Boden ${floorIndex%list.length+1} von ${list.length} · ${Math.abs(area(candidate.points.map(p=>[p[0],p[2]]))).toFixed(1)} m²`:'Noch keine Bodenfläche erkannt.', 'Die grüne Umrandung zeigt die ausgewählte Fläche.','Passt sie zu deinem Raum? Dann „Diesen Boden verwenden“.',notice]};}
     if(page==='add')return {title:'2 · Füge ein Gerät hinzu',lines:['Wähle einen Gerätetyp oder deine Showgeräte.','Danach zeigst du auf seinen Standort am Boden.','Gerätemaße kannst du später im Raumeditor anpassen.',notice]};
     if(page==='devices')return {title:'Leuchten direkt platzieren',lines:[hovered?`${deviceName(hovered,planner.plan.positions[hovered])} · Greiftaste halten`:'Leuchte anvisieren und seitliche Greiftaste halten.','Bewegen, anheben, drehen. Loslassen speichert.','Neue Leuchte: Typ wählen, zeigen, Trigger drücken.',notice]};
-    if(page==='details')return {title:p?`2 · ${name}`:'2 · Dein erstes Gerät',lines:[p?`Gerät ${fixtureIndex+1} von ${fixtureIds().length} · Höhe ${p.height.toFixed(2)} m · ${p.rotation}°`:'Dein Raum ist bereit. Füge jetzt ein Gerät hinzu.',p?'Das ausgewählte Gerät ist gelb umrandet.':'Du brauchst dafür noch keine angeschlossene Lampe.',p?'Wähle „Standort wählen“, um es am Boden zu platzieren.':'Nach der Auswahl führt dich eine Vorschau zum Standort.',notice]};
+    if(page==='details')return {title:p?`2 · ${name}`:'2 · Dein erstes Gerät',lines:[p?`Gerät ${fixtureIndex+1} von ${fixtureIds().length} · Höhe ${p.height.toFixed(2)} m · ${p.type==='moving'?'freier Bewegungsbereich':p.rotation+'°'}`:'Dein Raum ist bereit. Füge jetzt ein Gerät hinzu.',p?'Das ausgewählte Gerät ist gelb umrandet.':'Du brauchst dafür noch keine angeschlossene Lampe.',p?'Wähle „Standort wählen“, um es am Boden zu platzieren.':'Nach der Auswahl führt dich eine Vorschau zum Standort.',notice]};
     if(page==='done')return {title:'3 · Deine Aufstellung ist gespeichert',lines:[`${fixtureIds().length} Geräte in ${planner.plan?.name||'deinem Raum'}.`,'Zum Weiterarbeiten am PC: „An Rechner senden“.','Du kannst die Geräte jederzeit weiter bearbeiten.',notice]};
     return {title:aligned?'1 · Dein Raum ist bereit':'1 · Beginne mit deinem Raum',lines:[aligned?planner.plan.name:planner.plan?`Gespeichert: ${planner.plan.name}`:'Raum automatisch erkennen oder Ecken selbst setzen.',aligned?'Weiter geht es mit den Geräten.':'Wir führen dich anschließend durch die Platzierung.','Rechter Controller: zeigen · Zeigefinger-Trigger: wählen.',notice]};
   }
@@ -209,7 +211,7 @@ export function createARControls({planner,session,reference,floorAvailable,exit,
         else if(mode==='place') {const p=xrToRoom(point,origin);if(!insideRoom(p,planner.plan.boundary))throw Error('Position liegt außerhalb des Grundrisses.');changeFixture({x:p[0],y:p[1]});newDevice=null;previewFixture=null;mode='idle';page='devices';groundPoint=null;notice='Standort gespeichert. Zum Verschieben direkt anvisieren und greifen.';}
       }catch(error){notice=error.message;if(mode==='align'&&points.length>1)points.pop();}
     },
-    scene(value){if(!aligned||!planner.plan)return {...value,layout:{...value.layout,ar:true},lights:[],crowd:[]};const plan=previewFixture?{...planner.plan,positions:{...planner.plan.positions,[previewFixture.id]:previewFixture.position}}:planner.plan;const result=applyRoomPlan(value,plan,true);result.layout.selectedFixture=hovered||selected();return result;},
+    scene(value){if(!aligned||!planner.plan)return {...value,layout:{...value.layout,ar:true},lights:[],crowd:[]};const plan=previewFixture?{...planner.plan,positions:{...planner.plan.positions,[previewFixture.id]:previewFixture.position}}:planner.plan;const result=roomPreview(value,plan,true);result.layout.selectedFixture=hovered||selected();return result;},
     squeezeStart,squeeze,squeezeEnd,
     get origin(){return origin;},
     destroy(){disposed=true;cancelMove();clearAnchor();reference.removeEventListener?.('reset',reset);for(const [name,handler] of listeners)session.removeEventListener?.(name,handler);}

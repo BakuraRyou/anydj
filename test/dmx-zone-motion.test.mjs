@@ -36,3 +36,24 @@ test('without zones choreography is untouched and fixed fixtures are never rerou
  assert.deepEqual(motion.update([fixed,moving],layout,{zones:[]},0),[fixed,moving]);
  assert.deepEqual(motion.update([fixed],layout,settings,1),[fixed]);
 });
+
+test('detours in a concave room never cross the missing corner',()=>{
+ const boundary=[[-4,0],[4,0],[4,3],[0,3],[0,6],[-4,6]],room={width:8,depth:6,roomPlan:{boundary}};
+ const start={x:-2,y:5},end={x:2,y:2};
+ // Direct travel crosses the cut-out: reject it rather than taking a shortcut outside the room.
+ assert.equal(zoneRoute(start,end,room,[]),null);
+ const motion=createZoneMotion(),zones={zones:[{x:.1,y:.1,width:.1,depth:.1}]};
+ motion.update([light(start)],room,zones,0);
+ for(let i=1;i<200;i++){
+  const p=motion.update([light(end)],room,zones,i*.02)[0].target;
+  assert.ok(p.x<=0||p.y<=3,'target stays on the L-shaped floor');
+ }
+});
+
+test('quiet-zone detours remain within a mover-specific allowed area',()=>{
+ const motion=createZoneMotion(),layout={width:8,depth:6},settings={zones:[{x:.45,y:.4,width:.1,depth:.2}]},bounds={left:-2,right:2,bottom:1,top:5};
+ for(let i=0;i<400;i++){
+  const lights=[{id:'area',type:'moving',position:{x:0,y:5,height:3},target:{x:Math.sin(i/80)*1.8,y:3},power:1,color:'#ffffff',motionBounds:bounds}];
+  const result=motion.update(lights,layout,settings,i*.02)[0];assert.ok(result.target.x>=bounds.left&&result.target.x<=bounds.right);assert.ok(result.target.y>=bounds.bottom&&result.target.y<=bounds.top);
+ }
+});
