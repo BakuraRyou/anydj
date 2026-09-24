@@ -55,3 +55,15 @@ Aktuelle Prüfung des VR-Pults: 131 DMX-/VR-Tests bestanden; beide Browserchecks
 `https://<Rechner-IP>:3031/vr-test` verbindet ohne Zahlencode mit der zuletzt gestarteten, noch aktiven Übertragung, einschließlich VR-Musiksteuerung. Der Link steht auch im Dialog unter **Testzugang ohne Code öffnen**. Zuerst am Rechner die Übertragung starten; falls noch keine läuft, wartet die Seite und versucht es automatisch erneut. Beim Beenden einer Übertragung verbindet sich derselbe Pfad erneut, sobald eine aktive Sitzung verfügbar ist. Sitzungskennungen werden nicht in die URL geschrieben.
 
 Dieser ausdrücklich freigegebene Testzugang benötigt keine Kopplungsberechtigung: Wer den Vorschau-Port erreicht, kann die Show sehen und die begrenzte Deck-Steuerung bedienen. Andere Bearbeitungs-APIs bleiben gesperrt. Backend und Browserseiten nach dem Update neu starten/laden. HTTPS-Vertrauen bleibt Voraussetzung für immersives VR.
+
+## Automatisch beim App-Start fortsetzen
+
+Nach einem erfolgreichen „Übertragung starten“ merkt sich die App den aktiven Zustand dauerhaft im lokalen App-/Browserprofil (`anydj-vr-share-resume`). Wird die App geschlossen, neu geladen oder unterbrochen, wird beim nächsten Öffnen des DJ-Pults automatisch eine neue Übertragung gestartet. Die 3D-Ansicht muss dafür nicht geöffnet werden: Szenendaten und Moving Heads werden auch bei ausgeblendeter Bühnenansicht aktualisiert. Das Schließen oder Ausschalten der lokalen 3D-Ansicht beendet die Übertragung nicht.
+
+Nur „Übertragung beenden“ löscht den Fortsetzungswunsch. Das reguläre Aufräumen beim Schließen der App beendet zwar die aktuelle Sitzung, erhält aber diesen Wunsch. Bei einem Backend-Neustart wird die abgelaufene Sitzung automatisch ersetzt; fehlgeschlagene automatische Startversuche werden nach fünf Sekunden erneut versucht. Der Start kann während eines Fehlers über „Automatischen Start beenden“ deaktiviert werden.
+
+Gespeichert wird nur die Startpräferenz, keine Sitzungsschlüssel und kein laufender Audiotransport. Raum und Aufbau werden aus den bereits gespeicherten App-Einstellungen wiederhergestellt. Jede neue Übertragung erhält neue Zugangsdaten; der feste Testzugang `/vr-test` bleibt verwendbar, während ein normal gekoppelter Empfänger den neuen Zahlencode benötigt. Die Präferenz gilt für dasselbe Browserprofil und dieselbe App-Adresse. Die Desktop-App verwendet dafür ihr bestehendes dauerhaftes Profil mit stabiler Adresse.
+
+Nach dem Update die App neu laden und die Übertragung einmal starten, um die Präferenz zu setzen. Der Befehl `npm run vr:sim` bleibt ein separater Simulator-Start.
+
+`node scripts/check-vr-autostart.mjs` prüft aktives Wiederaufnehmen nach Neuladen, Live-Szenendaten bei versteckter Bühne, neue Sitzungsschlüssel, einen Backend-Ausfall, einen gemeinsamen Neustart von App-Seite und Backend sowie dauerhaftes Ausschalten durch expliziten Stopp.

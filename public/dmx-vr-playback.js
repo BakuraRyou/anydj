@@ -19,7 +19,7 @@ export function createVRPlayback({delay=120}={}){
         return {...light,power:mix(prev.power,light.power),target:{x:mix(prev.target.x,light.target.x),y:mix(prev.target.y,light.target.y)}};
       })}:b.scene;
       // Controls use the latest confirmed state, independent of visual buffering.
-      return {...scene,transport:latest.transport,controlMessage:latest.controlMessage};
+      return {...scene,transport:latest.transport,controlMessage:latest.controlMessage,controlMessageId:latest.controlMessageId};
     },
   };
 }

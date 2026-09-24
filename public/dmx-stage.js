@@ -36,8 +36,8 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   const scene=(inline||panel).querySelector('.stage-scene'),spots=scene.querySelector('.stage-spots'),bars=scene.querySelector('.stage-bars');
   const layout=createStageLayout({getFixtures:()=>stagePatch(editor.equipment).map((f,i)=>({...f,group:editor.config.members[i]})),onProperties:(ids,changes)=>editor.setProperties(ids,changes),onChange:()=>render()});
   let movingPreview=[];
-  const stage3d=createStage3d(inline||panel.querySelector('.stage-preview'),inline||panel.querySelector('.stage-controls'),{getLayout:()=>layout.value,onFixturePosition:(id,p)=>layout.setFixturePosition(id,p),onZonePlan:zones=>layout.attachZones(zones),getFixtureAims:()=>layout.getAims(),setFixtureAim:(id,p)=>layout.setAim(id,p),mountLayout:(host,zones)=>layout.mount(host,zones),mountLighting:(host,view)=>mountLighting(host,view),onToggle:()=>{movingHeads.refresh();render();}});
-  const movingHeads=createMovingHeads(scene,inline||panel.querySelector('.stage-controls'),{getDevices:()=>stagePatch(editor.equipment).map((f,i)=>({...f,group:editor.config.members[i]})).filter(f=>f.type==='moving'),getPlans:()=>[...getMovingPlans(),...(editorPreview?.streams??[]).map(s=>s.movingPlan).filter(Boolean)],getLayout:()=>layout.value,getPreviewEnabled:()=>stage3d.enabled,onPreview:value=>{movingPreview=value;layout.update(value);},showMoodControl:false,adjustFrame});
+  const stage3d=createStage3d(inline||panel.querySelector('.stage-preview'),inline||panel.querySelector('.stage-controls'),{getLayout:()=>layout.value,onFixturePosition:(id,p)=>layout.setFixturePosition(id,p),onZonePlan:zones=>layout.attachZones(zones),getFixtureAims:()=>layout.getAims(),setFixtureAim:(id,p)=>layout.setAim(id,p),mountLayout:(host,zones)=>layout.mount(host,zones),mountLighting:(host,view)=>mountLighting(host,view),onToggle:()=>{movingHeads.refresh();render();},onShareChange:()=>{movingHeads.refresh();render();if(stage3d.sharing)startTimer();else if(!active&&!panel.open&&!hardware.enabled&&!editorPreview){clearInterval(timer);timer=null;}}});
+  const movingHeads=createMovingHeads(scene,inline||panel.querySelector('.stage-controls'),{getDevices:()=>stagePatch(editor.equipment).map((f,i)=>({...f,group:editor.config.members[i]})).filter(f=>f.type==='moving'),getPlans:()=>[...getMovingPlans(),...(editorPreview?.streams??[]).map(s=>s.movingPlan).filter(Boolean)],getLayout:()=>layout.value,getPreviewEnabled:()=>stage3d.needsScene,onPreview:value=>{movingPreview=value;layout.update(value);},showMoodControl:false,adjustFrame});
   const previewControls=inline||panel.querySelector('.stage-controls');
   previewControls.querySelector('[data-moving-heads]').after(previewControls.querySelector('[data-stage3d-toggle]'));
   const layoutButton=document.createElement('button');layoutButton.type='button';layoutButton.className='button secondary';layoutButton.dataset.layoutOpen='';layoutButton.textContent='Gerätemanager';layoutButton.setAttribute('aria-controls','stageLayoutDialog');layoutButton.onclick=()=>layout.open(layoutButton);
@@ -102,7 +102,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   }
   const lastFrame=()=>current,lastStreams=()=>streams,lastDemo=()=>demo,lastBlackout=()=>blackout;
   function render(){
-    if(!panel.open&&!active&&!hardware.enabled&&!editorPreview)return;
+    if(!panel.open&&!active&&!hardware.enabled&&!editorPreview&&!stage3d.sharing)return;
     const current=editorPreview?.frame??lastFrame(),streams=editorPreview?.streams??lastStreams();
     const demo=editorPreview?false:lastDemo(),blackout=editorPreview?false:lastBlackout();
     panel.dataset.design=String(editor.enabled);panel.dataset.stageMode=editor.mode;
@@ -169,7 +169,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
 
   }
   function startTimer(){if(!timer)timer=setInterval(render,50);}
-  function close(){panel.close();if(!active&&!hardware.enabled){demo=false;blackout=false;clearInterval(timer);timer=null;}button.setAttribute('aria-expanded',String(active));settingsButton.setAttribute('aria-expanded','false');}
+  function close(){panel.close();if(!active&&!hardware.enabled&&!stage3d.sharing){demo=false;blackout=false;clearInterval(timer);timer=null;}button.setAttribute('aria-expanded',String(active));settingsButton.setAttribute('aria-expanded','false');}
   function openSettings(){selectView('look');if(!panel.open)panel.show();settingsButton.setAttribute('aria-expanded','true');if(!inline)button.setAttribute('aria-expanded','true');render();startTimer();}
   function activate(value){
     active=value;button.closest('.dj-mixer').classList.toggle('has-inline-stage',active);inline.hidden=!active;colorPreview.hidden=active;settingsButton.hidden=!active;
@@ -192,7 +192,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
       editorPreview={frame:null,streams:[]};startTimer();
       return {
         update(frame,nextStreams){if(!editorPreview)return;const changed=editorPreview.streams[0]?.movingPlan!==nextStreams[0]?.movingPlan;editorPreview={frame,streams:nextStreams};if(changed)movingHeads.prepare();render();status.textContent=hardware.enabled?'DMX-Ausgabe aktiv · Entwurf live am Set':'Bühnenvorschau · DMX-Ausgabe nicht aktiviert';},
-        destroy(){editorPreview=null;marker.replaceWith(scene);status.remove();render();if(!active&&!panel.open&&!hardware.enabled){clearInterval(timer);timer=null;}}
+        destroy(){editorPreview=null;marker.replaceWith(scene);status.remove();render();if(!active&&!panel.open&&!hardware.enabled&&!stage3d.sharing){clearInterval(timer);timer=null;}}
       };
     },
     setTransport:stage3d.setTransport,

@@ -17,7 +17,7 @@ export function moveVROrigin(origin,head,layout,axes,turn,dt){
   if(rx||rz){x=Math.max(-layout.width/2+.2,Math.min(layout.width/2-.2,x+c*rx+s*rz));y=Math.max(.2,Math.min(layout.depth-.2,y+s*rx-c*rz));}
   origin.yaw+=turn;const nc=Math.cos(origin.yaw),ns=Math.sin(origin.yaw);origin.x=x-nc*hx-ns*hz;origin.y=y-ns*hx+nc*hz;
 }
-export function createVRConsole({command,exit}){
+export function createVRConsole({command,exit,locomotion=true}){
   let panel=null,hover=null,selected='',scene={},notice='',pending=false,last=0,latched=false,pointer=null;
   const buttons=[['A',.04,.19,.44,.12],['B',.52,.19,.44,.12],['play',.04,.52,.44,.16],['back',.52,.52,.21,.16],['next',.75,.52,.21,.16],['exit',.64,.80,.32,.14]];
   const deck=()=>scene.transport?.decks?.find(d=>d.id===selected);
@@ -29,7 +29,7 @@ export function createVRConsole({command,exit}){
       const head=pose.transform?.matrix;if(!head)return null;
       const sources=Array.from(session.inputSources||[]),left=sources.find(s=>s.handedness==='left'),right=sources.find(s=>s.handedness==='right')||sources.find(s=>s!==left),la=left?.gamepad?.axes||[],ra=right?.gamepad?.axes||[];
       const thumb=ra.length>=4?ra[2]:0;let turn=0;if(Math.abs(thumb)<.3)latched=false;if(Math.abs(thumb)>.7&&!latched){turn=-Math.sign(thumb)*Math.PI/6;latched=true;}
-      if(scene.layout)moveVROrigin(origin,head,scene.layout,la.length>=4?[la[2],la[3]]:[0,0],turn,last?Math.max(0,(time-last)/1000):0);last=time;
+      if(locomotion&&scene.layout)moveVROrigin(origin,head,scene.layout,la.length>=4?[la[2],la[3]]:[0,0],turn,last?Math.max(0,(time-last)/1000):0);last=time;
       const grip=left?.gripSpace?frame.getPose?.(left.gripSpace,reference)?.transform.matrix:null;
       const center=grip?[grip[12],grip[13]+.095,grip[14]]:[head[12]-head[8]*.8,head[13]-.25,head[14]-head[10]*.8];
       const normal=unit(sub([head[12],head[13],head[14]],center)),rightVector=unit([normal[2],0,-normal[0]]),up=[normal[1]*rightVector[2]-normal[2]*rightVector[1],normal[2]*rightVector[0]-normal[0]*rightVector[2],normal[0]*rightVector[1]-normal[1]*rightVector[0]];
@@ -61,6 +61,13 @@ export function createConsoleGraphics(gl){
       ctx.fillStyle='#354b58';ctx.fillRect(40,322,944,7);ctx.fillStyle='#8ee0d3';ctx.fillRect(40,322,944*Math.min(1,state.position/(state.duration||1)),7);
       for(const [id,x,y,w,h] of state.buttons){const disabled=id!=='exit'&&(state.disabled||(id==='play'&&!state.canPlay)||(['back','next'].includes(id)&&!state.canSeek));ctx.fillStyle=disabled?'#26343d':state.hover===id?'#63bfb3':state.selected===id?'#36655f':'#304652';ctx.fillRect(x*1024,y*672,w*1024,h*672);ctx.fillStyle=disabled?'#7c909d':'#ffffff';ctx.font='bold 29px sans-serif';ctx.textAlign='center';ctx.fillText(id==='play'?(state.playing?'Pause':'Play'):id==='back'?'−10 s':id==='next'?'+10 s':id==='exit'?'VR beenden':`Deck ${id}`,(x+w/2)*1024,(y+h/2)*672+10);ctx.textAlign='left';}
       ctx.font='22px sans-serif';ctx.fillStyle='#bacbd4';const words=state.notice.split(' ');let line='',y=495;for(const word of words){if(ctx.measureText(line+word).width>940){ctx.fillText(line,40,y);line='';y+=27;}line+=word+' ';}ctx.fillText(line,40,y);
+      if(state.ar){
+        ctx.fillStyle='#101f29';ctx.fillRect(0,0,1024,672);ctx.fillStyle='#edf6f7';
+        let titleSize=32;do{ctx.font=`bold ${titleSize}px sans-serif`;if(ctx.measureText(state.title).width<=960)break;titleSize--;}while(titleSize>18);ctx.fillText(state.title,28,44);
+        ctx.font='23px sans-serif';let textY=80;
+        state.lines.forEach((text,index)=>{ctx.fillStyle=index===3?'#f4d399':'#cfe4eb';let line='',count=0;for(const word of text.split(' ')){if(ctx.measureText(line+word).width>954&&line){ctx.fillText(line,28,textY);textY+=24;line='';count++;}line+=word+' ';if(count>=1&&ctx.measureText(line).width>954)break;}ctx.fillText(line,28,textY);textY+=30;});
+        for(const [id,x,y,w,h] of state.buttons){const disabled=state.disabledButtons?.includes(id),primary=id===state.primary;ctx.fillStyle=disabled?'#22343e':state.hover===id?'#4b9c8c':primary?'#a0e7ce':'#304652';ctx.fillRect(x*1024,y*672,w*1024,h*672);ctx.fillStyle=disabled?'#728894':primary?'#102a2d':'#fff';let size=24;do{ctx.font=`bold ${size}px sans-serif`;if(ctx.measureText(state.labels[id]).width<w*1024-20)break;size--;}while(size>16);ctx.textAlign='center';ctx.fillText(state.labels[id],(x+w/2)*1024,(y+h/2)*672+8);ctx.textAlign='left';}
+      }
       gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,canvas);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
     }
     const p=overlay.panel,vertices=[];for(const [u,v] of [[0,0],[0,1],[1,1],[0,0],[1,1],[1,0]])vertices.push(...p.center.map((n,i)=>n+(u-.5)*p.width*p.right[i]+(.5-v)*p.height*p.up[i]),u,v);

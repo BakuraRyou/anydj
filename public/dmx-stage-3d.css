@@ -157,3 +157,10 @@ html:has(.stage-3d-dialog[open]){overflow:hidden}body:has(.stage-3d-dialog[open]
 .stage-vr-setup li{margin-bottom:6px}.stage-vr-setup p{white-space:pre-wrap;overflow-wrap:anywhere}
 .stage-vr-share{flex-basis:100%;font-size:12px;border-top:1px solid var(--show-line);padding-top:6px}.stage-vr-share summary{cursor:pointer}.stage-vr-share[open]{max-height:240px;overflow:auto}.stage-vr-share input,.stage-vr-share select{width:100%;min-width:0;margin:6px 0}.stage-vr-share label{display:block}.stage-vr-share p{line-height:1.5}
 .stage-vr-share [data-share-code]{display:block;margin:8px 0;font-size:26px;font-weight:700;letter-spacing:.18em;font-variant-numeric:tabular-nums;color:#b8ffe6;user-select:all}
+/* Keep the scene visible when XR/setup controls wrap in the compact DJ panel. */
+.stage-inline .stage-3d-tools{max-height:150px;overflow:auto}
+
+/* Give the guided floor-plan editor enough space for readable controls and direct manipulation. */
+.stage-3d-workspace.has-tools.editing-room{grid-template-columns:minmax(0,1fr) minmax(360px,40%)}
+@media(max-width:760px){.stage-3d-workspace.has-tools.editing-room{grid-template-columns:minmax(0,1fr)}}
+.stage-inline .stage-3d-workspace.has-tools.editing-room{grid-template-columns:minmax(0,1fr)}

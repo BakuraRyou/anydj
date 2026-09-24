@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Lokale AnyDj-Lampensteuerung ohne Cloud und ohne npm-Abh\u00e4ngigkeiten",
+  "description": "Lokale AnyDj-Lampensteuerung ohne Cloud und ohne npm-Abhängigkeiten",
   "engines": {
     "node": ">=22"
   },
@@ -31,13 +31,18 @@
     "build:tutorial": "node scripts/build-dj-tutorial.mjs",
     "release:desktop": "node scripts/release-desktop.mjs",
     "deploy:full": "node scripts/deploy-full.mjs",
-    "deploy:web": "node scripts/deploy.mjs"
+    "deploy:web": "node scripts/deploy.mjs",
+    "vr:sim": "node scripts/start-vr-sim.mjs"
   },
   "main": "desktop/main.mjs",
   "author": "AnyDj",
   "devDependencies": {
+    "@iwer/devui": "^2.5.0",
     "electron": "44.4.3",
     "electron-builder": "26.15.3"
   },
-  "homepage": "https://github.com/BakuraRyou/anydj"
+  "homepage": "https://github.com/BakuraRyou/anydj",
+  "dependencies": {
+    "iwer": "^2.5.0"
+  }
 }

@@ -64,3 +64,21 @@ test('fixed test path pairs latest active preview with controls and survives ses
  await post('stop',second);assert.equal((await connect()).data.id,first.id);
  await post('stop',first);assert.equal((await connect()).status,404);
 });
+
+test('room plans cross the paired headset bridge, validate geometry and are acknowledged once',async t=>{
+ const {newRoomPlan}=await import('../public/dmx-ar-model.js');
+ const {base,post}=await setup(t),{data:session}=await post('start',{});
+ await post('frame',{...session,scene:scene()});
+ const pairing=await (await fetch(base+'/api/vr-preview/pair?code='+session.code)).json();
+ const bridge=new URL(session.urls[0]);bridge.hostname='127.0.0.1';
+ for(const path of ['/dmx-ar-model.js','/dmx-ar-controls.js','/dmx-ar-planner.js','/dmx-ar.css'])assert.equal((await fetch(bridge.origin+path)).status,200,path);
+ const plan=newRoomPlan(4,5,3);plan.surfaces=Array.from({length:100},()=>({kind:'wall',points:[[-2,0,0],[2,0,0],[2,0,3],[-2,0,3]]}));
+ for(let i=0;i<30;i++)plan.positions['fixture-'+i]={x:0,y:2,height:1,rotation:0,size:{width:.4,depth:.3,height:.2}};
+ assert.ok(JSON.stringify(plan).length>8192);
+ const send=async(control,plan)=>{const res=await fetch(bridge.origin+'/api/vr-preview/command',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:JSON.stringify({id:session.id,control,command:{action:'room-plan',plan}})});return {status:res.status,data:await res.json()};};
+ assert.equal((await send('not-paired',plan)).status,403);
+ assert.equal((await send(pairing.control,{...plan,boundary:[[0,0],[0,0],[1,1]]})).status,400);
+ const accepted=await send(pairing.control,plan);assert.equal(accepted.status,200);
+ const published=await post('frame',{...session,scene:{...scene(),roomPlan:plan}});assert.equal(published.data.commands.length,1);assert.equal(published.data.commands[0].plan.positions['fixture-0'].size.width,.4);
+ const ack=await post('frame',{...session,scene:scene(),ack:[accepted.data.queued]});assert.deepEqual(ack.data.commands,[]);
+});

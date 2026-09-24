@@ -1,3 +1,4 @@
+import {triangulateFloor} from './dmx-ar-model.js';
 // Standalone software 3D renderer. World axes: x across, y into stage, z up.
 // No DOM, DMX output, music analysis or external dependencies.
 const add=(a,b)=>a.map((v,i)=>v+b[i]);
@@ -125,33 +126,56 @@ export function stickFigureSegments(layout,person,motion=0,index=0){
 }
 export function renderStage3d(ctx,width,height,layout,lights,camera,crowd=[],time=0){
   const project=stageCamera(layout,camera,width,height),queue=[];
-  const polygon=(points,fill,alpha=1,stroke=null,lineWidth=.7)=>{
+  const polygon=(points,fill,alpha=1,stroke=null,lineWidth=.7,emissive=false)=>{
     const clipped=clipNear(points,project.depth);if(clipped.length<2)return;
     const p=clipped.map(project);
-    queue.push({p,fill,alpha,stroke,lineWidth,depth:p.reduce((s,v)=>s+v.depth,0)/p.length});
+    queue.push({p,fill,alpha,stroke,lineWidth,emissive,depth:p.reduce((s,v)=>s+v.depth,0)/p.length});
   };
   ctx.clearRect(0,0,width,height);
   const bg=ctx.createLinearGradient(0,0,0,height);bg.addColorStop(0,'#080e19');bg.addColorStop(1,'#192a3b');ctx.fillStyle=bg;ctx.fillRect(0,0,width,height);
-  drawStageGeometry(layout,lights,crowd,time,{polygon,paint,thickness:p=>Math.max(.8,Math.min(5,height*.022/Math.max(.3,project.depth(p))))});
+  drawStageGeometry(layout,lights,crowd,time,{polygon,paint,footprint,thickness:p=>Math.max(.8,Math.min(5,height*.022/Math.max(.3,project.depth(p))))});
   const danceDepth=layout.room?0:Math.max(4,layout.depth);
   const front=project([0,-danceDepth+.4,.01]);
-  if(front.depth>0){ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillStyle='#b0c8d4';ctx.fillText(layout.room?'CLUB · TANZ- & LICHTFLÄCHE':'TANZFLÄCHE',front.x,front.y);}
+  if(front.depth>0){ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillStyle='#b0c8d4';ctx.fillText(layout.roomPlan?layout.roomPlan.name:layout.room?'CLUB · TANZ- & LICHTFLÄCHE':'TANZFLÄCHE',front.x,front.y);}
+  function footprint(center,radius,stretch,angle,color,strength,floorFaces){
+    if(!ctx.createRadialGradient||project.depth(center)<=.08)return false;
+    const c=project(center),u=project([center[0]+Math.cos(angle)*radius*stretch,center[1]+Math.sin(angle)*radius*stretch,center[2]]),v=project([center[0]-Math.sin(angle)*radius,center[1]+Math.cos(angle)*radius,center[2]]);
+    if(u.depth<=.08||v.depth<=.08)return false;
+    const ux=u.x-c.x,uy=u.y-c.y,vx=v.x-c.x,vy=v.y-c.y;if(Math.abs(ux*vy-uy*vx)<.01)return false;
+    paint();ctx.save();ctx.beginPath();
+    for(const face of floorFaces){const points=clipNear(face.map(p=>[...p,center[2]]),project.depth);if(points.length<3)continue;points.map(project).forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();}
+    ctx.clip();ctx.transform(ux,uy,vx,vy,c.x,c.y);
+    const glow=ctx.createRadialGradient(0,0,0,0,0,1);glow.addColorStop(0,color);glow.addColorStop(.12,color);glow.addColorStop(1,'transparent');
+    ctx.globalCompositeOperation='lighter';ctx.globalAlpha=Math.min(1,strength*1.5);ctx.fillStyle=glow;ctx.fillRect(-1,-1,2,2);ctx.restore();return true;
+  }
   function paint(){
     queue.sort((a,b)=>b.depth-a.depth);
-    for(const item of queue){ctx.beginPath();item.p.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));if(item.p.length>2)ctx.closePath();ctx.globalAlpha=item.alpha;if(item.fill){ctx.fillStyle=item.fill;ctx.fill();}if(item.stroke){ctx.strokeStyle=item.stroke;ctx.lineWidth=item.lineWidth;ctx.stroke();}}
-    ctx.globalAlpha=1;queue.length=0;
+    for(const item of queue){ctx.beginPath();item.p.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));if(item.p.length>2)ctx.closePath();ctx.globalAlpha=item.alpha;ctx.globalCompositeOperation=item.emissive?'lighter':'source-over';if(item.fill){ctx.fillStyle=item.fill;ctx.fill();}if(item.stroke){ctx.strokeStyle=item.stroke;ctx.lineWidth=item.lineWidth;ctx.stroke();}}
+    ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';queue.length=0;
   }
 }
 
 // Shared world geometry: desktop canvas and stereoscopic WebXR use the same scene.
-export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{},thickness=()=>1}){
+export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{},thickness=()=>1,footprint=null}){
   const line=(a,b,color)=>polygon([a,b],null,1,color);
-  const box=(p,size)=>{
+  const box=(p,size,rotation=0,pitch=0)=>{
     const [x,y,z]=p,[w,d,h]=size;
-    const v=[[-w,-d,0],[w,-d,0],[w,d,0],[-w,d,0],[-w,-d,h],[w,-d,h],[w,d,h],[-w,d,h]].map(v=>add(v,[x,y,z]));
-    [[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[4,5,6,7]].forEach((face,i)=>polygon(face.map(j=>v[j]),['#344454','#40566a','#263747','#2a3d50','#60788a'][i],1,'#77909f'));
+    const v=[[-w,-d,0],[w,-d,0],[w,d,0],[-w,d,0],[-w,-d,h],[w,-d,h],[w,d,h],[-w,d,h]].map(v=>[v[0],v[1]*Math.cos(pitch)-(v[2]-h/2)*Math.sin(pitch),v[1]*Math.sin(pitch)+(v[2]-h/2)*Math.cos(pitch)+h/2]).map(v=>add([v[0]*Math.cos(rotation)-v[1]*Math.sin(rotation),v[0]*Math.sin(rotation)+v[1]*Math.cos(rotation),v[2]],[x,y,z]));
+    [[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[4,5,6,7]].forEach((face,i)=>polygon(face.map(j=>v[j]),['#344454','#40566a','#263747','#2a3d50','#60788a'][i],1,null));
   };
   const w=layout.width/2,d=layout.depth,danceDepth=layout.room?0:Math.max(4,d);
+  if(layout.roomPlan){
+    const plan=layout.roomPlan;
+    if(!layout.ar)for(const triangle of triangulateFloor(plan.boundary))polygon(triangle.map(p=>[...p,0]),'#182c3b',1);
+    paint();
+    plan.boundary.forEach((p,i)=>{
+      const q=plan.boundary[(i+1)%plan.boundary.length];line([...p,.01],[...q,.01],layout.ar?'#8bd8cb':'#3c4b59');
+      if(!layout.ar){line([...p,0],[...p,plan.height],'#365363');line([...p,plan.height],[...q,plan.height],'#365363');}
+    });
+    if(!layout.ar)for(const surface of plan.surfaces)surface.points.forEach((p,i)=>line(p,surface.points[(i+1)%surface.points.length],'#4a7182'));
+    if(layout.ar)for(const x of [-w,w]){line([x-.1,0,.02],[x+.1,0,.02],'#ffd384');line([x,-.1,.02],[x,.1,.02],'#ffd384');}
+    paint();
+  }else if(!layout.ar){
   if(!layout.room)polygon([[-w,-danceDepth,0],[w,-danceDepth,0],[w,0,0],[-w,0,0]],'#142b31',1,'#436976');
   polygon([[-w,0,0],[w,0,0],[w,d,0],[-w,d,0]],'#182c3b',1,'#728e9d');
   // Draw the floor first; grid and footprints are coplanar overlays.
@@ -165,44 +189,67 @@ export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{}
     for(const y of [0,d])line([-w,y,layout.height],[w,y,layout.height],'#365363');
     for(const x of [-w,w])line([x,0,layout.height],[x,d,layout.height],'#365363');
   }else line([-w,0,.01],[w,0,.01],'#9abec8');paint();
-  for(const zone of layout.zones||[]){
+  }
+  for(const zone of layout.ar?[]:layout.zones||[]){
     const x=(zone.x-.5)*layout.width,y=zone.y*d,x2=x+zone.width*layout.width,y2=y+zone.depth*d;
     polygon([[x,y,.025],[x2,y,.025],[x2,y2,.025],[x,y2,.025]],'#9c634c',.45,'#e6ac80');
   }
   paint();
-  for(const light of lights){
+  // Clip soft footprints to the actual floor, including concave room plans.
+  const floorFaces=layout.roomPlan?triangulateFloor(layout.roomPlan.boundary):[[[-w,layout.room?(layout.lightMin||0):-danceDepth],[w,layout.room?(layout.lightMin||0):-danceDepth],[w,d],[-w,d]]];
+  const clipFloor=(points,boundary)=>{
+    let result=points;const area=boundary.reduce((n,p,i)=>{const q=boundary[(i+1)%boundary.length];return n+p[0]*q[1]-q[0]*p[1];},0),sign=area>=0?1:-1;
+    for(let i=0;i<boundary.length&&result.length;i++){
+      const a=boundary[i],b=boundary[(i+1)%boundary.length],side=p=>sign*((b[0]-a[0])*(p[1]-a[1])-(b[1]-a[1])*(p[0]-a[0])),next=[];
+      for(let j=0;j<result.length;j++){const p=result[j],q=result[(j+1)%result.length],dp=side(p),dq=side(q);if(dp>=0)next.push(p);if((dp>=0)!==(dq>=0)){const t=dp/(dp-dq);next.push(p.map((v,k)=>v+(q[k]-v)*t));}}
+      result=next;
+    }return result;
+  };
+  for(const light of layout.ar?[]:lights){
     if(light.power<=0)continue;
-    const p=[light.position.x,light.position.y,light.position.height],t=[light.target.x,light.target.y,.015];
-    const length=Math.hypot(...add(t,mul(p,-1))),radius=Math.min(1.8,Math.max(.12,length*(light.type==='moving'?.045:.12)));
-    const stretch=Math.min(3,length/Math.max(.3,p[2])),angle=Math.atan2(t[1]-p[1],t[0]-p[0]);
-    for(let layer=3;layer>=1;layer--){
-      const r=radius*layer/3,ring=Array.from({length:32},(_,i)=>{const a=i*Math.PI/16,u=Math.cos(a)*r*stretch,v=Math.sin(a)*r;return [t[0]+u*Math.cos(angle)-v*Math.sin(angle),t[1]+u*Math.sin(angle)+v*Math.cos(angle),.02];});
-      // Clip to the rectangular stage floor in world coordinates.
-      let clipped=ring;
-      for(const [axis,bound,sign] of [[0,-w,1],[0,w,-1],[1,layout.room?layout.lightMin:-danceDepth,1],[1,d,-1]]){
-        const out=[];
-        for(let i=0;i<clipped.length;i++){
-          const a=clipped[i],b=clipped[(i+1)%clipped.length],insideA=(a[axis]-bound)*sign>=0,insideB=(b[axis]-bound)*sign>=0;
-          if(insideA)out.push(a);
-          if(insideA!==insideB){const f=(bound-a[axis])/(b[axis]-a[axis]);out.push(a.map((v,j)=>v+(b[j]-v)*f));}
-        }clipped=out;
-      }
-      if(clipped.length>2)polygon(clipped,light.color,light.power*.3);
+    const height=light.position.height+(light.aimed&&light.modelSize?light.modelSize.height*(light.type==='moving'?.71:.5):0);
+    const p=[light.position.x,light.position.y,height],t=[light.target.x,light.target.y,.012],length=Math.hypot(...add(t,mul(p,-1)));
+    const radius=Math.min(1.8,Math.max(.12,length*(light.type==='moving'?.045:.12))),stretch=Math.min(3,length/Math.max(.3,height)),angle=Math.atan2(t[1]-p[1],t[0]-p[0]);
+    const strength=Math.min(1,light.power)/(1+.015*length*length);
+    if(footprint?.(t,radius*1.4,stretch,angle,light.color,strength,floorFaces))continue;
+    for(let layer=10;layer>=1;layer--){
+      const fraction=layer/10,r=radius*fraction*1.4,alpha=strength*(.025+.32*(1-fraction));
+      const ring=Array.from({length:32},(_,i)=>{const a=i*Math.PI/16,u=Math.cos(a)*r*stretch,v=Math.sin(a)*r;return [t[0]+u*Math.cos(angle)-v*Math.sin(angle),t[1]+u*Math.sin(angle)+v*Math.cos(angle),t[2]];});
+      for(const face of floorFaces){const clipped=clipFloor(ring,face);if(clipped.length>2)polygon(clipped,light.color,alpha,null,.7,true);}
     }
   }
   paint();
+  const bodies=new Set();
   for(const light of lights){
     const p=[light.position.x,light.position.y,light.position.height],t=[light.target.x,light.target.y,.025];
     // A subtle suspension line anchors fixtures in space.
-    line([p[0],p[1],0],p,'#314858');
-    box(add(p,[0,0,.04]),light.type==='bar'?[.12,.08,.12]:[.17,.17,.22]);
+    if(layout.ar||layout.selectedFixture===light.id)line([p[0],p[1],0],p,'#314858');
+    if(!light.modelSize)box(add(p,[0,0,.04]),light.type==='bar'?[.12,.08,.12]:[.17,.17,.22]);
+    else if(!bodies.has(light.id)){
+      bodies.add(light.id);const size=light.modelSize,a=(light.rotation||0)*Math.PI/180,position=layout.positions[light.id]||light.position,base=[position.x,position.y,position.height];
+      const pitch=light.aimed?Math.atan2(position.height+size.height*(light.type==='moving'?.71:.5),Math.hypot(t[0]-base[0],t[1]-base[1])):0;
+      if(light.type==='moving'){
+        const headAngle=(light.aimRotation??light.rotation??0)*Math.PI/180;
+        const local=(x,y,z)=>[base[0]+x*Math.cos(headAngle)-y*Math.sin(headAngle),base[1]+x*Math.sin(headAngle)+y*Math.cos(headAngle),base[2]+z];
+        box(base,[size.width/2,size.depth/2,size.height*.18],a);
+        for(const side of [-1,1])box(local(side*size.width*.42,0,size.height*.18),[size.width*.08,size.depth*.3,size.height*.64],headAngle);
+        box(local(0,0,size.height*.42),[size.width*.3,size.depth*.42,size.height*.58],headAngle,pitch);
+      }else box(base,[size.width/2,size.depth/2,size.height],a,light.type==='spot'?pitch:0);
+      const corners=[[-size.width/2,-size.depth/2],[size.width/2,-size.depth/2],[size.width/2,size.depth/2],[-size.width/2,size.depth/2]].map(([x,y])=>[base[0]+x*Math.cos(a)-y*Math.sin(a),base[1]+x*Math.sin(a)+y*Math.cos(a),.015]);
+      if(layout.ar||layout.selectedFixture===light.id){corners.forEach((p,i)=>line(p,corners[(i+1)%4],layout.selectedFixture===light.id?'#ffd384':'#b8ffe6'));
+      line([base[0],base[1],.02],[base[0]+Math.sin(a)*.5,base[1]-Math.cos(a)*.5,.02],'#ffd384');}
+    }
+    if(light.aimed&&light.modelSize)p[2]+=light.modelSize.height*(light.type==='moving'?.71:.5);
     const axis=unit(add(t,mul(p,-1))),u=unit(cross(axis,[0,1,0])),v=cross(axis,u);
     const ring=(center,r)=>Array.from({length:16},(_,i)=>add(center,add(mul(u,Math.cos(i*Math.PI/8)*r),mul(v,Math.sin(i*Math.PI/8)*r))));
-    polygon(ring(add(p,mul(axis,.08)),.11),light.power>0?light.color:'#334757',Math.max(.3,light.power));
+    polygon(ring(add(p,mul(axis,light.aimed&&light.modelSize?light.modelSize.depth*(light.type==='moving'?.42:.5)+.01:.08)),.11),light.power>0?light.color:'#334757',Math.max(.3,light.power));
     if(light.power<=0)continue;
     const distance=Math.hypot(...add(t,mul(p,-1))),radius=Math.min(1.8,distance*(light.type==='moving'?.045:.12));
-    const start=ring(p,.065),end=ring(t,radius);
-    for(let i=0;i<16;i++)polygon([start[i],start[(i+1)%16],end[(i+1)%16],end[i]],light.color,light.power*.13);
+    // A faint volume suggests haze; the illuminated surface carries the light.
+    for(const [scale,opacity] of [[1,.012],[.65,.016],[.3,.022]]){
+      const start=ring(p,.035*scale),end=ring(t,radius*scale);
+      for(let i=0;i<16;i++)polygon([start[i],start[(i+1)%16],end[(i+1)%16],end[i]],light.color,light.power*opacity,null,.7,true);
+    }
   }
   // Share the fixture/beam depth queue so people belong to the scene.
   crowd.slice(0,12).forEach((person,index)=>{

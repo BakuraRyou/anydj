@@ -14,7 +14,7 @@ export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,tran
   inspectorHeader.innerHTML='<strong></strong><button type="button" class="button secondary" data-tools-close aria-label="Werkzeuge schließen">✕</button>';
   inspector.append(inspectorHeader,body);heading.after(navigation,work);work.append(viewport,inspector);viewport.append(canvas,tools,status);
   const room=q('.stage-3d-room'),dancer=q('.stage-3d-dancer');room.open=true;
-  const pages=new Map(),buttons=new Map();let current='',cleanup=null;
+  const pages=new Map(),buttons=new Map();let current='',cleanup=null,roomPlanner=null;
   for(const [key,title] of [['room','Raum'],['fixtures','Geräte'],['lighting','Licht'],['position','Standort']]){
     const button=document.createElement('button');button.type='button';button.className='button secondary';button.dataset.workspaceTab=key;button.textContent=title;button.setAttribute('aria-pressed','false');navigation.append(button);buttons.set(key,button);
     const page=document.createElement('div');page.className='stage-3d-tool-page';page.dataset.workspacePage=key;page.hidden=true;body.append(page);pages.set(key,page);
@@ -23,6 +23,7 @@ export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,tran
   pages.get('room').append(room);pages.get('position').append(dancer);
   const positionHint=document.createElement('p');positionHint.className='stage-3d-position-hint';positionHint.textContent='Wähle „Ego-Perspektive“, um den Raum mit WASD zu erkunden oder Standort und Augenhöhe einzustellen.';pages.get('position').append(positionHint);
   const deviceActions=document.createElement('div');deviceActions.className='stage-3d-device-actions';deviceActions.innerHTML='<p>Geräte hinzufügen, in der Liste auswählen und direkt im Plan positionieren.</p>';pages.get('fixtures').append(deviceActions);
+  const backToPlan=document.createElement('button');backToPlan.type='button';backToPlan.className='button secondary';backToPlan.textContent='Zurück zur Raumaufstellung';backToPlan.hidden=true;backToPlan.onclick=()=>show('fixtures');deviceActions.prepend(backToPlan);
   const deviceHost=document.createElement('div');deviceHost.className='stage-3d-device-editor';pages.get('fixtures').append(deviceHost);
   const lightPage=pages.get('lighting'),lightTabs=document.createElement('div');lightTabs.className='stage-3d-light-tabs';
   lightTabs.innerHTML='<button type="button" class="button secondary" data-light-view="song">Song-Licht</button><button type="button" class="button secondary" data-light-view="live">Live-Look & Verbindung</button>';
@@ -66,10 +67,16 @@ export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,tran
   lightTabs.querySelectorAll('button').forEach(b=>b.onclick=()=>chooseLight(b.dataset.lightView));
   function show(key,view='song'){
     cleanup?.();cleanup=null;current=key;
-    work.classList.toggle('has-tools',Boolean(key));work.classList.toggle('editing-devices',key==='fixtures');inspector.hidden=!key;
+    work.classList.toggle('has-tools',Boolean(key));work.classList.toggle('editing-room',key==='room');work.classList.toggle('editing-devices',key==='fixtures');inspector.hidden=!key;
     for(const [name,page] of pages){page.hidden=name!==key;buttons.get(name).setAttribute('aria-pressed',String(name===key));}
     if(key){inspectorHeader.querySelector('strong').textContent=key==='fixtures'?'Gerätemanager':buttons.get(key).textContent;body.scrollTop=0;}
-    if(key==='fixtures')cleanup=mountLayout?.(deviceHost,zones);
+    backToPlan.hidden=true;
+    if(roomPlanner){
+      if(key==='room'){pages.get('room').prepend(roomPlanner.root);roomPlanner.openStep(1);}
+      if(key==='fixtures'&&roomPlanner.active){pages.get('fixtures').prepend(roomPlanner.root);roomPlanner.openStep(2);}
+      deviceActions.hidden=key==='fixtures'&&roomPlanner.active;deviceHost.hidden=key==='fixtures'&&roomPlanner.active;
+    }
+    if(key==='fixtures'&&!roomPlanner?.active)cleanup=mountLayout?.(deviceHost,zones);
     work.classList.toggle('editing-song',key==='lighting'&&view==='song');
     if(key==='lighting')chooseLight(view==='song'?'song':'live',view);
     positionHint.hidden=!dancer.hidden;
@@ -86,5 +93,5 @@ export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,tran
   room.addEventListener('change',syncRoom);room.addEventListener('input',syncRoom);syncRoom();
   const fitButton=reset;fitButton.addEventListener('click',onFit);
   show('');
-  return {show,update(){if(sessionKey){const d=transport.getSelected();if(`${d?.id}:${d?.trackId}`!==sessionKey)releaseSong();}if(current==='lighting'&&lightView==='song')void ensureSong();},refresh(){positionHint.hidden=!dancer.hidden;},close(){show('');releaseSong();},destroy(){disposed=true;releaseSong();cleanup?.();fitButton.removeEventListener('click',onFit);}};
+  return {show,manageShowDevices(){show('fixtures');if(roomPlanner)pages.get('room').prepend(roomPlanner.root);deviceActions.hidden=false;deviceHost.hidden=false;backToPlan.hidden=!roomPlanner?.active;cleanup?.();cleanup=mountLayout?.(deviceHost,zones);},setRoomPlanner(value){roomPlanner=value;},update(){if(sessionKey){const d=transport.getSelected();if(`${d?.id}:${d?.trackId}`!==sessionKey)releaseSong();}if(current==='lighting'&&lightView==='song')void ensureSong();},refresh(){positionHint.hidden=!dancer.hidden;},close(){show('');releaseSong();},destroy(){disposed=true;releaseSong();cleanup?.();fitButton.removeEventListener('click',onFit);}};
 }

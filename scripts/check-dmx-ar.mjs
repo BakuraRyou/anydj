@@ -1,0 +1,165 @@
+import assert from 'node:assert/strict';
+import {spawn} from 'node:child_process';
+import {once} from 'node:events';
+import {mkdtemp,rm,writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {createApp} from '../server.mjs';
+
+const app=await createApp({demo:true,previewPort:0});
+app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
+const base=`http://127.0.0.1:${app.server.address().port}`;
+await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
+
+const requests=[];
+app.server.on('request',req=>requests.push(req.url));
+const profile=await mkdtemp(join(tmpdir(),'wiz-dj-connection-'));
+const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking','--no-first-run','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
+let ws;
+try {
+  const endpoint=await new Promise((resolve,reject)=>{
+    let output='';const timer=setTimeout(()=>reject(Error('Chrome startup timeout')),15000);
+    chrome.stderr.on('data',data=>{output+=data;const match=output.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(match){clearTimeout(timer);resolve(match[1]);}});
+    chrome.once('exit',()=>{clearTimeout(timer);reject(Error('Chrome exited'));});
+  });
+  ws=new WebSocket(endpoint);await once(ws,'open');
+  let next=1;const pending=new Map(),errors=[];
+  ws.addEventListener('message',event=>{
+    const m=JSON.parse(event.data);
+    if(m.id){const p=pending.get(m.id);pending.delete(m.id);m.error?p.reject(Error(p.method+' '+JSON.stringify(p.params)+' '+JSON.stringify(m.error))):p.resolve(m.result);}
+    else if(m.method==='Runtime.exceptionThrown')errors.push(m.params.exceptionDetails);
+  });
+  const command=(method,params={},sessionId)=>new Promise((resolve,reject)=>{const id=next++;pending.set(id,{resolve,reject,method,params});ws.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}));});
+  const {targetId}=await command('Target.createTarget',{url:'about:blank'});
+  const {sessionId}=await command('Target.attachToTarget',{targetId,flatten:true});
+  const c=(method,params)=>command(method,params,sessionId);
+  await c('Runtime.enable');await c('Page.enable');
+  const evaluate=async expression=>{const r=await c('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
+  const wait=async expression=>{const end=Date.now()+25000;while(Date.now()<end){try{if(await evaluate(expression))return;}catch(error){if(!/Inspected target navigated|Execution context was destroyed|Cannot find context/.test(error.message))throw error;}await new Promise(r=>setTimeout(r,100));}throw Error('Timeout: '+expression);};
+
+
+  const reload=async()=>{const origin=await evaluate('performance.timeOrigin');await c('Page.reload');await wait(`performance.timeOrigin!==${origin}&&document.readyState==='complete'`);};
+  await c('Emulation.setDeviceMetricsOverride',{width:1280,height:900,deviceScaleFactor:1,mobile:false});
+  await c('Page.navigate',{url:base+'/dj'});await wait("document.querySelector('#inlineLightStage')");
+  await evaluate("document.querySelector('#openLightStage').click();document.querySelector('[data-moving-heads]').click();document.querySelector('#stageSettings').click();document.querySelector('[data-demo]').click();document.querySelector('[data-close]').click();document.querySelector('[data-layout-open]').click()");
+  await wait("document.querySelector('#stageLayoutDialog').open&&document.querySelector('[data-layout-aim]').textContent.includes('Pan')");
+  await evaluate("document.querySelector('[data-layout-close]').click();document.querySelector('[data-stage3d-toggle]').click()");
+  await wait("document.querySelector('.stage-3d-dialog').open");
+  await evaluate("document.querySelector('[data-workspace-tab=room]').click()");
+  assert.equal(await evaluate("document.querySelector('[data-ar-start]').hidden"),false,'first visit shows three clear entry points');
+  assert.equal(await evaluate("document.querySelector('[data-ar-next]').disabled"),true);
+  await writeFile('/tmp/anydj-room-start.png',Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  const change=async(field,value)=>evaluate(`(()=>{const input=document.querySelector('[data-ar-${field}]');input.value=${JSON.stringify(value)};input.dispatchEvent(new Event('change'));})()`);
+  const mapPosition=async(x,y)=>evaluate(`(()=>{const svg=document.querySelector('[data-ar-map]');svg.scrollIntoView({block:'center'});const room=JSON.parse(localStorage.getItem('anydj-ar-rooms-v1'));const plan=room.plans.find(p=>p.id===room.selected);const p=new DOMPoint(${x},plan.depth-${y}).matrixTransform(svg.getScreenCTM());return {x:p.x,y:p.y};})()`);
+  const tap=async(x,y)=>{const p=await mapPosition(x,y);await c('Input.dispatchMouseEvent',{type:'mouseMoved',...p});await c('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...p});await c('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...p});};
+  const stored=()=>evaluate("(()=>{const s=JSON.parse(localStorage.getItem('anydj-ar-rooms-v1'));return s.plans.find(p=>p.id===s.selected);})()");
+  await evaluate("document.querySelector('[data-ar-start-draw]').click()");
+  assert.equal(await evaluate("document.querySelector('[data-ar-width]').disabled"),false,'drawing starts with choosing the room dimensions');
+  await evaluate("document.querySelector('[data-ar-draw]').click()");
+  assert.equal(await evaluate("document.querySelector('[data-ar-map]').dataset.mode"),'draw');
+  await new Promise(r=>setTimeout(r,300));
+  for(const p of [[-4,0],[4,0],[4,3],[0,3],[0,6],[-4,6]])await tap(...p);
+  assert.equal(await evaluate("document.querySelector('[data-ar-map-title]').textContent"),'6 Ecken gesetzt');
+  assert.equal((await stored()).boundary.length,4,'drawing is a draft until confirmed');
+  await writeFile('/tmp/anydj-room-drawing.png',Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  await evaluate("document.querySelector('[data-ar-draw-finish]').click()");
+  assert.equal((await stored()).boundary.length,6);
+  await change('name','AR integration room');
+  await evaluate("document.querySelector('[data-ar-next]').click();document.querySelector('[data-ar-template=moving]').click()");
+  assert.equal(await evaluate("document.querySelector('[data-ar-map]').dataset.mode"),'select');
+  const fixture=Object.keys((await stored()).positions)[0];
+  const dragPoint=async(selector,x,y,cancel=false)=>{
+    await evaluate("document.querySelector('[data-ar-map]').scrollIntoView({block:'center',behavior:'instant'})");
+    const from=await evaluate(`(()=>{const n=document.querySelector(${JSON.stringify(selector)}),r=n.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};})()`);
+    await c('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...from});
+    const to=await mapPosition(x,y);await c('Input.dispatchMouseEvent',{type:'mouseMoved',button:'left',buttons:1,...to});
+    if(cancel)await c('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+    await c('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...to});
+  };
+  const body=`[data-device-id="${fixture}"] rect`,target=`[data-ar-light-target="${fixture}"]`;
+  assert.equal(await evaluate("document.querySelectorAll('[data-ar-light-target]').length"),1,'target visible before any mode selection');
+  await dragPoint(body,-1,4);
+  assert.equal((await stored()).positions[fixture].x,-1);assert.equal((await stored()).positions[fixture].y,4);
+  const beforeTarget=(await stored()).positions[fixture].target;
+  await dragPoint(target,1,4);assert.deepEqual((await stored()).positions[fixture].target,beforeTarget,'invalid target is rejected');
+  await dragPoint(target,-3,2);assert.deepEqual((await stored()).positions[fixture].target,{x:-3,y:2});
+  assert.equal((await stored()).positions[fixture].x,-1,'target drag leaves device in place');
+  const targetYaw=(Math.atan2(-2,2)*180/Math.PI+360)%360;assert.equal((await stored()).positions[fixture].rotation,targetYaw);assert.equal(Number(await evaluate("document.querySelector('[data-ar-rotation]').value")),targetYaw);
+  await dragPoint(target,-2,1,true);assert.deepEqual((await stored()).positions[fixture].target,{x:-3,y:2},'Escape cancels a target drag');
+  // Dragging moves only the selected device, and a click selects without teleporting it.
+  const from=await mapPosition(-1,4);await c('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...from});
+  const to=await mapPosition(-2,3);await c('Input.dispatchMouseEvent',{type:'mouseMoved',button:'left',buttons:1,...to});await c('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...to});
+  assert.equal((await stored()).positions[fixture].x,-2);assert.equal((await stored()).positions[fixture].y,3);assert.deepEqual((await stored()).positions[fixture].target,{x:-3,y:2},'device drag keeps the light target fixed');assert.equal((await stored()).positions[fixture].rotation,315,'moving device updates yaw toward the fixed target');
+  await evaluate("document.querySelector('[data-ar-place]').click()");
+  await c('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await c('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+  assert.equal(await evaluate("document.querySelector('.stage-3d-dialog').open"),true,'Escape cancels placement without closing the workspace');
+  assert.equal(await evaluate("document.querySelector('[data-ar-map]').dataset.mode"),'select');
+  await change('z','1.25');await change('rotation','90');await change('size-width','0.5');
+  await evaluate("document.querySelector('[data-ar-template=bar]').click()");await new Promise(r=>setTimeout(r,300));await tap(1,1);
+  assert.equal(Object.keys((await stored()).positions).length,2);assert.equal(await evaluate("document.querySelectorAll('[data-ar-light-target]').length"),2,'unselected lights retain their target handles');
+  await evaluate("document.querySelector('[data-ar-remove]').click();document.querySelector('[data-ar-undo]').click()");
+  assert.equal(Object.keys((await stored()).positions).length,2,'removal can be undone');
+  await tap(-2,3);assert.equal(await evaluate("document.querySelector('[data-ar-fixture]').value"),fixture);
+  const plan=await stored();assert.equal(plan.positions[fixture].height,1.25);assert.equal(plan.positions[fixture].rotation,90);assert.equal(plan.positions[fixture].size.width,.5);
+  await change('x','99');assert.match(await evaluate("document.querySelector('[data-ar-status]').textContent"),/außerhalb/);assert.equal((await stored()).positions[fixture].x,-2);
+  await change('x','-2');
+  await writeFile('/tmp/anydj-ar-editor.png',Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  await evaluate("document.querySelector('[data-ar-next]').click()");assert.equal(await evaluate("document.querySelector('[data-ar-page=\\\"3\\\"]').hidden"),false);
+  assert.equal(await evaluate("document.querySelector('[data-stage-ar]').disabled"),true);
+  await evaluate("document.querySelector('[data-workspace-tab=fixtures]').click()");
+  assert.equal(await evaluate("document.querySelector('[data-ar-page=\\\"2\\\"]').hidden"),false,'Devices tab leads directly to the active room plan');
+  await evaluate("document.querySelector('[data-ar-manage-show]').click()");
+  assert.equal(await evaluate("document.querySelector('.stage-3d-device-editor').hidden"),false,'show device configuration stays reachable');
+  await evaluate("document.querySelector('.stage-3d-device-actions button').click()");
+  assert.equal(await evaluate("document.querySelector('.stage-ar-planner').closest('[data-workspace-page]').dataset.workspacePage"),'fixtures');
+  // Save/reload exercises the real DJ integration, not only the isolated editor.
+  await reload();await wait("document.querySelector('#inlineLightStage')");
+  await evaluate("document.querySelector('#openLightStage').click();document.querySelector('[data-stage3d-toggle]').click()");
+  await wait("document.querySelector('.stage-3d-dialog').open");
+  assert.equal(await evaluate("document.querySelector('[data-ar-name]').value"),'AR integration room');
+  await evaluate("document.querySelector('[data-share-start]').click()");
+  await wait("document.querySelector('[data-share-code]').textContent.length===6");
+  await wait("document.querySelector('.stage-vr-share [role=status]').textContent.includes('Übertragung bereit')");
+  const pairing=await evaluate("fetch('/api/vr-preview/test-connect').then(r=>r.json())");
+  const remoteTarget=await command('Target.createTarget',{url:base+'/vr-view#'+pairing.id});
+  const remote=await command('Target.attachToTarget',{targetId:remoteTarget.targetId,flatten:true});
+  const rc=(method,params)=>command(method,params,remote.sessionId);await rc('Runtime.enable');
+  const re=async expression=>{const r=await rc('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
+  const rw=async expression=>{const end=Date.now()+10000;while(Date.now()<end){if(await re(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Remote timeout: '+expression);};
+  await rw("document.querySelector('#connection')?.textContent==='Live mit dem Rechner verbunden'");
+  await re(`sessionStorage.setItem('vr-control-${pairing.id}',${JSON.stringify(pairing.control)});document.querySelector('#useComputerRoom').click()`);
+  await re("(()=>{const input=document.querySelector('[data-ar-name]');input.value='From headset';input.dispatchEvent(new Event('change'));document.querySelector('[data-ar-send]').click();})()");
+  await wait("document.querySelector('[data-ar-name]').value==='From headset'");
+  await rw("document.querySelector('[data-ar-status]').textContent.includes('am Rechner übernommen')");
+  await re("document.querySelector('[data-ar-status]').textContent='Warte auf zweite Übernahme';document.querySelector('[data-ar-send]').click()");
+  await rw("document.querySelector('[data-ar-status]').textContent.includes('am Rechner übernommen')");
+  await rc('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:false});
+  await re("document.querySelector('.stage-ar-planner').open=true");
+  assert.equal(await re('document.documentElement.scrollWidth<=innerWidth+1'),true,'headset editor fits a narrow browser window');
+  await writeFile('/tmp/anydj-ar-mobile.png',Buffer.from((await rc('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  // Invalid imports never replace the active plan.
+  await evaluate(`(async()=>{const {createARPlanner}=await import('/dmx-ar-planner.js');const host=document.createElement('div');document.body.append(host);const planner=createARPlanner(host);const before=planner.plan.id;let rejected=false;try{planner.use({version:1});}catch{rejected=true;}if(!rejected||planner.plan.id!==before)throw Error('Invalid import replaced plan');planner.destroy();host.remove();})()`);
+  const pixels=await evaluate(`(async()=>{
+    const {createVRGraphics}=await import('/dmx-stage-vr.js');const {newRoomPlan,applyRoomPlan}=await import('/dmx-ar-model.js');
+    WebGLRenderingContext.prototype.makeXRCompatible=async()=>{};
+    let gl,options;window.XRWebGLLayer=class{constructor(session,context,value){gl=context;options=value;context.canvas.width=256;context.canvas.height=256;this.framebuffer=null;}getViewport(){return {x:0,y:0,width:256,height:256};}};
+    const graphics=await createVRGraphics({environmentBlendMode:'alpha-blend'});
+    const eye={projectionMatrix:new Float32Array([1,0,0,0,0,1,0,0,0,0,-1.002,-1,0,0,-.2,0]),transform:{inverse:{matrix:new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,-1.7,0,1])}}};
+    const empty={layout:{width:8,depth:6,positions:{},ar:true},lights:[],crowd:[],motion:0};graphics.render({views:[eye]},empty,{x:0,y:0,yaw:0});
+    const clear=new Uint8Array(4);gl.readPixels(128,128,1,1,gl.RGBA,gl.UNSIGNED_BYTE,clear);
+    const plan=newRoomPlan();plan.positions.lamp={x:0,y:3,height:1,rotation:45,size:{width:.5,depth:.4,height:.7}};
+    const scene=applyRoomPlan(empty,plan,true);graphics.render({views:[eye]},scene,{x:0,y:0,yaw:0});
+    const data=new Uint8Array(256*256*4);gl.readPixels(0,0,256,256,gl.RGBA,gl.UNSIGNED_BYTE,data);let transparent=0,opaque=0;for(let i=3;i<data.length;i+=4){if(data[i]===0)transparent++;if(data[i]===255)opaque++;}
+    const {createARControls}=await import('/dmx-ar-controls.js');const ref=new EventTarget();const controls=createARControls({planner:{plan},reference:ref,session:{inputSources:[]},floorAvailable:true,exit(){},command(){}});
+    const overlay=controls.update({getPose:()=>null},ref,{transform:{matrix:new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,1.7,0,1])}},{inputSources:[]},empty,{},0);
+    graphics.render({views:[eye]},scene,{x:0,y:0,yaw:0},overlay);
+    const error=gl.getError();controls.destroy();graphics.destroy();return {alpha:options.alpha,clear:[...clear],transparent,opaque,error};
+  })()`);
+  assert.equal(pixels.alpha,true);assert.deepEqual(pixels.clear,[0,0,0,0]);assert.ok(pixels.transparent>50000);assert.ok(pixels.opaque>100);assert.equal(pixels.error,0);
+  assert.deepEqual(errors,[]);
+  console.log('AR browser passed: persisted room editor, validation, headset-to-DJ transfer with confirmation, transparent WebGL, measured device and controller panel.',pixels);
+} finally {
+  ws?.close();chrome.kill('SIGKILL');app.server.closeAllConnections();
+  await new Promise(resolve=>app.server.close(resolve));
+  await rm(profile,{recursive:true,force:true,maxRetries:10,retryDelay:100});
+}

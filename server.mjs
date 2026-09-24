@@ -58,6 +58,10 @@ const STATIC = new Map([
   ['/dmx-stage.css', ['dmx-stage.css', 'text/css; charset=utf-8']],
   ['/dj-waveform.js', ['dj-waveform.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-transport.js', ['dmx-stage-transport.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-ar-model.js', ['dmx-ar-model.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-ar-planner.js', ['dmx-ar-planner.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-ar-controls.js', ['dmx-ar-controls.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-ar.css', ['dmx-ar.css', 'text/css; charset=utf-8']],
   ['/dmx-room.js', ['dmx-room.js', 'text/javascript; charset=utf-8']],
   ['/dmx-zone-plan.js', ['dmx-zone-plan.js', 'text/javascript; charset=utf-8']],
   ['/dmx-zone-motion.js', ['dmx-zone-motion.js', 'text/javascript; charset=utf-8']],
@@ -399,7 +403,7 @@ export async function createApp({
       if (req.method === 'GET' && path === '/api/meta') {
         json(res, 200, { version: VERSION, demo, tokenRequired: Boolean(token) && !tokenMatches(req.headers.authorization, token) }); return;
       }
-      if(path==='/api/vr-preview/command'&&req.method==='POST'){if(req.headers['x-anydj-local']!=='1')throw new AppError('Steuerung benötigt den lokalen Anfrageheader.',403);const body=await bodyJSON(req);json(res,200,previewRelay.command(body.id,body.control,body.command));return;}
+      if(path==='/api/vr-preview/command'&&req.method==='POST'){if(req.headers['x-anydj-local']!=='1')throw new AppError('Steuerung benötigt den lokalen Anfrageheader.',403);const body=await bodyJSON(req,270000);json(res,200,previewRelay.command(body.id,body.control,body.command));return;}
       if(path==='/api/vr-preview/test-connect'&&req.method==='GET'){json(res,200,previewRelay.pairTest());return;}
       if(path==='/api/vr-preview/pair'&&req.method==='GET'){json(res,200,previewRelay.pair(url.searchParams.get('code'),req.socket.remoteAddress||'unknown'));return;}
       if(path==='/api/vr-preview/stream'&&req.method==='GET'){previewRelay.stream(url.searchParams.get('id'),req,res);return;}
@@ -602,7 +606,7 @@ export async function createApp({
   });
   async function previewAddresses(){
     if(!bridgeTask)bridgeTask=(async()=>{
-      const allowed=new Set(['/vr-test','/vr-test/','/api/vr-preview/test-connect','/vr-view','/vr-view.js','/vr-view.css','/dmx-stage-vr.js','/dmx-vr-console.js','/dmx-vr-playback.js','/dmx-stage-3d-renderer.js','/api/vr-preview/stream','/api/vr-preview/pair']);
+      const allowed=new Set(['/vr-test','/vr-test/','/api/vr-preview/test-connect','/vr-view','/vr-view.js','/vr-view.css','/dmx-stage-vr.js','/dmx-vr-console.js','/dmx-vr-playback.js','/dmx-ar-model.js','/dmx-ar-planner.js','/dmx-ar-controls.js','/dmx-ar.css','/dmx-stage-3d-renderer.js','/api/vr-preview/stream','/api/vr-preview/pair']);
       previewBridge=(previewTls?https.createServer.bind(https,previewTls):http.createServer)((req,res)=>{let path=(req.url||'').split('?')[0];if(req.method==='GET'&&(path==='/'||path==='/vr-view/')){req.url='/vr-view'+(req.url.includes('?')?req.url.slice(req.url.indexOf('?')):'');path='/vr-view';}if(req.method==='GET'&&path==='/favicon.ico'){res.writeHead(204);res.end();return;}if(!(req.method==='POST'&&path==='/api/vr-preview/command')&&(req.method!=='GET'||!allowed.has(path))){res.writeHead(403);res.end('Dieser Zugang ist nur für die VR-Vorschau.');return;}server.emit('request',req,res);});
       await new Promise((resolve,reject)=>{previewBridge.once('error',reject);previewBridge.listen(previewPort,'0.0.0.0',resolve);});
       return previewBridge.address().port;
