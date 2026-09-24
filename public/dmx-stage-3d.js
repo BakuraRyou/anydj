@@ -1,3 +1,4 @@
+import {createZonePlan,zoneLights} from './dmx-zone-plan.js';
 import {createStageWorkspace} from './dmx-stage-workspace.js';
 import {createRoomSettings,roomLayout,roomLights} from './dmx-room.js';
 import {createStageTransport} from './dmx-stage-transport.js';
@@ -39,10 +40,12 @@ export function createStage3d(host,controls,{getLayout,mountLayout,mountLighting
   let enabled=false,disposed=false,visible=true,renderer=null,loading=null,raf=0,lights=[],moving=[],drag=null;
   const room=createRoomSettings(panel,{getLayout,onChange:()=>{if(room.value.enabled){dancer.y=Math.max(.15,dancer.y);q('dancer-aim').checked=false;}syncDancer();requestDraw();}});
   const viewLayout=()=>room.value.enabled?roomLayout(room.value):getLayout();
+  const zones=createZonePlan(panel,{getLayout:viewLayout,onChange:()=>requestDraw()});
   const initial=()=>({yaw:.32,pitch:.55,zoom:1});let camera=initial(),overview=initial();
   const dancer={mode:'dancer',x:0,y:room.value.enabled?room.value.depth*.25:-Math.min(3,getLayout().depth),eyeHeight:1.7,yaw:0,pitch:0,zoom:1};
   const q=name=>panel.querySelector(`[data-${name}]`),dancerButton=q('dancer'),dancerTools=panel.querySelector('.stage-3d-dancer');
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  let crowdMotion=null,music={};
   const reducedMotion=matchMedia('(prefers-reduced-motion: reduce)');
   let crowdEnabled=false,placingPeople=false,crowdMapLayout='';
   let crowd=Array.from({length:8},(_,i)=>({x:.15+(i%4)*.23,y:.25+Math.floor(i/4)*.48}));
@@ -129,7 +132,9 @@ export function createStage3d(host,controls,{getLayout,mountLayout,mountLighting
     if(canvas.width!==Math.round(width*scale)||canvas.height!==Math.round(height*scale)){canvas.width=Math.round(width*scale);canvas.height=Math.round(height*scale);}
     if(camera.mode==='dancer')syncDancer();
     const layout=getLayout(),previewMoving=q('dancer-aim').checked?moving.map(h=>({...h,target:{x:h.target.x,y:-Math.max(4,layout.depth)*(.1+.8*h.target.y/layout.depth)}})):moving;
-    ctx.setTransform(scale,0,0,scale,0,0);renderer(ctx,width,height,viewLayout(),room.value.enabled?roomLights([...lights,...moving],layout,room.value):[...lights,...previewMoving],camera,crowdEnabled?crowd:[],reducedMotion.matches?0:performance.now()/1000);
+    const mapped=room.value.enabled?roomLights([...lights,...moving],layout,room.value):[...lights,...previewMoving];
+    zones.update(mapped);
+    ctx.setTransform(scale,0,0,scale,0,0);renderer(ctx,width,height,{...viewLayout(),zones:zones.value.zones},zoneLights(mapped,viewLayout(),zones.value),camera,crowdEnabled?crowd:[],reducedMotion.matches?0:(crowdEnabled?crowdMotion(music,performance.now()/1000):0));
   }
   async function activate(){
     enabled=!enabled;panel.hidden=!enabled;toggle.textContent=enabled?'3D-Bühne ausschalten':'3D-Bühne einschalten';toggle.setAttribute('aria-pressed',String(enabled));
@@ -137,7 +142,7 @@ export function createStage3d(host,controls,{getLayout,mountLayout,mountLighting
     if(!enabled)return;
     if(!dialog.open){expand.click();returnFocus=toggle;}
     if(!ctx){status.textContent='Die 3D-Vorschau ist in diesem Browser nicht verfügbar.';return;}
-    try{loading??=import('./dmx-stage-3d-renderer.js');renderer=(await loading).renderStage3d;requestDraw();}
+    try{loading??=import('./dmx-stage-3d-renderer.js');const module=await loading;renderer=module.renderStage3d;crowdMotion??=module.createCrowdMotion();requestDraw();}
     catch{loading=null;status.textContent='3D-Vorschau konnte nicht geladen werden. Zum erneuten Versuch aus- und einschalten.';}
   }
   toggle.onclick=activate;
@@ -179,7 +184,8 @@ export function createStage3d(host,controls,{getLayout,mountLayout,mountLighting
     openTools:name=>workspace.show(name),
     setTransport:transport.setApi,
     get enabled(){return enabled;},
-    update(fixtures,heads){
+    update(fixtures,heads,musicState={}){
+      music=musicState;
       if(!enabled)return;
       transport.update();workspace?.update();
       const layout=getLayout();moving=heads.map(h=>({...h,type:'moving'}));
@@ -189,10 +195,10 @@ export function createStage3d(host,controls,{getLayout,mountLayout,mountLighting
         return f.cells.map((rgb,i)=>{
           const power=Math.max(...rgb)/255,color=power?rgb.map(v=>Math.round(v/power)):[0,0,0];
           const x=p.x+(f.type==='bar'?(i-(f.cells.length-1)/2)*.22:0);
-          return {type:f.type,position:{...p,x},target:{x,y:layout.depth*.1},color:`rgb(${color.join(',')})`,power};
+          return {id,type:f.type,position:{...p,x},target:{x,y:layout.depth*.1},color:`rgb(${color.join(',')})`,power};
         });
       });requestDraw();
     },
-    destroy(){workspace.destroy();room.destroy();transport.destroy();disposed=true;cancelAnimationFrame(raf);resize.disconnect();intersection.disconnect();document.removeEventListener('visibilitychange',visibility);dialog.close();dialog.remove();marker.remove();panel.remove();toggle.remove();stylesheet.remove();}
+    destroy(){workspace.destroy();zones.destroy();room.destroy();transport.destroy();disposed=true;cancelAnimationFrame(raf);resize.disconnect();intersection.disconnect();document.removeEventListener('visibilitychange',visibility);dialog.close();dialog.remove();marker.remove();panel.remove();toggle.remove();stylesheet.remove();}
   };
 }

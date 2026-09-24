@@ -145,7 +145,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
     const universe=encodeStage(blackout?null:output,equipment),fixtures=decodeStage(universe,equipment);
     movingHeads.update(fixtures,adjustFrame(sample),t,blackout,inputs,editor.mode,editor.count);
     layout.setLights(fixtures);
-    stage3d.update(fixtures,movingPreview);
+    stage3d.update(fixtures,movingPreview,{streams:inputs});
     fixtures.forEach((f,i)=>f.cells.forEach((rgb,j)=>{
       const target=nodes[i][j];
       target.style.setProperty('--stage-color',`rgb(${rgb.join(',')})`);

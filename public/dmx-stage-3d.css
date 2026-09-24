@@ -124,3 +124,10 @@ html:has(.stage-3d-dialog[open]){overflow:hidden}body:has(.stage-3d-dialog[open]
 .stage-3d .stage-3d-song-editor .le-combined .le-move{display:flex;align-items:flex-start;padding:6px 10px;text-shadow:0 1px 3px #000}
 .stage-3d .stage-3d-song-editor .le-combined .le-move:hover{background:#ffffff0a}
 .stage-3d .stage-3d-song-editor .le-combined .le-playhead{z-index:3}
+
+.stage-3d-zone-plan{border-top:1px solid #ffffff20;margin-top:16px;padding-top:12px}
+.stage-3d-zone-plan h3{font-size:14px;margin:0 0 8px}.stage-3d-zone-plan p,.stage-3d-zone-plan small{font-size:11px;line-height:1.6}
+.stage-3d-zone-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}.stage-3d-zone-actions>*{flex:1;min-width:0}
+.stage-3d-zone-plan [data-zone-map]{display:block;width:100%;max-height:320px;touch-action:none;margin:12px 0}
+.stage-3d-zone-plan [data-zone-lights]{pointer-events:none}.stage-3d-zone-plan [data-zone-id]{cursor:move}.stage-3d-zone-plan [data-zone-resize]{cursor:nesw-resize}
+.stage-3d-zone-plan label{display:flex;flex-direction:column;gap:5px;margin-bottom:10px}.stage-3d-zone-plan select,.stage-3d-zone-plan input{width:100%;min-width:0}

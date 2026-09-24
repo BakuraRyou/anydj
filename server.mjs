@@ -51,6 +51,7 @@ const STATIC = new Map([
   ['/dj-waveform.js', ['dj-waveform.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-transport.js', ['dmx-stage-transport.js', 'text/javascript; charset=utf-8']],
   ['/dmx-room.js', ['dmx-room.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-zone-plan.js', ['dmx-zone-plan.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-workspace.js', ['dmx-stage-workspace.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-3d.js', ['dmx-stage-3d.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-3d-renderer.js', ['dmx-stage-3d-renderer.js', 'text/javascript; charset=utf-8']],

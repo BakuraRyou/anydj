@@ -201,11 +201,22 @@ Bühnen-/Club-Modus an und gelten nur für die aktuelle Sitzung.
 
 Die Figuren verwenden die vorhandene Projektion und Tiefensortierung mit
 Lichtkegeln, ohne Schatten oder Kollisionen. Animation im bestehenden 50-ms-Takt,
-keine zusätzlichen Timer oder Abhängigkeiten. Bewegungen sind zeitbasiert,
-nicht mit dem Songbeat synchronisiert. Bei reduzierter Bewegung bleiben die
+keine zusätzlichen Timer oder Abhängigkeiten. Die Bewegung folgt der Beat-Position des hörbaren Decks, einschließlich
+Tempoänderungen. Vier Stile (Seitwärtsschritte, Armschwingen, Hände hoch,
+leichtes Hüpfen) wechseln pro Figur alle 16 Beats mit einem Beat Übergang.
+Die Figuren unterscheiden sich in Stil, Bewegungsstärke und Bewegungsrichtung,
+behalten jedoch den gemeinsamen Beat. Ruhige Songabschnitte dämpfen die Bewegung.
+Nahe gleicher Decklautstärke bleibt das bisherige Deck maßgeblich; deutliche
+Deckwechsel und größere Positionssprünge werden über 400 ms überblendet.
+Bei pausierten oder stumm gemischten geladenen Decks bleibt die Pose stehen.
+Ohne verwertbares Beat-Raster läuft eine zeitbasierte Ersatzanimation; bei leerer
+Show bleibt die freie Animation zum Ausprobieren verfügbar. Bei reduzierter Bewegung bleiben die
 Figuren still; ausgeblendete Ansichten zeichnen weiterhin nicht.
 Geometrietest und Browserprüfung decken Aktivierung, Animation, reduzierte
 Bewegung, Platzieren/Entfernen, Mengenlimit und Abschalten ab.
+Zusätzliche Tests prüfen Beat-Interpolation, Tempoänderung, Pause, stummen Mix,
+Deckwechsel, Positionssprünge und stetige Stilübergänge. Der Audio-Browsertest
+prüft außerdem animierte Wiedergabe und eingefrorene Figuren bei Pause.
 Screenshot: `dmx-stage-3d-crowd.png`.
 
 Der eigenständige Abschnittseditor bleibt außerhalb der 3D-Ansicht verfügbar.
@@ -218,3 +229,25 @@ in einer gemeinsamen Zeitleiste. Der vorhandene Verlauf-Canvas wird in die
 Timeline eingebettet und teilt Zoom, Scrollposition und Abspielstrich. Die
 separate Verlaufskarte entfällt nur im 3D-Arbeitsfenster. Der Browsercheck
 prüft zusätzlich die deckungsgleichen Zeitachsen bei dreifachem Zoom.
+
+## Zonenplan und feste Lichtrichtung
+
+Unter Raum → Zonen & Lichtrichtung lassen sich bis zu 24 rechteckige Ruhezonen
+anlegen, benennen, verschieben und am hellen Eckgriff skalieren. Alternativ
+Position von links/vorne und Maße in Metern eingeben. Im selben Plan einen
+festen Scheinwerfer oder eine Lichtleiste auswählen und sein Bodenziel anklicken;
+„Ausrichtung zurücksetzen“ stellt die ursprüngliche Richtung wieder her.
+
+Zonen und Ziele werden proportional unter `anydj-3d-zones-v1` gespeichert.
+Die 3D-Vorschau markiert die Bodenflächen. Moving-Head-Ziele innerhalb einer
+Zone weichen auf den nächsten geprüften freien Randpunkt mit 25 cm Abstand aus.
+Ist kein Kandidat frei, wird auf 10 % reduziert. Feste Geräte behalten ihre
+gewählte Richtung und werden bei Zielkonflikten ebenfalls auf 10 % reduziert.
+Dies sind praktische Rücksichtszonen auf dem Boden, keine Strahlwegprüfung:
+Lichtkegel und Übergänge können die Flächen weiterhin treffen. Diese erste
+Umsetzung ändert ausschließlich die Vorschau, keine DMX-/WiZ-Ausgaben.
+
+Eigenes Modul `dmx-zone-plan.js` mit eigener Route, UI und Speicherung; keine
+Änderung des bisherigen Geräte-/Showformats. Tests prüfen Zielkorrektur,
+Abdimmen, gespeicherte Grenzen und unveränderte Quelldaten. Der Browserablauf
+prüft Anlegen, Maße, Benennen, Zielwahl, Zurücksetzen und Entfernen.

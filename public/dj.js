@@ -736,7 +736,7 @@ function updateLightPreview(){
     const grid=plan?.beatGrid?.beats||plan?.beatTiming?.times;
     const firstBeat=grid?.findIndex(t=>t>=motif?.start);
     const startBeat=motif?(beatPosition(grid,motif.start)??(firstBeat>=0?firstBeat:null)):null;
-    return {motionCharacter:stageMotionAt(plan,time),palette:songPaletteAt(plan,time),movingPlan:plan,songTime:time,motifColor:motif?.color,motionBeat:absoluteBeat!==null&&startBeat!==null?absoluteBeat-startBeat:null,frame:current[i],weight:weights[i],beat:beatPosition(plan?.beatGrid?.beats||plan?.beatTiming?.times,time),look:section?.look,sectionProgress:section?(time-section.start)/Math.max(.001,section.end-section.start):0,
+    return {source:deck.track?`${deck.name}:${deck.track.id}`:null,playing:!deck.audio.paused&&!deck.audio.seeking,motionCharacter:stageMotionAt(plan,time),palette:songPaletteAt(plan,time),movingPlan:plan,songTime:time,motifColor:motif?.color,motionBeat:absoluteBeat!==null&&startBeat!==null?absoluteBeat-startBeat:null,frame:current[i],weight:weights[i],beat:beatPosition(plan?.beatGrid?.beats||plan?.beatTiming?.times,time),look:section?.look,sectionProgress:section?(time-section.start)/Math.max(.001,section.end-section.start):0,
       accentStrength:stageAccentStrength(plan,time),washDimming:stageWashDimming(plan,time),sectionKey:section?`${deck.track.id}:${section.start}`:null,sectionName:section?`${deck.track.name} · ${section.title||section.label||section.lookLabel||'Abschnitt'}`:''};
   });
   fullMode.update(mixedFrame,lightStreams);
