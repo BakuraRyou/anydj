@@ -48,7 +48,8 @@ export function simplifyDJLayout(decks,mixer){
  for(const selector of ['.stage-inline>[data-moving-heads]','.stage-inline>[data-layout-open]']){const control=light.querySelector(selector);if(control)lightOptions.append(control);}
  mixer.classList.remove('panel');light.classList.add('panel');mixer.prepend(light);
  const transition=document.createElement('section');transition.className='panel dj-mixer-transition';transition.setAttribute('aria-label','Übergänge');
- const heading=document.createElement('h2');heading.textContent='Übergänge';transition.append(heading,mixer.querySelector('.dj-crossfader'));
+ const heading=document.createElement('h2');heading.textContent='Übergänge';
+ const transitionHeader=document.createElement('div');transitionHeader.className='dj-transition-heading';transitionHeader.append(heading);transition.append(transitionHeader,mixer.querySelector('.dj-crossfader'));
  const planStatus=document.createElement('p');planStatus.id='pairTransitionStatus';planStatus.className='small muted';planStatus.setAttribute('role','status');planStatus.setAttribute('aria-live','polite');transition.querySelector('.dj-crossfader').append(planStatus);transition.querySelector('#crossfader').setAttribute('aria-describedby','mixValue pairTransitionStatus');
  const auto=mixer.querySelector('.dj-auto-controls');
  const options=disclosure('Automatik einstellen','dj-transition-options');

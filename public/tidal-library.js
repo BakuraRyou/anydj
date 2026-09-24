@@ -61,12 +61,16 @@ export function createTidalLibrary({getTracks,enqueueTracks,loadLocal}){
   status.textContent=`${rows.length} ${mode==='tracks'?'Titel':'Playlists'} geladen`+(items.length<resources(doc).length?' · Nicht verfügbare Einträge ausgelassen':'');render();
  }
  function mapped(remote){const id=links[remote.id];return remote.type==='tracks'?getTracks().find(t=>t.id===id&&!t.missing&&!t.pendingChange&&(t.file||t.handle)):null;}
+ let dragging=false;
+ list.addEventListener('dragstart',event=>{if(!event.defaultPrevented&&[...(event.dataTransfer?.types||[])].some(type=>['application/x-wiz-track','application/x-anydj-provider-track'].includes(type)))dragging=true;});
+ document.addEventListener('dragend',()=>{if(dragging){dragging=false;render();}});
  function render(){
+  if(dragging)return;
   if(!active){controls();return;}list.replaceChildren();
   for(const remote of rows){
    const row=node('li'),info=node('div',null,'dj-track-info'),open=()=>mode==='playlists'?run(()=>openPlaylist(remote.id,remote.name)):chooseMapping(remote);
    const art=button('',open);art.className='spotify-artwork';art.setAttribute('aria-label',remote.name+(mode==='playlists'?' öffnen':' · lokale Datei zuordnen'));
-   if(remote.image){const img=node('img');img.src=remote.image;img.alt='';img.width=48;img.height=48;img.loading='lazy';img.referrerPolicy='no-referrer';img.onerror=()=>art.replaceChildren(node('span','♫'));art.append(img);}else art.append(node('span','♫'));
+   if(remote.image){const img=node('img');img.draggable=false;img.src=remote.image;img.alt='';img.width=48;img.height=48;img.loading='lazy';img.referrerPolicy='no-referrer';img.onerror=()=>art.replaceChildren(node('span','♫'));art.append(img);}else art.append(node('span','♫'));
    const name=button(remote.name,open);name.className='spotify-title';info.append(name);
    const extra=node('details');extra.append(node('summary','Mehr'),link('In TIDAL öffnen',`https://tidal.com/browse/${remote.type==='tracks'?'track':'playlist'}/${encodeURIComponent(remote.id)}`));
    if(mode==='playlists'){row.append(art,info,button('Öffnen',open),extra);row.onclick=e=>{if(!e.target.closest('button,a,details'))void open();};}

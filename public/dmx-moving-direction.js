@@ -75,7 +75,9 @@ export function groovePose(beat,{energy,strength,percussion,vocals,span=1,format
   }
   const side=i<2?-1:1,outer=i===0||i===3;
   const scale=outer?.75+.25*clamp(percussion):.55-.25*clamp(vocals);
-  const sweep=outer?Math.cos(phase):Math.cos(phase+Math.PI/2);
+  // Both pairs describe the same opening/closing gesture; depth and width
+  // express their roles without unrelated quarter-cycle reversals.
+  const sweep=Math.cos(phase);
   return {pan:clamp(side*width*scale*sweep,-42,42),
    tilt:clamp(.8+(outer?.05:-.04)+Math.sin(phase)*(.025+.065*clamp(strength))*(outer?1:.6),.55,1.15)};
  });

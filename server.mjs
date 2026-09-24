@@ -82,6 +82,7 @@ const STATIC = new Map([
   ['/tutorial.json', ['tutorial.json', 'application/json; charset=utf-8']],
   ['/dj.js', ['dj.js', 'text/javascript; charset=utf-8']],
   ['/light-tuning.js', ['light-tuning.js', 'text/javascript; charset=utf-8']],
+  ['/light-flicker.js', ['light-flicker.js', 'text/javascript; charset=utf-8']],
   ['/dj-full.js', ['dj-full.js', 'text/javascript; charset=utf-8']],
   ['/dj-full.css', ['dj-full.css', 'text/css; charset=utf-8']],
   ['/dj-shuffle.js', ['dj-shuffle.js', 'text/javascript; charset=utf-8']],

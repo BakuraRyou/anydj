@@ -1,3 +1,4 @@
+import {createFlickerControl} from './light-flicker.js';
 import {makeTransitionVariant,variantProblem,bindVariant} from './transition-library.js';
 import {openTransitionLinks} from './transition-links.js';
 import {stageMotionAt} from './stage-motion.js';
@@ -160,6 +161,7 @@ const performanceControls=createPerformance({decks,mixer,ready:audioReady,
     deck.loop=null;deck.audio.currentTime=target.time;deck.audio.playbackRate=target.rate;deck.manualRate=target.rate;deck.transition=null;
   }});
 simplifyDJLayout(decks,mixer);
+const flickerControl=createFlickerControl(mixer.querySelector('.dj-light-settings'),()=>updateLightPreview());
 const paletteSettings={colorMode:globalColorMode};
 const globalColorPicker=createColorPicker('Lichtoptionen',async(settings,mode)=>{
   localStorage.setItem('anydj-light-palette',JSON.stringify(mode));
@@ -456,7 +458,7 @@ async function editSections(track,position=()=>0) {
   const stopEditorSession=async()=>{const old=editorSession;editorSession=null;if(wizStatus)wizStatus.textContent='WiZ-Ausgabe beendet';if(old)await api('/api/music/stop',{id:old}).catch(error=>notice(error.message,true));};
   const sample=({time,plan})=>{
     if(disposed)return;if(lastPlan!==plan){lastPlan=plan;motifs=prepareStageMotifs(plan);}
-    const frame=showFrameAt(plan,time),section=plan.sections?.find(s=>time>=s.start&&time<s.end);
+    const frame=showFrameAt(plan,time,flickerControl.value),section=plan.sections?.find(s=>time>=s.start&&time<s.end);
     const motif=motifs?.[plan.sections?.indexOf(section)],grid=plan.beatGrid?.beats||plan.beatTiming?.times;
     const absoluteBeat=beatPosition(grid,time),startBeat=motif?beatPosition(grid,motif.start):null;
     latest={frame,streams:[{frame,weight:1,movingPlan:plan,songTime:time,beat:absoluteBeat,
@@ -631,9 +633,9 @@ function groupTrackActions(row,compact=false) {
 }
 const localCovers=createLocalCovers({save:persist,changed:()=>renderLibrary()});
 function renderLibrary() {
+  if(libraryDragging)return;
   spotifyLibrary.refresh();
   tidalLibrary.refresh();
-  if(libraryDragging)return;
   const scroll=$('trackList').scrollTop;
   $('trackList').replaceChildren(); $('trackCount').textContent=tracks.length;
   const query=$('trackSearch').value.toLocaleLowerCase();
@@ -682,7 +684,7 @@ function frameFor(deck,time=deck.audio.currentTime) {
   if(!deck.track?.plan || deck.audio.paused) return null;
   const transition=deck.transition;
   if(transition && (time<transition.start || time>=transition.start+2)) deck.transition=null;
-  return deck.transition?transitionFrame(deck.transition.from,deck.track.plan,time,(time-deck.transition.start)/2):showFrameAt(deck.track.plan,time);
+  return deck.transition?transitionFrame(deck.transition.from,deck.track.plan,time,(time-deck.transition.start)/2,flickerControl.value):showFrameAt(deck.track.plan,time,flickerControl.value);
 }
 function paintColorPoint(id,frame,description){
   frame=adjustLight(frame);if(frame?.state===false)frame=null;
@@ -695,7 +697,7 @@ function updateLightPreview(){
   const times=decks.map(deck=>deck.audio.currentTime);
   const current=decks.map((deck,i)=>frameFor(deck,times[i]));
   for(const [i,deck] of decks.entries()){
-    const frame=current[i]||(deck.track?.plan?showFrameAt(deck.track.plan,times[i]):null);
+    const frame=current[i]||(deck.track?.plan?showFrameAt(deck.track.plan,times[i],flickerControl.value):null);
     paintColorPoint(`preview${deck.name}`,frame,`Deck ${deck.name}${deck.audio.paused?' · pausiert':''}`);
   }
   const weights=deckGains(Number($('crossfader').value)).map((w,i)=>w*Number(decks[i].panel.querySelector('.dj-volume').value));
@@ -1220,36 +1222,60 @@ function clearLibraryQueueDrop(){
   queueDropActive=false;queueDropZone.classList.remove('dragging');
   if(!queueDrag)for(const row of $('queueList').children)row.classList.remove('drop-before','drop-after');
 }
-function acceptsLibraryDrop(event){return [...(event.dataTransfer?.types||[])].some(type=>['application/x-wiz-track','application/x-anydj-provider-track'].includes(type))&&queueListsReady&&!(editingLiveQueue()&&fade?.fromQueue);}
+function queueDropKind(event){
+  if(!queueListsReady)return null;
+  const types=[...(event.dataTransfer?.types||[])];
+  if(queueDrag&&types.includes('application/x-anydj-queue'))return editingLiveQueue()&&fade?.fromQueue?null:'move';
+  return types.some(type=>['application/x-wiz-track','application/x-anydj-provider-track'].includes(type))?'copy':null;
+}
+// Resolve against the whole list, including child controls and empty space.
+// Store a stable entry ID rather than an index that can change during playback.
+function queueDropBefore(y){
+  if(editingLiveQueue()&&fade?.fromQueue)return null; // Adding remains safe at the end during a live transition.
+  return [...$('queueList').querySelectorAll('[data-queue-id]')].find(row=>{
+    const rect=row.getBoundingClientRect();return y<rect.top+rect.height/2;
+  })||null;
+}
 queueDropZone.addEventListener('dragover',event=>{
-  if(!acceptsLibraryDrop(event))return;
-  event.preventDefault();event.dataTransfer.dropEffect='copy';queueDropActive=true;queueDropZone.classList.add('dragging');
-  for(const item of $('queueList').children)item.classList.remove('drop-before','drop-after');
-  const row=event.target.closest('[data-queue-id]');
-  if(row){const rect=row.getBoundingClientRect();row.classList.add(event.clientY<rect.top+rect.height/2?'drop-before':'drop-after');}
+  const kind=queueDropKind(event);if(!kind)return;
+  event.preventDefault();event.stopPropagation();event.dataTransfer.dropEffect=kind;
+  queueDropActive=true;queueDropZone.classList.add('dragging');
+  const rows=[...$('queueList').querySelectorAll('[data-queue-id]')];
+  for(const row of rows)row.classList.remove('drop-before','drop-after');
+  const before=queueDropBefore(event.clientY);
+  if(before)before.classList.add('drop-before');else rows.at(-1)?.classList.add('drop-after');
   const list=$('queueList'),bounds=list.getBoundingClientRect();
-  if(event.clientY<bounds.top+32)list.scrollTop-=12;else if(event.clientY>bounds.bottom-32)list.scrollTop+=12;
-});
+  if(event.clientY>=bounds.top&&event.clientY<=bounds.bottom){
+    if(event.clientY<bounds.top+32)list.scrollTop-=12;else if(event.clientY>bounds.bottom-32)list.scrollTop+=12;
+  }
+},true);
 queueDropZone.addEventListener('dragleave',event=>{if(!queueDropZone.contains(event.relatedTarget))clearLibraryQueueDrop();});
 queueDropZone.addEventListener('drop',event=>{
-  const accepted=acceptsLibraryDrop(event);clearLibraryQueueDrop();
-  if(!accepted)return;
+  const kind=queueDropKind(event),beforeId=queueDropBefore(event.clientY)?.dataset.queueId;
+  clearLibraryQueueDrop();if(!kind)return;
   event.preventDefault();event.stopPropagation();
-  const provider=event.dataTransfer.getData('application/x-anydj-provider-track');
-  if(provider){
-    try{
-      const entry=spotifyQueueEntry(JSON.parse(provider));
-      const row=event.target.closest('[data-queue-id]'),rect=row?.getBoundingClientRect();
-      editQueue(entries=>{const index=entries.findIndex(e=>e.id===row?.dataset.queueId);entries.splice(index<0?entries.length:index+(event.clientY>=rect.top+rect.height/2?1:0),0,entry);});
-    }catch(error){notice(error.message,true);}return;
+  const insert=(entries,entry)=>{const index=entries.findIndex(e=>e.id===beforeId);entries.splice(index<0?entries.length:index,0,entry);};
+  if(kind==='move'){
+    const source=queueDrag;queueDrag=null;
+    editQueue(entries=>{const index=entries.findIndex(e=>e.id===source);if(index<0||source===beforeId)return;const [entry]=entries.splice(index,1);insert(entries,entry);});
+    clearQueueDrag();return;
   }
+  const copy=entry=>{
+    if(editingLiveQueue()&&fade?.fromQueue){displayedQueue().push(entry);persistDisplayedQueue();renderQueue();}
+    else editQueue(entries=>insert(entries,entry));
+  };
+  const provider=event.dataTransfer.getData('application/x-anydj-provider-track');
+  if(provider){try{const entry=spotifyQueueEntry(JSON.parse(provider));copy(entry);}catch(error){notice(error.message,true);}return;}
   const track=tracks.find(t=>t.id===event.dataTransfer.getData('application/x-wiz-track'));
-  if(!track||track.deleted||track.missing||track.pendingChange)return;
-  const row=event.target.closest('[data-queue-id]'),id=row?.dataset.queueId,rect=row?.getBoundingClientRect();
-  const after=rect&&event.clientY>=rect.top+rect.height/2;
-  editQueue(entries=>{const index=entries.findIndex(entry=>entry.id===id);entries.splice(index<0?entries.length:index+(after?1:0),0,{id:crypto.randomUUID(),trackId:track.id});});
+  if(!track||track.deleted||track.missing||track.pendingChange){notice('Dieser Titel ist derzeit nicht verfügbar. Bitte die Datei erneut verbinden.',true);return;}
+  copy({id:crypto.randomUUID(),trackId:track.id});
+},true);
+// Provider sources need the same protection as local library rows.
+document.addEventListener('dragstart',event=>{
+  if(event.defaultPrevented)return;
+  if([...(event.dataTransfer?.types||[])].some(type=>['application/x-wiz-track','application/x-anydj-provider-track'].includes(type)))libraryDragging=true;
 });
-document.addEventListener('dragend',clearLibraryQueueDrop);
+document.addEventListener('dragend',()=>{libraryDragging=false;clearLibraryQueueDrop();renderLibrary();renderQueue();});
 function clearQueueDrag() {
   queueDrag=null;
   for(const row of $('queueList').children)row.classList.remove('queue-dragging','drop-before','drop-after');
@@ -1264,32 +1290,10 @@ function bindQueueDrag(row,id) {
     event.dataTransfer.setData('application/x-anydj-queue',id);row.classList.add('queue-dragging');
   });
   row.addEventListener('dragend',clearQueueDrag);
-  row.addEventListener('dragover',event=>{
-    if(!queueDrag||(editingLiveQueue()&&fade?.fromQueue))return;
-    event.preventDefault();event.stopPropagation();event.dataTransfer.dropEffect='move';
-    for(const item of $('queueList').children)item.classList.remove('drop-before','drop-after');
-    const rect=row.getBoundingClientRect();
-    row.classList.add(event.clientY<rect.top+rect.height/2?'drop-before':'drop-after');
-    const list=$('queueList'),bounds=list.getBoundingClientRect();
-    if(event.clientY<bounds.top+32)list.scrollTop-=12;
-    else if(event.clientY>bounds.bottom-32)list.scrollTop+=12;
-  });
-  row.addEventListener('drop',event=>{
-    if(!queueDrag)return;
-    event.preventDefault();event.stopPropagation();
-    const source=queueDrag,rect=row.getBoundingClientRect(),after=event.clientY>=rect.top+rect.height/2;
-    queueDrag=null;
-    editQueue(queue=>{
-      const from=queue.findIndex(entry=>entry.id===source);
-      if(from<0||source===id||!queue.some(entry=>entry.id===id))return;
-      const [entry]=queue.splice(from,1),to=queue.findIndex(entry=>entry.id===id);
-      queue.splice(to+(after?1:0),0,entry);
-    });
-    clearQueueDrag();
-  });
 }
+
 function renderQueue() {
-  if(queueDrag||queueDropActive)return;
+  if(queueDrag||queueDropActive||libraryDragging)return;
   renderQueueManager();
   const editingId=selectedQueueList,queue=displayedQueue(),locked=editingLiveQueue()&&Boolean(fade?.fromQueue);
   $('queueShuffle').disabled=!queueListsReady;

@@ -96,7 +96,11 @@ export function createSpotifyLibrary({getTracks,enqueueTracks,saveList,loadLocal
     catch(error){if(previous)links[remote.id]=previous;else delete links[remote.id];throw Error('Zuordnung konnte nicht gespeichert werden.');}
     renderRows();
   }
+  let dragging=false;
+  list.addEventListener('dragstart',event=>{if(!event.defaultPrevented&&[...(event.dataTransfer?.types||[])].some(type=>['application/x-wiz-track','application/x-anydj-provider-track'].includes(type)))dragging=true;});
+  document.addEventListener('dragend',()=>{if(dragging){dragging=false;renderRows();}});
   function renderRows(){
+    if(dragging)return;
     if(!active)return;list.replaceChildren();preparation.hidden=actions.hidden=filter.hidden=mode!=='tracks';
     preparationTitle.textContent=`Set vorbereiten · ${mappedRows().length} von ${rows.length} lokal verfügbar`;
     const term=filter.value.toLocaleLowerCase();
@@ -109,7 +113,7 @@ export function createSpotifyLibrary({getTracks,enqueueTracks,saveList,loadLocal
       const placeholder=()=>{artwork.replaceChildren(node('span','♫'));};
       const imageURL=mode==='tracks'?remote.image:spotifyImage(remote.images);
       if(imageURL){
-        const image=node('img');image.src=imageURL;image.alt='';image.width=48;image.height=48;
+        const image=node('img');image.draggable=false;image.src=imageURL;image.alt='';image.width=48;image.height=48;
         image.loading='lazy';image.decoding='async';image.referrerPolicy='no-referrer';image.onerror=placeholder;
         artwork.append(image);
       }else placeholder();

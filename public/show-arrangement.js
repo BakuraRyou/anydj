@@ -322,11 +322,11 @@ export function arrangementAccentProfile(arrangement,index){
   }
   return profiles[index]||{kind:'legacy',gain:1};
 }
-function expressedAccent(arrangement,time){
+function expressedAccent(arrangement,time,flicker=1){
   const latest=eventAt(arrangement,time);
   if(latest<0)return 0;
   // Legacy plans without phrase evidence retain their stored envelope.
-  if(arrangementAccentProfile(arrangement,latest).kind==='legacy')return arrangement.accents[latest]*patternEnvelope(arrangement.patterns?.events[latest],time-arrangement.times[latest],arrangement.decays?.[latest]??arrangement.decay??.22);
+  if(arrangementAccentProfile(arrangement,latest).kind==='legacy')return Math.min(flicker,arrangement.accents[latest]*patternEnvelope(arrangement.patterns?.events[latest],time-arrangement.times[latest],arrangement.decays?.[latest]??arrangement.decay??.22));
   let level=0;
   // Overlapping tails prevent a suppressed/soft event from cutting off a hit.
   // A bounded lookback and cached profiles keep this independent of song length.
@@ -339,18 +339,20 @@ function expressedAccent(arrangement,time){
       ?rise*rise*(3-2*rise)*Math.exp(-Math.max(0,age-.2)/.4)
       :patternEnvelope(arrangement.patterns?.events[i],age,profile.kind==='groove'?Math.max(.22,decay):decay);
     const tail=age<=1.5?1:1-(age-1.5)/.5;
-    level=Math.max(level,arrangement.accents[i]*profile.gain*envelope*tail);
+    const accent=arrangement.accents[i]*profile.gain*envelope*tail;
+    // A ceiling leaves quieter beats and their dynamics untouched.
+    level=Math.max(level,profile.kind==='swell'?accent:Math.min(accent,flicker));
   }
   return level;
 }
 export function arrangementMotionAt(arrangement,time) {
   return clamp(expressedAccent(arrangement,time)/.55);
 }
-export function arrangementLevelAt(arrangement,time) {
+export function arrangementLevelAt(arrangement,time,flicker=1) {
   const position=Math.max(0,time)/arrangement.step;
   const index=Math.min(arrangement.bases.length-1,Math.floor(position));
   const interpolated=arrangement.bases[index]+(arrangement.bases[Math.min(index+1,arrangement.bases.length-1)]-arrangement.bases[index])*(position-Math.floor(position));
   if(interpolated===0)return 0;
-  const accent=expressedAccent(arrangement,time);
+  const accent=expressedAccent(arrangement,time,flicker);
   return clamp(interpolated+accent);
 }

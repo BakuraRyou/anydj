@@ -1,3 +1,4 @@
+import {flickerLimit} from './light-flicker.js';
 import {planColorDirection,applyColorDirection} from './color-direction.js';
 import {songPalettes} from './song-palette.js';
 import {choreographColors,colorFrameAt} from './color-choreography.js';
@@ -245,20 +246,21 @@ export function compileShow(windows, duration, options, beatGrid = null, structu
   const colorDirection=planColorDirection(windows,legacy);
   return applyColorDirection({...legacy,colorDirection,legacyColors:{frames:legacy.frames,choreographyBaseFrames:legacy.choreographyBaseFrames,colorEvents:legacy.colorEvents,soundPalettes:legacy.soundPalettes}});
 }
-export function showFrameAt(plan,time) {
+export function showFrameAt(plan,time,maxFlicker=100) {
+  const flicker=flickerLimit(maxFlicker)/100;
   if(!Number.isFinite(time)) throw Error('Ungültige Wiedergabezeit.');
   const index=Math.max(0,Math.min(plan.frames.length-1,Math.floor(time/plan.step)));
   const frame=sectionFrameAt(plan,Math.max(0,Math.min(time,plan.duration-1e-6)),colorFrameAt(plan,Math.max(0,Math.min(time,plan.duration-1e-6)),plan.frames[index]));
   if(!plan.beatTiming)return frame; // Saved plans from older versions retain their rendering.
   const t=time>=plan.duration?index*plan.step:Math.max(0,time);
   const {times,accents,decay,exponent,intensity,minimum,maximum}=plan.beatTiming;
-  if(plan.arrangement)return {...frame,dimming:Math.round(minimum+arrangementLevelAt(plan.arrangement,t)*(maximum-minimum))};
+  if(plan.arrangement)return {...frame,dimming:Math.round(minimum+arrangementLevelAt(plan.arrangement,t,flicker)*(maximum-minimum))};
   let lo=0,hi=times.length;
   while(lo<hi){const mid=(lo+hi)>>>1;if(times[mid]<=t)lo=mid+1;else hi=mid;}
   const pulse=lo===0?0:(accents?.[lo-1]??1)*Math.exp(-(t-times[lo-1])/decay);
-  return {...frame,dimming:Math.round(minimum+clamp(pulse*intensity/1.5)**exponent*(maximum-minimum))};
+  return {...frame,dimming:Math.round(minimum+Math.min(clamp(pulse*intensity/1.5)**exponent,flicker)*(maximum-minimum))};
 }
-export function transitionFrame(from,to,time,progress) {
-  const next=showFrameAt(to,time),previous=showFrameAt(from,time),f=clamp(progress);
+export function transitionFrame(from,to,time,progress,maxFlicker=100) {
+  const next=showFrameAt(to,time,maxFlicker),previous=showFrameAt(from,time,maxFlicker),f=clamp(progress);
   return {...next,...Object.fromEntries(['r','g','b','dimming'].map(key=>[key,Math.round(previous[key]*(1-f)+next[key]*f)]))};
 }

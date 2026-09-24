@@ -39,7 +39,18 @@ export function movingCues(plan,mode,mood='balanced'){
   });
   const downbeats=plan.beatGrid?.downbeats||[];
   let phraseIndex=0,sectionIndex=0,ordinal=0,phraseOrdinal=0,lastPhrase=-1,lastEntry=-1,barIndex=0;
-  let motionBeat=0,lastGrooveBeat=null,lastDrive=1;
+  let motionBeat=0,lastGrooveBeat=null,lastDrive=1,groovePhrase=-1;
+  const motionGrid=arrangement.motionTimes||plan.beatGrid?.beats||arrangement.times;
+  // Fill the interval only while the audio still supports a continuous groove.
+  const sustained=(start,end)=>{
+    if(end-start>2.4)return false;
+    if(arrangement.drama){
+      for(let t=start;t<=end;t+=.1){const d=dramaAt(arrangement.drama,t);if(d.intensity<.5||d.percussion<.4)return false;}
+      return true;
+    }
+    const a=beatPosition(motionGrid,start),b=beatPosition(motionGrid,end);
+    return a!==null&&b!==null&&b-a>=1&&b-a<=4;
+  };
   for(let index=0;index<arrangement.times.length;index++){
     const time=arrangement.times[index];
     if(!Number.isFinite(time)||time<=0||time>plan.duration)continue;
@@ -64,7 +75,7 @@ export function movingCues(plan,mode,mood='balanced'){
     const groove=!event?.development&&directed&&!calm&&(mood==='balanced'||mood==='energetic'||mood==='disco')&&
       energy>=.55&&rhythmicDrive>=.45&&strength>=.3&&
       (section?.look==='peak'||energy>=.72)&&(event?.driving||phrase.movement.driving>=.5||phrase.movement.percussive);
-    if(!groove)lastGrooveBeat=null;
+
     const prominence=clamp((finite(arrangement.eventSalience?.[index],0)-(motives[phraseIndex]?.salience??.35))/.4);
     let drive=1;
     let reason;
@@ -100,30 +111,38 @@ export function movingCues(plan,mode,mood='balanced'){
       return {pan:clamp(pan*profile.span,-42,42),tilt:clamp(.8+(.65+tone*.2+energy*.15+(outer?.05:-.05)-.8)*Math.min(1,profile.span),.55,1.15)};
     });
     if(groove){
-      const grid=arrangement.motionTimes||plan.beatGrid?.beats||arrangement.times;
-      const beat=beatPosition(grid,time)??index;
+      const beat=beatPosition(motionGrid,time)??index;
       let phaseBeat=beat;
       if(mood!=='disco'){
-        // Integrate musical drive. Multiplying the absolute beat by a changing
-        // speed would jump the destination whenever the energy changes.
-        drive=clamp(.35+1.15*clamp((energy-.35)/.65)+.3*rhythmicDrive-.3*vocals+.35*prominence,.4,1.65);
-        if(lastGrooveBeat===null)motionBeat=beat;
-        else motionBeat+=Math.max(0,beat-lastGrooveBeat)*(lastDrive+drive)/2;
-        lastGrooveBeat=beat;lastDrive=drive;phaseBeat=motionBeat;
+        // Keep turns on a musical subdivision. Energy chooses a phrase-level
+        // pace, rather than shifting the phase at every individual drum hit.
+        if(lastGrooveBeat===null||groovePhrase!==phraseIndex){
+          const phraseEnergy=dramaAt(arrangement.drama,phrase.start+.5)?.intensity??phrase.energy??energy;
+          drive=phraseEnergy>=.85?2:phraseEnergy<.65?.5:1;
+        }else drive=lastDrive;
+        if(lastGrooveBeat===null)motionBeat=Math.max(0,beat-(beatPosition(motionGrid,phrase.start)??beat))*drive;
+        else {
+          const boundary=beatPosition(motionGrid,phrase.start)??beat;
+          const split=groovePhrase!==phraseIndex?clamp(boundary,lastGrooveBeat,beat):beat;
+          motionBeat+=(split-lastGrooveBeat)*lastDrive+(beat-split)*drive;
+        }
+        lastGrooveBeat=beat;lastDrive=drive;groovePhrase=phraseIndex;phaseBeat=motionBeat;
       }
       pose=groovePose(phaseBeat,{energy,strength,percussion,vocals,span:profile.span,formation:mood==='disco'?(directionDesign?.formation||'ribbon'):'mirror',period:mood==='disco'?4:8});
     }else if(design&&!event?.development){
       const sectionProgress=section?clamp((time-section.start)/Math.max(.1,section.end-section.start)):progress;
       pose=directedPose(design,phraseOrdinal++,sectionProgress).map(p=>({pan:clamp(p.pan*profile.span,-42,42),tilt:clamp(.8+(p.tilt-.8)*Math.min(1,profile.span),.55,1.15)}));
     }
+    if(!groove){lastGrooveBeat=null;groovePhrase=-1;}
     // Account for the peak speed of each interpolation curve. Short intervals
     // reduce travel distance so a target is reachable exactly at its cue.
     const speed=Math.min(profile.speed,groove?.75+.25*strength:design?.speed??1,atmospheric?.3:1);
     // Bound anticipation; a future accent must not pull the heads through an
     // unrelated quiet passage. Reduce distance when the motor cannot arrive.
-    // Dense subdivisions describe one continuous gesture. Give a groove up
-    // to 1200 ms of travel instead of shrinking every short hop to a few degrees.
-    const available=directed?Math.min(gap,event?.development?2:calm?1.5:groove?1.2:.6):gap;
+    // Connected rhythmic journeys fill their interval. Isolated gestures
+    // retain bounded anticipation, so genuine quiet gaps still hold.
+    const connected=groove&&mood!=='disco'&&previous.reason==='groove'&&sustained(previous.time,time);
+    const available=directed?Math.min(gap,event?.development?2:calm?1.5:groove?(connected?gap:1.2):.6):gap;
     const fraction=motionReach(previous.pose,pose,available,speed);
     const reachable=pose.map((p,i)=>({pan:previous.pose[i].pan+(p.pan-previous.pose[i].pan)*fraction,tilt:previous.pose[i].tilt+(p.tilt-previous.pose[i].tilt)*fraction}));
     cues.push({time,...(reason?{reason}:{}),...(groove&&mood!=='disco'?{drive,settle:prominence*.7}:{}),travel:groove?available:Math.min(available,Math.max(profile.travel,design?.travel??0,atmospheric?3:0,calm?.8:.2,motionDuration(previous.pose,reachable,speed))),pose:reachable});

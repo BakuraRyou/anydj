@@ -41,7 +41,7 @@ try {
  return response({version:1,source:'discogs-effnet',duration,segments:[{start:0,end:duration,scores:{electronic:.8,rock:0,pop:0,groove:0,acoustic:0,orchestral:0,ambient:0},tags:[]}]});
  }return original(url,options);};`);
  const {result:input}=await c('Runtime.evaluate',{expression:"document.querySelector('#djFiles')"});await c('DOM.setFileInputFiles',{objectId:input.objectId,files:[wav,mp3]});
- await wait("document.querySelectorAll('#trackList small').length===2&&[...document.querySelectorAll('#trackList small')].every(n=>n.textContent.includes('Fertig'))");
+ await wait("document.querySelectorAll('#trackList small[data-analysis=complete]').length===2");
 
 
 
@@ -59,13 +59,61 @@ try {
  await dropTrack(1,'#queueList [data-queue-id]','before');await wait("document.querySelector('#queueCount').textContent==='2'");
  assert.ok(await evaluate("document.querySelector('#queueList strong').textContent.endsWith('test.mp3')"));
  await dropTrack(0,'#queueList [data-queue-id]','after');await wait("document.querySelector('#queueCount').textContent==='3'");
- const live=await evaluate("import('/dj-library.js').then(m=>m.readQueue())");assert.equal(live.length,3);
+ // A queue move onto empty list space must be accepted, not just onto a row.
+ const moved=await evaluate(`(()=>{window.queueSource=document.querySelector('#queueList [data-queue-id]');const data=new DataTransfer();queueSource.dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:data}));return data.getData('application/x-anydj-queue');})()`);
+ const bottom=await evaluate("(()=>{const list=document.querySelector('#queueList');list.scrollIntoView({block:'nearest'});const r=list.getBoundingClientRect();return {x:r.left+r.width/2,y:r.bottom-2};})()");
+ const moveData={items:[{mimeType:'application/x-anydj-queue',data:moved}],dragOperationsMask:16};
+ for(const type of ['dragEnter','dragOver','drop'])await c('Input.dispatchDragEvent',{type,...bottom,data:moveData});
+ await evaluate("queueSource.dispatchEvent(new DragEvent('dragend',{bubbles:true}))");
+ assert.equal(await evaluate("[...document.querySelectorAll('#queueList [data-queue-id]')].at(-1).dataset.queueId"),moved);
+ // Child buttons, including disabled controls, belong to the same drop zone.
+ await dropTrack(1,'#queueList [aria-label="Früher abspielen"]');
+ await wait("document.querySelector('#queueCount').textContent==='4'");
+ const live=await evaluate("import('/dj-library.js').then(m=>m.readQueue())");assert.equal(live.length,4);
  await evaluate("document.querySelector('#queueNew').click()");await wait("document.querySelector('#queueCount').textContent==='0'");
  await dropTrack(1,'#queueList');await wait("document.querySelector('#queueCount').textContent==='1'&&document.querySelector('#queueSaved').textContent.includes('gespeichert')");
- assert.equal((await evaluate("import('/dj-library.js').then(m=>m.readQueue())")).length,3,'dropping into saved list leaves live queue intact');
+ assert.equal((await evaluate("import('/dj-library.js').then(m=>m.readQueue())")).length,4,'dropping into saved list leaves live queue intact');
  assert.equal((await evaluate("import('/dj-library.js').then(m=>m.readQueueLists())")).lists[0].entries.length,1);
  assert.equal(await evaluate("document.querySelectorAll('#trackList>li').length"),2,'drop copies, never removes library titles');
  assert.ok(await evaluate("[...document.querySelectorAll('.dj-deck audio')].every(a=>a.paused)"));
+ // A live automatic transition permits safe appending instead of ignoring a copy.
+ await evaluate("document.querySelector('#queueSelect').value='';document.querySelector('#queueSelect').dispatchEvent(new Event('change'));document.querySelector('#queueStart').click()");
+ await wait("!document.querySelector('#fadeNow').disabled");
+ await evaluate("document.querySelector('#fadeNow').click()");
+ await wait("!document.querySelector('#fadeCancel').hidden&&document.querySelectorAll('.dj-deck audio').length===2&&[...document.querySelectorAll('.dj-deck audio')].every(a=>!a.paused)");
+ const countBefore=Number(await evaluate("document.querySelector('#queueCount').textContent"));
+ await dropTrack(0,'.dj-queue h2');
+ await wait(`Number(document.querySelector('#queueCount').textContent)===${countBefore+1}`);
+ assert.ok(await evaluate("[...document.querySelectorAll('#queueList strong')].at(-1).textContent.endsWith('test.wav')"));
+ await evaluate("document.querySelector('#djStop').click()");
+ // A provider refresh during drag must not detach its source row.
+ await c('Page.addScriptToEvaluateOnNewDocument',{source:`
+  sessionStorage.setItem('anydj-spotify-session',JSON.stringify({clientId:'a'.repeat(32),access_token:'test',expiresAt:Date.now()+3600000}));
+  const original=fetch.bind(window);window.fetch=async(url,options)=>{
+   if(!String(url).startsWith('https://api.spotify.com/'))return original(url,options);
+   const track={id:'p'.repeat(22),type:'track',name:'Provider Drop',artists:[{name:'Test'}],duration_ms:180000,album:{name:'Test'}};
+   return new Response(JSON.stringify(String(url).includes('/me/tracks')?{items:[{track}],next:null}:{items:[],next:null}));
+  };
+ `});
+ const origin=await evaluate('performance.timeOrigin');await c('Page.reload');await wait(`performance.timeOrigin!==${origin}&&document.querySelector('#spotifyTab')&&document.querySelector('#queueSelect').dataset.lists!==undefined`);
+ await evaluate("document.querySelector('#spotifyTab').click()");
+ await wait("!document.querySelector('#spotifySource').disabled");
+ await evaluate("document.querySelector('#spotifySource').value='liked';document.querySelector('#spotifySource').dispatchEvent(new Event('change'))");
+ await wait("document.querySelector('#spotifyTracks [draggable=true]')");
+ const providerData=await evaluate(`(()=>{
+  window.providerSource=document.querySelector('#spotifyTracks [draggable=true]');const data=new DataTransfer();
+  providerSource.dispatchEvent(new DragEvent('dragstart',{bubbles:true,dataTransfer:data}));
+  document.querySelector('[aria-label="Geladene Spotify-Titel filtern"]').dispatchEvent(new Event('input'));
+  return data.getData('application/x-anydj-provider-track');
+ })()`);
+ assert.ok(await evaluate('providerSource.isConnected'),'provider source survives a refresh during drag');
+ const beforeProvider=Number(await evaluate("document.querySelector('#queueCount').textContent"));
+ const providerPoint=await evaluate("(()=>{const e=document.querySelector('.dj-queue h2');e.scrollIntoView({block:'nearest'});const r=e.getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2};})()");
+ const providerDrag={items:[{mimeType:'application/x-anydj-provider-track',data:providerData}],dragOperationsMask:1};
+ for(const type of ['dragEnter','dragOver','drop'])await c('Input.dispatchDragEvent',{type,...providerPoint,data:providerDrag});
+ await evaluate("providerSource.dispatchEvent(new DragEvent('dragend',{bubbles:true}))");
+ await wait(`Number(document.querySelector('#queueCount').textContent)===${beforeProvider+1}`);
+ assert.ok(await evaluate("document.querySelector('#queueList').textContent.includes('Provider Drop')"));
  assert.deepEqual(errors,[]);
- console.log('Library drag/drop passed: empty queue, insert before/after, source survives updates, persistence, named list isolation and no autoplay.');
+ console.log('Queue drag/drop passed: empty queue, before/after, background reorder, child controls, source refresh protection, saved lists, live-transition append and provider copy.');
 } finally {ws?.close();chrome.kill('SIGKILL');app.server.closeAllConnections();await new Promise(r=>app.server.close(r));await rm(profile,{recursive:true,force:true,maxRetries:10,retryDelay:100});await rm(fixtures,{recursive:true,force:true});}

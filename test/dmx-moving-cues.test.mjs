@@ -85,3 +85,51 @@ test('an emphasized arrival brakes continuously without stopping the whole groov
  assert.ok(left>2.9&&left<3.1);assert.ok(Math.abs(left-right)<.01);
  assert.equal(at(2),20);assert.ok(at(2.1)>20);
 });
+
+
+const rhythmicSong=(times,energy=.8)=>{
+ const p=song(times);p.duration=20;p.sections[0].end=20;
+ p.beatGrid.beats=Array.from({length:41},(_,i)=>i*.5);
+ Object.assign(p.arrangement.patterns.phrases[0],{end:20,energy,movement:{character:'rhythmic',driving:1}});
+ p.arrangement.patterns.events.forEach(e=>e.driving=true);
+ return p;
+};
+test('continuous rhythmic evidence bridges sparse accents without a fixed 1.2 second stop',()=>{
+ const p=rhythmicSong([1,2.5,4,5.5,7,8.5]);
+ const cues=movingCues(p,'auto');
+ for(let i=2;i<cues.length;i++)assert.equal(cues[i].travel,cues[i].time-cues[i-1].time);
+ // Removing the rhythmic evidence in a real break restores the hold.
+ p.arrangement.drama={step:.1,intensity:Array(200).fill(.8),percussion:Array(200).fill(.7),vocalShare:Array(200).fill(0),attacks:Array(200).fill(0)};
+ p.arrangement.drama.percussion.fill(0,29,35);
+ const paused=movingCues(p,'auto'),atFour=paused.find(c=>c.time===4);
+ assert.equal(atFour.travel,1.2);
+});
+test('ignored intermediate accents cannot reset a continuing movement phrase',()=>{
+ const p=rhythmicSong([1,2,3,4,5,6,7,8]);
+ const a=movingCues(p,'auto');
+ p.arrangement.times.splice(2,0,2.2);p.arrangement.accents.splice(2,0,.18);
+ p.arrangement.patterns.events.splice(2,0,{kind:'bounce',driving:true});
+ assert.deepEqual(movingCues(p,'auto'),a);
+});
+test('normal pairs share one gesture and stable music repeats it on the beat',()=>{
+ const cues=movingCues(rhythmicSong(Array.from({length:18},(_,i)=>i+1)),'auto');
+ for(const c of cues.filter(c=>c.time>=4)){
+  assert.ok(Math.abs(c.pose[0].pan*c.pose[1].pan)<1e-8||Math.sign(c.pose[0].pan)===Math.sign(c.pose[1].pan));
+  const repeated=cues.find(next=>next.time===c.time+4);
+  if(repeated)c.pose.forEach((p,i)=>assert.ok(Math.abs(p.pan-repeated.pose[i].pan)<1e-6));
+ }
+});
+test('fast energetic phrases with irregular connected accents retain physical limits',()=>{
+ const p=rhythmicSong([1,1.8,3.2,4.1,5.7,6.5,8,9.3,10.2,11.6,13,14.5,16,17.3,18.2],.96);
+ const cues=movingCues(p,'auto'),h=.001;
+ let a=movingCueAt(cues,0),b=movingCueAt(cues,h),c=movingCueAt(cues,2*h);
+ for(let t=3*h;t<20;t+=h){
+  const d=movingCueAt(cues,t);
+  d.forEach((v,i)=>{for(const key of ['pan','tilt']){
+   const limit=MOVING_LIMITS[key];
+   assert.ok(Math.abs((v[key]-c[i][key])/h)<=limit.speed*1.001,`speed ${t}`);
+   assert.ok(Math.abs((v[key]-2*c[i][key]+b[i][key])/(h*h))<=limit.acceleration*1.001,`acceleration ${t}`);
+   assert.ok(Math.abs((v[key]-3*c[i][key]+3*b[i][key]-a[i][key])/(h*h*h))<=limit.jerk*1.01,`jerk ${t}`);
+  }});a=b;b=c;c=d;
+ }
+});
