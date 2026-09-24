@@ -130,14 +130,27 @@ export function renderStage3d(ctx,width,height,layout,lights,camera,crowd=[],tim
     const p=clipped.map(project);
     queue.push({p,fill,alpha,stroke,lineWidth,depth:p.reduce((s,v)=>s+v.depth,0)/p.length});
   };
+  ctx.clearRect(0,0,width,height);
+  const bg=ctx.createLinearGradient(0,0,0,height);bg.addColorStop(0,'#080e19');bg.addColorStop(1,'#192a3b');ctx.fillStyle=bg;ctx.fillRect(0,0,width,height);
+  drawStageGeometry(layout,lights,crowd,time,{polygon,paint,thickness:p=>Math.max(.8,Math.min(5,height*.022/Math.max(.3,project.depth(p))))});
+  const danceDepth=layout.room?0:Math.max(4,layout.depth);
+  const front=project([0,-danceDepth+.4,.01]);
+  if(front.depth>0){ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillStyle='#b0c8d4';ctx.fillText(layout.room?'CLUB · TANZ- & LICHTFLÄCHE':'TANZFLÄCHE',front.x,front.y);}
+  function paint(){
+    queue.sort((a,b)=>b.depth-a.depth);
+    for(const item of queue){ctx.beginPath();item.p.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));if(item.p.length>2)ctx.closePath();ctx.globalAlpha=item.alpha;if(item.fill){ctx.fillStyle=item.fill;ctx.fill();}if(item.stroke){ctx.strokeStyle=item.stroke;ctx.lineWidth=item.lineWidth;ctx.stroke();}}
+    ctx.globalAlpha=1;queue.length=0;
+  }
+}
+
+// Shared world geometry: desktop canvas and stereoscopic WebXR use the same scene.
+export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{},thickness=()=>1}){
   const line=(a,b,color)=>polygon([a,b],null,1,color);
   const box=(p,size)=>{
     const [x,y,z]=p,[w,d,h]=size;
     const v=[[-w,-d,0],[w,-d,0],[w,d,0],[-w,d,0],[-w,-d,h],[w,-d,h],[w,d,h],[-w,d,h]].map(v=>add(v,[x,y,z]));
     [[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[4,5,6,7]].forEach((face,i)=>polygon(face.map(j=>v[j]),['#344454','#40566a','#263747','#2a3d50','#60788a'][i],1,'#77909f'));
   };
-  ctx.clearRect(0,0,width,height);
-  const bg=ctx.createLinearGradient(0,0,0,height);bg.addColorStop(0,'#080e19');bg.addColorStop(1,'#192a3b');ctx.fillStyle=bg;ctx.fillRect(0,0,width,height);
   const w=layout.width/2,d=layout.depth,danceDepth=layout.room?0:Math.max(4,d);
   if(!layout.room)polygon([[-w,-danceDepth,0],[w,-danceDepth,0],[w,0,0],[-w,0,0]],'#142b31',1,'#436976');
   polygon([[-w,0,0],[w,0,0],[w,d,0],[-w,d,0]],'#182c3b',1,'#728e9d');
@@ -194,17 +207,9 @@ export function renderStage3d(ctx,width,height,layout,lights,camera,crowd=[],tim
   // Share the fixture/beam depth queue so people belong to the scene.
   crowd.slice(0,12).forEach((person,index)=>{
     for(const segment of stickFigureSegments(layout,person,time,index)){
-      const depth=project.depth(segment[0]);
-      const thickness=Math.max(.8,Math.min(5,height*.022/Math.max(.3,depth)));
-      polygon(segment,null,1,['#b8ffe6','#ffd3a5','#c9c0ff'][index%3],thickness);
+      const lineWidth=thickness(segment[0]);
+      polygon(segment,null,1,['#b8ffe6','#ffd3a5','#c9c0ff'][index%3],lineWidth);
     }
   });
   paint();
-  const front=project([0,-danceDepth+.4,.01]);
-  if(front.depth>0){ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillStyle='#b0c8d4';ctx.fillText(layout.room?'CLUB · TANZ- & LICHTFLÄCHE':'TANZFLÄCHE',front.x,front.y);}
-  function paint(){
-    queue.sort((a,b)=>b.depth-a.depth);
-    for(const item of queue){ctx.beginPath();item.p.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));if(item.p.length>2)ctx.closePath();ctx.globalAlpha=item.alpha;if(item.fill){ctx.fillStyle=item.fill;ctx.fill();}if(item.stroke){ctx.strokeStyle=item.stroke;ctx.lineWidth=item.lineWidth;ctx.stroke();}}
-    ctx.globalAlpha=1;queue.length=0;
-  }
 }

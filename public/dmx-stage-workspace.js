@@ -1,5 +1,5 @@
 // UI composition only: keep existing controls, handlers and saved settings intact.
-export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,transport}){
+export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,transport,zones}){
   const q=s=>panel.querySelector(s),heading=q('.stage-3d-heading'),canvas=q('canvas'),tools=q('.stage-3d-tools'),status=q(':scope>p[role=status]');
   heading.querySelector('strong').innerHTML='Lichtshow <small>3D-Vorschau</small>';
   q('[data-stage3d-full]').textContent='Vollbild';
@@ -21,12 +21,11 @@ export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,tran
     button.onclick=()=>show(current===key?'':key);
   }
   pages.get('room').append(room);pages.get('position').append(dancer);
-  const positionHint=document.createElement('p');positionHint.className='stage-3d-position-hint';positionHint.textContent='Wähle „Auf die Tanzfläche“, um Standort und Augenhöhe einzustellen.';pages.get('position').append(positionHint);
-  const deviceActions=document.createElement('div');deviceActions.className='stage-3d-device-actions';deviceActions.innerHTML='<p>Geräte im Plan verschieben oder ihre Position in Metern eingeben.</p><button type="button" class="button secondary" data-equipment-edit>Ausstattung ändern</button>';pages.get('fixtures').append(deviceActions);
+  const positionHint=document.createElement('p');positionHint.className='stage-3d-position-hint';positionHint.textContent='Wähle „Ego-Perspektive“, um den Raum mit WASD zu erkunden oder Standort und Augenhöhe einzustellen.';pages.get('position').append(positionHint);
+  const deviceActions=document.createElement('div');deviceActions.className='stage-3d-device-actions';deviceActions.innerHTML='<p>Geräte hinzufügen, in der Liste auswählen und direkt im Plan positionieren.</p>';pages.get('fixtures').append(deviceActions);
   const deviceHost=document.createElement('div');deviceHost.className='stage-3d-device-editor';pages.get('fixtures').append(deviceHost);
-  deviceActions.querySelector('button').onclick=()=>show('lighting','equipment');
   const lightPage=pages.get('lighting'),lightTabs=document.createElement('div');lightTabs.className='stage-3d-light-tabs';
-  lightTabs.innerHTML='<button type="button" class="button secondary" data-light-view="song">Song-Licht</button><button type="button" class="button secondary" data-light-view="live">Live-Look & Geräte</button>';
+  lightTabs.innerHTML='<button type="button" class="button secondary" data-light-view="song">Song-Licht</button><button type="button" class="button secondary" data-light-view="live">Live-Look & Verbindung</button>';
   const songHost=document.createElement('div');songHost.className='stage-3d-song-editor';
   const songHint=document.createElement('p');songHint.className='stage-3d-song-editor-hint';
   const retry=document.createElement('button');retry.type='button';retry.className='button secondary';retry.textContent='Song-Licht bearbeiten';retry.hidden=true;
@@ -67,10 +66,10 @@ export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,tran
   lightTabs.querySelectorAll('button').forEach(b=>b.onclick=()=>chooseLight(b.dataset.lightView));
   function show(key,view='song'){
     cleanup?.();cleanup=null;current=key;
-    work.classList.toggle('has-tools',Boolean(key));inspector.hidden=!key;
+    work.classList.toggle('has-tools',Boolean(key));work.classList.toggle('editing-devices',key==='fixtures');inspector.hidden=!key;
     for(const [name,page] of pages){page.hidden=name!==key;buttons.get(name).setAttribute('aria-pressed',String(name===key));}
-    if(key){inspectorHeader.querySelector('strong').textContent=buttons.get(key).textContent;body.scrollTop=0;}
-    if(key==='fixtures')cleanup=mountLayout?.(deviceHost);
+    if(key){inspectorHeader.querySelector('strong').textContent=key==='fixtures'?'Gerätemanager':buttons.get(key).textContent;body.scrollTop=0;}
+    if(key==='fixtures')cleanup=mountLayout?.(deviceHost,zones);
     work.classList.toggle('editing-song',key==='lighting'&&view==='song');
     if(key==='lighting')chooseLight(view==='song'?'song':'live',view);
     positionHint.hidden=!dancer.hidden;
@@ -82,8 +81,8 @@ export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,tran
   room.querySelector('summary').after(mode);enabled.closest('label').classList.add('stage-3d-legacy-mode');
   const all=document.createElement('button');all.type='button';all.className='button secondary';all.textContent='Gesamten Raum beleuchten';all.dataset.roomAll='';room.querySelector('.stage-3d-room-fields').after(all);
   all.onclick=()=>{const range=q('[data-room-reach]');range.value=range.max;range.dispatchEvent(new Event('input'));};
-  const stageSetup=document.createElement('button');stageSetup.type='button';stageSetup.className='button secondary';stageSetup.textContent='Bühnenmaße & Geräte einstellen';stageSetup.onclick=()=>show('fixtures');mode.after(stageSetup);
-  const syncRoom=()=>{room.querySelector('.stage-3d-room-fields').hidden=!enabled.checked;all.hidden=!enabled.checked;q('[data-room-map]').toggleAttribute('hidden',!enabled.checked);stageSetup.hidden=enabled.checked;mode.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(enabled.checked===(b.dataset.roomPreset==='true'))));all.disabled=!enabled.checked;};
+  const stageSetup=document.createElement('button');stageSetup.type='button';stageSetup.className='button secondary';stageSetup.textContent='Geräte, Lichtziele & Zonen bearbeiten';stageSetup.onclick=()=>show('fixtures');mode.after(stageSetup);
+  const syncRoom=()=>{room.querySelector('.stage-3d-room-fields').hidden=!enabled.checked;all.hidden=!enabled.checked;q('[data-room-map]').toggleAttribute('hidden',!enabled.checked);stageSetup.hidden=false;mode.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(enabled.checked===(b.dataset.roomPreset==='true'))));all.disabled=!enabled.checked;};
   room.addEventListener('change',syncRoom);room.addEventListener('input',syncRoom);syncRoom();
   const fitButton=reset;fitButton.addEventListener('click',onFit);
   show('');

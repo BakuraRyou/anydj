@@ -38,7 +38,7 @@ export function movingCues(plan,mode,mood='balanced'){
     return {changed,threshold:Math.max(.3,typical*1.3),salience:Math.max(.35,(saliences[Math.floor(saliences.length/2)]??0)*1.5)};
   });
   const downbeats=plan.beatGrid?.downbeats||[];
-  let phraseIndex=0,sectionIndex=0,ordinal=0,phraseOrdinal=0,lastPhrase=-1,lastEntry=-1,barIndex=0;
+  let phraseIndex=0,sectionIndex=0,ordinal=0,lastEntry=-1,barIndex=0;
   let motionBeat=0,lastGrooveBeat=null,lastDrive=1,groovePhrase=-1;
   const motionGrid=arrangement.motionTimes||plan.beatGrid?.beats||arrangement.times;
   // Fill the interval only while the audio still supports a continuous groove.
@@ -59,7 +59,6 @@ export function movingCues(plan,mode,mood='balanced'){
     const phrase=phrases[phraseIndex],section=sections[sectionIndex];
     const directionDesign=directions[phraseIndex];
     const design=mood==='balanced'||mood==='disco'?directionDesign:null;
-    if(phraseIndex!==lastPhrase){phraseOrdinal=0;lastPhrase=phraseIndex;}
     const event=arrangement.patterns?.events?.[index];
     const atmospheric=!event?.development&&mode==='auto'&&mood==='balanced'&&(phrase?.movement?.character==='atmospheric'||['held','quiet','break','outro'].includes(section?.look));
     const kind=atmospheric?'sweep':mode==='wash'?'wash':mood==='atmospheric'?'sweep':event?.kind||phrase?.kind||'bounce';
@@ -128,10 +127,11 @@ export function movingCues(plan,mode,mood='balanced'){
         }
         lastGrooveBeat=beat;lastDrive=drive;groovePhrase=phraseIndex;phaseBeat=motionBeat;
       }
-      pose=groovePose(phaseBeat,{energy,strength,percussion,vocals,span:profile.span,formation:mood==='disco'?(directionDesign?.formation||'ribbon'):'mirror',period:mood==='disco'?4:8});
+      pose=groovePose(phaseBeat,{energy,strength,percussion,vocals,span:profile.span,formation:directionDesign?.formation||(mood==='disco'?'ribbon':'pairs'),period:mood==='disco'?4:(directionDesign?.period||16)});
     }else if(design&&!event?.development){
       const sectionProgress=section?clamp((time-section.start)/Math.max(.1,section.end-section.start)):progress;
-      pose=directedPose(design,phraseOrdinal++,sectionProgress).map(p=>({pan:clamp(p.pan*profile.span,-42,42),tilt:clamp(.8+(p.tilt-.8)*Math.min(1,profile.span),.55,1.15)}));
+      const phraseBeat=(beatPosition(motionGrid,time)??time*2)-(beatPosition(motionGrid,phrase.start)??phrase.start*2);
+      pose=directedPose(design,Math.floor(phraseBeat/4),sectionProgress).map(p=>({pan:clamp(p.pan*profile.span,-42,42),tilt:clamp(.8+(p.tilt-.8)*Math.min(1,profile.span),.55,1.15)}));
     }
     if(!groove){lastGrooveBeat=null;groovePhrase=-1;}
     // Account for the peak speed of each interpolation curve. Short intervals
@@ -145,7 +145,7 @@ export function movingCues(plan,mode,mood='balanced'){
     const available=directed?Math.min(gap,event?.development?2:calm?1.5:groove?(connected?gap:1.2):.6):gap;
     const fraction=motionReach(previous.pose,pose,available,speed);
     const reachable=pose.map((p,i)=>({pan:previous.pose[i].pan+(p.pan-previous.pose[i].pan)*fraction,tilt:previous.pose[i].tilt+(p.tilt-previous.pose[i].tilt)*fraction}));
-    cues.push({time,...(reason?{reason}:{}),...(groove&&mood!=='disco'?{drive,settle:prominence*.7}:{}),travel:groove?available:Math.min(available,Math.max(profile.travel,design?.travel??0,atmospheric?3:0,calm?.8:.2,motionDuration(previous.pose,reachable,speed))),pose:reachable});
+    cues.push({time,...(reason?{reason}:{}),...(groove&&mood!=='disco'?{drive,settle:prominence>.75?.95:prominence*.7}:{}),travel:groove?available:Math.min(available,Math.max(profile.travel,design?.travel??0,atmospheric?3:0,calm?.8:.2,motionDuration(previous.pose,reachable,speed))),pose:reachable});
     if(directed)lastEntry=phraseIndex;
     ordinal++;
   }

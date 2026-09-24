@@ -151,7 +151,7 @@ export function automaticStage(streams,count=2,equipment,mode='auto'){
   const level=active.reduce((sum,s)=>sum+clamp(s.frame.dimming||0,0,100)*passageIntensity(s.look,s.sectionProgress)*s.weight,0)/total;
   // Spots and bar pixels each get a complete formation, so a long bar cannot
   // consume the active slots intended for the spotlights.
-  const spots=patch.filter(f=>f.profile==='dimmer-rgb').length;
+  const spots=patch.filter(f=>f.profile!=='rgb-pixels').length;
   const spotColors=mode==='auto'?spatialColors(main,spots,palette):null;
   const barColors=mode==='auto'?patch.map(f=>f.profile==='rgb-pixels'?spatialColors(main,f.cells,palette):null):[];
   const activity=mode==='auto'?active.map(s=>({spots:activityAt(s,spots),bars:patch.map(f=>f.profile==='rgb-pixels'?activityAt(s,f.cells):null)})):[];
@@ -159,12 +159,12 @@ export function automaticStage(streams,count=2,equipment,mode='auto'){
   const rotation=mode!=='auto'&&!simple&&beat!==null&&!calm?Math.floor(beat/8)%count:0;
   let ordinal=0,spotIndex=-1;
   const frames=patch.map((fixture,index)=>{
-    if(fixture.profile==='dimmer-rgb')spotIndex++;
+    if(fixture.profile!=='rgb-pixels')spotIndex++;
     return Array.from({length:fixture.cells},(_,cell)=>{
       const cellOrdinal=ordinal,position=ordinal/units;
       const slot=(ordinal+rotation)%count;
       ordinal++;
-      const [r,g,b]=mode==='auto'?(fixture.profile==='dimmer-rgb'?spotColors[spotIndex]:barColors[index][cell]):palette[slot];
+      const [r,g,b]=mode==='auto'?(fixture.profile!=='rgb-pixels'?spotColors[spotIndex]:barColors[index][cell]):palette[slot];
       // Explicit presets retain their own choreography.
       const dimming=simple?active.reduce((sum,s)=>{
         const source=clamp(s.frame.dimming||0,0,100);
@@ -187,7 +187,7 @@ export function automaticStage(streams,count=2,equipment,mode='auto'){
         }
         return sum+clamp(s.frame.dimming||0,0,100)*passageIntensity(s.look,s.sectionProgress)*strength*s.weight;
       },0)/total:mode==='auto'?active.reduce((sum,s,k)=>{
-        const exposure=fixture.profile==='dimmer-rgb'?activity[k].spots[spotIndex]:activity[k].bars[index][cell];
+        const exposure=fixture.profile!=='rgb-pixels'?activity[k].spots[spotIndex]:activity[k].bars[index][cell];
         return sum+clamp(s.frame.dimming||0,0,100)*passageIntensity(s.look,s.sectionProgress)*exposure*s.weight;
       },0)/total:level;
       return {state:true,r,g,b,dimming};

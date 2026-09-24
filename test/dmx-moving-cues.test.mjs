@@ -111,17 +111,18 @@ test('ignored intermediate accents cannot reset a continuing movement phrase',()
  p.arrangement.patterns.events.splice(2,0,{kind:'bounce',driving:true});
  assert.deepEqual(movingCues(p,'auto'),a);
 });
-test('normal pairs share one gesture and stable music repeats it on the beat',()=>{
- const cues=movingCues(rhythmicSong(Array.from({length:18},(_,i)=>i+1)),'auto');
- for(const c of cues.filter(c=>c.time>=4)){
-  assert.ok(Math.abs(c.pose[0].pan*c.pose[1].pan)<1e-8||Math.sign(c.pose[0].pan)===Math.sign(c.pose[1].pan));
-  const repeated=cues.find(next=>next.time===c.time+4);
-  if(repeated)c.pose.forEach((p,i)=>assert.ok(Math.abs(p.pan-repeated.pose[i].pan)<1e-6));
- }
+test('automatic groups evolve over several bars instead of repeating a four-second mirror loop',()=>{
+ const plan=rhythmicSong(Array.from({length:18},(_,i)=>i+1)),cues=movingCues(plan,'auto');
+ assert.deepEqual(movingCues(plan,'auto'),cues);
+ const a=movingCueAt(cues,6),b=movingCueAt(cues,10);
+ assert.ok(a.some((p,i)=>Math.abs(p.pan-b[i].pan)>2));
+ assert.ok(cues.some(c=>Math.abs(c.pose[0].pan+c.pose[3].pan)>2));
 });
 test('fast energetic phrases with irregular connected accents retain physical limits',()=>{
  const p=rhythmicSong([1,1.8,3.2,4.1,5.7,6.5,8,9.3,10.2,11.6,13,14.5,16,17.3,18.2],.96);
+ p.arrangement.eventSalience=p.arrangement.times.map((_,i)=>i===5?1:0);
  const cues=movingCues(p,'auto'),h=.001;
+ assert.ok(cues.some(c=>c.settle===.95),'an exceptional musical accent may brake sharply');
  let a=movingCueAt(cues,0),b=movingCueAt(cues,h),c=movingCueAt(cues,2*h);
  for(let t=3*h;t<20;t+=h){
   const d=movingCueAt(cues,t);

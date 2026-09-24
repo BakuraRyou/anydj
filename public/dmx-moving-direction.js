@@ -24,11 +24,11 @@ export function movingDirections(plan,disco=false){
    const shape=quiet?'arc':build?'fan':phrase.attention?.leader==='vocals'||vocals>.5?'focus':percussion>.65?'pulse':tone>.6?'cross':'sweep';
    // Width, travel speed and cue density are independent controls. An ambient
    // arc can cover a wide area while taking several seconds to get there.
-   design={shape,formation:!disco||quiet||shape==='focus'?'mirror':percussion>.65?'diagonal':'ribbon',width:quiet?16+10*tone:build?28:peak?25+9*energy:12+10*energy,
+   design={shape,formation:quiet?'mirror':disco?(shape==='focus'?'mirror':percussion>.65?'diagonal':'ribbon'):shape==='focus'?'relay':build?'ribbon':percussion>.65?'pairs':'ribbon',width:quiet?16+10*tone:build?28:peak?25+9*energy:12+10*energy,
     speed:quiet?.22:build?.5:peak?.8:percussion>.65?.65:.4,
     spacing:quiet?4:build?1:peak?.5:percussion>.65?.6:1.5,
     travel:quiet?3:build?1.1:peak?.3:percussion>.65?.45:1.2,
-    inner: .6-.25*vocals,depth:.06+.09*tone};
+    period:quiet?32:16,inner: .6-.25*vocals,depth:.06+.09*tone};
    design.speed*=motionScale;design.spacing/=motionScale;design.travel/=motionScale;
    if(section.motif!==undefined)memory.push({motif:section.motif,category,evidence,design});
   }
@@ -49,7 +49,11 @@ export function directedPose(design,ordinal,progress=0){
    case 'cross':pan=side*spread*scale*sideStep*(outer?1:-1);depth*=phase%2?1:-.5;break;
    default:pan=side*spread*scale*sideStep;depth*=phase%2?.6:-.6;
   }
-  if(design.formation==='ribbon'){
+  if(design.formation==='pairs'||design.formation==='relay'){
+   const lead=design.formation==='relay'?ordinal%4:Math.floor(ordinal/2)%2;
+   const active=design.formation==='relay'?i===lead:i%2===lead;
+   pan=(i-1.5)*4+(active?pan:pan*.2);depth*=active?1:.25;
+  }else if(design.formation==='ribbon'){
    pan=spread*(sideStep*.6+(i-1.5)*.24);
    depth+=design.depth*(i-1.5)*.3;
   }else if(design.formation==='diagonal'){
@@ -67,6 +71,15 @@ export function groovePose(beat,{energy,strength,percussion,vocals,span=1,format
  const phase=beat*2*Math.PI/period;
  const width=(12+18*clamp(energy))*(.55+.45*clamp(strength))*span;
  return Array.from({length:4},(_,i)=>{
+  if(formation==='pairs'||formation==='relay'){
+   // Roles hand over over several bars, with a smooth envelope instead of
+   // switching heads on each hit. Supporting heads keep a smaller counter-arc.
+   const role=formation==='pairs'?i%2:i;
+   const offset=formation==='pairs'?role*Math.PI:role*Math.PI/2;
+   const lead=.5+.5*Math.sin(phase*.5-offset),scale=.3+.7*lead;
+   return {pan:clamp((i-1.5)*3+width*scale*Math.cos(phase-offset*.35),-42,42),
+    tilt:clamp(.8+(.04+.08*clamp(strength))*Math.sin(phase*.5+offset)*scale,.55,1.15)};
+  }
   if(formation!=='mirror'){
    const offset=formation==='diagonal'?[0,2,1,3][i]*Math.PI/2:i*.55;
    const angle=phase+offset;

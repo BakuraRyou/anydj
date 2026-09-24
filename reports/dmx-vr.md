@@ -1,0 +1,26 @@
+# VR-Lichtvorschau
+
+Im 3D-Fenster gibt es **VR starten**. Vorher den gewünschten Startpunkt in der Ego-Perspektive wählen und die Show starten. Der Browser fragt beim Einstieg die VR-Berechtigung ab. Beide Augen erhalten die eigene Projektions- und Ansichts-Matrix des Headsets. Physisches Umsehen und Schritte werden über die laufenden WebXR-Posen übernommen. Beenden über das Headset-Menü oder **VR beenden** im Browser.
+
+Die vorhandene Geometrie für Raum, Boden, Geräte, Strahlen, Ruhezonen und optionale Gäste wird von Desktop- und VR-Renderer gemeinsam verwendet. VR rendert mit WebGL und einem eigenen WebXR-Framezyklus; die Desktop-Darstellung pausiert währenddessen. Die aktuelle Lichtshow bleibt Datenquelle. Transparente Lichtkegel werden in VR additiv dargestellt. Geometrie wird pro Frame einmal aufgebaut/hochgeladen und für beide Augen wiederverwendet.
+
+## Voraussetzungen
+
+- Ein Headset samt Browser/Runtime, das `immersive-vr` über WebXR unterstützt. Die Oberfläche prüft die Verfügbarkeit, ohne automatisch eine Sitzung zu starten.
+- Ein sicherer Browserkontext. Für ein eigenständiges Headset im LAN muss die App über HTTPS mit einem vom Headset vertrauten Zertifikat erreichbar sein. `http://<PC-IP>` reicht nicht. `localhost` bezeichnet im Headset das Headset selbst.
+- Der bestehende Server unterstützt `--https --lan` mit `SSL_CERT_FILE` und `SSL_KEY_FILE`; Zertifikat und Erreichbarkeit müssen zur LAN-Adresse passen. Der vorhandene `dev:https`-Helfer ist auf localhost ausgelegt und richtet keine Headset-Vertrauensstellung ein. Hier wurden keine Zertifikate installiert oder Netzwerkfreigaben geändert.
+
+WebXR-Grundlage: [W3C WebXR Device API](https://www.w3.org/TR/webxr/), insbesondere immersive Sessions, Referenzräume, Viewer-Posen und XRWebGLLayer. Die Sitzung bevorzugt `local-floor`; bei `local` wird die eingestellte Augenhöhe als Bodenversatz verwendet.
+
+## Umfang und Grenzen
+
+Erster VR-Modus für immersive Show-Vorschau mit Kopf-/Positionstracking. Keine Controller-Menüs, Teleportation oder Thumbstick-Fortbewegung. Startort/Blickrichtung werden beim Eintritt übernommen. Physische Bewegung wird unverfälscht getrackt, ohne virtuelle Wandkollision oder künstliche Kopfbegrenzung. Die VR-Vorschau verändert keine echte Lichtausgabe.
+
+Ohne Headset testbar sind der deaktivierte Einstieg mit Erklärung, der WebGL-Renderer und der Sitzungsablauf mit simulierten XR-Schnittstellen. Ein reales Headset war für die Entwicklung nicht verfügbar; Komfort, Headset-Bildrate und konkrete Browser/Runtime-Kompatibilität bleiben am Gerät zu prüfen.
+
+## Validierung
+
+- 123 DMX-Tests bestanden, darunter sechs VR-Tests: Koordinaten, gemeinsame Geometrie, Sitzungsende, Berechtigungsfehler/Wiederholung, Bodenfallback und verspätete Ressourcen nach Abbruch.
+- `scripts/check-dmx-vr.mjs`: echtes WebGL im Headless-Browser mit simuliertem XR-Framebuffer, Shader-Kompilierung, zwei Eye-Viewports, unterschiedliche Pixel durch Stereo-Parallaxe, keine GL-Fehler.
+- Bestehender 3D-Browsertest bestanden: Lazy Loading, Ego/WASD, Raumgrenzen, Vollbild, Mobilansicht und keine Hardware-Sitzung.
+- Transport-Browsertest für Musik und integrierten Lichtmanager bestanden.

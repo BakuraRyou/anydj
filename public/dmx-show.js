@@ -49,7 +49,7 @@ function colorFor(frame,look,position){
   return hex(colors[i]).map((v,c)=>v*(1-f)+hex(colors[Math.min(i+1,colors.length-1)])[c]*f);
 }
 export function fixtureFrames(stream,config,equipment){
-  const patch=stagePatch(equipment),spots=patch.filter(f=>f.profile==='dimmer-rgb');
+  const patch=stagePatch(equipment),spots=patch.filter(f=>f.profile!=='rgb-pixels');
   if(!stream?.frame||stream.frame.state===false)return patch.map(f=>Array.from({length:f.cells},()=>null));
   const beat=Number.isFinite(stream.beat)?stream.beat:null;
   return patch.map((fixture,index)=>{

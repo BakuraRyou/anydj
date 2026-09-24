@@ -2,7 +2,8 @@ const time=value=>`${Math.floor(Math.max(0,value)/60)}:${String(Math.floor(Math.
 export function createStageTransport(host,{isVisible}){
   const section=document.createElement('section');section.className='stage-3d-transport';section.setAttribute('aria-label','Songsteuerung');section.hidden=true;
   section.innerHTML='<div class="stage-3d-song-heading"><label>Deck <select data-song-deck aria-label="Deck für Songsteuerung"></select></label><button type="button" class="button secondary" data-song-library aria-expanded="false">Song laden</button><strong data-song-title>Kein Track geladen</strong><button type="button" class="button secondary" data-song-play disabled>Play</button></div><div class="stage-3d-song-picker" hidden><select data-song-track aria-label="Song aus der Bibliothek"></select><button type="button" class="button secondary" data-song-load>Laden</button><button type="button" class="button secondary" data-song-import>Datei hinzufügen</button><input type="file" data-song-files accept="audio/*" multiple hidden><p data-song-feedback role="status"></p></div><label class="stage-3d-song-position"><span class="sr-only">Songposition</span><input class="range" data-song-seek type="range" min="0" max="1" step="0.01" value="0" disabled></label><div class="stage-3d-song-bottom"><output data-song-clock hidden>0:00 / 0:00</output><label>Tempo <input data-song-rate class="range" type="range" min="-16" max="16" step="0.1" value="0" disabled><output data-song-rate-value>0 %</output></label><button type="button" class="button secondary" data-song-reset>Tempo zurücksetzen</button></div><p data-song-note hidden></p>';
-  host.append(section);const q=key=>section.querySelector(`[data-song-${key}]`);
+  host.append(section);const controls=new Map(),q=key=>{if(!controls.has(key))controls.set(key,section.querySelector(`[data-song-${key}]`));return controls.get(key);};
+  const text=(key,value)=>{const node=q(key);if(node.textContent!==value)node.textContent=value;};
   let api=null,selected='',snapshot=null;
   const seek=value=>{if(snapshot?.canSeek){api.seek(snapshot.id,Math.max(0,Math.min(snapshot.duration,value)));update();}};
   const picker=section.querySelector('.stage-3d-song-picker');let trackSignature='',busy=false;
@@ -34,12 +35,12 @@ export function createStageTransport(host,{isVisible}){
       if(!d.canLoad&&!busy)q('feedback').textContent='Deck pausieren, um einen anderen Song zu laden.';
       q('import').disabled=busy;
     }
-    q('title').textContent=d.title||'Kein Track geladen';q('clock').textContent=`${time(d.position)} / ${time(d.duration)}`;
+    text('title',d.title||'Kein Track geladen');text('clock',`${time(d.position)} / ${time(d.duration)}`);
     q('seek').disabled=!d.canSeek;q('seek').max=d.duration||1;q('seek').value=d.position;
-    q('play').disabled=!d.canPlay;q('play').textContent=d.playing?'Pause':'Play';
-    q('rate').disabled=!d.canRate;q('reset').disabled=!d.canRate;q('rate').value=(d.rate-1)*100;q('rate-value').textContent=((d.rate-1)*100).toFixed(1)+' %';
-    q('note').textContent=d.note||'Tempo und Position steuern das ausgewählte Deck – Musik und Licht folgen gemeinsam.';
-    q('seek').setAttribute('aria-valuetext',`${time(d.position)} von ${time(d.duration)}`);
+    q('play').disabled=!d.canPlay;text('play',d.playing?'Pause':'Play');
+    q('rate').disabled=!d.canRate;q('reset').disabled=!d.canRate;q('rate').value=(d.rate-1)*100;text('rate-value',((d.rate-1)*100).toFixed(1)+' %');
+    text('note',d.note||'Tempo und Position steuern das ausgewählte Deck – Musik und Licht folgen gemeinsam.');
+    const description=`${time(d.position)} von ${time(d.duration)}`;if(q('seek').getAttribute('aria-valuetext')!==description)q('seek').setAttribute('aria-valuetext',description);
   }
   return {getSelected(){return snapshot;},mountEditor(host,options){return api?.mountEditor?.(selected,host,options);},handleShortcut(event){api?.shortcut?.(event,selected);},setApi(value){api=value;update();},update,destroy(){section.remove();}};
 }

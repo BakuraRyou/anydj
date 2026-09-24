@@ -13,13 +13,13 @@ test('manual aim changes fixed fixtures without changing source lights',()=>{
  assert.deepEqual(zoneLights([lamp],layout,s)[0].target,{x:3.0000000000000004,y:3});assert.deepEqual(lamp,before);
  assert.deepEqual(zoneLights([{...lamp,type:'moving'}],layout,s)[0].target,lamp.target);
 });
-test('moving targets avoid padded zones; fixed lights retain direction and dim',()=>{
+test('fixed lights retain direction and dim; moving targets are left to the continuous router',()=>{
  const s=zoneSettings({zones:[{x:.4,y:.4,width:.2,depth:.2}]});
  const [fixed,moving]=zoneLights([lamp,{...lamp,type:'moving'}],layout,s);
  assert.deepEqual(fixed.target,lamp.target);assert.equal(fixed.power,.1);
- assert.ok(moving.target.x < -1.25 || moving.target.x>1.25 || moving.target.y<3.75 || moving.target.y>6.25);assert.equal(moving.power,1);
+ assert.deepEqual(moving.target,lamp.target);assert.equal(moving.power,1);
 });
-test('fully covered floor dims instead of picking another prohibited target',()=>{
+test('fully covered floor dims fixed fixtures',()=>{
  const s=zoneSettings({zones:[{x:0,y:0,width:1,depth:1}]});
- assert.equal(zoneLights([{...lamp,type:'moving'}],layout,s)[0].power,.1);
+ assert.equal(zoneLights([lamp],layout,s)[0].power,.1);
 });

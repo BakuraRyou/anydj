@@ -2,7 +2,7 @@ import {createDmxConnection} from './dmx-connection.js';
 import {automaticStage,STAGE_PRESETS} from './dmx-auto.js';
 import {createStageEditor} from './dmx-editor.js';
 import {mixFixtureFrames} from './dmx-show.js';
-import {stagePatch,encodeStage,decodeStage} from './dmx-model.js';
+import {stagePatch,encodeStage,decodeStage,fixtureKey} from './dmx-model.js';
 import {createMovingHeads} from './dmx-moving-heads.js';
 import {createStageLayout} from './dmx-layout.js';
 import {createStage3d} from './dmx-stage-3d.js';
@@ -34,13 +34,13 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   }
   button.setAttribute('aria-controls',inline?inline.id:panel.id);settingsButton.setAttribute('aria-controls',panel.id);settingsButton.setAttribute('aria-expanded','false');button.setAttribute('aria-expanded','false');
   const scene=(inline||panel).querySelector('.stage-scene'),spots=scene.querySelector('.stage-spots'),bars=scene.querySelector('.stage-bars');
-  const layout=createStageLayout({getFixtures:()=>stagePatch(editor.equipment),onChange:()=>render()});
+  const layout=createStageLayout({getFixtures:()=>stagePatch(editor.equipment).map((f,i)=>({...f,group:editor.config.members[i]})),onProperties:(ids,changes)=>editor.setProperties(ids,changes),onChange:()=>render()});
   let movingPreview=[];
-  const stage3d=createStage3d(inline||panel.querySelector('.stage-preview'),inline||panel.querySelector('.stage-controls'),{getLayout:()=>layout.value,mountLayout:host=>layout.mount(host),mountLighting:(host,view)=>mountLighting(host,view),onToggle:()=>{movingHeads.refresh();render();}});
-  const movingHeads=createMovingHeads(scene,inline||panel.querySelector('.stage-controls'),{getPlans:()=>[...getMovingPlans(),...(editorPreview?.streams??[]).map(s=>s.movingPlan).filter(Boolean)],getLayout:()=>layout.value,getPreviewEnabled:()=>stage3d.enabled,onPreview:value=>{movingPreview=value;layout.update(value);},showMoodControl:false,adjustFrame});
+  const stage3d=createStage3d(inline||panel.querySelector('.stage-preview'),inline||panel.querySelector('.stage-controls'),{getLayout:()=>layout.value,onFixturePosition:(id,p)=>layout.setFixturePosition(id,p),onZonePlan:zones=>layout.attachZones(zones),getFixtureAims:()=>layout.getAims(),setFixtureAim:(id,p)=>layout.setAim(id,p),mountLayout:(host,zones)=>layout.mount(host,zones),mountLighting:(host,view)=>mountLighting(host,view),onToggle:()=>{movingHeads.refresh();render();}});
+  const movingHeads=createMovingHeads(scene,inline||panel.querySelector('.stage-controls'),{getDevices:()=>stagePatch(editor.equipment).map((f,i)=>({...f,group:editor.config.members[i]})).filter(f=>f.type==='moving'),getPlans:()=>[...getMovingPlans(),...(editorPreview?.streams??[]).map(s=>s.movingPlan).filter(Boolean)],getLayout:()=>layout.value,getPreviewEnabled:()=>stage3d.enabled,onPreview:value=>{movingPreview=value;layout.update(value);},showMoodControl:false,adjustFrame});
   const previewControls=inline||panel.querySelector('.stage-controls');
   previewControls.querySelector('[data-moving-heads]').after(previewControls.querySelector('[data-stage3d-toggle]'));
-  const layoutButton=document.createElement('button');layoutButton.type='button';layoutButton.className='button secondary';layoutButton.dataset.layoutOpen='';layoutButton.textContent='Bühne & Geräte aufstellen';layoutButton.setAttribute('aria-controls','stageLayoutDialog');layoutButton.onclick=()=>layout.open(layoutButton);
+  const layoutButton=document.createElement('button');layoutButton.type='button';layoutButton.className='button secondary';layoutButton.dataset.layoutOpen='';layoutButton.textContent='Gerätemanager';layoutButton.setAttribute('aria-controls','stageLayoutDialog');layoutButton.onclick=()=>layout.open(layoutButton);
   (inline||panel.querySelector('.stage-controls')).append(layoutButton);
   const nodes=[],fixtureNodes=[];
   let demo=false,blackout=false,current=null,playing=false,timer,streams=[];
@@ -89,7 +89,8 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   const previewTools=panel.querySelector('.stage-preview-section');if(previewTools)live.append(previewTools);
   editorHost.append(editorHost.querySelector('[data-saved]'));
   panel.querySelector('.stage-hardware button').before(connectionStatus);
-  equipmentSection.open=true;views.equipment.page.append(equipmentSection);
+  equipmentSection.open=true;layout.attachEquipment(equipmentSection);
+  const equipmentIntro=document.createElement('p');equipmentIntro.textContent='Geräte hinzufügen, konfigurieren und im selben Plan positionieren.';views.equipment.page.append(equipmentIntro);
   const equipmentLayoutButton=layoutButton.cloneNode(true);equipmentLayoutButton.onclick=()=>stage3d.isOpen?stage3d.openTools('fixtures'):layout.open(equipmentLayoutButton);views.equipment.page.prepend(equipmentLayoutButton);
   hardwareSection.open=true;views.connection.page.append(hardwareSection,panel.querySelector('.stage-technical'));
   selectView('look');
@@ -115,6 +116,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
       scene.dataset.equipment=signature;scene.dataset.type='mixed';spots.replaceChildren();bars.replaceChildren();nodes.length=0;fixtureNodes.length=0;
       patch.forEach((f,i)=>{
         const select=()=>{openSettings();editor.select(i);};
+        if(f.type==='moving'){nodes[i]=[];return;}
         if(f.type==='spot'){
           const node=document.createElement('button');node.type='button';node.className='stage-spot';node.onclick=select;
           node.innerHTML='<span class="stage-light-name"></span><i class="stage-lamp"></i><i class="stage-beam"></i>';node.querySelector('span').textContent=f.name.replace('Scheinwerfer ','');spots.append(node);nodes[i]=[node];fixtureNodes[i]=node;
@@ -127,8 +129,8 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
       });
       spots.hidden=!patch.some(f=>f.type==='spot');bars.hidden=!patch.some(f=>f.type==='bar');
       const label=scene.querySelector('.stage-floor-label');label.hidden=patch.length>0;label.textContent='Keine Geräte · unter „Bühne einstellen“ hinzufügen';
-      scene.setAttribute('aria-label',scene.dataset.hasMovingHeads==='true'?'Moving-Head-Vorschau':`Virtuelle Bühne mit ${patch.length} statischen Geräten`);
-      editorHost.querySelector('tbody').innerHTML=patch.map(f=>`<tr><td>${f.name}</td><td>${f.address}–${f.address+f.channels-1}</td><td>${f.type==='bar'?`${f.cells} × Rot, Grün, Blau`:'Helligkeit, Rot, Grün, Blau'}</td></tr>`).join('');
+      scene.setAttribute('aria-label',scene.dataset.hasMovingHeads==='true'?'Moving-Head-Vorschau':`Virtuelle Bühne mit ${patch.length} Geräten`);
+      editorHost.querySelector('tbody').innerHTML=patch.map(f=>`<tr><td>${f.name.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}</td><td>${f.channels?`${f.address}–${f.address+f.channels-1}`:'Vorschau'}</td><td>${f.mode||(f.type==='bar'?`${f.cells} × Rot, Grün, Blau`:f.type==='moving'?'Nur Vorschau':'Helligkeit, Rot, Grün, Blau')}</td></tr>`).join('');
     }
     const t=performance.now()/1000;
     const sample=demo?{state:true,r:Math.round(128+127*Math.sin(t*.6)),g:Math.round(128+127*Math.sin(t*.6+2)),b:Math.round(128+127*Math.sin(t*.6+4)),dimming:45+25*Math.sin(t*2)}:current;
@@ -139,15 +141,16 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
     const automatic=Object.hasOwn(STAGE_PRESETS,editor.mode)?automaticStage(inputs,editor.count,equipment,editor.mode):null;
     if(automatic)editor.preview(automatic.palette.map(rgb=>{const f=adjustFrame({r:rgb[0],g:rgb[1],b:rgb[2],dimming:100});return [f.r,f.g,f.b];}),automatic.description);
     const rawOutput=automatic?automatic.frames:editor.mode==='design'?mixFixtureFrames(inputs,editor.config,equipment):sample;
-    const output=Array.isArray(rawOutput)?rawOutput.map(cells=>cells.map(adjustFrame)):adjustFrame(rawOutput);
+    const output=patch.map((f,i)=>Array.from({length:f.cells},(_,j)=>{const value=Array.isArray(rawOutput)?rawOutput[i]?.[j]:rawOutput;const adjusted=adjustFrame(value);return adjusted?{...adjusted,dimming:(adjusted.dimming??0)*(f.gain??100)/100}:adjusted;}));
     hardware.setDemo(demo);
     hardware.push(encodeStage(demo?null:output,equipment));
     const universe=encodeStage(blackout?null:output,equipment),fixtures=decodeStage(universe,equipment);
+    fixtures.forEach((f,i)=>{if(f.type==='moving')f.cells=output[i].map(frame=>!frame||frame.state===false||blackout?[0,0,0]:['r','g','b'].map(k=>Math.round(Math.max(0,Math.min(255,frame[k]||0))*(frame.dimming||0)/100)));});
     movingHeads.update(fixtures,adjustFrame(sample),t,blackout,inputs,editor.mode,editor.count);
-    layout.setLights(fixtures);
-    stage3d.update(fixtures,movingPreview,{streams:inputs});
+    layout.setLights(fixtures.filter(f=>f.type!=='moving'));
+    stage3d.update(fixtures.filter(f=>f.type!=='moving'),movingPreview,{streams:inputs});
     fixtures.forEach((f,i)=>f.cells.forEach((rgb,j)=>{
-      const target=nodes[i][j];
+      const target=nodes[i]?.[j];if(!target)return;
       target.style.setProperty('--stage-color',`rgb(${rgb.join(',')})`);
       // Decoded RGB already includes dimming. Apply it only once to the beam.
       const power=Math.max(...rgb)/255;

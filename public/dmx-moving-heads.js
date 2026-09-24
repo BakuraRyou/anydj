@@ -7,7 +7,7 @@ const previewEquipment={devices:Array.from({length:4},(_,i)=>({id:`preview-${i}`
 import {activityAt} from './dmx-activity.js';
 import {projectMovingHeads} from './dmx-layout-model.js';
 import {MOVING_MOODS,movingMood} from './dmx-moving-moods.js';
-export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=null,getPreviewEnabled=()=>false,onPreview=()=>{},showMoodControl=true,adjustFrame=frame=>frame}={}) {
+export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=null,getLayout=null,getPreviewEnabled=()=>false,onPreview=()=>{},showMoodControl=true,adjustFrame=frame=>frame}={}) {
   const storageKey='anydj-stage-moving-heads';
   let enabled=false,lastTime=null,poses=restingHeads();
   try{enabled=localStorage.getItem(storageKey)==='true';}catch{}
@@ -16,7 +16,7 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=nul
   const toggle=document.createElement('button');
   toggle.type='button';toggle.className='button secondary';toggle.dataset.movingHeads='';
   toggle.setAttribute('aria-controls','stageMovingHeads');
-  toggle.title='Bereitet pro Lied vier Bewegungsspuren vor. Ohne Beat-Raster bleiben die Köpfe ruhig.';
+  toggle.title='Bereitet die Bewegungen deiner Moving Heads pro Lied vor. Ohne Beat-Raster bleiben die Köpfe ruhig.';
   const row=document.createElement('section');
   row.id='stageMovingHeads';row.className='stage-moving-heads';
   row.setAttribute('aria-label','Vier virtuelle Moving Heads');
@@ -28,8 +28,13 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=nul
   moodSelect.value=mood;
   const moodHelp=document.createElement('span');moodHelp.className='small';moodHelp.textContent=MOVING_MOODS[mood].help;
   moodControl.append(moodSelect,moodHelp);if(showMoodControl)controls.append(moodControl);
-  const heads=[...row.querySelectorAll('.stage-moving-head')];
-  const styles=heads.map(()=>new Map());
+  let heads=[...row.querySelectorAll('.stage-moving-head')],styles=heads.map(()=>new Map()),deviceSignature='';
+  function syncDevices(devices){
+    const signature=JSON.stringify(devices.map(d=>[d.id,d.name]));if(signature===deviceSignature)return;deviceSignature=signature;
+    const rig=row.querySelector('.stage-moving-rig');rig.replaceChildren();
+    for(const [i,d] of devices.entries()){const head=document.createElement('div');head.className='stage-moving-head';head.setAttribute('role','img');head.setAttribute('aria-label',d.name||`Moving Head ${i+1}`);head.innerHTML='<i class="stage-moving-base"></i><div class="stage-moving-yoke"><i class="stage-moving-lens"></i><i class="stage-moving-beam"></i></div>';rig.append(head);}
+    heads=[...rig.children];styles=heads.map(()=>new Map());row.setAttribute('aria-label',`${heads.length} virtuelle Moving Heads`);
+  }
   function setStyle(index,key,value){
     if(styles[index].get(key)===value)return;
     styles[index].set(key,value);heads[index].style.setProperty(key,value);
@@ -61,6 +66,7 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=nul
     update(fixtures,frame,time,blackout,streams=[],nextMode='auto',colorLimit=2){
       if(mode!==nextMode){mode=nextMode;prepare();}
       if((!enabled&&!getPreviewEnabled())||document.hidden){lastTime=null;return;}
+      const devices=getDevices?.()??Array.from({length:4},(_,i)=>({id:`moving-${i}`}));syncDevices(devices);
       const spots=fixtures.filter(f=>f.profile==='dimmer-rgb');
       let colors=(spots.length?spots:fixtures).flatMap(f=>f.cells);
       // These four virtual heads need a complete formation of their own.
@@ -72,7 +78,7 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=nul
         colors=decodeStage(encodeStage(frames,previewEquipment),previewEquipment).flatMap(f=>f.cells);
       }
       const fallback=!frame||frame.state===false?[0,0,0]:['r','g','b'].map(key=>Math.round(Math.max(0,Math.min(255,Number(frame[key])||0))*Math.max(0,Math.min(100,Number(frame.dimming)||0))/100));
-      const lit=!blackout&&(colors.length?colors:[fallback]).some(rgb=>Math.max(...rgb)>0);
+      const lit=!blackout&&[...colors,...fixtures.filter(f=>f.type==='moving').flatMap(f=>f.cells),...(!colors.length?[fallback]:[])].some(rgb=>Math.max(...rgb)>0);
       const prepared=streams.map(s=>s.movingPlan?{...s,movingPose:preparation.read(s.movingPlan,s.songTime,mode,mood)||preparation.read(s.movingPlan,s.songTime,mode,previousMood)||restingHeads()}:{...s,movingMood:mood});
       const hasPlan=prepared.some(s=>s.movingPlan&&s.frame&&s.weight>0);
       row.dataset.prepared=String(hasPlan);
@@ -82,7 +88,8 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=nul
       if(reducedMotion.matches)poses=restingHeads();
       else if(!blackout&&target&&(lit||hasPlan))poses=(hasPlan?followMovingHeads:advanceMovingHeads)(poses,target,lastTime===null?0:time-lastTime);
       lastTime=time;
-      const projected=getLayout?projectMovingHeads(getLayout(),poses):null;
+      const devicePoses=devices.map((d,i)=>{const member=devices.slice(0,i).filter(other=>other.group===d.group).length;const at=d.group===0?member%2:d.group===1?2+member%2:d.group===2?1.5:devices.length===1?1.5:i*3/(devices.length-1),a=Math.floor(at),b=Math.min(3,a+1),t=at-a;return {pan:poses[a].pan+(poses[b].pan-poses[a].pan)*t,tilt:poses[a].tilt+(poses[b].tilt-poses[a].tilt)*t};});
+      const projected=getLayout?projectMovingHeads(getLayout(),devicePoses,devices):null;
       row.dataset.layout=String(!!projected);
       const preview=[];
       const exposureSources=!colors.length&&mode==='auto'?streams.filter(s=>s.frame&&s.frame.state!==false&&s.weight>0).map(s=>({weight:s.weight*Math.max(0,s.frame.dimming||0),levels:activityAt(s,heads.length)})):[];
@@ -90,10 +97,11 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=nul
       const defaultExposure=activityAt({},heads.length);
       heads.forEach((head,i)=>{
         const exposure=mode!=='auto'?1:exposureTotal?exposureSources.reduce((sum,s)=>sum+s.weight*s.levels[i],0)/exposureTotal:defaultExposure[i];
-        const rgb=blackout?[0,0,0]:colors.length?colors[Math.round(i*(colors.length-1)/(heads.length-1))]:fallback.map(v=>Math.round(v*exposure));
+        const own=fixtures.find(f=>f.type==='moving'&&f.id===devices[i].id)?.cells[0];
+        const rgb=blackout?[0,0,0]:own?own:colors.length?colors[Math.round(i*(colors.length-1)/Math.max(1,heads.length-1))]:fallback.map(v=>Math.round(v*exposure));
         const power=Math.max(...rgb)/255;
         const color=power?rgb.map(v=>Math.round(v/power)):rgb;
-        const {pan,tilt}=projected?{pan:projected[i].frontPan,tilt:.55+.6*projected[i].tilt/90}:poses[i];
+        const {pan,tilt}=projected?{pan:projected[i].frontPan,tilt:.55+.6*projected[i].tilt/90}:devicePoses[i];
         if(projected)preview.push({...projected[i],color:`rgb(${color.join(',')})`,power});
         if(projected)setStyle(i,'--head-position',String((projected[i].position.x/getLayout().width+.5)*100));
         setStyle(i,'--head-pan',`${pan.toFixed(2)}deg`);

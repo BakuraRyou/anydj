@@ -251,3 +251,85 @@ Eigenes Modul `dmx-zone-plan.js` mit eigener Route, UI und Speicherung; keine
 Änderung des bisherigen Geräte-/Showformats. Tests prüfen Zielkorrektur,
 Abdimmen, gespeicherte Grenzen und unveränderte Quelldaten. Der Browserablauf
 prüft Anlegen, Maße, Benennen, Zielwahl, Zurücksetzen und Entfernen.
+
+## Kontinuierliche Zonenwege und musikalische Gruppen
+
+Die nachträgliche Zielpunkt-Verschiebung für Moving Heads wurde durch
+`dmx-zone-motion.js` ersetzt. Ein Sichtbarkeitsgraph plant um erweiterte
+Rechtecke, auch bei überlappenden Zonen. Zwischenziele bleiben bis zum
+Erreichen erhalten, damit der Weg nicht ständig die Seite wechselt.
+Eine auf 0,6 Sekunden begrenzte Bewegungsprognose aus der Zielgeschwindigkeit
+stößt Umwege früh an. Das ist eine lokale Vorschau, keine Kenntnis zukünftiger
+Song-Cues. Generische Grenzen von 2 m/s und 2,5 m/s² begrenzen die Bewegung
+des Bodenpunkts. Bei unvermeidbarer Annäherung wird weich auf 8 % reduziert
+und danach langsamer wieder aufgeblendet. Sprünge im Song verwerfen alte
+Umwege, ohne Position und Geschwindigkeit sprunghaft zurückzusetzen.
+Diese Raumlogik gilt weiterhin nur in 3D; sie ist weder eine gerätespezifische
+Motor-Kalibrierung noch eine vollständige Prüfung des räumlichen Lichtkegels.
+
+Normale automatische Groove-Bewegungen verwenden nun 16-Beat-Grundphrasen
+mit musikalisch bestimmtem Tempo und weicher Rollenübergabe über mehrere
+Takte. Percussion führt wechselnde Paare, vokalbetonte Passagen einzelne
+Geräte, andere Passagen versetzte Reihen. Ruhige Abschnitte dürfen weiterhin
+halten; manuelle Bewegungsmodi und der schnellere Disco-Stil bleiben erhalten.
+Isolierte Figuren wechseln ihren Schritt nach musikalischen Takten statt nach
+jedem ausgewählten Ereignis. Sehr hohe gemessene Akzent-Salienz darf stärker
+abbremsen; Geschwindigkeit, Beschleunigung und Ruck bleiben begrenzt.
+
+Tests: Hinderniswege/Überlappungen, deterministische Bewegung, kontinuierliche
+Geschwindigkeit bei Zonen und Songwechseln, sanftes Dimmen bei vollem Raum,
+längere Gruppenphrasen, beibehaltene musikalische Pausen und Motorgrenzen.
+
+## Gemeinsamer Gerätemanager
+
+Der 3D-Tab „Geräte“ und der bisherige Aufstellungsbutton öffnen jetzt denselben
+Gerätemanager. Geräteliste mit Hinzufügen, Segmentzahl und Entfernen sowie
+Bühnenmaße, Draufsicht, Montagehöhe und symmetrischer Aufstellung liegen in
+zusammenhängenden Bereichen. Neue Geräte werden direkt im Plan ausgewählt;
+ein Klick auf den Gerätenamen wählt den passenden Positionsinspektor.
+Auf großen Displays stehen Geräteliste und Aufstellung nebeneinander.
+
+Die Originalelemente und Speicherformate werden weiterverwendet. Die
+Editor-Steuerelemente behalten ihre Referenzen beim Umhängen; beim Verlassen
+der 3D-Werkzeuge kehrt der gesamte Manager in seinen eigenständigen Dialog
+zurück. Der Umweg „Ausstattung ändern“ zum Licht-Tab entfällt.
+Browserchecks: Hinzufügen beider Gerätetypen, Segmentzahl, direkte Auswahl und
+Positionierung, Entfernen, bestehende individuelle Lichtkonfigurationen,
+Standalone-Layout einschließlich Persistenz und responsiven Grenzen.
+
+## Einheitliche Geräteverwaltung
+
+Moving Heads, Scheinwerfer und Lichtleisten stehen jetzt in derselben
+Geräteliste. Bisherige vier virtuelle Moving Heads werden einmalig mit ihren
+alten IDs und Positionen übernommen. Der Aufbau trägt danach `unified:true`;
+gelöschte Heads werden beim Neuladen nicht erneut hinzugefügt. Alle Typen
+lassen sich hinzufügen, benennen, entfernen und über Auswahlkästchen gemeinsam
+bearbeiten. Name, Gruppe, Lichtstärke, Position und Montagehöhe sind gemeinsame
+Eigenschaften; Moving Heads besitzen einen Bewegungsbereich, Lichtleisten ihre
+Segmentzahl, feste Geräte ein ziehbares Lichtziel. Gruppen können zusammen
+verschoben werden, wobei ihre Abstände und Raumgrenzen berücksichtigt werden.
+
+Der Geräteplan zeigt und bearbeitet auch Ruhezonen. Deren bisheriger separater
+Plan wird im Manager ausgeblendet. Unter Raum führt ein gemeinsamer Einstieg
+zum Manager. Positionen und feste Lichtziele werden unter dem Layoutschlüssel
+zusammen gespeichert (`version:2`, `targets`); alte Ziele aus dem Zonenplan
+werden einmalig übernommen. Die 2D- und 3D-Ansichten greifen auf diese Ziele zu.
+
+Die Choreografie wird auf die tatsächlich konfigurierte Anzahl Moving Heads
+abgebildet. Alle Gerätetypen erhalten ihre Farben/Lichtstärke aus dem gemeinsamen
+Lichtmodell. Moving Heads sind weiterhin virtuelle Vorschaugeräte mit null
+DMX-Kanälen; ihre Anwesenheit verändert keine Hardwareadressen.
+
+Validierung: 114 DMX-/Geometrie-/Bewegungstests sowie Browserabläufe für
+Gerätemanager, gemischte Ausstattung, Moving Heads, 3D und eigenständigen Plan.
+Zusätzlich geprüft: gemeinsame Mehrfachauswahl, Hinzufügen/Entfernen eines
+fünften Heads, dessen Name und Bewegungsbereich, Zonen- und Lichtzielziehen im
+gemeinsamen Plan und mobile Fenstergrenzen.
+
+## Ego-Erkundung mit WASD und Mausrad
+
+Der Button **Ego-Perspektive** aktiviert die vorhandene Kamera auf Augenhöhe und fokussiert die 3D-Fläche. WASD bzw. Pfeiltasten bewegen kontinuierlich relativ zur Blickrichtung, Umschalt erhöht das Tempo von 1,5 auf 3 m/s. Diagonales Gehen ist normalisiert. Ziehen dreht den Blick, das Mausrad bewegt vor/zurück; horizontales Trackpad-Scrollen bewegt seitlich. In der Übersicht zoomt das Mausrad. Die früheren Alt-Tastenkombinationen und die Schritttasten bleiben verfügbar.
+
+Nur die fokussierte 3D-Fläche verarbeitet Bewegungstasten. Musik-Shortcuts und Eingabefelder behalten ihre sonstige Bedienung. Loslassen, Fokus-/Fensterwechsel, ausgeblendete Ansicht, Dialogschluss oder deaktivierte Vorschau stoppen die Bewegung. Raumgrenzen werden eingehalten. Die Bewegung nutzt den bestehenden Renderzyklus, mit begrenztem Zeitschritt und ohne zusätzlichen Dauertimer. Steuerungshinweise sind in der Werkzeugleiste und im Vollbild sichtbar.
+
+Geprüft mit `check-dmx-stage-3d.mjs`: kontinuierliches W, seitliches D, Stopp bei Keyup und Fokusverlust, unangetastete Eingabefelder, Mausrad im Viewport gegenüber normalem Inspector-Scrollen, bisherige Raumgrenzen und Vollbild. Renderer-Unit-Tests bestanden.

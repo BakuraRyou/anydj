@@ -96,6 +96,26 @@ try {
   await c('Input.dispatchKeyEvent',{type:'keyDown',key:'w',code:'KeyW',modifiers:1});await new Promise(r=>setTimeout(r,80));
   assert.equal(await evaluate("document.querySelector('[data-dancer-distance]').value"),'2.7');
   assert.notEqual(await pixels(),atStart);
+  // Plain WASD moves continuously without stealing input from the inspector.
+  await c('Input.dispatchKeyEvent',{type:'keyUp',key:'w',code:'KeyW',modifiers:1});
+  const location=()=>evaluate("[Number(document.querySelector('[data-dancer-x]').value),Number(document.querySelector('[data-dancer-distance]').value)]");
+  const startWalk=await location();
+  await c('Input.dispatchKeyEvent',{type:'keyDown',key:'w',code:'KeyW'});
+  await new Promise(r=>setTimeout(r,300));
+  await c('Input.dispatchKeyEvent',{type:'keyUp',key:'w',code:'KeyW'});
+  const endWalk=await location();assert.ok(endWalk[1]<startWalk[1]-.2,'plain W walks continuously');
+  await new Promise(r=>setTimeout(r,100));assert.deepEqual(await location(),endWalk,'keyup stops movement');
+  await c('Input.dispatchKeyEvent',{type:'keyDown',key:'d',code:'KeyD'});
+  await new Promise(r=>setTimeout(r,150));
+  await evaluate("document.querySelector('[data-dancer-height]').focus()");
+  const afterBlur=await location();assert.ok(afterBlur[0]>endWalk[0],'D strafes right');
+  await new Promise(r=>setTimeout(r,100));assert.deepEqual(await location(),afterBlur,'focus loss stops held movement');
+  await c('Input.dispatchKeyEvent',{type:'keyUp',key:'d',code:'KeyD'});
+  assert.equal(await evaluate("(()=>{const input=document.querySelector('[data-dancer-height]');const e=new KeyboardEvent('keydown',{key:'w',code:'KeyW',bubbles:true,cancelable:true});input.dispatchEvent(e);return e.defaultPrevented;})()"),false,'W in inspector is not intercepted');
+  await new Promise(r=>setTimeout(r,80));assert.deepEqual(await location(),afterBlur,'inspector does not move camera');
+  assert.equal(await evaluate("(()=>{const e=new WheelEvent('wheel',{deltaY:-80,bubbles:true,cancelable:true});document.querySelector('.stage-3d canvas').dispatchEvent(e);return e.defaultPrevented;})()"),true,'wheel over viewport belongs to camera');
+  assert.ok((await location())[1]<afterBlur[1],'wheel walks forward in ego view');
+  assert.equal(await evaluate("(()=>{const e=new WheelEvent('wheel',{deltaY:80,bubbles:true,cancelable:true});document.querySelector('.stage-3d-inspector-body').dispatchEvent(e);return e.defaultPrevented;})()"),false,'inspector scrolling remains independent');
   await evaluate("const h=document.querySelector('[data-dancer-height]');h.value='1.2';h.dispatchEvent(new Event('change'))");
   await evaluate("document.querySelector('[data-dancer-aim]').click()");await new Promise(r=>setTimeout(r,80));
   assert.equal(await evaluate("document.querySelector('[data-dancer-aim]').checked"),true);

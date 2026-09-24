@@ -35,7 +35,7 @@ try {
   const c=(method,params)=>command(method,params,sessionId);
   await c('Runtime.enable');await c('Page.enable');
   const evaluate=async expression=>{const r=await c('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
-  const wait=async expression=>{const end=Date.now()+25000;while(Date.now()<end){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Timeout: '+expression);};
+  const wait=async expression=>{const end=Date.now()+25000;while(Date.now()<end){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Timeout: '+expression+' '+JSON.stringify(errors.slice(0,2)));};
 
 
 
@@ -45,12 +45,12 @@ try {
   await evaluate("document.querySelector('[data-add-spot]').click();document.querySelector('[data-add-spot]').click();document.querySelector('[data-add-bar]').click();document.querySelector('[data-add-bar]').click()");
   assert.equal(await evaluate("document.querySelectorAll('.stage-spot').length"),6);
   assert.equal(await evaluate("document.querySelectorAll('.stage-bar').length"),2);
-  await evaluate("const input=document.querySelector('.stage-device-row input');input.value='12';input.dispatchEvent(new Event('change'))");
+  await evaluate("const input=document.querySelector('.stage-device-row input[type=number]');input.value='12';input.dispatchEvent(new Event('change'))");
   assert.equal(await evaluate("document.querySelectorAll('.stage-cell').length"),20);
   await evaluate(`window.edit=(key,value)=>{const e=document.querySelector('[data-'+key+']');e.value=value;e.dispatchEvent(new Event(['mode','target'].includes(key)?'change':'input'));};
     edit('mode','design');edit('target','f5');document.querySelector('[data-own]').click();edit('color','fixed');edit('a','#00ff00');`);
   const id=await evaluate("JSON.parse(localStorage.getItem('anydj-stage-design-v1')).equipment.devices[5].id");
-  await evaluate("document.querySelector('.stage-device-row button').click()");
+  await evaluate("document.querySelector('.stage-device-row button[aria-label]').click()");
   assert.equal(await evaluate("JSON.parse(localStorage.getItem('anydj-stage-design-v1')).equipment.devices[4].id"),id);
   assert.equal(await evaluate("JSON.parse(localStorage.getItem('anydj-stage-design-v1')).config.fixtures[4].colors[0]"),'#00ff00');
   await evaluate("edit('mode','auto');document.querySelector('[data-demo]').click();document.querySelector('[data-close]').click()");
@@ -59,14 +59,14 @@ try {
   await c('Page.reload');await wait("document.querySelectorAll('.stage-bar').length===2");
   assert.equal(await evaluate("document.querySelectorAll('.stage-spot').length"),5);
   assert.equal(await evaluate("document.querySelectorAll('.stage-cell').length"),20);
-  await evaluate("document.querySelector('#stageSettings').click();const input=document.querySelector('.stage-device-row input');input.value='170';input.dispatchEvent(new Event('change'))");
+  await evaluate("document.querySelector('#stageSettings').click();const input=document.querySelector('.stage-device-row input[type=number]');input.value='170';input.dispatchEvent(new Event('change'))");
   assert.ok(await evaluate("document.querySelector('[data-saved]').textContent.includes('512')"));
   assert.equal(await evaluate("document.querySelectorAll('.stage-cell').length"),20);
   await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
   assert.ok(await evaluate("document.documentElement.scrollWidth<=innerWidth"));
   await evaluate("document.querySelector('[data-close]').click()");
   await writeFile(new URL('../reports/dmx-mixed-mobile.png',import.meta.url),Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
-  await evaluate("document.querySelector('#stageSettings').click();while(document.querySelector('.stage-device-row button'))document.querySelector('.stage-device-row button').click()");
+  await evaluate("document.querySelector('#stageSettings').click();while(document.querySelector('.stage-device-row button[aria-label]'))document.querySelector('.stage-device-row button[aria-label]').click()");
   assert.equal(await evaluate("document.querySelectorAll('.stage-cell,.stage-spot').length"),0);
   await c('Page.reload');await wait("document.querySelector('#dmxStage')");
   assert.equal(await evaluate("document.querySelectorAll('.stage-cell,.stage-spot').length"),0);
