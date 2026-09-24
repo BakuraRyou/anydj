@@ -14,3 +14,5 @@
 /* Legal pages and footer links share the public website layout. */
 .site-footer{flex-wrap:wrap}.site-footer nav{flex-wrap:wrap;gap:12px 24px}
 .legal-page{max-width:850px;padding-block:56px 72px;overflow-wrap:anywhere}.legal-page h1{font-size:clamp(32px,6vw,56px);letter-spacing:-1.5px;margin:16px 0}.legal-page section{margin-top:36px}.legal-page h2{font-size:23px;margin-bottom:14px}.legal-page p+ p,.legal-page address+p{margin-top:14px}.legal-page address{font-style:normal;margin-block:16px;color:var(--ink)}.legal-page a{text-decoration:underline;text-underline-offset:3px}.legal-draft{margin:28px 0;padding:20px;border:1px solid var(--warm);border-radius:8px;color:var(--warm)}.legal-draft strong{display:block;margin-bottom:6px}.legal-placeholder{color:var(--warm)}
+
+.stage-caption{margin-top:24px;font-size:13px;max-width:720px}

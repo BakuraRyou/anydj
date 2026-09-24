@@ -3,7 +3,7 @@ import {editPhaseTime} from './light-editor-model.js';
 import {createLightTimeline} from './light-editor-timeline.js';
 
 // The host owns mounting. Persistence, audio and physical output belong to the caller.
-export function createLightEditor(host,{plan,edits,title='Lichtshow',position=()=>0,audioSrc=null,onSave=async()=>{},onClose=()=>{},onPreview=()=>{},onBeforePlay=async()=>{}}) {
+export function createLightEditor(host,{plan,edits,title='Lichtshow',position=()=>0,audioSrc=null,externalAudio=null,onSave=async()=>{},onClose=()=>{},onPreview=()=>{},onBeforePlay=async()=>{}}) {
   const dialog=document.createElement('section');dialog.className='light-editor';host.append(dialog);
   const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=new URL('./light-editor.css',import.meta.url).href;dialog.append(stylesheet);
   dialog.insertAdjacentHTML('beforeend',`<form>
@@ -35,13 +35,13 @@ export function createLightEditor(host,{plan,edits,title='Lichtshow',position=()
   q('.section-track').textContent=title;
   let draft=validateSectionEdits(structuredClone(edits??sectionEditsFor(plan)),plan.duration),selected=0;
   let history=[],future=[],time=Math.max(0,Math.min(plan.duration,position())),rendered=plan,renderedSignature=null,destroyed=false,saving=false,animation=0;
-  const audio=audioSrc?new Audio(audioSrc):null;
+  const audio=externalAudio||(audioSrc?new Audio(audioSrc):null),audioEvents=new AbortController(),audioOptions={signal:audioEvents.signal};
   q('[data-play]').disabled=!audio;q('[data-audio-note]').hidden=Boolean(audio);
   const clock=value=>`${Math.floor(value/60)}:${String(Math.floor(value%60)).padStart(2,'0')}`;
   function select(index){if(saving)return;selected=index;const phase=draft[index];if(phase){time=phase.start;if(audio)audio.currentTime=time;}render();}
   q('[data-selection]').onchange=e=>select(Number(e.target.value));
   function tick(){if(destroyed||!audio||audio.paused)return;const phase=draft[selected];if(q('[data-loop]').checked&&phase&&(audio.currentTime>=phase.end||audio.currentTime<phase.start))audio.currentTime=phase.start;seek(audio.currentTime);animation=requestAnimationFrame(tick);}
-  if(audio){audio.addEventListener('play',()=>{q('[data-play]').textContent='Ⅱ Pause';cancelAnimationFrame(animation);tick();});audio.addEventListener('pause',()=>{q('[data-play]').textContent='▶ Anhören';cancelAnimationFrame(animation);});audio.addEventListener('error',()=>message('Die Audiodatei konnte nicht geladen werden.'));}
+  if(audio){audio.addEventListener('play',()=>{q('[data-play]').textContent='Ⅱ Pause';cancelAnimationFrame(animation);tick();},audioOptions);audio.addEventListener('pause',()=>{q('[data-play]').textContent='▶ Anhören';cancelAnimationFrame(animation);seek(audio.currentTime);},audioOptions);audio.addEventListener('error',()=>message('Die Audiodatei konnte nicht geladen werden.'),audioOptions);if(externalAudio)audio.addEventListener('seeked',()=>seek(audio.currentTime),audioOptions);}
   q('[data-play]').onclick=async()=>{if(!audio)return;if(!audio.paused){audio.pause();return;}try{q('[data-play]').disabled=true;await onBeforePlay();if(destroyed)return;audio.currentTime=time;await audio.play();}catch(error){message(`Wiedergabe fehlgeschlagen: ${error.message}`);}finally{if(!destroyed)q('[data-play]').disabled=false;}};
   const clone=()=>structuredClone(draft);
   const remember=old=>{if(JSON.stringify(old)===JSON.stringify(draft))return;history.push(old);if(history.length>100)history.shift();future=[];};
@@ -115,5 +115,5 @@ export function createLightEditor(host,{plan,edits,title='Lichtshow',position=()
     try{await onSave(validateSectionEdits(clone(),plan.duration));if(!destroyed)message('Änderungen gespeichert.');}
     catch(error){if(!destroyed)message(`Speichern fehlgeschlagen: ${error.message}`);}finally{saving=false;if(!destroyed){controls.forEach((c,i)=>c.disabled=disabled[i]);button.disabled=false;}}
   };
-  render();return {previewHost:q('[data-set-preview]'),getEdits:clone,setPosition:seek,destroy(){destroyed=true;cancelAnimationFrame(animation);if(audio){audio.pause();audio.removeAttribute('src');audio.load();}timeline.destroy();dialog.remove();}};
+  render();return {previewHost:q('[data-set-preview]'),getEdits:clone,setPosition:seek,destroy(){destroyed=true;audioEvents.abort();cancelAnimationFrame(animation);if(audio){audio.pause();if(!externalAudio){audio.removeAttribute('src');audio.load();}}timeline.destroy();dialog.remove();}};
 }

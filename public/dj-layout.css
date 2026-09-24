@@ -566,3 +566,12 @@
 .dj-mixer #mixValue{margin-bottom:2px}
 .dj-mixer #pairTransitionStatus{margin-top:4px}
 .dj-page .dj-mixer .dj-auto-controls{margin-top:4px}
+
+/* The thumb center travels over the exact same width as the waveform. */
+.dj-page .dj-console .dj-position .dj-seek{box-sizing:border-box;padding:0;border:0;width:calc(100% + 20px);margin-left:-10px;margin-right:-10px;background:linear-gradient(to right,transparent 10px,#465153 10px,#465153 calc(100% - 10px),transparent calc(100% - 10px))}
+.dj-page .dj-seek::-webkit-slider-thumb{box-sizing:border-box;width:20px;height:20px}
+.dj-page .dj-seek::-moz-range-thumb{box-sizing:border-box;width:20px;height:20px}
+.dj-analysis-footer{height:56px;flex:none;overflow:auto;margin-top:8px;display:flow-root}
+.dj-page .dj-console .dj-analysis-footer .dj-analysis{margin:10px 0;min-height:18px}
+.dj-page .dj-console .dj-position{display:block;padding:0}
+.dj-page .dj-console .dj-position .dj-seek{display:block;flex:none}

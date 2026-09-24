@@ -7,7 +7,7 @@ const previewEquipment={devices:Array.from({length:4},(_,i)=>({id:`preview-${i}`
 import {activityAt} from './dmx-activity.js';
 import {projectMovingHeads} from './dmx-layout-model.js';
 import {MOVING_MOODS,movingMood} from './dmx-moving-moods.js';
-export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=null,onPreview=()=>{},showMoodControl=true,adjustFrame=frame=>frame}={}) {
+export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=null,getPreviewEnabled=()=>false,onPreview=()=>{},showMoodControl=true,adjustFrame=frame=>frame}={}) {
   const storageKey='anydj-stage-moving-heads';
   let enabled=false,lastTime=null,poses=restingHeads();
   try{enabled=localStorage.getItem(storageKey)==='true';}catch{}
@@ -40,7 +40,7 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=nul
   const preparation=createMovingPreparation({onChange({ready,total,failed}){
     title.textContent=failed?'MOVING HEADS · Vorbereitung teilweise fehlgeschlagen':ready<total?`MOVING HEADS · Vorbereitung ${ready}/${total}`:total?'MOVING HEADS · Choreografie bereit':'MOVING HEADS · SIMULATION';
   }});
-  function prepare(){if(enabled&&!disposed)preparation.prepare(getPlans(),mode,mood);}
+  function prepare(){if((enabled||getPreviewEnabled())&&!disposed)preparation.prepare(getPlans(),mode,mood);}
   function setMood(value){const next=movingMood(value);if(next===mood)return;previousMood=mood;mood=next;moodSelect.value=mood;moodHelp.textContent=MOVING_MOODS[mood].help;try{localStorage.setItem('anydj-moving-mood',mood);}catch{}prepare();}
   moodSelect.onchange=()=>setMood(moodSelect.value);
   function sync(){
@@ -48,18 +48,19 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getLayout=nul
     scene.setAttribute('aria-label',enabled?'Moving-Head-Vorschau':'Vorschau statischer Scheinwerfer und Lichtleisten');
     toggle.textContent=enabled?'Moving Heads ausschalten':'Moving Heads einschalten';
     toggle.setAttribute('aria-pressed',String(enabled));
-    preparation.setEnabled(enabled);
-    if(!enabled)onPreview([]);
-    if(enabled)queueMicrotask(prepare);
+    preparation.setEnabled(enabled||getPreviewEnabled());
+    if(!enabled&&!getPreviewEnabled())onPreview([]);
+    if(enabled||getPreviewEnabled())queueMicrotask(prepare);
   }
   toggle.onclick=()=>{enabled=!enabled;sync();try{localStorage.setItem(storageKey,String(enabled));}catch{}};
   sync();
   return {
+    refresh:sync,
     setMood,
     prepare,
     update(fixtures,frame,time,blackout,streams=[],nextMode='auto',colorLimit=2){
       if(mode!==nextMode){mode=nextMode;prepare();}
-      if(!enabled||document.hidden){lastTime=null;return;}
+      if((!enabled&&!getPreviewEnabled())||document.hidden){lastTime=null;return;}
       const spots=fixtures.filter(f=>f.profile==='dimmer-rgb');
       let colors=(spots.length?spots:fixtures).flatMap(f=>f.cells);
       // These four virtual heads need a complete formation of their own.

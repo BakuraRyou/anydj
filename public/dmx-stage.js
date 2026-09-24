@@ -5,6 +5,7 @@ import {mixFixtureFrames} from './dmx-show.js';
 import {stagePatch,encodeStage,decodeStage} from './dmx-model.js';
 import {createMovingHeads} from './dmx-moving-heads.js';
 import {createStageLayout} from './dmx-layout.js';
+import {createStage3d} from './dmx-stage-3d.js';
 
 export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=()=>[]}={}) {
   const panel=document.createElement('dialog');
@@ -34,7 +35,11 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   button.setAttribute('aria-controls',inline?inline.id:panel.id);settingsButton.setAttribute('aria-controls',panel.id);settingsButton.setAttribute('aria-expanded','false');button.setAttribute('aria-expanded','false');
   const scene=(inline||panel).querySelector('.stage-scene'),spots=scene.querySelector('.stage-spots'),bars=scene.querySelector('.stage-bars');
   const layout=createStageLayout({getFixtures:()=>stagePatch(editor.equipment),onChange:()=>render()});
-  const movingHeads=createMovingHeads(scene,inline||panel.querySelector('.stage-controls'),{getPlans:()=>[...getMovingPlans(),...(editorPreview?.streams??[]).map(s=>s.movingPlan).filter(Boolean)],getLayout:()=>layout.value,onPreview:value=>layout.update(value),showMoodControl:false,adjustFrame});
+  let movingPreview=[];
+  const stage3d=createStage3d(inline||panel.querySelector('.stage-preview'),inline||panel.querySelector('.stage-controls'),{getLayout:()=>layout.value,mountLayout:host=>layout.mount(host),mountLighting:(host,view)=>mountLighting(host,view),onToggle:()=>{movingHeads.refresh();render();}});
+  const movingHeads=createMovingHeads(scene,inline||panel.querySelector('.stage-controls'),{getPlans:()=>[...getMovingPlans(),...(editorPreview?.streams??[]).map(s=>s.movingPlan).filter(Boolean)],getLayout:()=>layout.value,getPreviewEnabled:()=>stage3d.enabled,onPreview:value=>{movingPreview=value;layout.update(value);},showMoodControl:false,adjustFrame});
+  const previewControls=inline||panel.querySelector('.stage-controls');
+  previewControls.querySelector('[data-moving-heads]').after(previewControls.querySelector('[data-stage3d-toggle]'));
   const layoutButton=document.createElement('button');layoutButton.type='button';layoutButton.className='button secondary';layoutButton.dataset.layoutOpen='';layoutButton.textContent='Bühne & Geräte aufstellen';layoutButton.setAttribute('aria-controls','stageLayoutDialog');layoutButton.onclick=()=>layout.open(layoutButton);
   (inline||panel.querySelector('.stage-controls')).append(layoutButton);
   const nodes=[],fixtureNodes=[];
@@ -76,7 +81,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   const names={shared:['Gemeinsam','Alle Lampen folgen dem Mix'],auto:['Automatisch','Passend zum Song'],chase:['Lauflicht','Bewegung durch die Bühne'],wash:['Ruhige Flächen','Weich und zurückhaltend'],follow:['Musikimpulse','Gemeinsam im Rhythmus'],alternate:['Gruppenwechsel','Links und rechts im Wechsel'],design:['Individuell','Farben und Bewegung selbst wählen']};
   for(const [mode,[name,description]] of Object.entries(names)){
     const choice=document.createElement('button');choice.type='button';choice.className='stage-mode-choice';choice.dataset.stageChoice=mode;choice.innerHTML=`<strong>${name}</strong><span>${description}</span>`;
-    choice.onclick=()=>{const select=panel.querySelector('[data-mode]');select.value=mode;select.dispatchEvent(new Event('change'));};modeButtons.append(choice);
+    choice.onclick=()=>{const select=editorHost.querySelector('[data-mode]');select.value=mode;select.dispatchEvent(new Event('change'));};modeButtons.append(choice);
   }
   const automatic=editorHost.querySelector('[data-auto]');automatic.classList.add('stage-look-card');live.append(automatic);
   const tuningHost=document.createElement('section');tuningHost.className='stage-tuning-host stage-look-card';views.tuning.page.append(tuningHost);
@@ -85,10 +90,15 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   editorHost.append(editorHost.querySelector('[data-saved]'));
   panel.querySelector('.stage-hardware button').before(connectionStatus);
   equipmentSection.open=true;views.equipment.page.append(equipmentSection);
-  const equipmentLayoutButton=layoutButton.cloneNode(true);equipmentLayoutButton.onclick=()=>layout.open(equipmentLayoutButton);views.equipment.page.prepend(equipmentLayoutButton);
+  const equipmentLayoutButton=layoutButton.cloneNode(true);equipmentLayoutButton.onclick=()=>stage3d.isOpen?stage3d.openTools('fixtures'):layout.open(equipmentLayoutButton);views.equipment.page.prepend(equipmentLayoutButton);
   hardwareSection.open=true;views.connection.page.append(hardwareSection,panel.querySelector('.stage-technical'));
   selectView('look');
   const demoButton=panel.querySelector('[data-demo]'),blackoutButton=panel.querySelector('[data-blackout]');
+  function mountLighting(host,view='look'){
+    const editorMarker=document.createComment('lighting-home'),navMarker=document.createComment('lighting-nav-home');
+    editorHost.before(editorMarker);nav.before(navMarker);host.append(nav,editorHost);host.classList.add('stage-redesigned');selectView(view);
+    return ()=>{editorMarker.replaceWith(editorHost);navMarker.replaceWith(nav);};
+  }
   const lastFrame=()=>current,lastStreams=()=>streams,lastDemo=()=>demo,lastBlackout=()=>blackout;
   function render(){
     if(!panel.open&&!active&&!hardware.enabled&&!editorPreview)return;
@@ -118,7 +128,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
       spots.hidden=!patch.some(f=>f.type==='spot');bars.hidden=!patch.some(f=>f.type==='bar');
       const label=scene.querySelector('.stage-floor-label');label.hidden=patch.length>0;label.textContent='Keine Geräte · unter „Bühne einstellen“ hinzufügen';
       scene.setAttribute('aria-label',scene.dataset.hasMovingHeads==='true'?'Moving-Head-Vorschau':`Virtuelle Bühne mit ${patch.length} statischen Geräten`);
-      panel.querySelector('tbody').innerHTML=patch.map(f=>`<tr><td>${f.name}</td><td>${f.address}–${f.address+f.channels-1}</td><td>${f.type==='bar'?`${f.cells} × Rot, Grün, Blau`:'Helligkeit, Rot, Grün, Blau'}</td></tr>`).join('');
+      editorHost.querySelector('tbody').innerHTML=patch.map(f=>`<tr><td>${f.name}</td><td>${f.address}–${f.address+f.channels-1}</td><td>${f.type==='bar'?`${f.cells} × Rot, Grün, Blau`:'Helligkeit, Rot, Grün, Blau'}</td></tr>`).join('');
     }
     const t=performance.now()/1000;
     const sample=demo?{state:true,r:Math.round(128+127*Math.sin(t*.6)),g:Math.round(128+127*Math.sin(t*.6+2)),b:Math.round(128+127*Math.sin(t*.6+4)),dimming:45+25*Math.sin(t*2)}:current;
@@ -135,6 +145,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
     const universe=encodeStage(blackout?null:output,equipment),fixtures=decodeStage(universe,equipment);
     movingHeads.update(fixtures,adjustFrame(sample),t,blackout,inputs,editor.mode,editor.count);
     layout.setLights(fixtures);
+    stage3d.update(fixtures,movingPreview);
     fixtures.forEach((f,i)=>f.cells.forEach((rgb,j)=>{
       const target=nodes[i][j];
       target.style.setProperty('--stage-color',`rgb(${rgb.join(',')})`);
@@ -151,7 +162,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
     statusNode.title=status;if(statusNode.textContent!==displayStatus)statusNode.textContent=displayStatus;
     demoButton.disabled=playing;demoButton.textContent=demo?'Demo beenden':'Demo ohne Musik starten';demoButton.setAttribute('aria-pressed',String(demo));
     blackoutButton.textContent=blackout?'Vorschau wieder einschalten':'Vorschau abdunkeln';blackoutButton.setAttribute('aria-pressed',String(blackout));
-    if(panel.querySelector('.stage-technical').open){const f=patch[0];panel.querySelector('.stage-values').textContent=f?`${f.name} · erste Kanäle: ${Array.from(universe.slice(f.address-1,f.address-1+Math.min(4,f.channels))).join(' / ')}`:'Keine Geräte konfiguriert.';}
+    if(editorHost.querySelector('.stage-technical').open){const f=patch[0];editorHost.querySelector('.stage-values').textContent=f?`${f.name} · erste Kanäle: ${Array.from(universe.slice(f.address-1,f.address-1+Math.min(4,f.channels))).join(' / ')}`:'Keine Geräte konfiguriert.';}
 
   }
   function startTimer(){if(!timer)timer=setInterval(render,50);}
@@ -181,12 +192,13 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
         destroy(){editorPreview=null;marker.replaceWith(scene);status.remove();render();if(!active&&!panel.open&&!hardware.enabled){clearInterval(timer);timer=null;}}
       };
     },
+    setTransport:stage3d.setTransport,
     prepareMovingHeads(){movingHeads.prepare();},
     setMovingMood(value){movingHeads.setMood(value);},
     tuningHost,
     openSettings(view='look'){openSettings();selectView(view);},
     update(frame,isPlaying,nextStreams=[]){streams=nextStreams;current=frame;playing=isPlaying;if(playing)demo=false;render();},
     stop(){void hardware.stop();demo=false;streams=[];current=null;playing=false;render();},
-    destroy(){hardware.destroy();movingHeads.destroy();layout.destroy();layoutButton.remove();clearInterval(timer);panel.remove();inline?.remove();settingsButton.remove();if(colorPreview)colorPreview.hidden=false;},
+    destroy(){hardware.destroy();stage3d.destroy();movingHeads.destroy();layout.destroy();layoutButton.remove();clearInterval(timer);panel.remove();inline?.remove();settingsButton.remove();if(colorPreview)colorPreview.hidden=false;},
   };
 }

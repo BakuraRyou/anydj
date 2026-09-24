@@ -12,8 +12,10 @@ export function createStageLayout({getFixtures=()=>[],onChange=()=>{}}={}){
   <div class="stage-layout-workspace"><div class="stage-layout-map"><svg data-layout-map role="group" aria-label="Bühnenplan. Gerät auswählen und ziehen oder mit Pfeiltasten verschieben."></svg><p class="small">Draufsicht · Publikum unten · Raster 1 m<br>MH = Moving Head · S = Scheinwerfer · L = Lichtleiste</p></div>
   <fieldset class="stage-layout-inspector"><legend>Gerät positionieren</legend><label>Gerät<select data-layout-device></select></label><label>Links / rechts (m)<input data-layout-x type="number" step="0.1"></label><label>Abstand zur Vorderkante (m)<input data-layout-y type="number" step="0.1"></label><label>Montagehöhe (m)<input data-layout-height type="number" min="0.3" max="12" step="0.1"></label><p data-layout-aim class="small"></p><p class="small">Pfeiltasten: 10 cm · Umschalt: 50 cm. Die Mitte der Bühne ist X = 0.</p></fieldset></div>
   <p data-layout-status role="status">Änderungen werden automatisch gespeichert.</p><p class="small">Geometrische Vorschau mit generischen Geräten. Gehäuse, Optik und mechanische Grenzen sind nicht herstellerspezifisch nachgebildet.</p>`;
+  const content=document.createElement('div');content.className='stage-layout-content';content.append(...dialog.childNodes);dialog.append(content);
+  let mounted=false;
   document.body.append(dialog);
-  const q=name=>dialog.querySelector(`[data-layout-${name}]`),svg=q('map');
+  const q=name=>content.querySelector(`[data-layout-${name}]`),svg=q('map');
   for(const input of dialog.querySelectorAll('input'))input.required=true;
   function fixtures(){return [...Array.from({length:4},(_,i)=>({id:`moving-${i}`,name:`Moving Head ${i+1}`,label:`MH${i+1}`,type:'moving'})),...getFixtures().map(f=>({id:`fixture-${f.id}`,name:f.name,label:(f.type==='bar'?'L':'S')+(f.name.match(/\d+$/)?.[0]||'1'),type:f.type}))];}
   function position(f,list){const group=list.filter(v=>v.type===f.type),p=fixturePosition(layout,f.id,group.indexOf(f),group.length);return layout.positions[f.id]||{...p,y:layout.depth*(f.type==='moving'?.85:f.type==='bar'?.25:.55)};}
@@ -32,7 +34,7 @@ export function createStageLayout({getFixtures=()=>[],onChange=()=>{}}={}){
     q('x').min=-layout.width/2;q('x').max=layout.width/2;q('y').min=0;q('y').max=layout.depth;
   }
   function draw(){
-    if(!dialog.open)return;
+    if(!dialog.open&&!mounted)return;
     const list=fixtures(),key=JSON.stringify([layout.width,layout.depth,list]);
     if(signature!==key){
       signature=key;nodes.clear();svg.replaceChildren();q('device').replaceChildren();
@@ -69,8 +71,9 @@ export function createStageLayout({getFixtures=()=>[],onChange=()=>{}}={}){
   for(const key of ['x','y','height'])q(key).onchange=()=>{if(!q(key).checkValidity()||!Number.isFinite(q(key).valueAsNumber)){q(key).reportValidity();inspector();return;}setPosition({[key]:q(key).valueAsNumber});};
   q('device').onchange=()=>{selected=q('device').value;inspector();draw();};
   q('symmetry').onclick=()=>{for(let i=0;i<4;i++)delete layout.positions[`moving-${i}`];draw();inspector();persist();};
-  q('close').onclick=()=>dialog.close();dialog.addEventListener('close',()=>returnFocus?.focus());
+  q('close').onclick=()=>dialog.close();dialog.addEventListener('close',()=>{for(let node=returnFocus?.parentElement;node;node=node.parentElement)if(node.tagName==='DETAILS')node.open=true;returnFocus?.focus();});
   return {
+    mount(host){mounted=true;host.append(content);for(const key of ['width','depth'])q(key).value=layout[key];draw();inspector();return ()=>{mounted=false;dialog.append(content);};},
     get value(){return layout;},
     open(trigger=document.activeElement){returnFocus=trigger;for(const key of ['width','depth'])q(key).value=layout[key];if(!dialog.open)dialog.showModal();draw();inspector();},
     update(value){preview=value;draw();},

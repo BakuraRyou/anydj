@@ -1,3 +1,4 @@
+import {drawWaveform} from './dj-waveform.js';
 import {holdAudioParam} from './transition-audio.js';
 import {transitionBassDb} from './musical-transition.js';
 import {dbGain,audioEnvelope,cleanCues,loopRange,tempoAt,jumpBeats} from './dj-performance-model.js';
@@ -235,16 +236,8 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
    const monitor=find('.dj-monitor');monitor.disabled=!outputs.cue||!duration;monitor.setAttribute('aria-pressed',String(d.monitor));
    if(d.cueGain)d.cueGain.gain.setTargetAtTime(d.monitor&&outputs.cue?1:0,ctx.currentTime,.01);
    meter(d.meter,find('[data-level]'),find('[data-db]'));
-   const canvas=find('.dj-waveform'),paint=canvas.getContext('2d');paint.clearRect(0,0,640,80);
-   if(d.track?.waveform?.version===2){
-    const {peaks,rms}=d.track.waveform;paint.fillStyle=d.index?'#77d2dc':'#f6ac7b';
-    for(const [values,alpha] of [[peaks,.22],[rms,1]]){
-     paint.globalAlpha=alpha;
-     values.forEach((v,i)=>{if(v>0)paint.fillRect(i*640/values.length,40-v*34,640/values.length,v*68);});
-    }
-    paint.globalAlpha=1;
-   }
-   if(duration){paint.fillStyle='#fff';paint.fillRect(position/duration*640,0,2,80);for(const t of cues)if(t!==null){paint.fillStyle='#a7edc8';paint.fillRect(t/duration*640,0,2,10);}}
+   if(!d.spotify){const seek=find('.dj-seek');seek.max=duration||1;seek.value=position;}
+   drawWaveform(find('.dj-waveform'),d.track?.waveform,position,duration,cues,d.index?'#77d2dc':'#f6ac7b');
   }
   meter(masterMeter,q('[data-master-meter]'),q('[data-peak]'));
  }
@@ -252,16 +245,16 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
  const timer=setInterval(update,30);
  function reset(d){d.loop=null;d.manualRate=1;d.monitor=false;d.performanceElement.querySelector('[data-tempo]').value=0;d.performanceElement.querySelector('[data-loop-info]').textContent='Loops benötigen ein Beat-Raster.';}
  async function waveform(track,file){if(track.waveform?.version===2||!file)return;try{const buffer=await new OfflineAudioContext(2,1,16000).decodeAudioData(await file.arrayBuffer());if(!dead)track.waveform=audioEnvelope(buffer);}catch{/* Playback and light analysis report file errors separately. */}}
- function key(e){
-  if(e.defaultPrevented||e.isComposing||e.repeat||e.ctrlKey||e.altKey||e.metaKey||document.querySelector('dialog[open]')||e.target.closest('input,select,textarea,[contenteditable],dialog,[role="slider"]'))return;
+ function key(e,{stage=false,deckId=null}={}){
+  if(e.defaultPrevented||e.isComposing||e.repeat||e.ctrlKey||e.altKey||e.metaKey||(!stage&&document.querySelector('dialog[open]'))||e.target.closest('input,select,textarea,[contenteditable],[role="slider"]')||(!stage&&e.target.closest('dialog')))return;
   const k=/^Digit[0-9]$/.test(e.code)?e.code.slice(-1):e.key.toLowerCase();
   // Space/arrow keys on native controls retain their normal activation/navigation.
-  if((k===' '||k.startsWith('arrow'))&&e.target.closest('button,a,summary,[role="button"]'))return;
+  if(!stage&&(k===' '||k.startsWith('arrow'))&&e.target.closest('button,a,summary,[role="button"]'))return;
   let d,action;
   if(['q','w','1','2','3','4'].includes(k)){d=decks[0];action=k==='q'?'play':k==='w'?'cue':+k-1;}
   else if(['o','p','7','8','9','0'].includes(k)){d=decks[1];action=k==='o'?'play':k==='p'?'cue':['7','8','9','0'].indexOf(k);}
   else if([' ','k','arrowleft','arrowright','arrowup','arrowdown'].includes(k)){
-   const focused=decks.find(deck=>deck.panel.contains(e.target));
+   const focused=stage?decks.find(deck=>deck.name===deckId):decks.find(deck=>deck.panel.contains(e.target));
    const playing=decks.filter(deck=>deck.spotify?deck.spotifyStarted&&!deck.spotifyPaused:!deck.audio.paused);
    d=focused||(playing.length===1?playing[0]:decks[Number(document.querySelector('#crossfader')?.value||0)<.5?0:1]);
    if(!focused&&!d.track&&!d.spotify)d=decks.find(deck=>deck.track||deck.spotify)||d;
@@ -288,7 +281,7 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
    gain.setValueCurveAtTime(curve,ctx.currentTime,Math.max(.1,duration));
   }
  }
- return {connect,reset,waveform,seek,clearTransition,startTransition,
+ return {handleShortcut:key,connect,reset,waveform,seek,clearTransition,startTransition,
   routingHost:q('.dj-routing'),
   getPreviewOutput:()=>!dead&&!outputBusy&&outputs.master&&outputs.cue?{deviceId:outputs.cue.deviceId,groupId:outputs.cue.groupId,label:outputs.cue.label}:null,
   subscribeOutput(listener){outputEvents.addEventListener('change',listener);return ()=>outputEvents.removeEventListener('change',listener);},

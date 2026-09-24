@@ -31,6 +31,8 @@ export function simplifyDJLayout(decks,mixer){
   extra.append(volume,level,tools,lighting);
   const seek=root.querySelector('.dj-seek');seek.setAttribute('aria-label',`Abspielposition Deck ${deck.name}`);seek.closest('label').classList.add('dj-position');
   root.querySelector('.dj-clock').after(transport);
+  const analysisFooter=document.createElement('div');analysisFooter.className='dj-analysis-footer';
+  analysisFooter.append(root.querySelector('.dj-analysis'));root.append(analysisFooter);
 
  }
  const light=document.createElement('section');light.className='dj-mixer-light';light.setAttribute('aria-label','Lichtshow');
