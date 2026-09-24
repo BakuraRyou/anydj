@@ -1,6 +1,6 @@
 # VR-Lichtvorschau
 
-Im 3D-Fenster gibt es **VR starten**. Vorher den gewünschten Startpunkt in der Ego-Perspektive wählen und die Show starten. Der Browser fragt beim Einstieg die VR-Berechtigung ab. Beide Augen erhalten die eigene Projektions- und Ansichts-Matrix des Headsets. Physisches Umsehen und Schritte werden über die laufenden WebXR-Posen übernommen. Beenden über das Headset-Menü oder **VR beenden** im Browser.
+Im 3D-Fenster gibt es **VR starten**. Vorher den gewünschten Startpunkt in der Ego-Perspektive wählen und die Show starten. Der Browser fragt beim Einstieg die VR-Berechtigung ab. Beide Augen erhalten die eigene Projektions- und Ansichts-Matrix des Headsets. Physisches Umsehen und Schritte werden über die laufenden WebXR-Posen übernommen. Beenden direkt über **VR beenden** auf dem VR-Pult, alternativ über das Headset-Menü.
 
 Die vorhandene Geometrie für Raum, Boden, Geräte, Strahlen, Ruhezonen und optionale Gäste wird von Desktop- und VR-Renderer gemeinsam verwendet. VR rendert mit WebGL und einem eigenen WebXR-Framezyklus; die Desktop-Darstellung pausiert währenddessen. Die aktuelle Lichtshow bleibt Datenquelle. Transparente Lichtkegel werden in VR additiv dargestellt. Geometrie wird pro Frame einmal aufgebaut/hochgeladen und für beide Augen wiederverwendet.
 
@@ -14,7 +14,7 @@ WebXR-Grundlage: [W3C WebXR Device API](https://www.w3.org/TR/webxr/), insbesond
 
 ## Umfang und Grenzen
 
-Erster VR-Modus für immersive Show-Vorschau mit Kopf-/Positionstracking. Keine Controller-Menüs, Teleportation oder Thumbstick-Fortbewegung. Startort/Blickrichtung werden beim Eintritt übernommen. Physische Bewegung wird unverfälscht getrackt, ohne virtuelle Wandkollision oder künstliche Kopfbegrenzung. Die VR-Vorschau verändert keine echte Lichtausgabe.
+Immersive Show-Vorschau mit Kopf-/Positionstracking und einem kompakten Pult über dem linken Controller. Der rechte Controller zeigt auf Schaltflächen; der Trigger wählt sie aus. Deck A/B, Play/Pause und ±10 Sekunden steuern den vorhandenen Musiktransport. Ohne linken Controller erscheint das Pult vor dem Betrachter. Der linke Stick bewegt mit 1,4 m/s relativ zur Blickrichtung, der rechte dreht in 30°-Schritten. Keine Teleportation. Startort/Blickrichtung werden beim Eintritt übernommen. Physische Bewegung wird unverfälscht getrackt, ohne virtuelle Wandkollision oder künstliche Kopfbegrenzung. Musikbefehle wirken auf das echte Deck und damit auch auf die daran gekoppelte Lichtshow. Virtuelle Fortbewegung bleibt innerhalb des Raums; physisches Tracking wird nicht begrenzt.
 
 Ohne Headset testbar sind der deaktivierte Einstieg mit Erklärung, der WebGL-Renderer und der Sitzungsablauf mit simulierten XR-Schnittstellen. Ein reales Headset war für die Entwicklung nicht verfügbar; Komfort, Headset-Bildrate und konkrete Browser/Runtime-Kompatibilität bleiben am Gerät zu prüfen.
 
@@ -24,3 +24,17 @@ Ohne Headset testbar sind der deaktivierte Einstieg mit Erklärung, der WebGL-Re
 - `scripts/check-dmx-vr.mjs`: echtes WebGL im Headless-Browser mit simuliertem XR-Framebuffer, Shader-Kompilierung, zwei Eye-Viewports, unterschiedliche Pixel durch Stereo-Parallaxe, keine GL-Fehler.
 - Bestehender 3D-Browsertest bestanden: Lazy Loading, Ego/WASD, Raumgrenzen, Vollbild, Mobilansicht und keine Hardware-Sitzung.
 - Transport-Browsertest für Musik und integrierten Lichtmanager bestanden.
+
+## Einrichtung ohne Kenntnis der Anschlussart
+
+„VR einrichten“ ergänzt die Werkzeugleiste. Es wird weder ein Modell noch eine Verkabelung abgefragt. Der Verfügbarkeitscheck unterscheidet sicheren Kontext, WebXR-Schnittstelle, angebotenes immersive-vr und Fehler. Ein negatives Runtime-Ergebnis wird ausdrücklich nicht als Beweis für ein physisch fehlendes Headset dargestellt. Die Verbindung kann manuell, bei WebXR-devicechange und beim Zurückkehren zum Fenster erneut geprüft werden.
+
+Bei Bedarf enthält die Hilfe beide Wege (PC-VR und Browser im Headset), sowie kopierbare Diagnoseinformationen ohne URLs, Zugangsdaten oder Songs. Die Hilfe installiert keine Treiber und verändert keine Runtime-/Sicherheitseinstellungen.
+
+Die Show-Kopplung ist inzwischen als lokale Vorschau-Übertragung implementiert: siehe `reports/vr-preview.md`. Der Link überträgt den sichtbaren Showzustand, nicht LocalStorage oder Audio. Vertrauenswürdiges HTTPS wird für immersives VR weiterhin benötigt.
+
+## Controller-Pult: zusätzliche Validierung
+
+- `test/dmx-vr-console.test.mjs`: Zeiger/Flächentreffer, Fehlklicks, Deadzone, Raumgrenzen, Drehung um den tatsächlich getrackten Kopf, Deck/Play/Seek und Exit bei Verbindungsverlust.
+- WebGL-Browsertest rendert zusätzlich Pulttextur und Zeiger über mehrere Frames und beide Augen ohne GL-Fehler.
+- Die Bedienung folgt den standardisierten XR-Eingaben: [WebXR Gamepads](https://www.w3.org/TR/webxr-gamepads-module-1/). Hardware-Komfort und reale Controller wurden hier nicht geprüft.

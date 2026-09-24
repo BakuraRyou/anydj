@@ -10,7 +10,7 @@
   "scripts": {
     "start": "node server.mjs",
     "dev": "node --watch server.mjs",
-    "lan": "node server.mjs --lan",
+    "lan": "node scripts/dev-https.mjs --lan",
     "demo": "node server.mjs --demo",
     "test": "node --test test/*.test.mjs",
     "desktop": "node scripts/start-desktop.mjs",

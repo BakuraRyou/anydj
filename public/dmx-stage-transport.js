@@ -42,5 +42,12 @@ export function createStageTransport(host,{isVisible}){
     text('note',d.note||'Tempo und Position steuern das ausgewählte Deck – Musik und Licht folgen gemeinsam.');
     const description=`${time(d.position)} von ${time(d.duration)}`;if(q('seek').getAttribute('aria-valuetext')!==description)q('seek').setAttribute('aria-valuetext',description);
   }
-  return {getSelected(){return snapshot;},mountEditor(host,options){return api?.mountEditor?.(selected,host,options);},handleShortcut(event){api?.shortcut?.(event,selected);},setApi(value){api=value;update();},update,destroy(){section.remove();}};
+  return {vrState(){return {selected,decks:(api?.getDecks()||[]).map(d=>({id:d.id,title:d.title,position:d.position,duration:d.duration,rate:d.rate,playing:d.playing,canPlay:d.canPlay,canSeek:d.canSeek,canRate:d.canRate}))};},
+    vrCommand(command){const d=api?.getDecks().find(d=>d.id===command.deck);if(!d)throw Error('Deck nicht verfügbar.');
+      if(command.action==='select'){selected=d.id;update();return;}
+      if(command.action==='playing'){if(!d.canPlay)throw Error('Deck kann derzeit nicht gestartet werden.');if(d.playing!==command.value)api.toggle(d.id);}
+      else if(command.action==='seek'){if(!d.canSeek)throw Error('Positionssprung nicht verfügbar.');api.seek(d.id,Math.max(0,Math.min(d.duration,command.value)));}
+      else if(command.action==='rate'){if(!d.canRate)throw Error('Tempo nicht verfügbar.');api.setRate(d.id,Math.max(-16,Math.min(16,command.value)));}
+      else throw Error('Unbekannter VR-Befehl.');update();
+    },getSelected(){return snapshot;},mountEditor(host,options){return api?.mountEditor?.(selected,host,options);},handleShortcut(event){api?.shortcut?.(event,selected);},setApi(value){api=value;update();},update,destroy(){section.remove();}};
 }

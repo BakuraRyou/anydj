@@ -1,3 +1,5 @@
+import {createVRShare} from './dmx-vr-share.js';
+import {createVRSetup} from './dmx-vr-setup.js';
 import {createStageVR} from './dmx-stage-vr.js';
 import {createZoneMotion} from './dmx-zone-motion.js';
 import {createZonePlan,zoneLights} from './dmx-zone-plan.js';
@@ -18,7 +20,7 @@ export function createStage3d(host,controls,{getLayout,mountLayout,mountLighting
   const dialog=document.createElement('dialog');dialog.className='stage-3d-dialog';dialog.setAttribute('aria-label','Große 3D-Bühnenvorschau');document.body.append(dialog);
   const expand=panel.querySelector('[data-stage3d-expand]');
   const fullButton=panel.querySelector('[data-stage3d-full]'),fullControls=panel.querySelector('.stage-3d-full-controls');
-  let workspace=null,vr=null;
+  let workspace=null,vr=null,share=null;
   let full=false,returnExpanded=false,returnFocus=expand;
   const transport=createStageTransport(panel,{isVisible:()=>dialog.open&&!full});
   dialog.addEventListener('keydown',event=>{if(event.target===canvas&&navigateKey(event))return;if(event.target.closest('[data-layout-map],.light-editor'))return;transport.handleShortcut(event);if(event.defaultPrevented)event.stopPropagation();},{capture:true});
@@ -162,7 +164,7 @@ export function createStage3d(host,controls,{getLayout,mountLayout,mountLighting
   }
   async function activate(){
     enabled=!enabled;panel.hidden=!enabled;toggle.textContent=enabled?'3D-Bühne ausschalten':'3D-Bühne einschalten';toggle.setAttribute('aria-pressed',String(enabled));
-    if(!enabled){void vr?.stop();stopWalking();cancelAnimationFrame(raf);raf=0;if(dialog.open)dialog.close();}onToggle(enabled);
+    if(!enabled){void share?.stop();void vr?.stop();stopWalking();cancelAnimationFrame(raf);raf=0;if(dialog.open)dialog.close();}onToggle(enabled);
     if(!enabled)return;
     if(!dialog.open){expand.click();returnFocus=toggle;}
     if(!ctx){status.textContent='Die 3D-Vorschau ist in diesem Browser nicht verfügbar.';return;}
@@ -223,7 +225,9 @@ export function createStage3d(host,controls,{getLayout,mountLayout,mountLighting
   workspace=createStageWorkspace(panel,{mountLayout,mountLighting,transport,zones,onFit:()=>requestDraw()});
   const vrButton=document.createElement('button');vrButton.type='button';vrButton.className='button secondary';vrButton.dataset.stageVr='';vrButton.textContent='VR starten';vrButton.setAttribute('aria-pressed','false');panel.querySelector('.stage-3d-tools').append(vrButton);
   const vrStatus=document.createElement('span');vrStatus.className='stage-vr-status';vrStatus.setAttribute('role','status');panel.querySelector('.stage-3d-tools').append(vrStatus);
-  vr=createStageVR({button:vrButton,status:vrStatus,getScene:vrScene,getOrigin:()=>dancer,onActive:active=>{stopWalking();if(active){if(camera.mode!=='dancer')setDancer(true);cancelAnimationFrame(raf);raf=0;}else requestDraw();}});
+  const vrSetup=createVRSetup(panel.querySelector('.stage-3d-tools'),{onRefresh:()=>vr?.checkSupport()});
+  vr=createStageVR({onSupport:state=>vrSetup.update(state),button:vrButton,status:vrStatus,getScene:now=>({...vrScene(now),transport:transport.vrState()}),onCommand:command=>transport.vrCommand(command),getOrigin:()=>dancer,onActive:active=>{stopWalking();if(active){if(camera.mode!=='dancer')setDancer(true);cancelAnimationFrame(raf);raf=0;}else requestDraw();}});
+  share=createVRShare(panel.querySelector('.stage-3d-tools'),{onCommand:command=>transport.vrCommand(command),getScene:()=>({...vrScene(performance.now()/1000),transport:transport.vrState(),origin:{x:dancer.x,y:dancer.y,yaw:dancer.yaw,eyeHeight:dancer.eyeHeight}})});
   const title=panel.querySelector('.stage-3d-heading strong'),secret=document.createElement('button');
   secret.type='button';secret.className='stage-3d-secret';secret.dataset.crowdSecret='';secret.innerHTML=title.innerHTML;title.replaceChildren(secret);
   let taps=0,lastTap=0;
@@ -252,6 +256,6 @@ export function createStage3d(host,controls,{getLayout,mountLayout,mountLighting
         });
       });requestDraw();
     },
-    destroy(){vr?.destroy();stopWalking();window.removeEventListener('keyup',releaseKey);window.removeEventListener('blur',stopWalking);workspace.destroy();zoneMotion.reset();zones.destroy();room.destroy();transport.destroy();disposed=true;cancelAnimationFrame(raf);resize.disconnect();intersection.disconnect();document.removeEventListener('visibilitychange',visibility);dialog.close();dialog.remove();marker.remove();panel.remove();toggle.remove();stylesheet.remove();}
+    destroy(){share?.destroy();vrSetup.destroy();vr?.destroy();stopWalking();window.removeEventListener('keyup',releaseKey);window.removeEventListener('blur',stopWalking);workspace.destroy();zoneMotion.reset();zones.destroy();room.destroy();transport.destroy();disposed=true;cancelAnimationFrame(raf);resize.disconnect();intersection.disconnect();document.removeEventListener('visibilitychange',visibility);dialog.close();dialog.remove();marker.remove();panel.remove();toggle.remove();stylesheet.remove();}
   };
 }

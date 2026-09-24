@@ -652,26 +652,28 @@ Reglerereignisse werden gebündelt; Befehle werden je Lampe nacheinander gesende
 Den bisher laufenden Server zuerst mit `Strg+C` beenden. Anschließend:
 
 ```bash
-node server.mjs --lan
-```
-
-Alternativ:
-
-```bash
 npm run lan
 ```
 
-Der Server lauscht nun auf `0.0.0.0` und zeigt seine lokalen Adressen sowie einen zufällig erzeugten **Web-Zugangscode** im Terminal. Eine dieser Adressen auf dem Handy im Heimnetz öffnen, zum Beispiel:
+Mit eigenen Zertifikaten alternativ:
 
-```text
-http://192.168.178.20:3030
+```bash
+SSL_CERT_FILE=/pfad/cert.pem SSL_KEY_FILE=/pfad/key.pem node server.mjs --https --lan
 ```
 
-Das ist die **IP des Rechners mit dem Node-Server**, nicht die IP der Lampe. Den Zugangscode im Anmeldedialog eingeben. Der Code wird nur für die Browser-Sitzung gespeichert. Bei einem Neustart wird standardmäßig ein neuer Code erzeugt.
+`npm run lan` verwendet HTTPS. Der Helfer erstellt mit `mkcert` ein separates LAN-Zertifikat für localhost und die aktuellen lokalen IPv4-Adressen. Bei geänderten Adressen wird es beim nächsten Start erneuert. Eigene Zertifikate werden unverändert verwendet.
+
+Der Server lauscht nun auf `0.0.0.0` und zeigt seine lokalen Adressen im Terminal. Der Heimnetz-Zugriff benötigt standardmäßig keinen Zugangscode. Eine dieser Adressen auf dem Handy im Heimnetz öffnen, zum Beispiel:
+
+```text
+https://192.168.178.20:3030
+```
+
+Das ist die **IP des Rechners mit dem Node-Server**, nicht die IP der Lampe. Die Seite lässt sich direkt öffnen. Optional kann mit `WIZ_WEB_TOKEN` ein eigener Zugangscode (mindestens 20 Zeichen) gesetzt werden; nur dann erscheint der Anmeldedialog.
 
 Der Web-Zugangscode schützt diese Webapp und hat **nichts mit dem AnyDj Home Security Key** zu tun. Er schaltet den verifizierten AnyDj-Modus nicht frei.
 
-**Sicherheitsgrenze:** Dieser Prototyp nutzt HTTP, kein HTTPS. Der LAN-Zugangscode ist daher auf dem Übertragungsweg nicht zusätzlich durch TLS geschützt. Nur in einem vertrauenswürdigen Heimnetz benutzen, nicht öffentlich bereitstellen und keine Internet-Portweiterleitung einrichten. Der Standardstart bindet absichtlich nur an Loopback. Host-/Origin-Prüfungen, ein zusätzlicher Schreibheader und Eingabevalidierung bieten Basisschutz, sind aber kein Ersatz für eine gehärtete produktive Bereitstellung.
+**Zertifikatsvertrauen:** Handy und VR-Brille müssen dem Zertifikat ebenfalls vertrauen. Die lokale mkcert-Einrichtung auf dem PC erledigt das nicht automatisch auf anderen Geräten. Nur in einem vertrauenswürdigen Heimnetz benutzen, nicht öffentlich bereitstellen und keine Internet-Portweiterleitung einrichten. Der Standardstart bindet absichtlich nur an Loopback. Host-/Origin-Prüfungen, ein zusätzlicher Schreibheader und Eingabevalidierung bieten Basisschutz, sind aber kein Ersatz für eine gehärtete produktive Bereitstellung.
 
 ## Demo ohne echte Lampe
 
@@ -685,9 +687,10 @@ Oder `npm run demo`. Die Demo verwendet zwei simulierte Lampen und dieselbe Bedi
 
 | Einstellung | Standard | Bedeutung |
 | --- | --- | --- |
-| `PORT` | `3030` | HTTP-Port |
+| `PORT` | `3030` | Port der Haupt-App (HTTP oder HTTPS) |
+| `VR_PREVIEW_PORT` | `3031` | Fester Heimnetz-Port der gekoppelten VR-Vorschau |
 | `HOST` | `127.0.0.1` | Bind-Adresse; `--lan` verwendet `0.0.0.0` |
-| `WIZ_WEB_TOKEN` | leer / im LAN zufällig | Eigener Web-Zugangscode, mindestens 20 Zeichen |
+| `WIZ_WEB_TOKEN` | leer | Optionaler Web-Zugangscode, mindestens 20 Zeichen; auch im LAN standardmäßig ohne Code |
 | `WIZ_DATA_DIR` | `./data` relativ zum Projekt | Ordner für gespeicherte Geräte |
 
 Beispiel für einen anderen Port:

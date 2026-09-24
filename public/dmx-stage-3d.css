@@ -150,3 +150,10 @@ html:has(.stage-3d-dialog[open]){overflow:hidden}body:has(.stage-3d-dialog[open]
 .stage-3d-viewport>canvas:focus-visible{outline:2px solid #96d9ce;outline-offset:-2px}
 .stage-3d-viewport>canvas:active{cursor:grabbing}
 .stage-vr-status{flex-basis:100%;font-size:11px;line-height:1.5;color:var(--show-muted)}
+.stage-vr-setup{flex-basis:100%;min-width:0;border-top:1px solid var(--show-line);padding-top:6px;font-size:12px}
+.stage-vr-setup summary{cursor:pointer;color:var(--show-muted)}
+.stage-vr-setup[open]{max-height:240px;overflow:auto;overscroll-behavior:contain}
+.stage-vr-setup label{display:grid;gap:5px;margin:10px 0}.stage-vr-setup select{max-width:100%;min-width:0}
+.stage-vr-setup li{margin-bottom:6px}.stage-vr-setup p{white-space:pre-wrap;overflow-wrap:anywhere}
+.stage-vr-share{flex-basis:100%;font-size:12px;border-top:1px solid var(--show-line);padding-top:6px}.stage-vr-share summary{cursor:pointer}.stage-vr-share[open]{max-height:240px;overflow:auto}.stage-vr-share input,.stage-vr-share select{width:100%;min-width:0;margin:6px 0}.stage-vr-share label{display:block}.stage-vr-share p{line-height:1.5}
+.stage-vr-share [data-share-code]{display:block;margin:8px 0;font-size:26px;font-weight:700;letter-spacing:.18em;font-variant-numeric:tabular-nums;color:#b8ffe6;user-select:all}

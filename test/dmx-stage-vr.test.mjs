@@ -42,3 +42,8 @@ test('permission rejection permits retry, local reference fallback uses eye heig
 test('ending during async graphics initialization disposes late resources',async()=>{
  let ready,disposed=0;const s=setup({createGraphics:()=>new Promise(resolve=>ready=resolve)});await tick();s.button.onclick();await tick();await s.controller.stop();ready({destroy(){disposed++;}});await tick();assert.equal(s.controller.active,false);assert.equal(disposed,1);s.controller.destroy();
 });
+test('availability can be rechecked after connecting without selecting hardware',async()=>{
+ const states=[],s=setup({onSupport:state=>states.push(state)});await tick();
+ s.xr.isSessionSupported=async()=>false;await s.controller.checkSupport();assert.equal(s.button.disabled,true);assert.equal(states.at(-1),'no-headset');
+ s.xr.isSessionSupported=async()=>true;await s.controller.checkSupport();assert.equal(s.button.disabled,false);assert.equal(states.at(-1),'ready');s.controller.destroy();
+});

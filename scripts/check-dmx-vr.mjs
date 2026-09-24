@@ -43,6 +43,13 @@ try {
   await c('Page.navigate',{url:base+'/dj'});await wait("document.querySelector('#inlineLightStage')");
   await evaluate("document.querySelector('#openLightStage').click();document.querySelector('[data-moving-heads]').click();document.querySelector('#stageSettings').click();document.querySelector('[data-demo]').click();document.querySelector('[data-close]').click();document.querySelector('[data-layout-open]').click()");
   await wait("document.querySelector('#stageLayoutDialog').open&&document.querySelector('[data-layout-aim]').textContent.includes('Pan')");
+  await evaluate("document.querySelector('[data-layout-close]').click();document.querySelector('[data-stage3d-toggle]').click()");
+  await wait("document.querySelector('.stage-3d-dialog').open");
+  assert.equal(await evaluate("document.querySelector('.stage-vr-setup').open"),false);
+  assert.equal(await evaluate("(()=>{const b=document.querySelector('[data-vr-recheck]'),r=b.getBoundingClientRect();return !b.closest('details')&&b.previousElementSibling.hasAttribute('data-stage-vr')&&r.width>0&&r.height>0&&r.top>=0&&r.bottom<=innerHeight;})()"),true,'recheck is visible beside VR start with setup collapsed');
+  assert.equal(await evaluate("document.querySelector('.stage-vr-setup select')"),null,'setup requires no hardware selection');
+  await evaluate("document.querySelector('[data-vr-recheck]').click()");
+  await wait("document.querySelector('.stage-vr-setup [role=status]').textContent==='Prüfung abgeschlossen.'");
   const result=await evaluate(`(async()=>{
     const {createVRGraphics}=await import('/dmx-stage-vr.js');
     // Exercise real WebGL using a simulated XR framebuffer and two eye matrices.
@@ -55,9 +62,16 @@ try {
     graphics.render({views:[eye('left',.032),eye('right',-.032)]},{layout:{width:8,depth:12,height:5,positions:{},room:true,lightMin:0},lights:[{type:'moving',position:{x:0,y:5,height:4},target:{x:0,y:3},power:1,color:'rgb(255,60,20)'}],crowd:[{x:.5,y:.5}],motion:0},{x:0,y:1,yaw:0,floorOffset:0});
     const pixels=new Uint8Array(512*256*4);gl.readPixels(0,0,512,256,gl.RGBA,gl.UNSIGNED_BYTE,pixels);
     let litLeft=0,litRight=0,different=0;for(let y=0;y<256;y++)for(let x=0;x<256;x++){const a=(y*512+x)*4,b=a+256*4;if(pixels[a]>40)litLeft++;if(pixels[b]>40)litRight++;if(pixels[a]!==pixels[b])different++;}
-    const error=gl.getError();graphics.destroy();return {litLeft,litRight,different,error};
+    const {createVRConsole}=await import('/dmx-vr-console.js');
+    const ui=createVRConsole({command:()=>{},exit:()=>{}}),head=new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,1.7,0,1]);
+    const scene={layout:{width:8,depth:12,height:5,positions:{}},lights:[],crowd:[],motion:0,transport:{decks:[{id:'A',title:'VR control test',canPlay:true}]}};
+    const overlay=ui.update({}, {}, {transform:{matrix:head}}, {inputSources:[]},scene,{x:0,y:1,yaw:0},1);
+    overlay.ray=[[.2,1.4,-.2],[0,1.4,-.8]];
+    for(let i=0;i<3;i++)graphics.render({views:[eye('left',.032),eye('right',-.032)]},scene,{x:0,y:1,yaw:0},overlay);
+    const panelPixels=new Uint8Array(4);gl.readPixels(128,88,1,1,gl.RGBA,gl.UNSIGNED_BYTE,panelPixels);
+    const error=gl.getError();graphics.destroy();return {litLeft,litRight,different,error,panelPixel:[...panelPixels]};
   })()`);
-  assert.equal(result.error,0);assert.ok(result.litLeft>100);assert.ok(result.litRight>100);assert.ok(result.different>100,'left and right eye differ through parallax');
+  assert.equal(result.error,0);assert.ok(result.panelPixel[0]>10,'panel renders in eye viewport');assert.ok(result.litLeft>100);assert.ok(result.litRight>100);assert.ok(result.different>100,'left and right eye differ through parallax');
   assert.deepEqual(errors,[]);console.log('VR WebGL passed: real shader compilation, shared scene, both eye viewports, stereo parallax, no GL errors.',result);
 } finally {
   ws?.close();chrome.kill('SIGKILL');app.server.closeAllConnections();

@@ -27,7 +27,9 @@ else {
     const token=randomBytes(32).toString('hex');
     const build=app.isPackaged?JSON.parse(await readFile(join(process.resourcesPath,'build-flavor.json'),'utf8')):{analysis:false};
     const analysis=build.analysis?await bundledAnalysis(join(process.resourcesPath,'analysis'),app.getPath('userData')):{};
-    backend=await createApp({...analysis,dataDir:join(app.getPath('userData'),'data'),token,demo:process.argv.includes('--demo')});
+    let previewTls=null;
+    if(process.env.SSL_CERT_FILE||process.env.SSL_KEY_FILE){if(!process.env.SSL_CERT_FILE||!process.env.SSL_KEY_FILE)throw Error('Für die HTTPS-Vorschau SSL_CERT_FILE und SSL_KEY_FILE gemeinsam angeben.');const [cert,key]=await Promise.all([readFile(process.env.SSL_CERT_FILE),readFile(process.env.SSL_KEY_FILE)]);previewTls={cert,key};}
+    backend=await createApp({...analysis,previewTls,dataDir:join(app.getPath('userData'),'data'),token,demo:process.argv.includes('--demo')});
     await new Promise((resolve,reject)=>{backend.server.once('error',reject);backend.server.listen(isolatedTest?0:36931,'127.0.0.1',resolve);});
     if(isolatedTest)origin=`http://127.0.0.1:${backend.server.address().port}`;
     const browserSession=session.fromPartition('persist:anydj');

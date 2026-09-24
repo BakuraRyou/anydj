@@ -1,3 +1,4 @@
+import {createVRPreviewRelay} from './lib/vr-preview.mjs';
 import http from 'node:http';
 import https from 'node:https';
 import {DmxConnection} from './lib/dmx.mjs';
@@ -20,6 +21,12 @@ import { StructureAnalysis } from './lib/structure-analysis.mjs';
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const VERSION = '0.1.0';
 const STATIC = new Map([
+  ['/vr-test', ['vr-view.html', 'text/html; charset=utf-8']],
+  ['/vr-test/', ['vr-view.html', 'text/html; charset=utf-8']],
+  ['/vr-view', ['vr-view.html', 'text/html; charset=utf-8']],
+  ['/vr-view.js', ['vr-view.js', 'text/javascript; charset=utf-8']],
+  ['/vr-view.css', ['vr-view.css', 'text/css; charset=utf-8']],
+  ['/dmx-vr-share.js', ['dmx-vr-share.js', 'text/javascript; charset=utf-8']],
   ['/brand.css', ['brand.css', 'text/css; charset=utf-8']],
   ['/transition-timeline.js', ['transition-timeline.js', 'text/javascript; charset=utf-8']],
   ['/animatus-small.svg', ['animatus-small.svg', 'image/svg+xml']],
@@ -55,7 +62,10 @@ const STATIC = new Map([
   ['/dmx-zone-plan.js', ['dmx-zone-plan.js', 'text/javascript; charset=utf-8']],
   ['/dmx-zone-motion.js', ['dmx-zone-motion.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-workspace.js', ['dmx-stage-workspace.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-vr-setup.js', ['dmx-vr-setup.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-vr-playback.js', ['dmx-vr-playback.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-vr.js', ['dmx-stage-vr.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-vr-console.js', ['dmx-vr-console.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-3d.js', ['dmx-stage-3d.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-3d-renderer.js', ['dmx-stage-3d-renderer.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-3d.css', ['dmx-stage-3d.css', 'text/css; charset=utf-8']],
@@ -146,7 +156,7 @@ const json = (res, status, data) => {
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
   res.end(JSON.stringify(data));
 };
-async function bodyJSON(req) {
+async function bodyJSON(req,limit=8192) {
   if (!(req.headers['content-type'] || '').toLowerCase().startsWith('application/json')) {
     throw new AppError('Content-Type application/json erforderlich.', 415);
   }
@@ -154,7 +164,7 @@ async function bodyJSON(req) {
   let size = 0;
   for await (const chunk of req) {
     size += chunk.length;
-    if (size > 8192) throw new AppError('Anfrage ist zu groß (maximal 8 KiB).', 413);
+    if (size > limit) throw new AppError('Anfrage ist zu groß.', 413);
     chunks.push(chunk);
   }
   try {
@@ -177,13 +187,14 @@ function tokenMatches(header, token) {
 /** The HTTP service is independent of the transport; tests inject a DemoClient. */
 export async function createApp({
   demo = false, client = demo ? new DemoClient() : new WizClient(),
-  dataDir = join(ROOT, 'data'), token = '', hosts = allowedHosts(), tls = null,
+  dataDir = join(ROOT, 'data'), token = '', hosts = allowedHosts(), tls = null, previewTls = tls, previewPort = Number(process.env.VR_PREVIEW_PORT || 3031),
   setup = new SetupClient(), detectSetup = setupNetworkStatus,
   beatAnalysis = new BeatAnalysis(),
   structureAnalysis = new StructureAnalysis(),
   styleAnalysis = new StyleAnalysis(),
   dmx = new DmxConnection({demo}),
 } = {}) {
+  if(!Number.isInteger(previewPort)||previewPort<0||previewPort>65535)throw new AppError('VR_PREVIEW_PORT muss eine gültige Portnummer sein.',400);
   const devices = new Map();
   const music = new MusicSession(client);
   const queues = new Map();
@@ -342,7 +353,7 @@ export async function createApp({
     try { return await task; } finally { if (connecting === task) connecting = null; }
   }
   const limiter = (req, frame = false) => {
-    const key = `${req.socket.remoteAddress || 'unknown'}:${frame ? 'music' : 'api'}`;
+    const key = `${req.socket.remoteAddress || 'unknown'}:${frame=== 'preview'?'preview':frame ? 'music' : 'api'}`;
     const now = Date.now();
     let entry = rates.get(key);
     if (!entry || now - entry.start > 60000) entry = { start: now, count: 0 };
@@ -353,6 +364,7 @@ export async function createApp({
     if (entry.count > (frame ? 1400 : 360)) throw new AppError('Zu viele Anfragen. Bitte kurz pausieren.', 429, 'RATE_LIMIT');
   };
 
+  const previewRelay=createVRPreviewRelay();let previewBridge=null,bridgeTask=null;
   const createServer = tls ? handler => https.createServer(tls, handler) : handler => http.createServer(handler);
   const server = createServer(async (req, res) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -383,15 +395,29 @@ export async function createApp({
       }
       if (req.method === 'GET' && path === '/favicon.ico') { res.writeHead(204); res.end(); return; }
       if (!path.startsWith('/api/')) throw new AppError('Nicht gefunden.', 404);
-      limiter(req, path === '/api/dmx/frame' || path === '/api/music/frame' || path === '/api/music/status');
+      limiter(req, path === '/api/vr-preview/frame'?'preview':path === '/api/dmx/frame' || path === '/api/music/frame' || path === '/api/music/status');
       if (req.method === 'GET' && path === '/api/meta') {
         json(res, 200, { version: VERSION, demo, tokenRequired: Boolean(token) && !tokenMatches(req.headers.authorization, token) }); return;
       }
+      if(path==='/api/vr-preview/command'&&req.method==='POST'){if(req.headers['x-anydj-local']!=='1')throw new AppError('Steuerung benötigt den lokalen Anfrageheader.',403);const body=await bodyJSON(req);json(res,200,previewRelay.command(body.id,body.control,body.command));return;}
+      if(path==='/api/vr-preview/test-connect'&&req.method==='GET'){json(res,200,previewRelay.pairTest());return;}
+      if(path==='/api/vr-preview/pair'&&req.method==='GET'){json(res,200,previewRelay.pair(url.searchParams.get('code'),req.socket.remoteAddress||'unknown'));return;}
+      if(path==='/api/vr-preview/stream'&&req.method==='GET'){previewRelay.stream(url.searchParams.get('id'),req,res);return;}
       if (token && !tokenMatches(req.headers.authorization, token)) {
         throw new AppError('Bitte den Web-Zugangscode aus dem Server-Terminal eingeben.', 401, 'UNAUTHORIZED');
       }
       if (!['GET', 'HEAD'].includes(req.method) && req.headers['x-anydj-local'] !== '1' && req.headers['x-wiz-local'] !== '1') {
         throw new AppError('Schreibzugriff benötigt den Header X-AnyDj-Local: 1.', 403, 'CSRF');
+      }
+      if(path.startsWith('/api/vr-preview/')){
+        if(req.method!=='POST')throw new AppError('Vorschau benötigt POST.',405);
+        const body=await bodyJSON(req,path.endsWith('/frame')?1048576:8192);
+        if(path==='/api/vr-preview/start'){
+          const urls=await previewAddresses();const session=previewRelay.start();json(res,200,{...session,urls:urls.map(base=>`${base}/vr-view#${session.id}`),secure:Boolean(previewTls)});return;
+        }
+        if(path==='/api/vr-preview/frame'){json(res,200,previewRelay.publish(body.id,body.owner,body.scene,body.ack));return;}
+        if(path==='/api/vr-preview/stop'){previewRelay.stop(body.id,body.owner);json(res,200,{stopped:true});return;}
+        throw new AppError('Vorschau-Endpunkt nicht gefunden.',404);
       }
       if (path === '/api/dmx/status' && req.method === 'GET') { json(res,200,dmx.status());return; }
       if (path.startsWith('/api/dmx/')) {
@@ -574,6 +600,17 @@ export async function createApp({
       if (!error.status) console.error(error);
     }
   });
+  async function previewAddresses(){
+    if(!bridgeTask)bridgeTask=(async()=>{
+      const allowed=new Set(['/vr-test','/vr-test/','/api/vr-preview/test-connect','/vr-view','/vr-view.js','/vr-view.css','/dmx-stage-vr.js','/dmx-vr-console.js','/dmx-vr-playback.js','/dmx-stage-3d-renderer.js','/api/vr-preview/stream','/api/vr-preview/pair']);
+      previewBridge=(previewTls?https.createServer.bind(https,previewTls):http.createServer)((req,res)=>{let path=(req.url||'').split('?')[0];if(req.method==='GET'&&(path==='/'||path==='/vr-view/')){req.url='/vr-view'+(req.url.includes('?')?req.url.slice(req.url.indexOf('?')):'');path='/vr-view';}if(req.method==='GET'&&path==='/favicon.ico'){res.writeHead(204);res.end();return;}if(!(req.method==='POST'&&path==='/api/vr-preview/command')&&(req.method!=='GET'||!allowed.has(path))){res.writeHead(403);res.end('Dieser Zugang ist nur für die VR-Vorschau.');return;}server.emit('request',req,res);});
+      await new Promise((resolve,reject)=>{previewBridge.once('error',reject);previewBridge.listen(previewPort,'0.0.0.0',resolve);});
+      return previewBridge.address().port;
+    })().catch(error=>{previewBridge?.close();previewBridge=null;bridgeTask=null;if(error.code==='EADDRINUSE')throw new AppError(`Der VR-Vorschau-Port ${previewPort} ist bereits belegt. Beende die andere AnyDj-Instanz oder lege VR_PREVIEW_PORT fest.`,409);throw error;});
+    const port=await bridgeTask,addresses=Object.values(networkInterfaces()).flat().filter(x=>x&&!x.internal&&x.family==='IPv4').map(x=>x.address);
+    return [...new Set(addresses.length?addresses:['127.0.0.1'])].map(ip=>`${previewTls?'https':'http'}://${ip}:${port}`);
+  }
+  server.on('close',()=>{previewRelay.close();previewBridge?.closeAllConnections();previewBridge?.close();});
   server.requestTimeout = 15000;
   server.headersTimeout = 10000;
   server.keepAliveTimeout = 5000;
@@ -616,9 +653,8 @@ async function main() {
   const port = Number(process.env.PORT || 3030);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT muss zwischen 1 und 65535 liegen.');
   const lan = !['localhost', '127.0.0.1', '[::1]'].includes(host);
-  let token = process.env.WIZ_WEB_TOKEN || '';
+  const token = process.env.WIZ_WEB_TOKEN || '';
   if (token && token.length < 20) throw new Error('WIZ_WEB_TOKEN muss mindestens 20 Zeichen lang sein.');
-  if (lan && !token) token = randomBytes(18).toString('base64url');
   const { server, client, music, dmx } = await createApp({ demo, token, hosts, tls,
     ...(process.env.WIZ_DATA_DIR ? { dataDir: resolve(process.env.WIZ_DATA_DIR) } : {}),
   });
