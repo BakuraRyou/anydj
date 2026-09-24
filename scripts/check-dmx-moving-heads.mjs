@@ -71,7 +71,7 @@ try {
     }
     heads.destroy();return output;
   })()`);
-  assert.deepEqual(activity.map(values=>values.filter(v=>v===0).length),[0,0,0,0,4,2,3,0]);
+  assert.deepEqual(activity.map(values=>values.filter(v=>v===0).length),[0,0,0,0,4,0,0,0]);
   for(const [index,levels] of activity.entries()){if(index===6)continue;assert.equal(levels[0],levels[3]);assert.equal(levels[1],levels[2]);}
   const musicalStop=await evaluate(`(async()=>{
     const {createMovingHeads}=await import('/dmx-moving-heads.js');
@@ -96,6 +96,46 @@ try {
     assert.deepEqual(musicalStop[offset+2],[0,0,0,0]);
     assert.ok(musicalStop[offset+3].every(v=>v>0));
   }
+  const sustainedRest=await evaluate(`(async()=>{
+    const {createMovingHeads}=await import('/dmx-moving-heads.js');
+    const {automaticStage}=await import('/dmx-auto.js');
+    const {encodeStage,decodeStage}=await import('/dmx-model.js');
+    const scene=document.createElement('div'),controls=document.createElement('div'),simulation=createMovingHeads(scene,controls);
+    const zero=Array(220).fill(0),other=zero.map((_,i)=>i<40||i>=180?.2:.015);
+    const movingPlan={structure:{instruments:{step:.1,drums:zero,bass:zero,vocals:zero,other}},arrangement:{}};
+    const frame={state:true,r:255,g:60,b:0,dimming:30},results=[];
+    for(const spots of [3,4])for(const songTime of [3,5,10,17.9,18]){
+      const equipment={devices:Array.from({length:spots},(_,i)=>({id:String(i),type:'spot',cells:1}))};
+      const streams=[{frame,weight:1,look:songTime>=4&&songTime<18?'held':'peak',movingPlan,songTime}];
+      simulation.update(decodeStage(encodeStage(automaticStage(streams,2,equipment).frames,equipment),equipment),frame,songTime,false,streams,'auto');
+      results.push([...scene.querySelectorAll('.stage-moving-head')].map(n=>Number(n.style.getPropertyValue('--stage-power'))));
+    }
+    simulation.destroy();return results;
+  })()`);
+  for(const offset of [0,5]){
+    assert.ok(sustainedRest[offset].every(v=>v>0));
+    for(const index of [1,2,3])assert.deepEqual(sustainedRest[offset+index],[0,0,0,0]);
+    assert.ok(sustainedRest[offset+4].every(v=>v>0));
+  }
+  const finalFade=await evaluate(`(async()=>{
+    const {createMovingHeads}=await import('/dmx-moving-heads.js');
+    const {automaticStage}=await import('/dmx-auto.js');
+    const {encodeStage,decodeStage}=await import('/dmx-model.js');
+    const scene=document.createElement('div'),controls=document.createElement('div'),simulation=createMovingHeads(scene,controls);
+    const intensity=Array.from({length:100},(_,i)=>i<20?.4:i<75?.4-.3*(i-20)/55:.1);
+    const movingPlan={sections:[{start:0,end:10,look:'flow'}],arrangement:{drama:{step:.1,intensity},patterns:{phrases:[{start:0,end:10,movement:{character:'atmospheric'}}]}}};
+    const frame={state:true,r:255,g:60,b:0,dimming:30},results=[];
+    for(const songTime of [2,6.5,8.5,9.9,10]){
+      const streams=[{frame,weight:1,look:'flow',movingPlan,songTime}];
+      simulation.update(decodeStage(encodeStage(automaticStage(streams,2).frames)),frame,songTime,false,streams,'auto');
+      results.push([...scene.querySelectorAll('.stage-moving-head')].map(n=>Number(n.style.getPropertyValue('--stage-power'))));
+    }
+    simulation.destroy();return results;
+  })()`);
+  assert.equal(finalFade[1].filter(v=>v>0).length,1);
+  assert.ok(Math.max(...finalFade[1])<Math.max(...finalFade[0]));
+  assert.deepEqual(finalFade[2],[0,0,0,0]);assert.deepEqual(finalFade[3],[0,0,0,0]);
+  assert.ok(finalFade[4].every(v=>v>0));
   const quietBuild=await evaluate(`(async()=>{
     const {createMovingHeads}=await import('/dmx-moving-heads.js');
     const {automaticStage}=await import('/dmx-auto.js');
@@ -124,7 +164,7 @@ try {
     const frame={state:true,r:255,g:40,b:0,dimming:60};
     const movingPlan={colorDirection:{events:[0,8,16,24].map(time=>({time,reason:'sound-change'}))}};
     const results=[];
-    for(const spots of [4,2,3,5,6,7,8,'bar-7','bar-8'])for(const songTime of [1,8,16,24]){
+    for(const spots of [4,2,3,5,6,7,8,'bar-7','bar-8'])for(const songTime of [1,8.7,16.7,24.7]){
       const equipment={devices:typeof spots==='number'?Array.from({length:spots},(_,i)=>({id:String(i),type:'spot',cells:1})):[{id:'bar',type:'bar',cells:Number(spots.slice(4))}]};
       const streams=[{frame,weight:1,look:'peak',movingPlan,songTime}];
       const fixtures=decodeStage(encodeStage(automaticStage(streams,2,equipment).frames,equipment),equipment);
@@ -135,6 +175,23 @@ try {
     simulation.destroy();return results;
   })()`);
   for(const offset of [0,4,8,12,16,20,24,28,32])assert.deepEqual(colorGroups.slice(offset,offset+4),[[0,1,0,1],[0,0,2,2],[0,1,1,0],[0,1,0,1]]);
+  const rollingPreview=await evaluate(`(async()=>{
+    const {createMovingHeads}=await import('/dmx-moving-heads.js');
+    const {automaticStage}=await import('/dmx-auto.js');
+    const {encodeStage,decodeStage}=await import('/dmx-model.js');
+    const scene=document.createElement('div'),controls=document.createElement('div'),simulation=createMovingHeads(scene,controls);
+    const times=Array.from({length:20},(_,i)=>i*.5),frame={state:true,r:255,g:40,b:0,dimming:60};
+    const movingPlan={arrangement:{times,patterns:{events:times.map(()=>({driving:true})),phrases:[{start:0,end:10,kind:'bounce',movement:{character:'rhythmic',driving:1,rate:2}}]}}};
+    const results=[];
+    for(const songTime of [1,1.15,1.3]){
+      const streams=[{frame,weight:1,look:'peak',movingPlan,songTime}];
+      simulation.update(decodeStage(encodeStage(automaticStage(streams,2).frames)),frame,songTime,false,streams,'auto');
+      results.push([...scene.querySelectorAll('.stage-moving-head')].map(n=>n.style.getPropertyValue('--stage-beam-color')));
+    }
+    simulation.destroy();return results;
+  })()`);
+  assert.notDeepEqual(rollingPreview[0],rollingPreview[1]);
+  assert.notDeepEqual(rollingPreview[1],rollingPreview[2]);
   const formation=await evaluate(`(async()=>{
     const {createMovingHeads}=await import('/dmx-moving-heads.js');
     const {stageLayout}=await import('/dmx-layout-model.js');

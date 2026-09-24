@@ -1,18 +1,18 @@
 import {editPhaseTime} from './light-editor-model.js';
 export function createLightTimeline(host,{plan,getSnap=()=>'beat',onSelect,onSeek,onEdit}) {
-  host.innerHTML='<div class="le-scroll"><div class="le-track"><div class="le-ruler"></div><div class="le-structure"></div><div class="le-phases" aria-label="Lichtphasen"></div><div class="le-playhead"></div></div></div><input class="le-seek" aria-label="Abspielposition in Sekunden" type="range" min="0" step="0.01"><p class="le-hint">Phase ziehen · Ränder ändern · Pfeiltasten: 0,1 s, mit Umschalt: 1 s</p>';
+  host.innerHTML='<div class="le-scroll"><div class="le-track"><div class="le-ruler"></div><div class="le-phases" aria-label="Lichtphasen"></div><div class="le-playhead"></div></div></div><input class="le-seek" aria-label="Abspielposition in Sekunden" type="range" min="0" step="0.01">';
   const q=s=>host.querySelector(s),track=q('.le-track'),lane=q('.le-phases'),seek=q('.le-seek');
   seek.max=plan.duration;seek.oninput=()=>onSeek(Number(seek.value));
   const time=e=>Math.max(0,Math.min(plan.duration,(e.clientX-track.getBoundingClientRect().left)/track.getBoundingClientRect().width*plan.duration));
   let phases=[],drag=null;
   for(let i=0;i<=8;i++){const label=document.createElement('span');label.style.left=`${i/8*100}%`;const t=plan.duration*i/8;label.textContent=`${Math.floor(t/60)}:${String(Math.floor(t%60)).padStart(2,'0')}`;q('.le-ruler').append(label);}
-  for(const section of plan.sections??[]){const label=document.createElement('span');label.style.left=`${section.start/plan.duration*100}%`;label.style.width=`${(section.end-section.start)/plan.duration*100}%`;label.textContent=section.title||section.label||section.kind||'Abschnitt';q('.le-structure').append(label);}
+
   function update(edits,selected){
     phases=edits;lane.replaceChildren();
     edits.forEach((phase,index)=>{
-      const block=document.createElement('div');block.className='le-phase';block.style.left=`${phase.start/plan.duration*100}%`;block.style.width=`${(phase.end-phase.start)/plan.duration*100}%`;block.dataset.index=index;
+      const block=document.createElement('div');block.className='le-phase';block.style.left=`${phase.start/plan.duration*100}%`;block.style.width=`${(phase.end-phase.start)/plan.duration*100}%`;block.dataset.index=index;block.dataset.selected=String(index===selected);
       block.style.setProperty('--phase-color',phase.colors==='auto'?'#75c9ca':phase.colorA);
-      for(const kind of ['start','move','end']){const button=document.createElement('button');button.type='button';button.dataset.kind=kind;button.className=`le-${kind}`;button.setAttribute('aria-label',`${phase.name}: ${kind==='move'?'Phase verschieben':kind==='start'?'Beginn ändern':'Ende ändern'}`);button.textContent=kind==='move'?phase.name:'⋮';button.title=`${phase.name} · ${phase.start.toFixed(2)}–${phase.end.toFixed(2)} s`;button.setAttribute('aria-pressed',String(index===selected));block.append(button);}
+      for(const kind of ['start','move','end']){const button=document.createElement('button');button.type='button';button.dataset.kind=kind;button.className=`le-${kind}`;button.setAttribute('aria-label',`${phase.name}: ${kind==='move'?'Phase verschieben':kind==='start'?'Beginn ändern':'Ende ändern'}`);button.textContent=kind==='move'?phase.name:'';button.title=`${phase.name} · ${phase.start.toFixed(2)}–${phase.end.toFixed(2)} s`;button.setAttribute('aria-pressed',String(index===selected));block.append(button);}
       lane.append(block);
     });
   }

@@ -20,7 +20,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   document.body.append(panel);
   const colorPreview=button.closest('.dj-mixer')?.querySelector('.dj-color-preview');
   const inline=colorPreview?document.createElement('section'):null;
-  let active=false;
+  let active=false,editorPreview=null;
   const settingsButton=document.createElement('button');
   settingsButton.type='button';settingsButton.id='stageSettings';settingsButton.className='button secondary';settingsButton.textContent='Bühne einstellen';settingsButton.hidden=true;
   if(inline){
@@ -34,7 +34,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   button.setAttribute('aria-controls',inline?inline.id:panel.id);settingsButton.setAttribute('aria-controls',panel.id);settingsButton.setAttribute('aria-expanded','false');button.setAttribute('aria-expanded','false');
   const scene=(inline||panel).querySelector('.stage-scene'),spots=scene.querySelector('.stage-spots'),bars=scene.querySelector('.stage-bars');
   const layout=createStageLayout({getFixtures:()=>stagePatch(editor.equipment),onChange:()=>render()});
-  const movingHeads=createMovingHeads(scene,inline||panel.querySelector('.stage-controls'),{getPlans:getMovingPlans,getLayout:()=>layout.value,onPreview:value=>layout.update(value),showMoodControl:false,adjustFrame});
+  const movingHeads=createMovingHeads(scene,inline||panel.querySelector('.stage-controls'),{getPlans:()=>[...getMovingPlans(),...(editorPreview?.streams??[]).map(s=>s.movingPlan).filter(Boolean)],getLayout:()=>layout.value,onPreview:value=>layout.update(value),showMoodControl:false,adjustFrame});
   const layoutButton=document.createElement('button');layoutButton.type='button';layoutButton.className='button secondary';layoutButton.dataset.layoutOpen='';layoutButton.textContent='Bühne & Geräte aufstellen';layoutButton.setAttribute('aria-controls','stageLayoutDialog');layoutButton.onclick=()=>layout.open(layoutButton);
   (inline||panel.querySelector('.stage-controls')).append(layoutButton);
   const nodes=[],fixtureNodes=[];
@@ -89,8 +89,11 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   hardwareSection.open=true;views.connection.page.append(hardwareSection,panel.querySelector('.stage-technical'));
   selectView('look');
   const demoButton=panel.querySelector('[data-demo]'),blackoutButton=panel.querySelector('[data-blackout]');
+  const lastFrame=()=>current,lastStreams=()=>streams,lastDemo=()=>demo,lastBlackout=()=>blackout;
   function render(){
-    if(!panel.open&&!active&&!hardware.enabled)return;
+    if(!panel.open&&!active&&!hardware.enabled&&!editorPreview)return;
+    const current=editorPreview?.frame??lastFrame(),streams=editorPreview?.streams??lastStreams();
+    const demo=editorPreview?false:lastDemo(),blackout=editorPreview?false:lastBlackout();
     panel.dataset.design=String(editor.enabled);panel.dataset.stageMode=editor.mode;
     for(const choice of modeButtons.children)choice.setAttribute('aria-pressed',String(choice.dataset.stageChoice===editor.mode));
     const equipment=editor.equipment,patch=stagePatch(equipment);
@@ -168,6 +171,16 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   blackoutButton.onclick=()=>{blackout=!blackout;render();};
   if(inline){try{if(localStorage.getItem('anydj-stage-visible')==='true')activate(true);}catch{}}
   return {
+    mountEditor(host){
+      if(editorPreview)throw Error('Ein Lichteditor ist bereits geöffnet.');
+      const marker=document.createComment('stage-editor-mount');scene.before(marker);host.append(scene);
+      const status=document.createElement('p');status.className='le-set-status';host.append(status);
+      editorPreview={frame:null,streams:[]};startTimer();
+      return {
+        update(frame,nextStreams){if(!editorPreview)return;const changed=editorPreview.streams[0]?.movingPlan!==nextStreams[0]?.movingPlan;editorPreview={frame,streams:nextStreams};if(changed)movingHeads.prepare();render();status.textContent=hardware.enabled?'DMX-Ausgabe aktiv · Entwurf live am Set':'Bühnenvorschau · DMX-Ausgabe nicht aktiviert';},
+        destroy(){editorPreview=null;marker.replaceWith(scene);status.remove();render();if(!active&&!panel.open&&!hardware.enabled){clearInterval(timer);timer=null;}}
+      };
+    },
     prepareMovingHeads(){movingHeads.prepare();},
     setMovingMood(value){movingHeads.setMood(value);},
     tuningHost,

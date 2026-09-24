@@ -9,8 +9,18 @@ const finite=(v,fallback)=>Number.isFinite(v)?v:fallback;
 // Travel ends ON the event. Quiet gaps hold the last destination.
 export function movingCues(plan,mode,mood='balanced'){
   mood=movingMood(mood);const profile=MOVING_MOODS[mood];
-  const arrangement=plan.arrangement;
+  let arrangement=plan.arrangement;
   if(!Array.isArray(arrangement?.times))return null;
+  if(mode==='auto'&&arrangement.developments?.length){
+    const entries=arrangement.times.map((time,i)=>({time,accent:arrangement.accents[i],salience:arrangement.eventSalience?.[i],event:arrangement.patterns?.events?.[i]}));
+    for(const cue of arrangement.developments){
+      if(entries.some(e=>Math.abs(e.time-cue.time)<.2))continue;
+      entries.push({time:cue.time,accent:.35,salience:0,event:{kind:'build',development:true,progress:cue.progress}});
+    }
+    entries.sort((a,b)=>a.time-b.time);
+    arrangement={...arrangement,times:entries.map(e=>e.time),accents:entries.map(e=>e.accent),eventSalience:entries.map(e=>e.salience),
+      patterns:{...arrangement.patterns,events:entries.map(e=>e.event)}};
+  }
   const cues=[{time:0,travel:0,pose:restingHeads()}];
   const phrases=arrangement.patterns?.phrases||[],sections=plan.sections||[];
   const directions=mode==='auto'?movingDirections(plan,mood==='disco'):[];
@@ -40,7 +50,7 @@ export function movingCues(plan,mode,mood='balanced'){
     const design=mood==='balanced'||mood==='disco'?directionDesign:null;
     if(phraseIndex!==lastPhrase){phraseOrdinal=0;lastPhrase=phraseIndex;}
     const event=arrangement.patterns?.events?.[index];
-    const atmospheric=mode==='auto'&&mood==='balanced'&&(phrase?.movement?.character==='atmospheric'||['held','quiet','break','outro'].includes(section?.look));
+    const atmospheric=!event?.development&&mode==='auto'&&mood==='balanced'&&(phrase?.movement?.character==='atmospheric'||['held','quiet','break','outro'].includes(section?.look));
     const kind=atmospheric?'sweep':mode==='wash'?'wash':mood==='atmospheric'?'sweep':event?.kind||phrase?.kind||'bounce';
     const calm=atmospheric||kind==='wash'||['held','quiet','break','outro'].includes(section?.look);
     const strength=clamp(finite(arrangement.accents?.[index],0)/.7);
@@ -51,9 +61,9 @@ export function movingCues(plan,mode,mood='balanced'){
     const percussion=clamp(finite(drama?.percussion,strength));
     const rhythmicDrive=clamp(finite(drama?.percussion,finite(phrase?.movement?.driving,0)));
     const vocals=clamp(finite(drama?.vocalShare,0));
-    const groove=directed&&!calm&&(mood==='balanced'||mood==='energetic'||mood==='disco')&&
+    const groove=!event?.development&&directed&&!calm&&(mood==='balanced'||mood==='energetic'||mood==='disco')&&
       energy>=.55&&rhythmicDrive>=.45&&strength>=.3&&
-      (section?.look==='peak'||energy>=.72)&&(event?.driving||phrase.movement.driving>=.5);
+      (section?.look==='peak'||energy>=.72)&&(event?.driving||phrase.movement.driving>=.5||phrase.movement.percussive);
     if(!groove)lastGrooveBeat=null;
     const prominence=clamp((finite(arrangement.eventSalience?.[index],0)-(motives[phraseIndex]?.salience??.35))/.4);
     let drive=1;
@@ -65,9 +75,9 @@ export function movingCues(plan,mode,mood='balanced'){
       const entrance=motive.changed&&lastEntry!==phraseIndex;
       const standout=finite(arrangement.accents?.[index],0)>=motive.threshold;
       const rise=(dramaAt(arrangement.drama,time)?.intensity??0)-(dramaAt(arrangement.drama,Math.max(section?.start??0,time-2))?.intensity??0);
-      const building=section?.look==='lift'&&event?.kind==='build'&&onBar&&rise>=.08;
+      const building=section?.look==='lift'&&event?.kind==='build'&&(event.development||onBar&&rise>=.08);
       if(!entrance&&!standout&&!building&&!groove)continue;
-      reason=groove?'groove':entrance?'musical-change':building?'build':'strong-accent';
+      reason=event?.development?'build-development':groove?'groove':entrance?'musical-change':building?'build':'strong-accent';
     }
     const previous=cues.at(-1),gap=time-previous.time;
     if(gap<(groove?.65:Math.max(profile.spacing,design?.spacing??0,atmospheric?4:0,calm?1.5:kind==='sweep'?.75:.38)))continue;
@@ -90,7 +100,7 @@ export function movingCues(plan,mode,mood='balanced'){
       return {pan:clamp(pan*profile.span,-42,42),tilt:clamp(.8+(.65+tone*.2+energy*.15+(outer?.05:-.05)-.8)*Math.min(1,profile.span),.55,1.15)};
     });
     if(groove){
-      const grid=plan.beatGrid?.beats||arrangement.times;
+      const grid=arrangement.motionTimes||plan.beatGrid?.beats||arrangement.times;
       const beat=beatPosition(grid,time)??index;
       let phaseBeat=beat;
       if(mood!=='disco'){
@@ -102,7 +112,7 @@ export function movingCues(plan,mode,mood='balanced'){
         lastGrooveBeat=beat;lastDrive=drive;phaseBeat=motionBeat;
       }
       pose=groovePose(phaseBeat,{energy,strength,percussion,vocals,span:profile.span,formation:mood==='disco'?(directionDesign?.formation||'ribbon'):'mirror',period:mood==='disco'?4:8});
-    }else if(design){
+    }else if(design&&!event?.development){
       const sectionProgress=section?clamp((time-section.start)/Math.max(.1,section.end-section.start)):progress;
       pose=directedPose(design,phraseOrdinal++,sectionProgress).map(p=>({pan:clamp(p.pan*profile.span,-42,42),tilt:clamp(.8+(p.tilt-.8)*Math.min(1,profile.span),.55,1.15)}));
     }
@@ -113,7 +123,7 @@ export function movingCues(plan,mode,mood='balanced'){
     // unrelated quiet passage. Reduce distance when the motor cannot arrive.
     // Dense subdivisions describe one continuous gesture. Give a groove up
     // to 1200 ms of travel instead of shrinking every short hop to a few degrees.
-    const available=directed?Math.min(gap,calm?1.5:groove?1.2:.6):gap;
+    const available=directed?Math.min(gap,event?.development?2:calm?1.5:groove?1.2:.6):gap;
     const fraction=motionReach(previous.pose,pose,available,speed);
     const reachable=pose.map((p,i)=>({pan:previous.pose[i].pan+(p.pan-previous.pose[i].pan)*fraction,tilt:previous.pose[i].tilt+(p.tilt-previous.pose[i].tilt)*fraction}));
     cues.push({time,...(reason?{reason}:{}),...(groove&&mood!=='disco'?{drive,settle:prominence*.7}:{}),travel:groove?available:Math.min(available,Math.max(profile.travel,design?.travel??0,atmospheric?3:0,calm?.8:.2,motionDuration(previous.pose,reachable,speed))),pose:reachable});

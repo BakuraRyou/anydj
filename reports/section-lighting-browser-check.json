@@ -1,6 +1,7 @@
 {
   "instrumentPersistence": true,
   "openFromLibrary": true,
+  "openFromQueue": true,
   "motifTransfer": true,
   "persistence": true,
   "beatSnappedSplit": true,
@@ -11,5 +12,10 @@
   "undoRedo": true,
   "keyboardResize": true,
   "independentInstances": true,
+  "contextualColors": true,
+  "selectionSeeks": true,
+  "mobileNoOverflow": true,
+  "liveStageInput": true,
+  "stageRestored": true,
   "browserErrors": 0
 }

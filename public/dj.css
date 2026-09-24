@@ -247,3 +247,6 @@
 .dj-queue{height:520px}
 .dj-collections .dj-library{height:520px}
 @media(max-width:760px){.queue-manager .button{white-space:normal}.dj-collections .dj-library{height:540px}}
+
+#queueList [data-queue-light-editor]{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;flex-shrink:0}
+#queueList [data-queue-light-editor] svg{pointer-events:none}

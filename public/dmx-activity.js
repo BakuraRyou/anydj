@@ -1,7 +1,7 @@
-import {instrumentDevelopment} from './instrument-activity.js';
+import {instrumentDevelopment,instrumentRests} from './instrument-activity.js';
 // Light pauses are reserved for measured musical withdrawals. Accents and
 // beat counts never alternate the active fixtures; brightness carries rhythm.
-const cache=new WeakMap();
+const cache=new WeakMap(),restCache=new WeakMap();
 const quiet=look=>/held|quiet|break|outro/.test(look||'');
 const smooth=value=>{const v=Math.max(0,Math.min(1,value));return v*v*(3-2*v);};
 function buildFor(section,drama){
@@ -26,7 +26,12 @@ function buildFor(section,drama){
   if(Math.abs(change)<.18||coherence<(section.look==='lift'&&Math.abs(change)>=.35?.33:.4))return null;
   let progress=0;
   const levels=values.map((v,i)=>{if(i<anchor)return 0;progress=Math.max(progress,Math.min(1,Math.max(0,(v-values[anchor])/change)));return change>0?progress:1-progress;});
-  return {start:section.start,end:section.end,look:section.look,kind:'build',direction:change>0?'rise':'fall',leader:section.attention?.leader,times,levels};
+  // A measured atmospheric withdrawal is a deliberate fade sequence, even
+  // when bass or a tail remains audible. Let its final fixture finish too.
+  const finishDark=change<=-.2&&values.at(-1)<=.18&&
+    (quiet(section.look)||section.movement?.character==='atmospheric');
+  return {start:section.start,end:section.end,look:section.look,kind:'build',direction:change>0?'rise':'fall',
+    finishDark,leader:section.attention?.leader,times,levels};
 }
 function cuesFor(plan){
   if(cache.has(plan))return cache.get(plan);
@@ -40,7 +45,20 @@ function cuesFor(plan){
     // intensity choreography. Require evidence, not just a section label.
     const samples=drama?.intensity?.slice(Math.floor(section.start/drama.step),Math.ceil(section.end/drama.step))||[];
     const clipped=samples.length&&samples.filter(v=>v<.12).length>=samples.length*.5;
-    return (clipped&&development?buildFor(section,development):null)||buildFor(section,drama);
+    const raw=development?buildFor(section,development):null;
+    if(raw?.direction==='fall'){
+      const instruments=plan.structure.instruments;
+      const rms=(start,end)=>{
+        const a=Math.max(0,Math.floor(start/instruments.step)),b=Math.min(instruments.drums.length,Math.floor(end/instruments.step));
+        let sum=0;for(let i=a;i<b;i++)for(const key of ['drums','bass','vocals','other'])sum+=instruments[key][i]**2;
+        return Math.sqrt(sum/Math.max(1,b-a));
+      };
+      const opening=rms(section.start,section.start+.5),closing=rms(section.end-.5,section.end),arrival=rms(section.end,section.end+.5);
+      // Use unsmoothed stems here: smoothing would leak the returning hit
+      // backwards into the quiet endpoint and keep the final lamp on again.
+      if(opening>=.025&&closing<=opening*.18&&arrival>=opening*.65)return {...raw,finishDark:true};
+    }
+    return (clipped?raw:null)||buildFor(section,drama);
   };
   for(let i=0;i<sections.length;i++){
     const section=sections[i],level=intensity(i),previous=intensity(i-1);
@@ -53,10 +71,16 @@ function cuesFor(plan){
       step:evidence.step,times:evidence.levels.map((_,i)=>section.start+i*evidence.step),levels:evidence.levels}]
       :(phrases.length?phrases:[section]).map(p=>detect({...p,look:section.look})).filter(Boolean);
     if(!builds.length){const whole=detect(section);if(whole)builds.push(whole);}
+    // An already energetic peak does not restart fixture entrances for a
+    // small remaining rise. Genuine withdrawals still keep their choreography.
+    if(section.look==='peak'&&drama)for(let k=builds.length-1;k>=0;k--){
+      const build=builds[k],samples=drama.intensity.slice(Math.floor(build.start/drama.step),Math.ceil((build.start+.75)/drama.step));
+      if(build.direction==='rise'&&samples.length&&samples.reduce((a,b)=>a+b,0)/samples.length>=.55)builds.splice(k,1);
+    }
     if(builds.length){
       for(const build of builds){
         const prior=cues.at(-1);
-        const joined=prior?.kind==='build'&&!prior.step&&!build.step&&prior.look===build.look&&prior.direction===build.direction&&Math.abs(prior.end-build.start)<.001
+        const joined=prior?.kind==='build'&&!prior.step&&!build.step&&!prior.finishDark&&!build.finishDark&&prior.look===build.look&&prior.direction===build.direction&&Math.abs(prior.end-build.start)<.001
           ?detect({start:prior.start,end:build.end,look:build.look}):null;
         if(joined&&joined.direction===build.direction)cues[cues.length-1]=joined;else cues.push(build);
       }
@@ -95,6 +119,14 @@ export function activityAt(source,units){
     const stop=blackouts[lo-1];
     if(stop&&time<stop.end)darkness=1-smooth((time-stop.start)/.06);
   }
+  if(plan&&Number.isFinite(time)){
+    let rests=restCache.get(plan);
+    if(!rests){rests=instrumentRests(plan.structure?.instruments);restCache.set(plan,rests);}
+    let lo=0,hi=rests.length;
+    while(lo<hi){const mid=(lo+hi)>>>1;if(rests[mid].start<=time)lo=mid+1;else hi=mid;}
+    const rest=rests[lo-1];
+    if(rest&&time<rest.end)darkness*=1-smooth((time-rest.start)/.6);
+  }
   if(darkness===0)return Array(units).fill(0);
   if(plan&&Number.isFinite(time)){
     const cues=cuesFor(plan);
@@ -103,7 +135,7 @@ export function activityAt(source,units){
     const selected=cues[lo-1];
     if(selected&&time<selected.end&&(selected.kind==='build'?source.look===selected.look:quiet(source.look))){
       cue=selected;
-      amount=smooth((time-cue.start)/.8)*smooth((cue.end-time)/.6);
+      amount=smooth((time-cue.start)/.8)*(cue.finishDark?1:smooth((cue.end-time)/.6));
       if(cue.kind==='build'){
         const position=(time-cue.start)/(cue.step||.5),index=Math.min(cue.levels.length-1,Math.floor(position));
         expansion=cue.levels[index]+(cue.levels[Math.min(index+1,cue.levels.length-1)]-cue.levels[index])*smooth(position-Math.floor(position));
@@ -111,7 +143,7 @@ export function activityAt(source,units){
     }
   }
   const age=cue?.focus?time-cue.focus.time:-1;
-  const emphasis=age>=0&&age<.8?smooth(age/.12)*(1-smooth((age-.12)/.68)):0;
+  const emphasis=!(cue?.finishDark&&expansion<.2)&&age>=0&&age<.8?smooth(age/.12)*(1-smooth((age-.12)/.68)):0;
   const focused=cue?.direction==='fall'?(cue.focus?.side?Math.floor(units/2):Math.floor((units-1)/2)):(cue?.focus?.side?units-1:0);
   const order=cue?.kind==='build'?Array.from({length:units},(_,i)=>i).sort((a,b)=>{
     const distance=i=>Math.abs(i-(units-1)/2);
@@ -120,11 +152,15 @@ export function activityAt(source,units){
   }):null;
   const ranks=[];order?.forEach((fixture,rank)=>{ranks[fixture]=rank;});
   return Array.from({length:units},(_,i)=>{
-    if(units<=2||!cue)return darkness;
-    const pair=Math.min(i,units-1-i),rank=ranks[i];
+    if(!cue)return darkness;
+    if(units<=2)return darkness*(cue.kind==='rest'?1-amount*.85:cue.finishDark?1-amount*(1-smooth(expansion/.2)):1);
+    const rank=ranks[i];
     // Stage individual entrances through the measured rise/fall. This is only
     // active inside a development, not an ongoing single-fixture chase.
-    const level=cue.kind==='build'?rank===0?1:smooth(expansion*(units-1)-(rank-1)):pair%2===1?1:0;
+    // Residual light belongs to the whole rig, never to a protected leader.
+    // Individual fixtures may lead a measured sequence, above that shared base.
+    const staged=smooth(expansion*units-rank);
+    const level=cue.kind==='build'?(cue.finishDark?staged:.12+.88*staged):.15;
     const base=1-amount*(1-level);
     return darkness*(i===focused?base+(1-base)*emphasis:base*(1-.35*emphasis));
   });

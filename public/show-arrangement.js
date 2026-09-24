@@ -220,6 +220,38 @@ export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicSt
     candidates.push({time,impact,salience,priority:salience,strength,decay:profile.decay*(quiet?.3:.17),source:'onset',
       spacing:quiet?1.5:section.look==='flow'?.28:section.look==='lift'?.24:.22,section:sectionIndex});
   }
+  // When the model loses the beat, use actual drum attacks, not invented
+  // equally spaced beats. Keep this separate from the exported beat grid.
+  const fallbackTimes=[];
+  if(instruments&&drama){
+    const drums=instruments.drums;
+    const peaks=[];
+    for(let i=2;i<drama.attacks.length-1;i++){
+      if(drama.attacks[i]>=.55&&drama.percussion[i]>=.4&&drums[i]>drums[i-1]&&drums[i]>=drums[i+1])peaks.push(i);
+    }
+    let beatIndex=0,sectionIndex=0,left=0,right=0;
+    for(const i of peaks){
+      while(left<peaks.length&&(i-peaks[left])*drama.step>1.5)left++;
+      while(right<peaks.length&&(peaks[right]-i)*drama.step<=1.5)right++;
+      // An isolated entrance is not evidence of a missing rhythmic sequence.
+      if(right-left<3)continue;
+      const time=i*drama.step,attack=drama.attacks[i];
+      while(beatIndex+1<beats.length&&beats[beatIndex+1]<=time)beatIndex++;
+      const prior=beats[beatIndex],next=beats[beatIndex+1];
+      const intervals=beats.slice(Math.max(0,beatIndex-8),beatIndex+1).slice(1).map((t,j)=>t-beats[Math.max(0,beatIndex-8)+j]).sort((a,b)=>a-b);
+      const typical=intervals[Math.floor(intervals.length/2)]||.5;
+      const gap=next===undefined?duration-(prior??0):next-(prior??0);
+      if(gap<=Math.max(.65,typical*1.65))continue;
+      if(Math.abs((prior??-Infinity)-time)<.14||Math.abs((next??Infinity)-time)<.14)continue;
+      while(sectionIndex+1<passages.length&&passages[sectionIndex+1].start<=time)sectionIndex++;
+      const section=passages[sectionIndex];
+      if(!section||section.look==='held'||rms(time-.1,time+.1)<.015)continue;
+      const salience=acousticSalience(windows,time,ceiling),profile=musicStyleAt(musicStyle,time);
+      candidates.push({time,impact:attack,salience,priority:Math.max(salience,attack*.35),strength:Math.min(.55,profile.drive*(.18+.25*attack)),
+        decay:profile.decay*.18,source:'instrument',spacing:.28,section:sectionIndex});
+      fallbackTimes.push(time);
+    }
+  }
   const events=selectAccentEvents(candidates);
   times.length=accents.length=decays.length=selectedImpacts.length=0;
   for(const e of events){times.push(e.time);accents.push(e.strength);decays.push(e.decay);selectedImpacts.push(e.impact);}
@@ -230,7 +262,7 @@ export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicSt
     phrase.energy=drama?drama.intensity.slice(Math.floor(phrase.start/drama.step),Math.ceil(phrase.end/drama.step)).reduce((a,b)=>a+b,0)/Math.max(1,Math.ceil(phrase.end/drama.step)-Math.floor(phrase.start/drama.step)):clamp(rms(phrase.start,phrase.end)/ceiling);
     const local=windows.slice(Math.floor(phrase.start/.02),Math.ceil(phrase.end/.02));
     const weight=local.reduce((sum,w)=>sum+w.rms,0);
-    phrase.movement=phraseMovement(windows,phrase,{times,patterns});
+    phrase.movement=phraseMovement(windows,phrase,{times,patterns,drama});
     phrase.attention=musicalAttention(instruments,phrase.start,phrase.end);
     while(accentIndex<times.length&&times[accentIndex]<phrase.end){
       if(times[accentIndex]>=phrase.start)accents[accentIndex]*=phrase.attention.accentScale;
@@ -238,7 +270,19 @@ export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicSt
     }
     phrase.tone=weight?local.reduce((sum,w)=>sum+(w.tone??.5)*w.rms,0)/weight:.5;
   }
-  return {version:8,blackouts:musicalBlackouts(windows),drama,patterns,step,bases,lookTrack,passages,times,accents,decays,eventSources:events.map(e=>e.source),eventSalience:events.map(e=>e.salience),decay:.25};
+  const developments=[];
+  if(drama)for(const section of passages){
+    if(section.look!=='lift')continue;
+    const start=dramaAt(drama,section.start+.5)?.intensity??0,end=dramaAt(drama,section.end-.5)?.intensity??0;
+    if(end-start<.2)continue;
+    let previous=start,last=section.start;
+    for(let t=section.start+.5;t<section.end-.5;t+=drama.step){
+      const level=dramaAt(drama,t).intensity;
+      if(level-previous<.08||t-last<1.5)continue;
+      developments.push({time:t,progress:clamp((level-start)/(end-start))});previous=level;last=t;
+    }
+  }
+  return {version:8,developments,motionTimes:fallbackTimes.length?[...new Set([...beats,...events.filter(e=>e.source==='instrument').map(e=>e.time)])].sort((a,b)=>a-b):undefined,blackouts:musicalBlackouts(windows),drama,patterns,step,bases,lookTrack,passages,times,accents,decays,eventSources:events.map(e=>e.source),eventSalience:events.map(e=>e.salience),decay:.25};
 }
 function eventAt(arrangement,time) {
   let lo=0,hi=arrangement.times.length;
@@ -262,7 +306,7 @@ export function arrangementAccentProfile(arrangement,index){
       const movement=phrase.movement,attention=phrase.attention;
       const vocal=attention?.leader==='vocals'&&attention.confidence>=.5;
       const held=movement?.character==='atmospheric'||phrase.kind==='wash';
-      const rhythmic=movement?.character==='rhythmic'&&movement.contrast>=.3&&!vocal;
+      const rhythmic=movement?.character==='rhythmic'&&(movement.contrast>=.3||movement.percussive)&&!vocal;
       const section=arrangement.passages?.[phrase.section];
       for(let i=start;i<event;i++){
         if(arrangement.times[i]<phrase.start)continue;

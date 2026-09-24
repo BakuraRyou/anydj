@@ -8,9 +8,13 @@ export function phraseMovement(windows,phrase,arrangement){
  const events=arrangement.times.flatMap((time,i)=>time>=phrase.start&&time<phrase.end?[arrangement.patterns.events[i]]:[]);
  const driving=events.length?events.filter(e=>e?.driving).length/events.length:0;
  const rate=events.length/Math.max(.1,phrase.end-phrase.start);
- const rhythmic=rate>=.8&&driving>=.5;
+ const d=arrangement.drama,a=d?Math.floor(phrase.start/d.step):0,b=d?Math.ceil(phrase.end/d.step):0;
+ const percussion=d?.percussion?.slice(a,b)||[],attacks=d?.attacks?.slice(a,b)||[];
+ const percussive=percussion.length>0&&percussion.reduce((a,b)=>a+b,0)/percussion.length>=.45&&
+   attacks.filter((v,i)=>v>=.55&&(i===0||v>attacks[i-1])).length/Math.max(.1,phrase.end-phrase.start)>=.8;
+ const rhythmic=rate>=.8&&driving>=.5||percussive;
  const atmospheric=!rhythmic&&(phrase.kind==='wash'||phrase.kind==='sweep'||contrast<.25||rate<.8);
- return {character:rhythmic?'rhythmic':atmospheric?'atmospheric':'flowing',contrast,driving,rate};
+ return {character:rhythmic?'rhythmic':atmospheric?'atmospheric':'flowing',contrast,driving,rate,...(percussive?{percussive:true}:{})};
 }
 export function stageMotionAt(plan,time){
  return plan?.arrangement?.patterns?.phrases?.find(p=>time>=p.start&&time<p.end)?.movement?.character||null;

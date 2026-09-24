@@ -49,17 +49,26 @@ try {
       {version:1,source:'all-in-one',duration,segments:[{start:0,end:8,label:'chorus'},{start:8,end:16,label:'verse'},{start:16,end:24,label:'chorus'}],
        instruments:{version:1,source:'htdemucs',step:.1,drums:Array.from({length:240},(_,i)=>i>=80&&i<160?.001:i%5===0?.25:.04),bass:Array(240).fill(.05),vocals:Array(240).fill(.04),other:Array(240).fill(.02)}});
     track.refined=true;track.structureState='complete';await lib.saveTrack(track);await lib.saveShow(track,options);
+    await lib.saveQueue([{id:'section-queue-test',trackId:track.id}]);
   })()`);
   await evaluate('window.__sectionBeforeReload=true');
   await c('Page.reload');
   await wait('window.__sectionBeforeReload!==true && document.readyState==="complete"');
   await wait("document.querySelector('[aria-label=\"Abschnittslicht bearbeiten\"]')?.disabled===false");
   assert.equal(await evaluate("(async()=>{const lib=await import('/dj-library.js'),track=(await lib.readLibrary())[0],saved=await lib.readShow(track,{arrangement:'auto',mood:'auto',minimum:5,maximum:100});return saved.plan.arrangement.drama.intensity.length===240&&saved.plan.structure.instruments.drums.length===240;})()"),true);
-  await evaluate("document.querySelector('[aria-label=\"Abschnittslicht bearbeiten\"]').click()");
+  await wait("document.querySelector('#queueList [data-queue-light-editor]')?.disabled===false");
+  assert.equal(await evaluate("document.querySelector('#queueList [data-queue-light-editor]').closest('details')===null"),true);
+  await evaluate("document.querySelector('#queueList [data-queue-light-editor]').click()");
   await wait("document.querySelector('dialog.section-editor')?.open");
-  await evaluate("document.querySelector('dialog.section-editor [data-preset=calm]').click();document.querySelector('dialog.section-editor [data-transfer]').click()");
+  assert.equal(await evaluate("Boolean(document.querySelector('.light-editor [data-set-preview] .stage-scene'))"),true);
+  await evaluate("document.querySelector('dialog.section-editor [data-preset=calm]').click()");
+  const beforeLive=await evaluate("document.querySelector('.light-editor .stage-spots').innerHTML");
+  await evaluate("(()=>{const input=document.querySelector('.light-editor [name=colorA]');input.value='#00ff00';input.dispatchEvent(new Event('input',{bubbles:true}));})()");
+  assert.notEqual(await evaluate("document.querySelector('.light-editor .stage-spots').innerHTML"),beforeLive);
+  await evaluate("(()=>{const input=document.querySelector('.light-editor [name=colorA]');input.dispatchEvent(new Event('change',{bubbles:true}));document.querySelector('.light-editor [data-undo]').click();document.querySelector('.light-editor [data-transfer]').click();})()");
   await evaluate("document.querySelector('dialog.section-editor form').requestSubmit()");
   await wait("!document.querySelector('dialog.section-editor')");
+  assert.equal(await evaluate("Boolean(document.querySelector('#inlineLightStage .stage-scene'))"),true);
   const saved=await evaluate("(async()=>{const lib=await import('/dj-library.js');return (await lib.readLibrary())[0].sectionEdits;})()");
   assert.equal(saved.length,3);assert.equal(saved[0].movement,.35);assert.equal(saved[2].movement,.35);assert.equal(saved[1].movement,1);
   await evaluate('window.__sectionBeforeReload=true');
@@ -78,10 +87,17 @@ try {
   await evaluate("document.querySelector('dialog.section-editor [data-close]').click()");
   assert.equal((await evaluate("(async()=>{const lib=await import('/dj-library.js');return (await lib.readLibrary())[0].sectionEdits;})()"))[0].end,8);
   await evaluate("document.querySelector('[aria-label=\"Abschnittslicht bearbeiten\"]').click()");
+  await wait("document.querySelector('dialog.section-editor')?.open && document.querySelector('.light-editor [data-set-preview] .stage-scene')");
+  await c('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+  await evaluate("document.querySelector('dialog.section-editor').scrollTop=0");
+  await new Promise(resolve=>setTimeout(resolve,150));
+  const desktop=await c('Page.captureScreenshot',{format:'png'});await writeFile('/tmp/anydj-light-editor-desktop.png',Buffer.from(desktop.data,'base64'));
   // Exercise the new timeline with real pointer and keyboard input.
   await evaluate("document.querySelector('[data-snap]').value='free'");
   await evaluate("document.querySelector('.le-phase .le-end').scrollIntoView({block:'center'})");
+  await new Promise(resolve=>setTimeout(resolve,200));
   const edge=await evaluate("(()=>{const r=document.querySelector('.le-phase .le-end').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};})()");
+  assert.equal(await evaluate(`document.elementFromPoint(${edge.x},${edge.y})?.className`),'le-end');
   await c('Input.dispatchMouseEvent',{type:'mousePressed',x:edge.x,y:edge.y,button:'left',clickCount:1});
   await c('Input.dispatchMouseEvent',{type:'mouseMoved',x:edge.x+30,y:edge.y,button:'left',buttons:1});
   await c('Input.dispatchMouseEvent',{type:'mouseReleased',x:edge.x+30,y:edge.y,button:'left',clickCount:1});
@@ -108,9 +124,17 @@ try {
   })()`),true);
   await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
   assert.equal(await evaluate("document.querySelector('dialog.section-editor').getBoundingClientRect().width<=innerWidth"),true);
+  assert.equal(await evaluate("(()=>{const editor=document.querySelector('.light-editor');return editor.scrollWidth<=editor.clientWidth+1;})()"),true);
+  await evaluate("(()=>{const select=document.querySelector('.light-editor [data-selection]');select.value='1';select.dispatchEvent(new Event('change',{bubbles:true}));})()");
+  assert.equal(await evaluate("document.querySelector('.light-editor [data-clock]').textContent"),'0:08 / 0:24');
+  assert.equal(await evaluate("document.querySelector('.light-editor .section-colors').hidden"),true);
+  await evaluate("document.querySelector('.light-editor [data-preset=calm]').click()");
+  assert.equal(await evaluate("document.querySelector('.light-editor .section-colors').hidden"),false);
+  assert.equal(await evaluate("document.querySelector('.light-editor [data-second-color]').hidden"),true);
+  await evaluate("document.querySelector('.light-editor [data-undo]').click()");
   assert.deepEqual(errors,[]);
   const screenshot=await c('Page.captureScreenshot',{format:'png'});await writeFile('/tmp/anydj-light-editor-mobile.png',Buffer.from(screenshot.data,'base64'));
-  const result={instrumentPersistence:true,openFromLibrary:true,motifTransfer:true,persistence:true,beatSnappedSplit:true,merge:true,cancelPreservesSaved:true,mobileFits:true,pointerResize:true,undoRedo:true,keyboardResize:true,independentInstances:true,browserErrors:0};
+  const result={instrumentPersistence:true,openFromLibrary:true,openFromQueue:true,motifTransfer:true,persistence:true,beatSnappedSplit:true,merge:true,cancelPreservesSaved:true,mobileFits:true,pointerResize:true,undoRedo:true,keyboardResize:true,independentInstances:true,contextualColors:true,selectionSeeks:true,mobileNoOverflow:true,liveStageInput:true,stageRestored:true,browserErrors:0};
   console.log(JSON.stringify(result,null,2));
   await writeFile(new URL('../reports/section-lighting-browser-check.json',import.meta.url),JSON.stringify(result,null,2)+'\n');
 } finally {

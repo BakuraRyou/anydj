@@ -447,14 +447,50 @@ function replacePlan(track, plan) {
   lightStage.prepareMovingHeads();
   for (const deck of decks) if (deck.track === track) drawDeck(deck);
 }
-function editSections(track,position=()=>0) {
+async function editSections(track,position=()=>0) {
   if(!track?.basePlan?.arrangement)return;
-  openSectionEditor({track,plan:applyShowProfile(applyTrackColors(track.basePlan,globalColorMode??track.colorMode),showProfile),position,onSave:async edits=>{
-    const old=track.sectionEdits;track.sectionEdits=edits;
-    try{await saveTrack(track);}catch(error){track.sectionEdits=old;throw error;}
-    replacePlan(track,track.basePlan);renderLibrary();
-  }});
+  const initialPosition=position();
+  if(!track.file&&track.handle)await ensureFile(track);
+  await stopAll('DJ-Wiedergabe pausiert · Lichteditor übernimmt die Vorschau.');
+  let stage=null,latest=null,editorSession=null,disposed=false,busy=false,lastPlan=null,motifs=null,wizStatus=null;
+  const stopEditorSession=async()=>{const old=editorSession;editorSession=null;if(wizStatus)wizStatus.textContent='WiZ-Ausgabe beendet';if(old)await api('/api/music/stop',{id:old}).catch(error=>notice(error.message,true));};
+  const sample=({time,plan})=>{
+    if(disposed)return;if(lastPlan!==plan){lastPlan=plan;motifs=prepareStageMotifs(plan);}
+    const frame=showFrameAt(plan,time),section=plan.sections?.find(s=>time>=s.start&&time<s.end);
+    const motif=motifs?.[plan.sections?.indexOf(section)],grid=plan.beatGrid?.beats||plan.beatTiming?.times;
+    const absoluteBeat=beatPosition(grid,time),startBeat=motif?beatPosition(grid,motif.start):null;
+    latest={frame,streams:[{frame,weight:1,movingPlan:plan,songTime:time,beat:absoluteBeat,
+      motionCharacter:stageMotionAt(plan,time),palette:songPaletteAt(plan,time),motifColor:motif?.color,
+      motionBeat:absoluteBeat!==null&&startBeat!==null?absoluteBeat-startBeat:null,look:section?.look,
+      sectionProgress:section?(time-section.start)/Math.max(.001,section.end-section.start):0,
+      accentStrength:stageAccentStrength(plan,time),washDimming:stageWashDimming(plan,time),
+      sectionKey:section?`${track.id}:${section.start}`:null,sectionName:track.name}]};
+    stage?.update(latest.frame,latest.streams);
+  };
+  const timer=setInterval(async()=>{
+    if(disposed||busy||!editorSession||!latest)return;busy=true;const id=editorSession;
+    try{const frame=adjustLight(latest.frame);await api('/api/music/frame',{id,params:frame.state?frame:{state:false}});}
+    catch(error){if(editorSession===id){await stopEditorSession();notice(`Editor-Lichtausgabe unterbrochen: ${error.message}`,true);}}
+    finally{busy=false;}
+  },80);
+  try{openSectionEditor({track,plan:applyShowProfile(applyTrackColors(track.basePlan,globalColorMode??track.colorMode),showProfile),position:()=>initialPosition,
+    onPreview:sample,
+    mountPreview:host=>{stage=lightStage.mountEditor(host);wizStatus=document.createElement('p');wizStatus.className='le-set-status';wizStatus.textContent=!webMode&&$('djLamp').value?'WiZ: startet mit der Wiedergabe · bei Pause bleibt das Licht am Abspielpunkt':'WiZ: keine Lampe ausgewählt';host.append(wizStatus);if(latest)stage.update(latest.frame,latest.streams);return stage;},
+    onBeforePlay:async()=>{
+      if(disposed||editorSession||webMode||!$('djLamp').value)return;
+      if(!connectionReady)throw Error($('djConnection').textContent);
+      const result=await api('/api/music/start',{ip:$('djLamp').value,source:'show',settings:design});
+      if(disposed){await api('/api/music/stop',{id:result.id});return;}editorSession=result.id;if(wizStatus)wizStatus.textContent='WiZ-Ausgabe aktiv · Entwurf live am Set';
+    },
+    onDispose:()=>{disposed=true;clearInterval(timer);void stopEditorSession();updateLightPreview();},
+    onSave:async edits=>{
+      const old=track.sectionEdits;track.sectionEdits=edits;
+      try{await saveTrack(track);}catch(error){track.sectionEdits=old;throw error;}
+      replacePlan(track,track.basePlan);renderLibrary();
+    }
+  });}catch(error){disposed=true;clearInterval(timer);stage?.destroy();await stopEditorSession();throw error;}
 }
+
 function preparationQueue(){
   const ids=new Set([...queue,...displayedQueue()].map(entry=>entry.trackId)),byId=new Map(tracks.map(track=>[track.id,track]));
   return [...ids].map(id=>byId.get(id)).filter(Boolean);
@@ -1264,7 +1300,7 @@ function renderQueue() {
   $('queueClear').disabled=!queue.length||locked;
   $('queueStatus').textContent=editingLiveQueue()?(/^Automatik läuft(?: · Spotify)?$/.test(queueMessage)?'':queueMessage):'Feste Setliste · Titel bleiben erhalten. Änderungen gelten beim nächsten Set-Start.';
   const byId=new Map(tracks.map(track=>[track.id,track]));
-  const signature=JSON.stringify([transitionLibraryReady,transitionVariants,selectedQueueList,activeSetId,[...setPlayed],decks.map(d=>[d.setEntry?.sourceEntryId,d.audio.paused,d.audio.ended]),queue,locked,queue.map(entry=>{const track=byId.get(entry.trackId);return [track?.name,analysisStatus(track,$('djStructure').checked),decks.find(d=>d.queueEntry===entry.id)?.name];})]);
+  const signature=JSON.stringify([transitionLibraryReady,transitionVariants,selectedQueueList,activeSetId,[...setPlayed],decks.map(d=>[d.setEntry?.sourceEntryId,d.audio.paused,d.audio.ended]),queue,locked,queue.map(entry=>{const track=byId.get(entry.trackId);return [track?.name,Boolean(track?.basePlan?.arrangement),analysisStatus(track,$('djStructure').checked),decks.find(d=>d.queueEntry===entry.id)?.name];})]);
   if(signature===queueSignature)return;queueSignature=signature;
   const scroll=$('queueList').scrollTop;$('queueList').replaceChildren();
   for(const [index,entry] of queue.entries()) {
@@ -1279,6 +1315,13 @@ function renderQueue() {
     else status.textContent=viewedQueue()?'Bereit':index===0?'Als Nächstes · bereit':'Bereit';
     if(viewedQueue()&&activeSetId===selectedQueueList&&setPlayed.has(entry.id)){const playing=decks.find(d=>d.setEntry?.sourceEntryId===entry.id&&!d.audio.paused&&!d.audio.ended);status.textContent=playing?'Läuft · Deck '+playing.name:'Bereits gespielt';}
     info.append(title,status);li.append(info);
+    if(!entry.provider){
+      const editLight=button('',()=>editSections(track,()=>decks.find(d=>d.track===track)?.audio.currentTime??0),!track?.basePlan?.arrangement,`Lichtshow bearbeiten: ${track?.name||'Track fehlt'}`);
+      editLight.dataset.queueLightEditor=entry.id;
+      editLight.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M9 18h6M10 21h4M9 15c0-2-4-3-4-7a7 7 0 0 1 14 0c0 4-4 5-4 7v1H9z"/></svg>';
+      if(editLight.disabled)editLight.title=track?'Verfügbar, sobald die Lichtshow berechnet ist':'Titel zuerst wieder hinzufügen';
+      li.append(editLight);
+    }
     for(const [label,offset] of [['↑',-1],['↓',1]])li.append(button(label,()=>editQueue(entries=>{const current=entries.findIndex(item=>item.id===entry.id),target=current+offset;if(current>=0&&target>=0&&target<entries.length)[entries[current],entries[target]]=[entries[target],entries[current]];},editingId),locked||index+offset<0||index+offset>=queue.length,label==='↑'?'Früher abspielen':'Später abspielen'));
     li.append(button('×',()=>editQueue(entries=>{const i=entries.findIndex(item=>item.id===entry.id);if(i>=0)entries.splice(i,1);},editingId),locked,'Aus Warteschlange entfernen'));
     if(entry.transition){li.append(button('Übergang entfernen',()=>editQueue(list=>{delete list.find(e=>e.id===entry.id)?.transition;},editingId),locked));const previous=queue[index-1]||(editingLiveQueue()?queueDeck?.setEntry:null),from=byId.get(previous?.trackId);const valid=from?.plan&&track?.plan&&matchingSetTransition(entry,previous,from.plan,track.plan,1,1,from,track);const badge=document.createElement('small');badge.textContent=valid?'Übergang: '+(entry.transition.variantName||'Gespeichert'):'Übergang passt nicht · bitte neu wählen';info.append(badge);}

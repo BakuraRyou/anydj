@@ -103,11 +103,11 @@ test('musical color decisions change fixture groupings while retaining the palet
  const render=(time,count=2)=>automaticStage([source('peak',{movingPlan,songTime:time,beat:time*2})],count,equipment);
  const slots=t=>{const r=render(t);return r.frames.flat().map(f=>r.palette.findIndex(c=>c[0]===f.r&&c[1]===f.g&&c[2]===f.b));};
  assert.deepEqual(slots(1),[0,1,0,1]);
- assert.deepEqual(slots(8),[0,0,1,1]);
- assert.deepEqual(slots(16),[0,1,1,0]);
- assert.deepEqual(slots(24),[1,0,1,0]);
+ assert.deepEqual(slots(8.7),[0,0,1,1]);
+ assert.deepEqual(slots(16.7),[0,1,1,0]);
+ assert.deepEqual(slots(24.7),[1,0,1,0]);
  assert.deepEqual(slots(4),slots(1)); // No beat-counter rotation.
- assert.deepEqual(slots(9),slots(8));assert.deepEqual(slots(11),slots(8));
+ assert.deepEqual(slots(9),slots(8.7));assert.deepEqual(slots(11),slots(8.7));
  assert.deepEqual(slots(1),[0,1,0,1]); // Seek restores the same assignment.
  for(const count of [1,2,3,4])for(const t of [1,8,16,24]){
   const r=render(t,count);
@@ -135,4 +135,46 @@ test('two-color base formations never leave a permanent solo fixture across long
  }
  assert.deepEqual([...partners].sort(),[0,1,3],'the third fixture must share with every other position');
  const before=render(21);render(621);assert.deepEqual(render(21),before);
+});
+
+test('spatial color changes dissolve while selected musical accent colors stay immediate',()=>{
+ const movingPlan={colorDirection:{events:[{time:0,reason:'entrance'},{time:4,reason:'sound-change'}]}};
+ const render=(t,extra={})=>automaticStage([source('peak',{movingPlan,songTime:t,...extra})],2).frames.slice(0,4).flat();
+ const before=render(3.99),start=render(4),middle=render(4.325),after=render(4.7);
+ assert.deepEqual(start,before);assert.notDeepEqual(middle,before);assert.notDeepEqual(middle,after);
+ for(let i=0;i<4;i++){
+  const keys=['r','g','b'],mixed=keys.map(k=>(before[i][k]+after[i][k])/2),peak=Math.max(...mixed);
+  const target=(Math.max(...keys.map(k=>before[i][k]))+Math.max(...keys.map(k=>after[i][k])))/2;
+  keys.forEach((k,j)=>assert.ok(Math.abs(middle[i][k]-mixed[j]*target/peak)<=1));
+ }
+ assert.notDeepEqual(render(4.325,{frame:{...frame,r:0,g:255,b:0}}),middle);
+});
+test('measured rolling motifs animate softly; held music and an unsupported beat grid do not',()=>{
+ const times=Array.from({length:20},(_,i)=>i*.5),phrase={start:0,end:10,kind:'bounce',movement:{character:'rhythmic',driving:1,rate:2}};
+ const movingPlan={arrangement:{times,patterns:{events:times.map(()=>({driving:true})),phrases:[phrase]}}};
+ const render=(t,p=movingPlan)=>automaticStage([source('peak',{movingPlan:p,songTime:t})],2).frames.slice(0,4).flat();
+ assert.notDeepEqual(render(1.01),render(1.29));
+ const a=render(1.1),b=render(1.105);for(let i=0;i<4;i++)for(const k of ['r','g','b'])assert.ok(Math.abs(a[i][k]-b[i][k])<=8);
+ assert.ok(a.every(f=>f.dimming===60&&Math.max(f.r,f.g,f.b)===255),'color movement must not turn into brightness dips');
+ for(const mutate of [p=>p.arrangement.patterns.phrases[0].movement.character='atmospheric',p=>p.arrangement.patterns.events.forEach(e=>e.driving=false),p=>p.arrangement.patterns.phrases[0].attention={leader:'vocals',confidence:.9}]){
+  const p=structuredClone(movingPlan);mutate(p);assert.deepEqual(render(1,p),render(2,p));
+ }
+ const first=render(1.1);render(8);assert.deepEqual(render(1.1),first);
+});
+
+test('rolling color travels for the full measured step at different tempos and through irregular attacks',()=>{
+ const render=(times,t)=>{
+  const movingPlan={arrangement:{times,patterns:{events:times.map(()=>({driving:true})),phrases:[{start:0,end:20,kind:'bounce',movement:{character:'rhythmic',driving:1,rate:2}}]}}};
+  return automaticStage([source('peak',{movingPlan,songTime:t})],2).frames.slice(0,4).flat().map(f=>[f.r,f.g,f.b]);
+ };
+ for(const interval of [.3,.5,.7]){
+  const times=Array.from({length:24},(_,i)=>i*interval),start=times[4],end=times[6],span=end-start;
+  assert.notDeepEqual(render(times,start+span*.65),render(times,start+span*.85),'the late part of each step must keep moving');
+  const a=render(times,end-.001),b=render(times,end+.001);
+  a.forEach((rgb,i)=>rgb.forEach((v,c)=>assert.ok(Math.abs(v-b[i][c])<=2,'no jump at step boundaries')));
+ }
+ const irregular=[0,.4,.95,1.3,1.9,2.5,3.1,3.65,4.1,4.7,5.2,5.8];
+ assert.notDeepEqual(render(irregular,2.7),render(irregular,2.9));
+ const gap=[0,.5,1,1.5,4,4.5,5,5.5];
+ assert.deepEqual(render(gap,2.3),render(gap,3.5),'real musical gaps settle instead of continuing to roll');
 });

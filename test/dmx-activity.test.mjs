@@ -7,15 +7,15 @@ const source=(time,more={})=>({movingPlan:plan,songTime:time,look:time<12?'flow'
 test('normal grooves and peaks keep every lamp active regardless of beat or accent',()=>{
  for(const t of [0,.9,1,1.3,3,6.2,11.9,20,20.4,21,29])for(const accentStrength of [0,.5,1])assert.deepEqual(activityAt(source(t,{accentStrength}),4),[1,1,1,1]);
 });
-test('a measured sustained withdrawal fades a symmetric pair out and back in',()=>{
- const at=t=>activityAt(source(t),4);
+test('a measured rest dims every fixture together without a protected lamp',()=>{
+ const at=t=>activityAt(source(t),4).map(v=>Math.round(v*1000)/1000);
  assert.deepEqual(at(12),[1,1,1,1]);
- assert.deepEqual(at(12.4).map(v=>Math.round(v*10)/10),[.5,1,1,.5]);
- assert.deepEqual(at(13),[0,1,1,0]);assert.deepEqual(at(13),at(19));
+ assert.deepEqual(at(12.4).map(v=>Math.round(v*10)/10),[.6,.6,.6,.6]);
+ assert.deepEqual(at(13),[.15,.15,.15,.15]);assert.deepEqual(at(13),at(19));
  assert.ok(at(19.7)[0]>0&&at(19.7)[0]<1);
  assert.deepEqual(at(20),[1,1,1,1]);
- assert.deepEqual(activityAt(source(14,{accentStrength:1}),4),at(14));
- at(25);assert.deepEqual(at(13),[0,1,1,0]);
+ assert.ok(activityAt(source(14,{accentStrength:1}),4).every(v=>Math.abs(v-.15)<1e-9));
+ at(25);assert.deepEqual(at(13),[.15,.15,.15,.15]);
 });
 test('quiet labels, atmospheric character, missing analysis and brief dips do not manufacture pauses',()=>{
  for(const mutate of [p=>p.sections.forEach(s=>delete s.intensity),p=>p.sections[0].intensity=.3,p=>p.sections[1].end=14,p=>p.sections[1].intensity=.5]){
@@ -26,20 +26,20 @@ test('quiet labels, atmospheric character, missing analysis and brief dips do no
  assert.deepEqual(activityAt(source(3,{motionCharacter:'atmospheric'}),4),[1,1,1,1]);
  assert.deepEqual(activityAt(source(13,{look:'flow'}),4),[1,1,1,1]);
  const p=structuredClone(plan);p.arrangement.passages=p.sections.map(s=>({intensity:s.intensity}));p.sections.forEach(s=>delete s.intensity);
- assert.deepEqual(activityAt(source(13,{movingPlan:p}),4),[0,1,1,0]);
+ assert.ok(activityAt(source(13,{movingPlan:p}),4).every(v=>Math.abs(v-.15)<1e-9));
 });
 test('rests remain symmetric on different rigs, through crossfades and seeks',()=>{
  for(const units of [0,1,2,3,4,5,8,40])for(const t of [0,12,12.2,13,19.8,20,21]){
   const levels=activityAt(source(t),units);
   levels.forEach((v,i)=>{assert.equal(v,levels[units-1-i]);assert.ok(v>=0&&v<=1);});
-  if(units)assert.ok(levels.some(v=>v===1));
+  if(units)assert.ok(levels.every(v=>v===levels[0]));
  }
- assert.deepEqual(activityAt(source(13),2),[1,1]);
+ assert.ok(activityAt(source(13),2).every(v=>Math.abs(v-.15)<1e-9));
  const equipment={devices:[...Array.from({length:4},(_,i)=>({id:`s${i}`,type:'spot',cells:1})),{id:'bar',type:'bar',cells:40}]};
  const render=s=>automaticStage(s,2,equipment).frames.flat();
  const a=source(13,{weight:.25}),b=source(3,{weight:.75}),left=render([a]),right=render([b]),mixed=render([a,b]);
- assert.equal(left.slice(0,4).filter(f=>f.dimming===0).length,2);
- assert.equal(left.slice(4).filter(f=>f.dimming===0).length,20);
+ assert.ok(left.slice(0,4).every(f=>Math.abs(f.dimming-4.5)<1e-9));
+ assert.ok(left.slice(4).every(f=>Math.abs(f.dimming-4.5)<1e-9));
  assert.ok(right.every(f=>f.dimming>0));
  mixed.forEach((f,i)=>assert.ok(Math.abs(f.dimming-(left[i].dimming*.25+right[i].dimming*.75))<1e-9));
 });
@@ -67,10 +67,11 @@ test('developments inside verses and choruses work without an Aufbau label',()=>
  const ramp=Array.from({length:20},(_,i)=>.1+.8*Math.min(1,Math.max(0,(i-2)/14)));
  const p={sections:[{start:0,end:20,look:'peak'}],arrangement:{drama:{step:.5,intensity:[...ramp,...ramp.map(v=>1-v)]},patterns:{phrases:[{start:0,end:10},{start:10,end:20}]}}};
  const at=t=>activityAt({movingPlan:p,songTime:t,look:'peak'},4);
- assert.equal(at(1).filter(v=>v===1).length,1);
+ assert.ok(at(1).every(v=>v>=.12&&v<1));
  assert.ok(at(3).some(v=>v>0&&v<1));
  assert.deepEqual(at(9),[1,1,1,1]);
- assert.ok(at(18).filter(v=>v===0).length>=2);
+ assert.ok(at(18).every(v=>v>=.12));
+ assert.ok(at(18).filter(v=>Math.abs(v-.12)<1e-9).length>=2);
  assert.deepEqual(at(20),[1,1,1,1]);
  const first=at(3);at(18);assert.deepEqual(at(3),first);
 });
@@ -101,4 +102,49 @@ test('cached instrument levels reveal a quiet riser even while normalized drama 
   const steady=structuredClone(p);steady.structure.instruments.other.fill(value);
   assert.deepEqual(at(steady,5),[1,1,1,1],'silence or a sustained pad must not manufacture a build');
  }
+});
+
+test('a deep measured withdrawal can extinguish the final lamp until the musical return',()=>{
+ const n=160,zero=Array(n).fill(0),other=Array.from({length:n},(_,i)=>i<20?.2:i<60?.2-(i-20)*.00475:i<100?.01:.2);
+ const make=()=>({sections:[{start:0,end:10,look:'flow'},{start:10,end:16,look:'peak'}],structure:{instruments:{step:.1,drums:[...zero],bass:[...zero],vocals:[...zero],other:[...other]}},arrangement:{drama:{step:.1,intensity:other.map(v=>v*4)}}});
+ const p=make(),at=(p,t,n=4)=>activityAt({movingPlan:p,songTime:t,look:t<10?'flow':'peak'},n);
+ for(const n of [1,2,4,8]){
+  assert.ok(at(p,2,n).some(v=>v>0));assert.ok(at(p,5,n).some(v=>v>0));
+  assert.deepEqual(at(p,8,n),Array(n).fill(0));assert.deepEqual(at(p,9.9,n),Array(n).fill(0));
+  assert.deepEqual(at(p,10,n),Array(n).fill(1));
+ }
+ const old=at(p,8);at(p,12);assert.deepEqual(at(p,8),old);
+ const pad=make();pad.structure.instruments.other=other.map(v=>Math.max(.1,v));
+ assert.ok(at(pad,8).some(v=>v>0),'a substantial remaining pad retains light');
+ const noReturn=make();noReturn.structure.instruments.other.fill(.01,100);
+ assert.deepEqual(at(noReturn,8),[0,0,0,0],'a deep sustained withdrawal no longer requires an immediate return');
+});
+
+
+test('a sustained quiet phase stays fully dark across section boundaries until audible music returns',()=>{
+ const n=220,zero=Array(n).fill(0),other=Array.from({length:n},(_,i)=>i<40||i>=180?.2:.015);
+ const p={sections:[{start:0,end:4,look:'peak'},{start:4,end:10,look:'held'},{start:10,end:18,look:'held'},{start:18,end:22,look:'peak'}],structure:{instruments:{step:.1,drums:[...zero],bass:[...zero],vocals:[...zero],other}},arrangement:{}};
+ const at=(plan,t)=>activityAt({movingPlan:plan,songTime:t,look:t>=4&&t<18?'held':'peak'},4);
+ assert.deepEqual(at(p,3),[1,1,1,1]);assert.ok(at(p,4.3).every(v=>v>0&&v<1));
+ for(const t of [5,9.9,10,17.9])assert.deepEqual(at(p,t),[0,0,0,0]);
+ assert.deepEqual(at(p,18),[1,1,1,1]);assert.deepEqual(at(p,6),[0,0,0,0]);
+ const pad=structuredClone(p);pad.structure.instruments.other.fill(.08,40,180);
+ assert.deepEqual(at(pad,8),[1,1,1,1]);
+ const beatGaps=structuredClone(p);beatGaps.structure.instruments.other=other.map((_,i)=>i%5===0?.2:.001);
+ assert.deepEqual(at(beatGaps,8.2),[1,1,1,1]);
+});
+
+test('an atmospheric fade completes all four fixture stages despite an audible residual layer',()=>{
+ const intensity=Array.from({length:100},(_,i)=>i<20?.4:i<75?.4-.3*(i-20)/55:.1);
+ const p={sections:[{start:0,end:10,look:'flow'}],arrangement:{drama:{step:.1,intensity},patterns:{phrases:[{start:0,end:10,movement:{character:'atmospheric'}}]}}};
+ const at=(plan,t)=>activityAt({movingPlan:plan,songTime:t,look:'flow'},4);
+ const late=at(p,6.5);
+ assert.equal(late.filter(v=>v>0).length,1,'the last fixture fades after the other three');
+ assert.ok(late.some(v=>v>0&&v<1));
+ assert.deepEqual(at(p,8.5),[0,0,0,0]);assert.deepEqual(at(p,9.9),[0,0,0,0]);
+ assert.deepEqual(at(p,10),[1,1,1,1]);
+ const groove=structuredClone(p);groove.arrangement.patterns.phrases[0].movement.character='rhythmic';
+ assert.ok(at(groove,8.5).every(v=>Math.abs(v-.12)<1e-9),'a groove retains only a shared low base, never a protected single lamp');
+ const held=structuredClone(p);held.arrangement.drama.intensity.fill(.1);
+ assert.deepEqual(at(held,8.5),[1,1,1,1],'a quiet label or constant pad alone does not fade out');
 });

@@ -13,7 +13,8 @@ const editor = createLightEditor(container, {
   edits: savedEdits,           // undefined: Analyse übernehmen; []: alles automatisch
   audioSrc: optionalAudioUrl,  // lokale Audiovorschau, keine Geräteausgabe
   position: () => 0,           // Abspielposition des aufrufenden Players
-  onPreview: ({time, plan}) => {}, // bearbeiteter Plan für weitere Vorschauen
+  onBeforePlay: async () => {}, // Ausgabe vor Wiedergabe vorbereiten
+  onPreview: ({time, plan, playing}) => {}, // bearbeiteter Plan für weitere Vorschauen
   onSave: async edits => { await save(edits); },
   onClose: () => { editor.destroy(); }
 });
@@ -37,7 +38,33 @@ Speichern erfolgt ausschließlich über den asynchronen Callback. Bei einem
 Fehler bleibt der Entwurf geöffnet. Abbrechen verändert gespeicherte Daten
 nicht. Automatische Entwurfssicherung, separate Helligkeits-/Überblendparameter
 und mehrere Gerätespuren sind in dieser Version noch nicht enthalten.
-Die Vorschau zeigt Farbe und Helligkeit, keine vollständige Bühnensimulation.
+Die eigenständige Komponente bietet einen previewHost zur Einbettung einer Set-Vorschau. Der DJ-Adapter bettet dort die vorhandene konfigurierte Bühne ein.
 
 Prüfung: `node --test test/light-editor-model.test.mjs test/section-lighting.test.mjs`
 und `node scripts/check-section-lighting.mjs` (Chrome erforderlich).
+
+## Überarbeitete Bedienführung
+
+Zwei klar getrennte Bereiche: Abschnitt in der Zeitleiste auswählen und dessen
+Lichtwirkung im Inspector ändern. Auswahl setzt die Vorschau an den Beginn.
+Die Abschnittsliste zeigt vollständige Namen auch bei kurzen Zeitblöcken.
+Drei Vorlagen und kontextabhängige Farbfelder bilden den einfachen Einstieg;
+Zeiten, Lichtimpulse, Gruppen und Strukturwerkzeuge sind einklappbar.
+Eine gemeinsame Fußleiste enthält Rückgängig, Status und Speichern.
+Auf schmalen Bildschirmen stehen die Bereiche untereinander.
+
+## Live am Set
+
+Der DJ-Adapter pausiert die DJ-Wiedergabe beim Öffnen und übernimmt mit einer
+eigenen Audioquelle. Die vorhandene Bühne wird für die Dauer der Bearbeitung
+in den Editor versetzt. Der Entwurf liefert dieselben Frames, Paletten und
+Musikparameter wie die normale DJ-Ausgabe. Bereits aktivierte DMX-Ausgabe
+folgt dem Entwurf; eine ausgewählte WiZ-Lampe startet beim Anhören über eine
+eigene Sitzung. Pause hält den Abspielpunkt, auch Scrubbing aktualisiert das
+Licht. Regler und Farbauswahl liefern Vorschauen bereits auf input-Ereignisse.
+Beim Schließen werden Audio, Timer und WiZ-Sitzung beendet und die Bühne
+zurückgegeben. Die DJ-Wiedergabe wird nicht automatisch fortgesetzt.
+
+Die Geräteausgabe bleibt an vorhandene Geräteverbindungen gebunden. Die
+Moving-Head-Darstellung bleibt die bestehende Simulation. Es wurde kein
+neuer physischer Pan/Tilt-Ausgabetreiber ergänzt.

@@ -55,3 +55,26 @@ export function instrumentDevelopment(instruments){
   const reference=Math.max(.025,quantile(energy,.95));
   return {step:instruments.step,intensity:energy.map(v=>v<.003?0:clamp(v/reference)),local:true};
 }
+
+// Longer quiet withdrawals do not need an imminent drop to finish in darkness.
+// Compare raw stem energy to the preceding music, not clipped drama intensity.
+export function instrumentRests(instruments){
+  if(!(instruments?.step>0)||!names.every(name=>Array.isArray(instruments[name])&&instruments[name].length===instruments.drums.length))return [];
+  const step=instruments.step,n=instruments.drums.length;
+  const energy=Array.from({length:n},(_,i)=>Math.sqrt(names.reduce((sum,name)=>sum+instruments[name][i]**2,0)));
+  if(energy.some(v=>!Number.isFinite(v)))return [];
+  const hold=Math.max(1,Math.ceil(.8/step)),history=Math.max(1,Math.round(8/step)),rests=[];
+  for(let i=hold;i<n-hold;i++){
+    const prior=energy.slice(Math.max(0,i-history),i),reference=quantile(prior,.9);
+    if(reference<.04||energy[i]>reference*.18)continue;
+    // A whole quiet interval is evidence; sparse beat gaps never qualify.
+    if(!energy.slice(i,i+hold).every(v=>v<=reference*.18))continue;
+    let end=i+hold;
+    while(end<n){
+      if(energy[end]>reference*.28&&(end+1===n||energy[end+1]>reference*.28))break;
+      end++;
+    }
+    rests.push({start:i*step,end:end*step});i=end-1;
+  }
+  return rests;
+}

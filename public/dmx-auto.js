@@ -60,7 +60,9 @@ function colorLayoutAt(source){
   return Math.max(0,lo-1);
 }
 export function spatialColorSlots(source,units,count){
-  const layout=colorLayoutAt(source);
+  return slotsForLayout(colorLayoutAt(source),units,count);
+}
+function slotsForLayout(layout,units,count){
   if(units<4)return Array.from({length:units},(_,i)=>(i+layout)%count);
   // Two-color base formations stay balanced. Cycle all three pairings only
   // at musical color decisions; no fixture keeps a long-lived solo color.
@@ -74,6 +76,58 @@ export function spatialColorSlots(source,units,count){
   return Array.from({length:units},(_,i)=>{
     return (Math.floor(i/4)*4+order[i%4]+Math.floor(layout/4))%count;
   });
+}
+function blendSpatialColor(a,b,mix){
+  const rgb=a.map((v,i)=>v*(1-mix)+b[i]*mix),peak=Math.max(...rgb);
+  const value=Math.max(...a)*(1-mix)+Math.max(...b)*mix;
+  // Complementary colors must not produce a brightness dip while travelling.
+  return rgb.map(v=>Math.round(peak?v*value/peak:0));
+}
+const rollingCache=new WeakMap();
+const ease=x=>{const v=clamp(x,0,1);return v*v*(3-2*v);};
+// Only measured, driving bounce/sweep phrases carry a travelling palette.
+// Pair selected attacks into steps; a beat grid alone never animates colors.
+export function spatialColors(source,units,palette){
+  const count=palette.length,slots=spatialColorSlots(source,units,count);
+  let base=slots.map(i=>palette[i]);
+  // A musical layout change is a short dissolve, not a simultaneous hard swap.
+  const layout=colorLayoutAt(source),boundaries=colorLayouts.get(source.movingPlan);
+  const age=source.songTime-(boundaries?.[layout]??-Infinity);
+  if(layout>0&&age>=0&&age<.65){
+    const previous=slotsForLayout(layout-1,units,count),mix=ease(age/.65);
+    base=base.map((rgb,i)=>blendSpatialColor(palette[previous[i]],rgb,mix));
+  }
+  const plan=source.movingPlan,time=source.songTime;
+  if(count<2||units<2||!plan||!Number.isFinite(time)||quiet(source.look))return base;
+  let phrases=rollingCache.get(plan);
+  if(!phrases){
+    const a=plan.arrangement;
+    phrases=(a?.patterns?.phrases||[]).filter(p=>['bounce','sweep'].includes(p.kind)&&
+      p.movement?.character==='rhythmic'&&p.movement.driving>=.6&&p.movement.rate>=1.2&&
+      !(p.attention?.leader==='vocals'&&p.attention.confidence>=.5)).map(p=>({...p,
+        times:(a.times||[]).filter((t,i)=>t>=p.start&&t<p.end&&a.patterns.events?.[i]?.driving)}));
+    rollingCache.set(plan,phrases);
+  }
+  const phrase=phrases.find(p=>time>=p.start&&time<p.end);
+  if(!phrase||phrase.times.length<4)return base;
+  const times=phrase.times;
+  let lo=0,hi=times.length;
+  while(lo<hi){const mid=(lo+hi)>>>1;if(times[mid]<=time)lo=mid+1;else hi=mid;}
+  const event=lo-1;
+  if(event<0)return base;
+  const last=times[event],next=times[event+1];
+  // Let a genuine musical gap settle back instead of free-running through it.
+  const amount=ease((time-phrase.start)/.5)*ease((phrase.end-time)/.5)*
+    (event>0&&last-times[event-1]>.85?ease((time-last)/.3):1)*
+    (next!==undefined&&next-last<=.85?1:1-ease((time-last-.15)/.5));
+  const anchor=event-event%2,step=anchor/2;
+  // Travel for the entire measured two-attack step. A fixed short fade
+  // finishes early and produces a rhythmic freeze before the next step.
+  const end=times[anchor+2]??phrase.end;
+  const mix=ease((time-times[anchor])/Math.max(.01,end-times[anchor]));
+  const slot=(i,shift)=>count===2?Math.floor(((i+shift)%4)/2):(i+shift)%count;
+  return base.map((rgb,i)=>blendSpatialColor(rgb,
+    blendSpatialColor(palette[slot(i,step)],palette[slot(i,step+1)],mix),amount));
 }
 export function automaticStage(streams,count=2,equipment,mode='auto'){
   const chase=mode==='chase';
@@ -98,8 +152,8 @@ export function automaticStage(streams,count=2,equipment,mode='auto'){
   // Spots and bar pixels each get a complete formation, so a long bar cannot
   // consume the active slots intended for the spotlights.
   const spots=patch.filter(f=>f.profile==='dimmer-rgb').length;
-  const spotColors=mode==='auto'?spatialColorSlots(main,spots,count):null;
-  const barColors=mode==='auto'?patch.map(f=>f.profile==='rgb-pixels'?spatialColorSlots(main,f.cells,count):null):[];
+  const spotColors=mode==='auto'?spatialColors(main,spots,palette):null;
+  const barColors=mode==='auto'?patch.map(f=>f.profile==='rgb-pixels'?spatialColors(main,f.cells,palette):null):[];
   const activity=mode==='auto'?active.map(s=>({spots:activityAt(s,spots),bars:patch.map(f=>f.profile==='rgb-pixels'?activityAt(s,f.cells):null)})):[];
   const calm=quiet(main.look)||mode==='auto'&&main.motionCharacter==='atmospheric',peak=main.look==='peak',build=main.look==='lift';
   const rotation=mode!=='auto'&&!simple&&beat!==null&&!calm?Math.floor(beat/8)%count:0;
@@ -108,9 +162,9 @@ export function automaticStage(streams,count=2,equipment,mode='auto'){
     if(fixture.profile==='dimmer-rgb')spotIndex++;
     return Array.from({length:fixture.cells},(_,cell)=>{
       const cellOrdinal=ordinal,position=ordinal/units;
-      const slot=mode==='auto'?(fixture.profile==='dimmer-rgb'?spotColors[spotIndex]:barColors[index][cell]):(ordinal+rotation)%count;
+      const slot=(ordinal+rotation)%count;
       ordinal++;
-      const [r,g,b]=palette[slot];
+      const [r,g,b]=mode==='auto'?(fixture.profile==='dimmer-rgb'?spotColors[spotIndex]:barColors[index][cell]):palette[slot];
       // Explicit presets retain their own choreography.
       const dimming=simple?active.reduce((sum,s)=>{
         const source=clamp(s.frame.dimming||0,0,100);
