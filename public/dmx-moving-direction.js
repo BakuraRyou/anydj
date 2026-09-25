@@ -111,29 +111,19 @@ export function groovePose(beat,{energy,strength,percussion,vocals,span=1,format
  });
 }
 
-// Move the gesture's working area over musical bars, independently of its local
-// sweep/pulse. Each head visits the floor rather than staying an "inner" head.
-// Smooth bounded anchors avoid clipping, random jumps and a permanent orbit.
+// Place the musical gesture on the floor. No independent room clock: if the
+// musical pose holds, its destination holds too. Roles shape the same gesture
+// into broad lateral arcs and depth sweeps rather than an unrelated search path.
 export function spatialPose(poses,beat,{energy=.5,span=1,asymmetry=0}={}){
- const anchors=[[-.8,-.8],[.7,.55],[-.55,.85],[.85,-.55],[.15,.75],[-.75,-.15],[.6,-.85],[-.2,.35]];
- const spread=clamp(span,0,1),pace=beat/8,freedom=clamp(asymmetry);
+ const freedom=clamp(asymmetry),spread=clamp(span,0,1);
  const independent=poses.map((pose,i)=>{
-  const phase=pace+i*2,index=Math.floor(phase),fraction=phase-index;
-  const t=fraction*fraction*fraction*(fraction*(fraction*6-15)+10);
-  const a=anchors[((index%anchors.length)+anchors.length)%anchors.length],b=anchors[((index+1)%anchors.length+anchors.length)%anchors.length];
-  const x=a[0]+(b[0]-a[0])*t,y=a[1]+(b[1]-a[1])*t;
-  // Convex mixtures fit the legal range without flattening at its edges.
-  // Energy changes the local gesture, not whether the rear floor is reachable.
-  const local=.55+.1*clamp(energy);
-  return {pan:pose.pan*local+x*42*(1-local)*spread,
-   tilt:.85+(pose.tilt-.85)*.3+y*.23*spread};
+  const x=Math.tanh(pose.pan/42*2),depth=(pose.tilt-.85)/.3;
+  const outer=i===0||i===3;
+  const curve=outer?1.05*Math.cos(Math.PI*x)-.3:.65*Math.sin(Math.PI*x)*(i<2?1:-1)+.35*Math.cos(2*Math.PI*x);
+  return {pan:42*x,tilt:.85+.285*Math.tanh(depth*.8+curve*spread)};
  });
- // Blend paired and independent roles according to the musical phrase.
- // Keep the authored left-side gestures and mirror their partners. Averaging
- // opposing gestures would collapse the floor coverage back to the centre.
  return independent.map((pose,i)=>{
-  const partner=i<2?i:3-i,lead=independent[partner];
-  const pan=i<2?lead.pan:-lead.pan;
+  const partner=i<2?i:3-i,lead=independent[partner],pan=i<2?lead.pan:-lead.pan;
   return {pan:pan+(pose.pan-pan)*freedom,tilt:lead.tilt+(pose.tilt-lead.tilt)*freedom};
  });
 }

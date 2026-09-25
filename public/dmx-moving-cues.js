@@ -74,7 +74,7 @@ export function movingCues(plan,mode,mood='balanced'){
     const vocals=clamp(finite(drama?.vocalShare,0));
     const groove=!event?.development&&directed&&!calm&&(mood==='balanced'||mood==='energetic'||mood==='disco')&&
       energy>=.55&&rhythmicDrive>=.45&&strength>=.3&&
-      (section?.look==='peak'||energy>=.72)&&(event?.driving||phrase.movement.driving>=.5||phrase.movement.percussive);
+      (event?.driving||phrase.movement.driving>=.5||phrase.movement.percussive);
 
     const flowing=directed&&design&&!groove&&!event?.development&&!['held','break'].includes(section?.look)&&energy>=.2;
     const prominence=clamp((finite(arrangement.eventSalience?.[index],0)-(motives[phraseIndex]?.salience??.35))/.4);
@@ -92,7 +92,8 @@ export function movingCues(plan,mode,mood='balanced'){
       reason=event?.development?'build-development':groove?'groove':entrance?'musical-change':building?'build':standout?'strong-accent':'section-flow';
     }
     const previous=cues.at(-1),gap=time-previous.time;
-    if(gap<(groove?.65:flowing&&reason==='section-flow'?(calm?4:2):Math.max(profile.spacing,design?.spacing??0,atmospheric?4:0,calm?1.5:kind==='sweep'?.75:.38)))continue;
+    const featured=directed&&!calm&&(reason==='strong-accent'||prominence>.65);
+    if(gap<(featured?.38:groove?.65:flowing&&reason==='section-flow'?1:Math.max(profile.spacing,design?.spacing??0,atmospheric?4:0,calm?1.5:kind==='sweep'?.75:.38)))continue;
     const tone=clamp(finite(phrase?.tone,.5));
     const progress=clamp(finite(event?.progress,0));
     const spread=calm?5+energy*6:kind==='build'?8+24*progress:12+energy*20;
@@ -133,11 +134,20 @@ export function movingCues(plan,mode,mood='balanced'){
     }else if(design&&!event?.development){
       const sectionProgress=section?clamp((time-section.start)/Math.max(.1,section.end-section.start)):progress;
       const phraseBeat=(beatPosition(motionGrid,time)??time*2)-(beatPosition(motionGrid,section?.start??phrase.start)??(section?.start??phrase.start)*2);
-      pose=directedPose(design,Math.floor(phraseBeat/4),sectionProgress).map(p=>({pan:clamp(p.pan*profile.span,-42,42),tilt:clamp(.8+(p.tilt-.8)*Math.min(1,profile.span),.55,1.15)}));
+      pose=(flowing?groovePose(phraseBeat,{energy,strength,percussion,vocals,span:1,formation:design.formation,shape:design.shape,period:design.period,progress:sectionProgress}):directedPose(design,Math.floor(phraseBeat/4),sectionProgress)).map(p=>({pan:clamp(p.pan*profile.span,-42,42),tilt:clamp(.8+(p.tilt-.8)*Math.min(1,profile.span),.55,1.15)}));
     }
     if(directed&&(design||groove)){
       const spatialBeat=beatPosition(motionGrid,time)??time*2;
       pose=spatialPose(pose,spatialBeat,{energy,span:profile.span,asymmetry:clamp((directionDesign?.asymmetry??.3)+(mood==='disco'?.2:0))});
+      // Keep the section's figure, but let its current musical articulation
+      // change the reach and depth. This is part of the planned cue, before
+      // motor limits, never an extra wall-clock oscillator or brightness pulse.
+      const sectionEnergy=directionDesign?.energy??energy;
+      const lift=clamp((energy-sectionEnergy)*1.8,-.35,.35);
+      const emphasis=featured?prominence*.12:0;
+      const reach=clamp(.82+.18*strength+lift*.3+emphasis,.65,1.12);
+      pose=pose.map((p,i)=>({pan:clamp(p.pan*reach,-42,42),
+        tilt:clamp(p.tilt+lift*(i===0||i===3?.13:.08)+emphasis*(i===0||i===3?.2:-.1),.55,1.15)}));
     }
     if(!groove){lastGrooveBeat=null;groovePhrase=-1;}
     // Account for the peak speed of each interpolation curve. Short intervals
@@ -172,8 +182,16 @@ export function movingCueAt(cues,time){
     const a=cues[index-1],b=cues[index],c=cues[index+1];
     if(!a||!c||!continuous(b)||!continuous(c)||
       Math.abs(b.travel-(b.time-a.time))>1e-6||Math.abs(c.travel-(c.time-b.time))>1e-6)return 0;
-    return motionTangent(a.pose[head][key],b.pose[head][key],c.pose[head][key],b.time-a.time,c.time-b.time)*(1-(b.settle??0));
+    const u=(b.pose[head][key]-a.pose[head][key])/(b.time-a.time),v=(c.pose[head][key]-b.pose[head][key])/(c.time-b.time);
+    return motionTangent(a.pose[head][key],b.pose[head][key],c.pose[head][key],b.time-a.time,c.time-b.time)?2*u*v/(u+v)*(1-(b.settle??0)):0;
+  };
+  const curvature=(index,head,key)=>{
+    const a=cues[index-1],b=cues[index],c=cues[index+1];
+    if(!a||!c||!continuous(b)||!continuous(c)||Math.abs(b.travel-(b.time-a.time))>1e-6||Math.abs(c.travel-(c.time-b.time))>1e-6)return 0;
+    const left=b.time-a.time,right=c.time-b.time,u=(b.pose[head][key]-a.pose[head][key])/left,v=(c.pose[head][key]-b.pose[head][key])/right;
+    if(Math.abs(u)<1e-9||Math.abs(v)<1e-9)return 0;
+    return 2*(v-u)/(left+right)*(1-(b.settle??0));
   };
   return previous.pose.map((p,i)=>Object.fromEntries(['pan','tilt'].map(key=>[key,
-    motionQuintic(p[key],next.pose[i][key],tangent(lo-1,i,key),tangent(lo,i,key),next.travel,phase)])));
+    motionQuintic(p[key],next.pose[i][key],tangent(lo-1,i,key),tangent(lo,i,key),next.travel,phase,curvature(lo-1,i,key),curvature(lo,i,key))])));
 }

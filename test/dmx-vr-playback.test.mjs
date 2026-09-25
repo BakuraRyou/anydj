@@ -31,3 +31,17 @@ test('paired playback interpolates target height between floor and wall',()=>{
  const p=createVRPlayback(),a=scene(0),b=scene(100);b.lights[0].target.z=2;
  p.push(a,0);p.push(b,100);assert.equal(p.sample(170).lights[0].target.z,1);
 });
+
+test('local 20 Hz updates produce intermediate motion frames without delaying blackout',async()=>{
+ const {createMovingPreview}=await import('../public/dmx-vr-playback.js');
+ const playback=createMovingPreview(),frame=x=>[{...scene(x).lights[0],motionUV:{x:x/100,y:x/200},power:1}];
+ playback.push(frame(0),scene(0).layout,0);playback.push(frame(50),scene(0).layout,50);
+ const values=[60,76,93].map(t=>playback.sample(t)[0]);
+ assert.deepEqual(values.map(l=>l.target.x),[0,16,33]);
+ assert.ok(Math.abs(values[1].motionUV.x-.16)<1e-9);
+ const dark=frame(100);dark[0].power=0;playback.push(dark,scene(0).layout,100);
+ assert.equal(playback.sample(110)[0].target.x,50);assert.equal(playback.sample(110)[0].power,0);
+ assert.equal(playback.active(110),true);assert.equal(playback.active(211),false,'no perpetual redraw after movement stops');
+ assert.equal(playback.sample(1000)[0].target.x,100,'never extrapolate beyond a received destination');
+ playback.push([],scene(0).layout,1050);assert.deepEqual(playback.sample(1050),[],'removed lights disappear immediately');
+});

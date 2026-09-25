@@ -90,7 +90,7 @@ test('build sections develop continuously and measured rising energy adds build 
  p.sections.forEach(s=>s.look='lift');
  p.beatGrid={downbeats:Array.from({length:32},(_,i)=>i*2)};
  p.arrangement.patterns.events.forEach(e=>e.kind='build');
- assert.ok(movingCues(p,'auto').some(c=>c.reason==='section-flow'));
+ assert.ok(movingCues(p,'auto').some(c=>['section-flow','groove'].includes(c.reason)));
  p.arrangement.drama={step:.5,intensity:Array.from({length:128},(_,i)=>Math.min(.9,.1+i*.025)),percussion:Array(128).fill(.6),vocalShare:Array(128).fill(.1),attacks:Array(128).fill(.1)};
  const cues=movingCues(p,'auto');
  assert.ok(cues.some(c=>c.reason==='build'));
@@ -208,17 +208,17 @@ test('ribbon formations preserve a fan opening rather than replacing it with a s
  assert.notDeepEqual(directedPose(design,0,.1),directedPose(design,0,.9));
 });
 
-test('automatic choreography gives every head depth and area instead of a permanent central lane',()=>{
+test('musical roles span the floor without forcing every head onto an independent area-filling path',()=>{
  const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);p.sections.forEach(s=>s.look='peak');
  const cues=movingCues(p,'auto');
  for(let head=0;head<4;head++){
   const points=Array.from({length:560},(_,i)=>movingCueAt(cues,4+i*.1)[head]);
   const xs=points.map(p=>p.pan/42),ys=points.map(p=>(p.tilt-.85)/.3);
   const mean=a=>a.reduce((s,v)=>s+v,0)/a.length,mx=mean(xs),my=mean(ys);
-  const xx=mean(xs.map(x=>(x-mx)**2)),yy=mean(ys.map(y=>(y-my)**2)),xy=mean(xs.map((x,i)=>(x-mx)*(ys[i]-my)));
+  const xx=mean(xs.map(x=>(x-mx)**2)),yy=mean(ys.map(y=>(y-my)**2));
   assert.ok(Math.max(...ys)-Math.min(...ys)>.7,`head ${head} reaches front and back`);
   assert.ok(Math.min(...xs)<-.15&&Math.max(...xs)>.15,`head ${head} leaves its central role`);
-  assert.ok(xx*yy-xy*xy>.002,`head ${head} covers area instead of a line`);
+  assert.ok(xx>.005&&yy>.005,`head ${head} has meaningful lateral and depth travel`);
  }
 });
 
@@ -252,4 +252,45 @@ test('each section keeps its character across short phrases while quiet passages
  }
  assert.notDeepEqual(movingCueAt(cues,10),movingCueAt(cues,22));
  assert.ok(cues.some(c=>c.time>=32&&c.reason==='groove'));
+});
+
+test('spatial roles follow musical poses and never wander on an independent clock',async()=>{
+ const {spatialPose}=await import('../public/dmx-moving-direction.js');
+ const poses=[{pan:-25,tilt:.75},{pan:-12,tilt:.9},{pan:12,tilt:.9},{pan:25,tilt:.75}];
+ const expected=spatialPose(poses,0,{asymmetry:.4});
+ for(const beat of [1,8,16,32,64,100])assert.deepEqual(spatialPose(poses,beat,{asymmetry:.4}),expected);
+ const changed=poses.map(p=>({...p,pan:p.pan*.5}));assert.notDeepEqual(spatialPose(changed,16,{asymmetry:.4}),expected);
+ assert.ok(Math.abs(expected[0].pan)>Math.abs(poses[0].pan),'expand the authored gesture instead of inventing a second journey');
+});
+
+test('a clear non-peak rhythm drives continuous choreography without waiting for a peak label',()=>{
+ const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);p.sections.forEach(s=>s.look='verse');
+ p.arrangement.patterns.phrases.forEach(ph=>ph.energy=.6);
+ const cues=movingCues(p,'auto');assert.ok(cues.filter(c=>c.reason==='groove').length>30);
+});
+test('quiet section journeys respond to actual accent strength without changing their figure',()=>{
+ const p=song();p.sections.forEach(s=>s.look='quiet');p.arrangement.patterns.phrases.forEach(ph=>{ph.energy=.35;ph.movement.character='atmospheric';});
+ p.arrangement.accents.fill(.2);const stronger=structuredClone(p);stronger.arrangement.accents.fill(.65);
+ assert.deepEqual(movingDirections(p),movingDirections(stronger));
+ const a=movingCues(p,'auto'),b=movingCues(stronger,'auto');
+ let difference=0;
+ for(let t=5;t<60;t+=.1){const x=movingCueAt(a,t),y=movingCueAt(b,t);difference=Math.max(difference,...x.map((v,i)=>Math.abs(v.pan-y[i].pan)));}
+ assert.ok(difference>2,'measured accent strength visibly changes the gesture');
+});
+test('prominent musical accents are not discarded by ordinary groove spacing',()=>{
+ const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);p.sections.forEach(s=>s.look='peak');
+ p.arrangement.eventSalience=Array(128).fill(.1);p.arrangement.eventSalience[5]=1;
+ const cues=movingCues(p,'auto');assert.ok(cues.some(c=>c.time===2.5),'retain highlighted hit between ordinary groove destinations');
+});
+
+test('local musical energy develops the same section figure instead of being lost in its average',()=>{
+ const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);p.sections.forEach(s=>s.look='verse');
+ p.arrangement.drama={step:.5,intensity:Array.from({length:128},(_,i)=>i%32<16?.58:.88),percussion:Array(128).fill(.8),vocalShare:Array(128).fill(.1),attacks:Array(128).fill(.1)};
+ const opposite=structuredClone(p);opposite.arrangement.drama.intensity.reverse();
+ const first=movingDirections(p),second=movingDirections(opposite);
+ first.forEach((d,i)=>{assert.ok(Math.abs(d.energy-second[i].energy)<1e-12);for(const k of ['shape','formation','asymmetry','period'])assert.equal(d[k],second[i][k]);});
+ const a=movingCues(p,'auto'),b=movingCues(opposite,'auto');
+ let difference=0;
+ for(let t=3;t<30;t+=.1){const x=movingCueAt(a,t),y=movingCueAt(b,t);difference=Math.max(difference,...x.map((v,i)=>Math.abs(v.pan-y[i].pan)));}
+ assert.ok(difference>3,'local energy must still visibly affect motion');
 });

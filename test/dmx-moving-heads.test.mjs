@@ -60,3 +60,17 @@ test('deck flashes do not tug on movement during crossfades with a slow light ba
  assert.deepEqual(movingHeadTargets([{...a,frame:{state:true,dimming:10}},{...b,frame:{state:true,dimming:100}}]),before);
  assert.deepEqual(movingHeadTargets([a,{...b,frame:{state:true,dimming:0}}]),movingHeadTargets([a]));
 });
+
+test('device assignment preserves whole musical roles instead of averaging opposing heads into the centre',async()=>{
+ const {movingDevicePoses}=await import('../public/dmx-layout-model.js');
+ const poses=[{pan:-35,tilt:.6},{pan:-22,tilt:.75},{pan:22,tilt:.95},{pan:35,tilt:1.1}];
+ for(const count of [1,3,5,8]){
+  const devices=Array.from({length:count},(_,i)=>({id:String(i),group:2}));
+  const mapped=movingDevicePoses(poses,devices);
+  assert.ok(mapped.every(p=>Math.abs(p.pan)>15),'background heads retain a real gesture');
+  if(count>1)assert.ok(new Set(mapped.map(p=>p.pan+','+p.tilt)).size>1,'background is not a duplicated midpoint');
+  assert.deepEqual(movingDevicePoses(poses,devices),mapped);
+ }
+ const devices=[{id:'left',group:0},{id:'right',group:1}];
+ assert.deepEqual(movingDevicePoses(poses,devices),[poses[0],poses[3]],'left/right groups retain paired roles');
+});

@@ -46,3 +46,19 @@ export function rotateAssembly(layout,id,degrees){
   result.assemblies.find(g=>g.id===id).rotation=((degrees%360)+360)%360;
   return stageLayout(result);
 }
+
+
+// Assign complete musical roles. Interpolating opposing heads cancels their
+// travel and used to pin background/odd-sized rigs to the middle.
+export function movingDevicePoses(poses,devices){
+ const counts=new Map();
+ return devices.map(device=>{
+  const group=device.group,member=counts.get(group)||0;counts.set(group,member+1);
+  const roles=group===0?[0,1]:group===1?[3,2]:group===2?[0,3,1,2]:[0,1,2,3];
+  const role=roles[member%roles.length],pose=poses[role];
+  const row=Math.floor(member/roles.length);
+  // Additional fixtures keep their group's gesture with a distinct reach/depth.
+  const variant=row%3,scale=1-variant*.07;
+  return {pan:pose.pan*scale,tilt:.85+(pose.tilt-.85)*scale+(variant===1?.025:variant===2?-.025:0)};
+ });
+}

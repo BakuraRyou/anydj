@@ -1,3 +1,4 @@
+import {createMovingPreview} from './dmx-vr-playback.js';
 import {createARPlanner} from './dmx-ar-planner.js';
 import {createVRShare} from './dmx-vr-share.js';
 import {createVRSetup} from './dmx-vr-setup.js';
@@ -47,7 +48,7 @@ export function createStage3d(host,controls,{getLayout,mountLayout,mountLighting
   let enabled=false,disposed=false,visible=true,renderer=null,moveCamera=null,loading=null,raf=0,viewportSize=null,lights=[],moving=[],drag=null;
   const room=createRoomSettings(panel,{getLayout,onChange:()=>{if(room.value.enabled){dancer.y=Math.max(.15,dancer.y);q('dancer-aim').checked=false;}syncDancer();requestDraw();}});
   const viewLayout=()=>planner?.layout||(room.value.enabled?roomLayout(room.value):{...getLayout(),environmentBrightness:room.value.environmentBrightness});
-  const zoneMotion=createZoneMotion();
+  const zoneMotion=createZoneMotion(),movingFrames=createMovingPreview();
   const zones=createZonePlan(panel,{getAims:getFixtureAims,onAim:setFixtureAim,getLayout:viewLayout,onPosition:(id,p)=>{const source=getLayout();onFixturePosition?.(id,{x:(p.x-.5)*source.width,y:p.y*source.depth});},onChange:()=>requestDraw()});
   const initial=()=>({yaw:.32,pitch:.55,zoom:1});let camera=initial(),overview=initial();
   onZonePlan?.(zones);
@@ -161,11 +162,12 @@ export function createStage3d(host,controls,{getLayout,mountLayout,mountLighting
     // Hysteresis keeps quality stable; only rendering resolution changes, never show timing.
     if(slowFrames>=30&&resolution>.75){resolution=Math.max(.75,Math.min(scale,resolution)-.25);slowFrames=fastFrames=0;}
     else if(fastFrames>=180&&resolution<1.5){resolution=Math.min(1.5,resolution+.25);slowFrames=fastFrames=0;}
-    if(walkingKeys.size)requestDraw();
+    if(walkingKeys.size||movingFrames.active(performance.now()))requestDraw();
   }
-  function vrScene(now,raw=false){
-    const layout=getLayout(),previewMoving=q('dancer-aim').checked?moving.map(h=>({...h,target:{x:h.target.x,y:-Math.max(4,layout.depth)*(.1+.8*h.target.y/layout.depth)}})):moving;
-    const mapped=planner?.active?[...lights,...moving]:room.value.enabled?roomLights([...lights,...moving],layout,room.value):[...lights,...previewMoving];
+  function vrScene(now,raw=false,interpolate=true){
+    const heads=interpolate?movingFrames.sample(performance.now()):moving;
+    const layout=getLayout(),previewMoving=q('dancer-aim').checked?heads.map(h=>({...h,target:{x:h.target.x,y:-Math.max(4,layout.depth)*(.1+.8*h.target.y/layout.depth)}})):heads;
+    const mapped=planner?.active?[...lights,...heads]:room.value.enabled?roomLights([...lights,...heads],layout,room.value):[...lights,...previewMoving];
     if(!vr?.active)zones.update(mapped);
     const view=viewLayout();
     if(planner?.active){const result={layout:{...layout},lights:mapped,crowd:crowdEnabled?crowd:[],motion:reducedMotion.matches?0:(crowdEnabled&&crowdMotion?crowdMotion(music,now):0)};return raw?result:planner.scene(result);}
@@ -267,7 +269,7 @@ export function createStage3d(host,controls,{getLayout,mountLayout,mountLighting
   const vrStatus=document.createElement('span');vrStatus.className='stage-vr-status';vrStatus.setAttribute('role','status');panel.querySelector('.stage-3d-tools').append(vrStatus);
   const vrSetup=createVRSetup(panel.querySelector('.stage-3d-tools'),{onRefresh:()=>vr?.checkSupport()});
   vr=createStageVR({arButton,planner,onSupport:state=>vrSetup.update(state),button:vrButton,status:vrStatus,getScene:now=>({...vrScene(now,true),transport:transport.vrState(),roomPlan:planner.active?planner.plan:null}),onCommand:onXRCommand,getOrigin:()=>dancer,onActive:active=>{stopWalking();if(active){if(camera.mode!=='dancer')setDancer(true);cancelAnimationFrame(raf);raf=0;}else requestDraw();}});
-  share=createVRShare(panel.querySelector('.stage-3d-tools'),{onStateChange:onShareChange,onCommand:onXRCommand,getScene:()=>({...vrScene(performance.now()/1000,true),transport:transport.vrState(),roomPlan:planner.active?planner.plan:null,origin:{x:dancer.x,y:dancer.y,yaw:dancer.yaw,eyeHeight:dancer.eyeHeight}})});
+  share=createVRShare(panel.querySelector('.stage-3d-tools'),{onStateChange:onShareChange,onCommand:onXRCommand,getScene:()=>({...vrScene(performance.now()/1000,true,false),transport:transport.vrState(),roomPlan:planner.active?planner.plan:null,origin:{x:dancer.x,y:dancer.y,yaw:dancer.yaw,eyeHeight:dancer.eyeHeight}})});
   const title=panel.querySelector('.stage-3d-heading strong'),secret=document.createElement('button');
   secret.type='button';secret.className='stage-3d-secret';secret.dataset.crowdSecret='';secret.innerHTML=title.innerHTML;title.replaceChildren(secret);
   let taps=0,lastTap=0;
@@ -287,7 +289,7 @@ export function createStage3d(host,controls,{getLayout,mountLayout,mountLighting
       music=musicState;
       if(!enabled&&!share?.wanted&&!share?.active)return;
       transport.update();workspace?.update();
-      const layout=getLayout();moving=heads.map(h=>({...h,type:'moving'}));
+      const layout=getLayout();moving=heads.map(h=>({...h,type:'moving'}));movingFrames.push(moving,layout,performance.now());
       lights=fixtures.flatMap(f=>{
         const group=fixtures.filter(other=>other.type===f.type),id=`fixture-${f.id}`;
         const p=layout.positions[id]||{...fixturePosition(layout,id,group.indexOf(f),group.length),y:layout.depth*(f.type==='bar'?.25:.55)};

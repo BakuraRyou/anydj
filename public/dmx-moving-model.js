@@ -87,8 +87,9 @@ export function motionReach(a,b,time,scale=1){
   }});
   return fraction;
 }
-// Quintic Hermite: shared endpoint velocity and zero endpoint acceleration.
-export function motionQuintic(a,b,va,vb,duration,t){
-  const d=b-a,u=va*duration,v=vb*duration;
-  return a+u*t+t*t*t*((10*d-6*u-4*v)+t*((-15*d+8*u+7*v)+t*(6*d-3*u-3*v)));
+// Quintic Hermite: shared velocity and optional shared curvature. Isolated
+// gestures retain zero endpoint acceleration by default.
+export function motionQuintic(a,b,va,vb,duration,t,aa=0,ab=0){
+  const d=b-a,u=va*duration,v=vb*duration,A=aa*duration*duration,B=ab*duration*duration;
+  return a+u*t+A*t*t/2+t*t*t*((10*d-6*u-4*v-1.5*A+.5*B)+t*((-15*d+8*u+7*v+1.5*A-B)+t*(6*d-3*u-3*v-.5*A+.5*B)));
 }

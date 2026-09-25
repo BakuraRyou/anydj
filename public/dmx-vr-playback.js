@@ -24,3 +24,23 @@ export function createVRPlayback({delay=120}={}){
     },
   };
 }
+
+// Local scene updates arrive at 20 Hz. Buffer just over one update so display
+// and XR frames can interpolate without extrapolating across protected areas.
+// Brightness, blackout, fixture edits and membership remain immediate.
+export function createMovingPreview({delay=60}={}){
+ const playback=createVRPlayback({delay});let latest=[],until=0;
+ return {
+  push(lights,layout,now){
+   const prior=new Map(latest.map(l=>[l.id,l]));
+   if(lights.some(l=>{const p=prior.get(l.id);return p&&['x','y','z'].some(k=>(p.target[k]||0)!==(l.target[k]||0))||p&&['x','y'].some(k=>p.motionUV?.[k]!==l.motionUV?.[k]);}))until=now+delay+50;
+   latest=lights;playback.push({lights,layout},now);
+  },
+  active(now){return now<until;},
+  sample(now){
+   const buffered=playback.sample(now);if(!buffered)return latest;
+   const poses=new Map(buffered.lights.map(l=>[l.id,l]));
+   return latest.map(light=>{const pose=poses.get(light.id);return pose?{...light,target:pose.target,...(pose.motionUV?{motionUV:pose.motionUV}:{})}:light;});
+  },
+ };
+}

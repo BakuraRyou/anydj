@@ -152,3 +152,14 @@ test('section-flow journeys retain velocity across intermediate targets and into
  assert.deepEqual(movingCueAt(cues,7),pose(3));
  assert.deepEqual(movingCueAt(cues,8),pose(3));
 });
+
+test('continuous curves carry acceleration through ordinary waypoints instead of restarting an easing cycle',()=>{
+ const pose=t=>Array.from({length:4},()=>({pan:t*t,tilt:.7+t*t*.01}));
+ const cues=Array.from({length:5},(_,time)=>({time,travel:time?1:0,continuous:true,pose:pose(time)}));
+ const h=.0001,at=t=>movingCueAt(cues,t)[0].pan;
+ for(const t of [1,2,3]){
+  const before=(at(t)-2*at(t-h)+at(t-2*h))/(h*h),after=(at(t+2*h)-2*at(t+h)+at(t))/(h*h);
+  assert.ok(before>1.9&&after>1.9,'curvature does not reset to zero');
+  assert.ok(Math.abs(before-after)<.03,'acceleration stays continuous');
+ }
+});

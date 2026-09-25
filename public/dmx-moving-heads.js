@@ -5,7 +5,7 @@ import {automaticStage} from './dmx-auto.js';
 import {encodeStage,decodeStage} from './dmx-model.js';
 const previewEquipment={devices:Array.from({length:4},(_,i)=>({id:`preview-${i}`,type:'spot',cells:1}))};
 import {activityAt} from './dmx-activity.js';
-import {projectMovingHeads} from './dmx-layout-model.js';
+import {projectMovingHeads,movingDevicePoses} from './dmx-layout-model.js';
 import {MOVING_MOODS,movingMood} from './dmx-moving-moods.js';
 export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=null,getLayout=null,getPreviewEnabled=()=>false,onPreview=()=>{},showMoodControl=true,adjustFrame=frame=>frame}={}) {
   const storageKey='anydj-stage-moving-heads';
@@ -88,7 +88,7 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
       if(reducedMotion.matches)poses=restingHeads();
       else if(!blackout&&target&&(lit||hasPlan))poses=(hasPlan?followMovingHeads:advanceMovingHeads)(poses,target,lastTime===null?0:time-lastTime);
       lastTime=time;
-      const devicePoses=devices.map((d,i)=>{const member=devices.slice(0,i).filter(other=>other.group===d.group).length;const at=d.group===0?member%2:d.group===1?2+member%2:d.group===2?1.5:devices.length===1?1.5:i*3/(devices.length-1),a=Math.floor(at),b=Math.min(3,a+1),t=at-a;return {pan:poses[a].pan+(poses[b].pan-poses[a].pan)*t,tilt:poses[a].tilt+(poses[b].tilt-poses[a].tilt)*t};});
+      const devicePoses=movingDevicePoses(poses,devices);
       const projected=getLayout?projectMovingHeads(getLayout(),devicePoses,devices):null;
       row.dataset.layout=String(!!projected);
       const preview=[];
