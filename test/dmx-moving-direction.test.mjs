@@ -62,34 +62,35 @@ test('prepared directions survive forward and backward seeking and leave manual 
 });
 
 
-test('moderate unchanged music holds formation across visual phrases in every automatic mood',()=>{
+test('moderate sections keep moving while deliberately restrained moods can hold',()=>{
  const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);
  p.sections.forEach(s=>s.look='peak');p.arrangement.patterns.phrases.forEach(p=>p.energy=.4);
  const snapshot=structuredClone(p);
  for(const mood of ['balanced','calm','atmospheric','energetic']){
   const cues=movingCues(p,'auto',mood);
-  assert.equal(cues.length,2,`${mood}: only the first musical entrance should move`);
-  assert.deepEqual(movingCueAt(cues,10),movingCueAt(cues,63));
+  if(mood==='balanced'){
+   assert.ok(cues.length>10);assert.notDeepEqual(movingCueAt(cues,10),movingCueAt(cues,63));
+   assert.ok(cues.some(c=>c.reason==='section-flow'));
+  }else{assert.equal(cues.length,2);assert.deepEqual(movingCueAt(cues,10),movingCueAt(cues,63));}
  }
  assert.deepEqual(p,snapshot);
 });
-test('a standout hit and a measured timbre change trigger gestures, ordinary accents do not',()=>{
+test('section movement evolves between accents without changing its spatial character on each hit',()=>{
  const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);
  p.sections.forEach(s=>s.look='peak');p.arrangement.patterns.phrases.forEach(p=>p.energy=.4);p.arrangement.accents.fill(.4);
- p.arrangement.accents[12]=.7;
- p.arrangement.patterns.phrases.slice(1).forEach(p=>p.tone=.2);
+ p.arrangement.accents[12]=.7;p.arrangement.patterns.phrases.slice(1).forEach(p=>p.tone=.2);
  const cues=movingCues(p,'auto');
- assert.deepEqual(cues.slice(1).map(c=>[c.time,c.reason]),[[.5,'musical-change'],[6,'strong-accent'],[16,'musical-change']]);
- assert.deepEqual(movingCueAt(cues,5),movingCueAt(cues,1));
- assert.deepEqual(movingCueAt(cues,15),movingCueAt(cues,7));
- assert.ok(cues.slice(1).every(c=>c.travel<=.6));
+ assert.ok(cues.some(c=>c.reason==='section-flow'));
+ assert.notDeepEqual(movingCueAt(cues,5),movingCueAt(cues,7));
+ assert.ok(cues.every(c=>c.travel<=2));
+ assert.deepEqual(cues,movingCues(p,'auto'),'seeking/replanning is deterministic');
 });
-test('a build label alone cannot cause repeated gestures; measured rising energy can',()=>{
+test('build sections develop continuously and measured rising energy adds build accents',()=>{
  const p=song(['rhythmic','rhythmic','rhythmic','rhythmic']);
  p.sections.forEach(s=>s.look='lift');
  p.beatGrid={downbeats:Array.from({length:32},(_,i)=>i*2)};
  p.arrangement.patterns.events.forEach(e=>e.kind='build');
- assert.equal(movingCues(p,'auto').length,2);
+ assert.ok(movingCues(p,'auto').some(c=>c.reason==='section-flow'));
  p.arrangement.drama={step:.5,intensity:Array.from({length:128},(_,i)=>Math.min(.9,.1+i*.025)),percussion:Array(128).fill(.6),vocalShare:Array(128).fill(.1),attacks:Array(128).fill(.1)};
  const cues=movingCues(p,'auto');
  assert.ok(cues.some(c=>c.reason==='build'));
@@ -219,4 +220,36 @@ test('automatic choreography gives every head depth and area instead of a perman
   assert.ok(Math.min(...xs)<-.15&&Math.max(...xs)>.15,`head ${head} leaves its central role`);
   assert.ok(xx*yy-xy*xy>.002,`head ${head} covers area instead of a line`);
  }
+});
+
+test('musical phrases balance paired and independent movement without a fixed symmetry rule',async()=>{
+ const {spatialPose}=await import('../public/dmx-moving-direction.js');
+ const p=song(),d=movingDirections(p);
+ assert.ok(d[0].asymmetry<d[1].asymmetry&&d[1].asymmetry<d[2].asymmetry);
+ assert.equal(d[3].asymmetry,d[0].asymmetry,'returning motifs recall their group balance');
+ p.arrangement.drama={step:1,intensity:Array(64).fill(.9),percussion:Array(64).fill(.8),vocalShare:Array(64).fill(.8),attacks:Array(64).fill(0)};
+ const vocal=movingDirections(p)[2];assert.ok(vocal.asymmetry<d[2].asymmetry,'vocals bring the group together even at high energy');
+ const poses=[{pan:-25,tilt:.65},{pan:-12,tilt:.9},{pan:5,tilt:1},{pan:18,tilt:.8}];
+ const paired=spatialPose(poses,12,{asymmetry:0}),free=spatialPose(poses,12,{asymmetry:1});
+ const tension=points=>Math.abs(points[0].pan+points[3].pan)+42*Math.abs(points[0].tilt-points[3].tilt);
+ assert.equal(tension(paired),0);
+ const calm=spatialPose(poses,12,{asymmetry:vocal.asymmetry}),peak=spatialPose(poses,12,{asymmetry:d[2].asymmetry});
+ assert.ok(tension(calm)>0&&tension(calm)<tension(peak)&&tension(peak)<tension(free));
+});
+
+test('each section keeps its character across short phrases while quiet passages still develop',()=>{
+ const p=song();p.sections=[{start:0,end:32,look:'quiet'},{start:32,end:64,look:'peak'}];
+ p.arrangement.patterns.phrases=Array.from({length:8},(_,i)=>({start:i*8,end:(i+1)*8,section:i<4?0:1,energy:i%2?.8:.3,tone:i%2?.9:.2,movement:{character:'rhythmic',driving:.8}}));
+ p.arrangement.drama={step:1,intensity:Array.from({length:64},(_,i)=>i<32?.35:.95),percussion:Array.from({length:64},(_,i)=>i<32?.2:.9),vocalShare:Array(64).fill(.1),attacks:Array(64).fill(.1)};
+ const d=movingDirections(p),character=x=>[x.shape,x.formation,x.asymmetry,x.speed,x.energy];
+ for(let i=1;i<4;i++)assert.deepEqual(character(d[i]),character(d[0]));
+ for(let i=5;i<8;i++)assert.deepEqual(character(d[i]),character(d[4]));
+ assert.ok(d[4].asymmetry>d[0].asymmetry&&d[4].speed>d[0].speed);
+ const cues=movingCues(p,'auto');assert.ok(cues.filter(c=>c.time<32&&c.reason==='section-flow').length>=4);
+ for(let i=1;i<cues.length;i++)if(cues[i].reason==='section-flow'&&cues[i].time<32){
+  assert.equal(cues[i].continuous,true);
+  assert.ok(Math.abs(cues[i].travel-(cues[i].time-cues[i-1].time))<1e-8,'quiet follow-up uses the whole interval without a hold');
+ }
+ assert.notDeepEqual(movingCueAt(cues,10),movingCueAt(cues,22));
+ assert.ok(cues.some(c=>c.time>=32&&c.reason==='groove'));
 });

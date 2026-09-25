@@ -134,3 +134,21 @@ test('fast energetic phrases with irregular connected accents retain physical li
   }});a=b;b=c;c=d;
  }
 });
+
+test('section-flow journeys retain velocity across intermediate targets and into grooves',()=>{
+ const pose=n=>Array.from({length:4},()=>({pan:n*8,tilt:.65+n*.04}));
+ const cues=[{time:0,travel:0,pose:pose(0)},
+  {time:2,travel:2,continuous:true,reason:'musical-change',pose:pose(1)},
+  {time:4,travel:2,continuous:true,reason:'section-flow',pose:pose(2)},
+  {time:6,travel:2,reason:'groove',pose:pose(3)}];
+ const h=.0001;
+ for(const time of [2,4])for(const key of ['pan','tilt']){
+  const at=t=>movingCueAt(cues,t)[0][key],left=(at(time)-at(time-h))/h,right=(at(time+h)-at(time))/h;
+  assert.ok(left>0&&right>0,'intermediate arrival must not stop');
+  assert.ok(Math.abs(left-right)<1e-5,'velocity remains continuous');
+ }
+ // A later isolated journey leaves a real hold, never bridges across it.
+ cues.push({time:9,travel:1,pose:pose(4)});
+ assert.deepEqual(movingCueAt(cues,7),pose(3));
+ assert.deepEqual(movingCueAt(cues,8),pose(3));
+});

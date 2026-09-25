@@ -5,14 +5,28 @@ const finite=(v,fallback)=>Number.isFinite(v)?v:fallback;
 // choreography, random figures or additional audio/model processing.
 export function movingDirections(plan,disco=false){
  const phrases=plan.arrangement?.patterns?.phrases||[],memory=[];
- return phrases.map(phrase=>{
-  if(!phrase.movement)return null; // Older plans retain their previous rendering.
+ const sectionProfiles=new Map(),sectionDesigns=new Map();
+ return phrases.map(original=>{
+  const sectionKey=Number.isInteger(original.section)?original.section:original;
+  if(!original.movement)return null;
+  if(sectionDesigns.has(sectionKey))return {...sectionDesigns.get(sectionKey),start:original.start,end:original.end};
+  let phrase=sectionProfiles.get(sectionKey);
+  if(!phrase){
+   const members=phrases.filter(p=>Number.isInteger(original.section)?p.section===original.section:p===original),duration=members.reduce((n,p)=>n+Math.max(.001,p.end-p.start),0);
+   const mean=(read,fallback)=>members.reduce((n,p)=>n+finite(read(p),fallback)*Math.max(.001,p.end-p.start),0)/duration;
+   const section=plan.sections?.[original.section];
+   phrase={...original,start:section?.start??original.start,end:section?.end??original.end,energy:mean(p=>p.energy,.4),tone:mean(p=>p.tone,.5),
+    movement:original.movement?{...original.movement,driving:mean(p=>p.movement?.driving,0),character:mean(p=>p.movement?.character==='atmospheric'?1:0,0)>.5?'atmospheric':original.movement.character==='atmospheric'?'rhythmic':original.movement.character}:null,
+    attention:{motionScale:mean(p=>p.attention?.motionScale,1),leader:members.filter(p=>p.attention?.leader==='vocals').length>members.length/2?'vocals':undefined}};
+   sectionProfiles.set(sectionKey,phrase);
+  }
+  if(!original.movement)return null; // Older plans retain their previous rendering.
   const section=plan.sections?.[phrase.section]||{};
-  let percussion=0,vocals=0,samples=0;
-  for(let t=phrase.start;t<phrase.end;t+=.5){const d=dramaAt(plan.arrangement.drama,t);if(d){percussion+=d.percussion;vocals+=d.vocalShare;samples++;}}
+  let percussion=0,vocals=0,intensity=0,samples=0;
+  for(let t=phrase.start;t<phrase.end;t+=.5){const d=dramaAt(plan.arrangement.drama,t);if(d){percussion+=d.percussion;vocals+=d.vocalShare;intensity+=d.intensity;samples++;}}
   percussion=samples?percussion/samples:finite(phrase.movement.driving,0);
   vocals=samples?vocals/samples:0;
-  const energy=clamp(finite(phrase.energy,.4)),tone=clamp(finite(phrase.tone,.5));
+  const energy=clamp(samples?intensity/samples:finite(phrase.energy,.4)),tone=clamp(finite(phrase.tone,.5));
   const quiet=phrase.movement.character==='atmospheric'||['held','quiet','break','outro'].includes(section.look);
   const build=!quiet&&section.look==='lift',peak=!quiet&&section.look==='peak';
   const motionScale=phrase.attention?.motionScale??1;
@@ -25,15 +39,17 @@ export function movingDirections(plan,disco=false){
    const shape=quiet?'arc':build?'fan':orbit?'orbit':phrase.attention?.leader==='vocals'||vocals>.5?'focus':percussion>.65?'pulse':tone>.6?'cross':'sweep';
    // Width, travel speed and cue density are independent controls. An ambient
    // arc can cover a wide area while taking several seconds to get there.
-   design={shape,formation:quiet?'mirror':disco?(shape==='focus'?'mirror':percussion>.65?'diagonal':'ribbon'):shape==='focus'?'relay':build?'ribbon':percussion>.65?'pairs':'ribbon',width:quiet?16+10*tone:build?28:peak?25+9*energy:12+10*energy,
+   design={shape,energy,formation:quiet?'mirror':disco?(shape==='focus'?'mirror':percussion>.65?'diagonal':'ribbon'):shape==='focus'?'relay':build?'ribbon':percussion>.65?'pairs':'ribbon',width:quiet?16+10*tone:build?28:peak?25+9*energy:12+10*energy,
     speed:quiet?.22:build?.5:peak?.8:percussion>.65?.65:.4,
     spacing:quiet?4:build?1:peak?.5:percussion>.65?.6:1.5,
     travel:quiet?3:build?1.1:peak?.3:percussion>.65?.45:1.2,
+    asymmetry:quiet?.08:shape==='focus'?.12:build?.18:peak?.3+.25*percussion:shape==='cross'?.35:.2+.15*percussion,
     period:quiet?32:16,inner: .6-.25*vocals,depth:.06+.09*tone};
    design.speed*=motionScale;design.spacing/=motionScale;design.travel/=motionScale;
    if(section.motif!==undefined)memory.push({motif:section.motif,category,evidence,design});
   }
-  return {...design,start:phrase.start,end:phrase.end,motif:section.motif,category,recalled:Boolean(prior)};
+  const result={...design,start:original.start,end:original.end,motif:section.motif,category,recalled:Boolean(prior)};
+  sectionDesigns.set(sectionKey,result);return result;
  });
 }
 export function directedPose(design,ordinal,progress=0){
@@ -98,10 +114,10 @@ export function groovePose(beat,{energy,strength,percussion,vocals,span=1,format
 // Move the gesture's working area over musical bars, independently of its local
 // sweep/pulse. Each head visits the floor rather than staying an "inner" head.
 // Smooth bounded anchors avoid clipping, random jumps and a permanent orbit.
-export function spatialPose(poses,beat,{energy=.5,span=1}={}){
+export function spatialPose(poses,beat,{energy=.5,span=1,asymmetry=0}={}){
  const anchors=[[-.8,-.8],[.7,.55],[-.55,.85],[.85,-.55],[.15,.75],[-.75,-.15],[.6,-.85],[-.2,.35]];
- const spread=clamp(span,0,1),pace=beat/8;
- return poses.map((pose,i)=>{
+ const spread=clamp(span,0,1),pace=beat/8,freedom=clamp(asymmetry);
+ const independent=poses.map((pose,i)=>{
   const phase=pace+i*2,index=Math.floor(phase),fraction=phase-index;
   const t=fraction*fraction*fraction*(fraction*(fraction*6-15)+10);
   const a=anchors[((index%anchors.length)+anchors.length)%anchors.length],b=anchors[((index+1)%anchors.length+anchors.length)%anchors.length];
@@ -111,5 +127,13 @@ export function spatialPose(poses,beat,{energy=.5,span=1}={}){
   const local=.55+.1*clamp(energy);
   return {pan:pose.pan*local+x*42*(1-local)*spread,
    tilt:.85+(pose.tilt-.85)*.3+y*.23*spread};
+ });
+ // Blend paired and independent roles according to the musical phrase.
+ // Keep the authored left-side gestures and mirror their partners. Averaging
+ // opposing gestures would collapse the floor coverage back to the centre.
+ return independent.map((pose,i)=>{
+  const partner=i<2?i:3-i,lead=independent[partner];
+  const pan=i<2?lead.pan:-lead.pan;
+  return {pan:pan+(pose.pan-pan)*freedom,tilt:lead.tilt+(pose.tilt-lead.tilt)*freedom};
  });
 }
