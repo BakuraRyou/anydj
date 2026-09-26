@@ -1,13 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {GROUP_COMPOSITIONS,groupComposition,automaticGroupMotionAt} from '../public/dmx-group-motion.js';
+import {GROUP_COMPOSITIONS,groupComposition,automaticGroupMotionAt,automaticGroupScore} from '../public/dmx-group-motion.js';
 import {applyMovingPresence} from '../public/dmx-activity.js';
 import {applyRoomPlan,newRoomPlan} from '../public/dmx-ar-model.js';
 function scene(composition,progress=.4,count=12){
  const groupMotion={composition,motion:'orbit',progress,energy:.7,duration:8,amount:1};
  return {layout:{width:8,depth:6,positions:{}},lights:Array.from({length:count},(_,i)=>({id:'h'+i,type:'moving',position:{x:i/count*6-3,y:4,height:3},target:{x:0,y:3},motionUV:{x:.5,y:.5},motionPresentation:'auto',movingPresence:{level:.7,spread:1,mask:'all',rowFraction:1,groupMotion},movingPresenceBasePower:.8,power:.56,color:'#66aaee'}))};
 }
-test('all six compositions remain visibly distinct in a small permitted rectangle',()=>{
+test('all catalog compositions remain visibly distinct in a small permitted rectangle',()=>{
  const room=newRoomPlan(8,6,4),template=scene('curtain');
  template.lights.forEach(l=>room.positions[l.id]={...l.position,type:'moving',rotation:0,motionArea:{x:.4,y:.4,width:.2,depth:.2}});
  const geometries=new Set(),memberships=new Set();
@@ -18,7 +18,7 @@ test('all six compositions remain visibly distinct in a small permitted rectangl
   geometries.add(JSON.stringify(rendered.map(l=>[+l.target.x.toFixed(3),+l.target.y.toFixed(3)])));
   memberships.add(rendered.map(l=>l.power>.3?'1':'0').join(''));
  }
- assert.equal(geometries.size,6);assert.ok(memberships.size>=4);
+ assert.equal(geometries.size,GROUP_COMPOSITIONS.length);assert.ok(memberships.size>=4);
 });
 test('composition membership cannot cancel another pair mask or relight blackout',()=>{
  for(const count of [2,3,7,8,10,12])for(const composition of GROUP_COMPOSITIONS){
@@ -67,4 +67,55 @@ test('group formations retain source motion and give driving music more travel w
  const a=render(.9,.95,.25),b=render(.9,.95,.75);
  assert.deepEqual(a.map(l=>[l.power,l.color]),b.map(l=>[l.power,l.color]));
  assert.ok([...a,...b].every(l=>l.target.x>=-2.4&&l.target.x<=2.4&&l.target.y>=1.2&&l.target.y<=4.8));
+});
+
+test('new automatic formations move through the permitted area on dense rigs and small groups',()=>{
+ for(const composition of ['diagonal-sweep','depth-wave','rotating-fan','crossed-banks'])for(const count of [2,7,12]){
+  const at=p=>Array.from({length:count},(_,rank)=>groupComposition({composition,progress:p,energy:.8,drive:.9,amount:1},rank,count,2,6));
+  const a=at(.2),b=at(.65);
+  assert.ok(a.some((v,i)=>Math.hypot(v.x-b[i].x,v.y-b[i].y)>.1),composition+' must produce actual travel, not only dimmer changes');
+  for(let p=.12;p<=.88;p+=.02){
+   const values=at(p),next=at(p+.0001);
+   assert.ok(values.every((v,i)=>v.x>=0&&v.x<=1&&v.y>=0&&v.y<=1&&Math.hypot(v.x-next[i].x,v.y-next[i].y)<.002));
+   assert.ok(values.some(v=>v.level>.5));
+  }
+ }
+});
+test('musical selection can reach the new formations without a separate effect timer',()=>{
+ const plan={duration:320,sections:[{start:0,end:320,look:'flow'}],arrangement:{patterns:{phrases:Array.from({length:40},(_,i)=>({start:i*8,end:(i+1)*8,energy:.5+(i%5)*.1,tone:.2+(i%4)*.2,movement:{character:'rhythmic',driving:.85}}))}}};
+ const score=automaticGroupScore(plan),forms=new Set(score.map(s=>s.composition));
+ for(const name of ['diagonal-sweep','depth-wave','rotating-fan','crossed-banks'])assert.ok(forms.has(name),name);
+ assert.deepEqual(automaticGroupScore(structuredClone(plan)),score);
+ const quiet={duration:16,sections:[{start:0,end:16,look:'quiet',intensity:.1}]};
+ assert.ok(automaticGroupScore(quiet).every(s=>!s.composition));
+});
+
+test('strong measured rhythm develops a long-lived form faster without a new formation timer',()=>{
+ const make=(drive,grid=true)=>({duration:32,sections:[{start:0,end:32,look:'flow'}],...(grid?{beatGrid:{downbeats:Array.from({length:17},(_,i)=>i*2)}}:{}),arrangement:{patterns:{phrases:[{start:0,end:32,energy:.9,tone:.4,movement:{driving:drive}}]}}});
+ const strong=make(.9),free=make(.9,false),soft=make(.1);
+ const rotation=plan=>automaticGroupMotionAt(plan,24).phase-automaticGroupMotionAt(plan,8).phase;
+ assert.ok(rotation(strong)>rotation(free)*2);
+ assert.ok(rotation(strong)>rotation(soft)*2);
+ assert.equal(automaticGroupMotionAt(strong,8).composition,automaticGroupMotionAt(strong,24).composition);
+ const held={...strong,sectionLighting:[{start:8,end:24,movement:0}]};
+ assert.deepEqual(automaticGroupMotionAt(held,9),automaticGroupMotionAt(held,20));
+ const at=automaticGroupMotionAt(strong,12);automaticGroupMotionAt(strong,28);assert.deepEqual(automaticGroupMotionAt(strong,12),at);
+});
+
+test('automatic wall-enabled stage heads follow group choreography before wall routing',async()=>{
+ const {clubStageRoom}=await import('../public/dmx-room-presets.js');
+ const {wallChoreography}=await import('../public/dmx-ar-model.js');
+ const room=clubStageRoom();
+ const render=p=>applyRoomPlan(scene('depth-wave',p,8),room).lights.filter(l=>l.type==='moving'&&room.positions[l.id].wallTarget);
+ const a=render(.25),b=render(.65);
+ assert.equal(a.length,24);
+ assert.ok(a.some((l,i)=>Math.hypot(l.motionUV.x-b[i].motionUV.x,l.motionUV.y-b[i].motionUV.y)>.1),'stage heads must not ignore the group gesture');
+ for(const light of [...a,...b]){
+  const mapped=wallChoreography(light,room),bounds=room.positions[light.id].wallTarget;
+  assert.ok(Number.isFinite(mapped.target.x)&&Number.isFinite(mapped.target.y));
+  if(mapped.wallIndex>=0&&mapped.power>0){
+   assert.equal(mapped.wallIndex,bounds.wall);
+   assert.ok(mapped.target.z>=bounds.minHeight&&mapped.target.z<=bounds.maxHeight);
+  }
+ }
 });

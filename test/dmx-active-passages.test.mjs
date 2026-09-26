@@ -36,7 +36,7 @@ test('sustained dance passages keep visible movement throughout long sections at
    assert.ok(new Set(poses.map(p=>p.map(h=>h.pan.toFixed(2)).join(','))).size>=4,'not a stationary image or two-position loop');
    assert.ok(new Set(poses.map(p=>p.map(h=>h.tilt.toFixed(3)).join(','))).size>=4,'movement uses height as well as sideways travel');
   }
-  assert.ok(cues.filter(c=>c.reason==='scene-rhythm').every(c=>c.travel<=(c.flowing?3:1.6)&&c.travel>0),'flowing arrivals use bounded gaps; accents retain short travel');
+  assert.ok(cues.slice(1).every((c,i)=>c.travel>0&&c.travel<=c.time-cues[i].time+1e-8),'arrivals respect their available musical intervals');
  }
 });
 

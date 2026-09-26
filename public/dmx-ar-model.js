@@ -167,7 +167,9 @@ export function applyRoomPlan(scene, plan, ar=false) {
         nx=nx+(homeX-nx)*.28*(1-focus);
         ny=localY+(ny-localY)*focus;
       }
-      if(light.motionPresentation==='auto'&&!p.wallTarget){
+      // Wall-enabled heads use the same group gesture before surface routing.
+      // Skipping them made the entire stage half ignore automatic choreography.
+      if(light.motionPresentation==='auto'){
         const role=groupRoles.get(light.id);
         if(role){
           const rangeScale=Math.max(0,Math.min(1,light.motionRange??1));

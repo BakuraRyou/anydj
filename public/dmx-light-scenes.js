@@ -371,11 +371,11 @@ export function lightingGestures(plan){
   const pitched=[];
   for(let i=a;i<points.length&&points[i].time<=event.time+.2;i++)if(points[i].confidence>=.35&&Number.isFinite(points[i].position))pitched.push(points[i]);
   const contour=pitched.length>=2?pitched.reduce((sum,p)=>sum+p.position,0)/pitched.length:null;
-  // Ordinary measured percussion gets only a small breathing motion. Large
-  // strokes need a standout attack, not merely the next number on the grid.
+  // Sustained rhythmic energy can carry visible travel without a standout hit.
+  // Accents still use the full stroke; motor planning bounds actual travel.
   const phraseStart=local?.start??scene.start;
   const bar=events.filter(e=>['bar','recovered'].includes(e.kind)&&e.time>=phraseStart&&e.time<=event.time).length-1;
-  const breathing=.06*clamp((drive-.45)/.4)*(1-vocals*.7);
+  const breathing=(.06+.24*energy*energy)*clamp((drive-.45)/.4)*(1-vocals*.35);
   const stroke=accent?1:event.kind==='entry'?.5:.5+(bar%2===0?breathing:-breathing);
   const nextBar=bars.find(t=>t>event.time+.01);
   const previousBar=bars.filter(t=>t<event.time-.01).at(-1);

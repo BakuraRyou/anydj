@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {movingCues,movingCueAt,musicalMovementEvents} from '../public/dmx-moving-cues.js';
 import {lightingScenes,scenePose} from '../public/dmx-light-scenes.js';
+import {motionDuration} from '../public/dmx-moving-model.js';
 import {movingPlanJob,movingPlanAt} from '../public/dmx-moving-plan.js';
 const song=(tempo=120)=>{
  const beat=60/tempo,duration=64*beat;
@@ -13,8 +14,15 @@ test('sustained scenes develop on detected bars while the authored formation sta
  assert.ok(new Set(cues.map(c=>c.pose[0].pan.toFixed(2))).size>4);
 });
 test('scene timing follows tempo, and preparation uses the exported cue sequence',()=>{
- const a=movingCues(song(100),'auto'),b=movingCues(song(140),'auto');assert.equal(a.length,b.length);
- a.forEach((c,i)=>assert.ok(Math.abs(c.time*100-b[i].time*140)<1e-6));
+ for(const tempo of [100,140,190]){
+  const p=song(tempo),cues=movingCues(p,'auto');
+  assert.ok(cues.length>1);
+  for(let i=1;i<cues.length;i++){
+   const c=cues[i];assert.ok(p.beatGrid.downbeats.includes(c.time));
+   assert.ok(c.travel>0&&c.travel<=c.time-cues[i-1].time+1e-8);
+   assert.ok(motionDuration(cues[i-1].pose,c.pose,.65)<=c.travel+1e-6,'arrivals remain motorically reachable at each tempo');
+  }
+ }
  const plan=song(),job=movingPlanJob(plan);while(!job.done)job.advance();
  assert.deepEqual(job.result.cues,movingCues(plan,'auto'));
  for(const cue of job.result.cues)assert.deepEqual(movingPlanAt(job.result,cue.time),cue.pose);
@@ -30,8 +38,11 @@ test('ordinary rhythmic arrivals flow through available time without synthetic h
  const cues=movingCues(plan,'auto'),flow=cues.filter(c=>c.flowing);
  assert.ok(flow.length>3);
  for(const c of flow){
-  const i=cues.indexOf(c);assert.ok(Math.abs(c.travel-(c.time-cues[i-1].time))<1e-8);
-  assert.ok(c.headTravel.every(t=>Math.abs(t-c.travel)<1e-8));
+  const i=cues.indexOf(c),previous=cues[i-1];
+  assert.ok(c.travel>0&&c.travel<=c.time-previous.time+1e-8);
+  const samples=Array.from({length:21},(_,j)=>movingCueAt(cues,previous.time+(c.time-previous.time)*j/20));
+  const changed=samples.slice(1).filter((pose,j)=>pose.some((h,k)=>Math.abs(h.pan-samples[j][k].pan)+Math.abs(h.tilt-samples[j][k].tilt)>1e-7)).length;
+  assert.ok(changed>=samples.length/2,'ordinary travel must not spend most of its interval frozen');
   if(!cues[i+1]?.flowing)continue;
   const h=.0001,a=movingCueAt(cues,c.time-h),b=movingCueAt(cues,c.time),d=movingCueAt(cues,c.time+h);
   for(let head=0;head<4;head++)for(const axis of ['pan','tilt']){

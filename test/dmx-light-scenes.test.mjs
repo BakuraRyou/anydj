@@ -119,7 +119,7 @@ test('all 25 geometries survive mapping to two, seven and twenty heads',()=>{
    assert.ok(mapped.every(p=>Number.isFinite(p.pan)&&p.tilt>=0&&p.tilt<=1&&Math.abs(p.pan)<=40));
   }
  }
- assert.equal(signatures.size,25,'different names must represent different actual geometry');
+ assert.equal(signatures.size,Object.values(sceneVariants).flat().length,'different names must represent different actual geometry');
 });
 test('missing analysis holds a stable image and the largest impact is reserved',()=>{
  const unknown={sections:Array.from({length:6},(_,i)=>({start:i*10,end:(i+1)*10,look:'flow'}))};

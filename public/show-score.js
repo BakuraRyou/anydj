@@ -1,7 +1,7 @@
 import {lightingScenes} from './dmx-light-scenes.js';
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,Number.isFinite(v)?v:0));
 const cache=new WeakMap();
-export const SHOW_SCORE_VERSION=2;
+export const SHOW_SCORE_VERSION=3;
 export const SHOW_FORMS=['parallel','fan','converge','cross','wings','tiers'];
 // Compare every passage with the whole song before assigning visual scale.
 // Uniform loud material has no artificial climax; a peak needs real contrast.
@@ -58,7 +58,11 @@ export function planShowScore(plan){
   const recalled=key&&previous?.key!==key?motifs.get(key):null;
   let form;
   if(role==='silence'||role==='held')form=previous?.role===role?previous.form:'tiers';
-  else if(recalled&&previous?.form!==recalled.form)form=recalled.form;
+  // A phrase boundary alone is not a reason to replace a working picture.
+  // Keep its form when the musical role and measured character continue.
+  else if(previous&&previous.role===role&&previous.key===key&&previous.chapter===direction.chapter&&
+    ['energy','drive','vocals','tone','texture'].every(k=>Math.abs((span[k]??0)-(previous[k]??0))<.08))form=previous.form;
+  else if(recalled)form=recalled.form;
   else{
    const preferred=role==='build'?'fan':featured?'cross':span.vocals>.5?'converge':span.tone>.65?'wings':span.energy<.5?'tiers':'parallel';
    form=SHOW_FORMS.map((form,i)=>({form,cost:(form===preferred?-.65:0)+(form===previous?.form?2.5:0)+(uses.get(form)||0)*.45+

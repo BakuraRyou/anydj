@@ -1,31 +1,23 @@
-import {lightingScenes} from './dmx-light-scenes.js';
+import {selectGroupScore,SONG_MOVEMENT_VERSION} from './song-movement-plan.js';
+export {GROUP_COMPOSITIONS,GROUP_MOTIONS} from './song-movement-plan.js';
 const clamp=v=>Math.max(0,Math.min(1,v));
 const cache=new WeakMap();
-export const GROUP_COMPOSITIONS=['curtain','mirror-pairs','traveling-group','frame-center','question-answer','gather'];
-const compositionFor={'counter-fans':'mirror-pairs','traveling-wave':'traveling-group','opening-arch':'gather','diagonal-curtain':'curtain','braided-pairs':'question-answer',orbit:'frame-center','folding-gates':'mirror-pairs','rising-steps':'curtain',ripple:'gather','crossing-ribbons':'question-answer'};
-export const GROUP_MOTIONS=['counter-fans','traveling-wave','opening-arch','diagonal-curtain','braided-pairs','orbit','folding-gates','rising-steps','ripple','crossing-ribbons'];
-// Affinities: energy, rhythmic drive, vocals, spectral brightness. Selection is
-// made once per musical passage, never per rendered frame or fixture count.
-const affinities=[[.7,.8,.2,.4],[.5,.6,.4,.6],[.5,.3,.6,.5],[.6,.5,.3,.8],[.8,.8,.2,.6],[.5,.3,.4,.7],[.8,.7,.2,.3],[.6,.6,.3,.5],[.4,.4,.6,.7],[.9,.9,.1,.5]];
 export function automaticGroupScore(plan){
  if(!plan)return [];
  if(cache.has(plan))return cache.get(plan);
- const passages=[];
- for(const scene of lightingScenes(plan)){
-  const previous=passages.at(-1);
-  if(previous&&previous.groupIndex===scene.groupIndex&&previous.end===scene.start){previous.end=scene.end;continue;}
-  passages.push({...scene});
- }
- const uses=new Map();let last=null;
- const score=passages.map(p=>{
-  const active=p.kind!=='silence'&&p.kind!=='sculpture';
-  const features=[p.energy,p.drive,p.vocals,p.tone];
-  const motion=active?GROUP_MOTIONS.map((name,i)=>({name,cost:features.reduce((s,v,j)=>s+Math.abs(v-affinities[i][j]),0)+
-   (uses.get(name)||0)*.3+(last===name?.7:0)+(p.kind==='build'&&['opening-arch','rising-steps'].includes(name)?-.7:0)})).sort((a,b)=>a.cost-b.cost)[0].name:null;
-  if(motion){uses.set(motion,(uses.get(motion)||0)+1);last=motion;}
-  return {start:p.start,end:p.end,motion,composition:compositionFor[motion]??null,energy:p.energy,drive:p.drive,direction:p.direction??1,groupIndex:p.groupIndex};
- });
+ const score=plan.songMovement?.version===SONG_MOVEMENT_VERSION
+  ?plan.songMovement.passages.map(p=>({...p,intent:p}))
+  :selectGroupScore(plan);
  cache.set(plan,score);return score;
+}
+// Unwrapped musical position: only measured downbeats supply extra motion.
+// Keeping it separate from passage progress preserves long-lived compositions.
+function barPosition(bars,time){
+ if(!bars||bars.length<2)return 0;
+ let lo=0,hi=bars.length;
+ while(lo<hi){const mid=(lo+hi)>>>1;if(bars[mid]<=time)lo=mid+1;else hi=mid;}
+ const i=Math.max(0,Math.min(bars.length-2,lo-1)),span=bars[i+1]-bars[i];
+ return i+(span>0?(time-bars[i])/span:0);
 }
 export function automaticGroupMotionAt(plan,time){
  if(!plan||!Number.isFinite(time))return null;
@@ -40,7 +32,12 @@ export function automaticGroupMotionAt(plan,time){
  const continuing=next?.motion&&next.start===p.end;
  const ease=v=>{v=clamp(v);return v*v*v*(v*(v*6-15)+10);};
  const duration=p.end-p.start;
- const describe=(passage,progress)=>({motion:passage.motion,composition:passage.composition,progress,energy:passage.energy,drive:passage.drive,direction:passage.direction,duration:passage.end-passage.start});
+ const describe=(passage,progress)=>{
+  const rhythmic=clamp(passage.drive??0)*ease((passage.energy-.45)/.35);
+  const bars=plan.beatGrid?.downbeats;
+  const phase=progress*Math.PI*2+(barPosition(bars,sample)-barPosition(bars,passage.start))*Math.PI*.5*rhythmic*(passage.intent?.pace??1);
+  return {motion:passage.motion,composition:passage.composition,progress,phase,intent:passage.intent,energy:passage.energy,drive:passage.drive,direction:passage.direction,duration:passage.end-passage.start};
+ };
  // Adjacent active passages share a moving handover. Continue the outgoing
  // trajectory while the incoming one gains weight, rather than returning both
  // groups to the base pose at every phrase boundary.
@@ -109,7 +106,7 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
   return Object.fromEntries(['x','y','level','weight','articulation'].map(k=>[k,a[k]+(b[k]-a[k])*blend]));
  }
  const p=clamp(motion.progress),u=rank/(count-1),r=u*2-1;
- const phase=p*Math.PI*2,side=motion.direction||1;
+ const phase=motion.phase??p*Math.PI*2,side=motion.direction||1;
  const slots=Math.ceil(count/2),pair=Math.min(rank,count-1-rank);
  const centerPair=pair===slots-1,outerPair=pair===0;
  const depth=.14+.72*(row+.5)/Math.max(1,groups),depthSpan=Math.min(.22,.6/Math.max(1,groups));
@@ -126,7 +123,7 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
    level=centerPair||outerPair?1:0;break;
   }
   case 'traveling-group':{
-   const lead=.18+.64*(.5-.5*Math.cos(Math.PI*p));
+   const lead=.18+.64*(.5-.5*Math.cos(phase*.5));
    const window=Math.max(.2,1.1/(count-1));
    x=.14+.72*u;y=depth+Math.sin(phase+r)*depthSpan*.45;
    level=1-ease((Math.abs(u-lead)-window*.45)/(window*.55));break;
@@ -137,8 +134,34 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
    level=outerPair?.42:centerPair?1:0;break;
   case 'question-answer':{
    const answer=ease((p-.32)/.36),left=rank<count/2;
-   x=left?.2+.16*u:.64+.16*u;y=depth+(left?-1:1)*depthSpan*.5;
+   x=(left?.2+.16*u:.64+.16*u)+Math.sin(phase)*.08*(left?1:-1);y=depth+(left?-1:1)*depthSpan*.5*Math.cos(phase);
    level=left?1-.85*answer:.15+.85*answer;break;
+  }
+  case 'diagonal-sweep':{
+   // One slanted line travels together; rows answer in opposite directions.
+   const sweep=Math.sin(phase)*(row%2?-1:1)*side;
+   x=.5+r*.27+sweep*.12;
+   y=.5+r*.22*side+sweep*.16;
+   level=pair%2===0?1:.4;break;
+  }
+  case 'depth-wave':
+   // Front/back travel is independent of row spacing, so a dense rig does not
+   // collapse this motion into tiny strips directly below each truss.
+   x=.12+.76*u;
+   y=.5+.32*Math.sin(phase-r*Math.PI*.6-row*.45)*side;
+   level=.55+.45*(.5+.5*Math.cos(phase-r*Math.PI*.6-row*.45));break;
+  case 'rotating-fan':{
+   const angle=Math.sin(phase)*.85*side+(row%2?-.35:.35);
+   x=.5+r*.39*Math.cos(angle);
+   y=.5+r*.32*Math.sin(angle)+.09*Math.cos(phase);
+   level=outerPair||centerPair?1:.45;break;
+  }
+  case 'crossed-banks':{
+   // Opposing banks trace separate ribbons, without aiming all heads at one point.
+   const bank=rank<count/2?-1:1,turn=Math.sin(phase)*side;
+   x=.5+bank*(.2+.09*Math.cos(phase))+r*.08;
+   y=.5-bank*.25*turn+r*.13;
+   level=bank<0?.7+.3*Math.cos(phase)**2:.7+.3*Math.sin(phase)**2;break;
   }
   case 'gather':{
    const width=.08+.32*(.5+.5*Math.cos(phase));
@@ -153,7 +176,11 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
  const intensity=ease(((motion.energy??0)-.65)/.25);
  level=level+(1-level)*.45*intensity;
  const weight=ease(p/.12)*ease((1-p)/.12)*clamp(motion.amount??1);
- return {x:clamp(x),y:clamp(y),level:1+(clamp(level)-1)*weight,weight,articulation:.15+.3*clamp(motion.energy??0)*clamp(motion.drive??0)};
+ // Expand about the room centre, without clipping targets into edge piles.
+ const extent=motion.intent?.extent??1;
+ const spread=v=>.5+.5*Math.tanh((v-.5)*2*extent)/Math.tanh(extent);
+ if(extent!==1){x=spread(x);y=spread(y);}
+ return {x:clamp(x),y:clamp(y),level:1+(clamp(level)-1)*weight,weight,articulation:motion.intent?.articulation??(.15+.3*clamp(motion.energy??0)*clamp(motion.drive??0))};
 }
 export function presenceComposition(presence,rank,count,row=0,groups=1){
  if(!presence)return null;

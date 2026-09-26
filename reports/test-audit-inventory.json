@@ -1,0 +1,2245 @@
+[
+  {
+    "file": "test/analysis-no-deadline.test.mjs",
+    "tests": [],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/app.test.mjs",
+    "tests": [
+      "DJ-Seite liefert Styles und den statischen lokalen Modulbaum aus",
+      "Berechnet Broadcast-Adressen auch außerhalb eines /24-Netzes",
+      "Akzeptiert private IPv4 und sperrt öffentliche sowie spezielle Ziele",
+      "Prüft Steuerwerte; RGB setzt weiße Kanäle zurück",
+      "Erkennt Fähigkeiten und gemeldeten Kelvinbereich",
+      "UDP liest echte lokale Datagramme und ignoriert defekte/falsche Nachrichten",
+      "UDP meldet Protokollfehler und abgelehnte Befehle",
+      "UDP wiederholt verlorene Pakete und beendet Timeouts",
+      "Demo: Suche, Status, Weißlicht, RGB, Ein/Aus und Namensänderung",
+      "HTTP blockiert Cross-Origin, fehlenden Schreibheader und beliebige RPCs",
+      "LAN-Zugangscode schützt Lesen und Schreiben",
+      "Weiße Lampe: RGB wird abgelehnt; gemeldete Kelvin-Grenzen gelten",
+      "Echte UDP-Transportkette über HTTP sowie Speicherung ohne falschen Online-Status",
+      "Gleichzeitige Steuerbefehle werden pro IP serialisiert",
+      "Entfernen löscht nur den lokalen Eintrag",
+      "Ältere Firmware: getUserConfig als Fallback für Modellbereich",
+      "Bestätigter Befehl ohne lesbaren Folgestatus erzeugt Warnung statt erfundener Werte",
+      "Musik-API prüft Pegel, sperrt konkurrierende Steuerung und stellt Demo-Licht wieder her",
+      "Statusabfrage während Musik verwendet gekennzeichneten Cache ohne konkurrierendes getPilot",
+      "Seitenprüfung verbindet bekannte Lampe und fasst parallele Prüfungen zusammen",
+      "Seitenprüfung findet geänderte IP anhand MAC und erhält den Lampennamen",
+      "Fremdes Gerät an alter IP wird nicht als bekannte Lampe übernommen",
+      "Seitenprüfung erkennt Einrichtungsnetz und begrenzt wiederholte erfolglose Suchen",
+      "Nach Stromunterbrechung umgeht manuelle Prüfung den Fehlercache",
+      "Suche prüft bekannte IP direkt bei fehlender Broadcast-Antwort und löscht Fehlercache",
+      "Lokale API akzeptiert neuen und bisherigen App-Header, aber keinen fehlenden"
+    ],
+    "candidate_lines": [
+      94,
+      112,
+      114,
+      116,
+      177,
+      180,
+      203,
+      243
+    ]
+  },
+  {
+    "file": "test/audio-analysis.test.mjs",
+    "tests": [
+      "Kontinuierliche Analyse liefert 50 Fenster pro Sekunde; Bass trennt 80 Hz von 2 kHz",
+      "Gegenphasiges Stereo löscht den Pegel nicht aus",
+      "Stille und sehr leises Rauschen werden nicht künstlich hochgezogen",
+      "Kurze Bassimpulse bleiben bis zum nächsten Lichtpaket erkennbar und Dauertöne triggern nicht ständig",
+      "Leise und laute Passagen verändern adaptive Pegel deutlich und lassen sie bei Stille abfallen",
+      "Erweiterte Audiofelder bleiben validiert und alte Clients kompatibel",
+      "Tempoerkennung folgt 90, 120 und 150 BPM und behält jeden Beat im Disco-Modus",
+      "Disco hat einen klaren Beat-Akzent und fällt trotz anhaltend lauter Musik ab",
+      "Stabiler Beat filtert zusätzliche Offbeats und verliert den Takt bei Stille",
+      "Kick-Beat bleibt bei zusätzlichen Hi-Hats zwischen den Schlägen auf 120 BPM"
+    ],
+    "candidate_lines": [
+      18,
+      71,
+      73
+    ]
+  },
+  {
+    "file": "test/audio-output-discovery.test.mjs",
+    "tests": [
+      "device discovery keeps permission stream open until all outputs are read",
+      "passive refresh never opens the microphone",
+      "capture tracks are closed even when enumeration fails"
+    ],
+    "candidate_lines": [
+      15
+    ]
+  },
+  {
+    "file": "test/automatic-settings.test.mjs",
+    "tests": [
+      "default brightness allows 100 percent while explicit limits are preserved",
+      "Unterschiedliche Musik erhält passende unterschiedliche Einstellungen innerhalb der Gerätegrenzen",
+      "Beat This! bestimmt die Automatik auch bei abweichendem heuristischem Tempo",
+      "Automatik berechnet pro Lied neu; manuelle Werte und Beat-Zeitpunkte bleiben gezielt nutzbar",
+      "Live-Automatik bestätigt Moduswechsel und lässt sich manuell übersteuern"
+    ],
+    "candidate_lines": [
+      36,
+      40
+    ]
+  },
+  {
+    "file": "test/beat-analysis.test.mjs",
+    "tests": [
+      "Zeitpunkte müssen zum Audio passen, sortiert und endlich sein; Taktanfänge gehören zu Beats",
+      "Externe Beats ersetzen Heuristik vollständig und überleben erneutes Rendern",
+      "Binäre API validiert PCM und cached nur erfolgreiche Ergebnisse",
+      "Audio-Analyse respektiert den LAN-Zugangscode und verändert das JSON-Limit nicht",
+      "Fehlendes Modell und defektes Ergebnis führen zu sichtbaren Fehlern",
+      "Nur eine Analyse gleichzeitig; Abbruch gibt den Platz wieder frei",
+      "Browser-Fallback ist ausdrücklich sichtbar; Nutzerabbruch wird nicht verschluckt",
+      "Beat-Helligkeit folgt exakten Zeitpunkten statt dem 125-ms-Farbraster",
+      "Beat-Raster allein erzeugt ohne akustische Anschläge keinen Dauerblinker"
+    ],
+    "candidate_lines": [
+      28,
+      30,
+      32,
+      82,
+      83,
+      84,
+      85,
+      86,
+      96,
+      99
+    ]
+  },
+  {
+    "file": "test/beat-sync.test.mjs",
+    "tests": [
+      "aligns fractional beat phase and tempo without changing master playback",
+      "phase correction converges without seeking during playback",
+      "missing, irregular, exhausted and excessively different grids fall back"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/color-choreography.test.mjs",
+    "tests": [
+      "quiet sections retain color; active colors change at exact off-frame beats",
+      "stage palettes follow within-section color events and explicit colors despite a stored motif anchor",
+      "explicit section colors and reduced movement retain precedence over automatic cues",
+      "no inferred color contrast overrides an explicit custom single-color palette",
+      "local percussion raises color cadence within a section labelled flow"
+    ],
+    "candidate_lines": [
+      44,
+      50
+    ]
+  },
+  {
+    "file": "test/color-direction.test.mjs",
+    "tests": [
+      "new timbre opens a new color family and a returning motif recalls its identity",
+      "quiet unchanged material stays richly colored without a free-running clock",
+      "instrument changes are evidence even when the spectral averages are unchanged",
+      "uncertain mood estimates do not force a color change, RGB remains in gamut",
+      "A/B color comparison preserves every dimmer value, rhythm, movement and overrides",
+      "short accents retain the scene palette and transitions stay inside endpoint RGB bounds",
+      "short phrase changes defer the palette without losing a sustained new timbre",
+      "saved LCH color directions remain readable"
+    ],
+    "candidate_lines": [
+      18,
+      26,
+      49,
+      62,
+      81
+    ]
+  },
+  {
+    "file": "test/color-profile.test.mjs",
+    "tests": [
+      "profile preserves time proportions independently of brightness and chronological order",
+      "no invented profile before analysis or for blackouts; ignores invalid colors",
+      "partial final interval is weighted and grouping preserves all shares",
+      "immutable updated plans recalculate profiles while repeat renders reuse them"
+    ],
+    "candidate_lines": [
+      17,
+      22
+    ]
+  },
+  {
+    "file": "test/connection.test.mjs",
+    "tests": [
+      "Einrichtungsnetz wird auf der konfigurierten WLAN-Schnittstelle frisch gesucht",
+      "Fehlendes Einrichtungsnetz und fehlgeschlagener Scan sind unterschiedliche Zustände",
+      "Ungültige Identität löst keinen Netzwerkscan aus"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/deploy-health.test.mjs",
+    "tests": [
+      "healthcheck reports hosting routing errors, redirects and startup failures",
+      "healthcheck validates application identity and preserves release and instance",
+      "healthcheck explains connection errors without exposing response or error contents",
+      "cleanup runs only for the confirmed deployed release, never on HTTP failure or mismatch"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/desktop-analysis.test.mjs",
+    "tests": [
+      "a foreign AI bundle is rejected instead of silently using partial analysis",
+      "a full build with missing engines fails before the DJ window opens"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/desktop-downloads.test.mjs",
+    "tests": [
+      "download page publishes verified full installers, hash and size, and no dead links for absent platforms",
+      "corrupted installers and lite manifests fail closed",
+      "unsafe filenames and incomplete formats are rejected",
+      "empty web build remains usable; full deploy requires actual installers",
+      "website-only build ignores even broken local installers and creates no download links"
+    ],
+    "candidate_lines": [
+      8
+    ]
+  },
+  {
+    "file": "test/dev-https.test.mjs",
+    "tests": [],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/dj-color-modes.test.mjs",
+    "tests": [
+      "color selection preserves timing and brightness without mutating the base show",
+      "single-color modes remain constant and explicit section colors take precedence",
+      "malformed saved color modes fall back to the original show"
+    ],
+    "candidate_lines": [
+      12
+    ]
+  },
+  {
+    "file": "test/dj-folder.test.mjs",
+    "tests": [
+      "folder scan recurses and preserves relative paths",
+      "failed and aborted scans reject instead of returning partial inventories",
+      "reconciliation updates metadata, leaves manual tracks, and defers loaded changes",
+      "switching folders defers loaded deletions and removes previous folder entries"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/dj-module-loading.test.mjs",
+    "tests": [
+      "development server serves the entire static DJ module dependency graph"
+    ],
+    "candidate_lines": [
+      24
+    ]
+  },
+  {
+    "file": "test/dj-performance.test.mjs",
+    "tests": [
+      "gain scale and stereo waveform preserve real audio peaks",
+      "hotcues exclude invalid positions, retaining zero",
+      "loops use real beat positions and reject incomplete boundaries",
+      "beat jumps preserve phase and loop cannot cross media end",
+      "waveform distinguishes sustained energy even when transients reach the same peak",
+      "waveform uses a common scale for overshoots and preserves stereo energy without cancellation"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/dj-show-cache.test.mjs",
+    "tests": [
+      "cached shows require matching file metadata, design and generation version",
+      "missing and incomplete cached plans fall back to analysis"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/dj-show-profile.test.mjs",
+    "tests": [
+      "party and disco change interpretation, preserve timing and brightness limits",
+      "disco does not invent movement over silence or a constant pad",
+      "disco holds contrasting colors between musical accents and remains seek-stable",
+      "quiet styles preserve song timing and silence while reducing accent contrast",
+      "show ties color pictures and high contrast to existing musical events without changing the base plan",
+      "show preserves explicit palettes and does not animate silence or a steady pad",
+      "show is a distinct moving mode with coordinated arrivals and manual holds",
+      "show room targets deliberately reach floor, wall and ceiling",
+      "show color frames and fixture palettes change at the exact same off-grid cue",
+      "parallel show beams retain their shared direction when projected onto a wall",
+      "show develops moving formations between color cues on the measured pulse",
+      "show pulse does not animate a silent or steady pad even with a beat grid",
+      "show action shares exact musical timing, symmetric groups and smooth color waves",
+      "show group actions respect manual rhythm and deterministic playback",
+      "show lateral bearings reach both side walls including the center head",
+      "intense show arrivals and action endings follow exact beats outside the render grid"
+    ],
+    "candidate_lines": [
+      14,
+      17,
+      24,
+      44,
+      47,
+      49,
+      57,
+      62,
+      65,
+      68,
+      74,
+      86,
+      98,
+      115,
+      123,
+      126,
+      128,
+      129,
+      141,
+      155,
+      184,
+      197,
+      206
+    ]
+  },
+  {
+    "file": "test/dj-shuffle.test.mjs",
+    "tests": [
+      "draws every title once before beginning a new round",
+      "queued and loaded titles are excluded and count towards this round",
+      "unavailable files are skipped; new and reconnected files enter the selection",
+      "small libraries terminate and alternate when the prior title is released",
+      "lookahead setting uses a safe default and bounded whole song counts"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/dj-status.test.mjs",
+    "tests": [
+      "playable tracks remain working while structure is queued or running",
+      "only completed successful work earns full completion",
+      "cancelled analysis is queued again on re-enable and phases stay visible",
+      "saved optional analysis failures remain inspectable without marking playable songs as broken"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/dj.test.mjs",
+    "tests": [
+      "DJ Crossfader lässt an den Enden nur ein Deck durch und überblendet Licht anteilig",
+      "Lokale Dateizuordnung unterscheidet gleichnamige veränderte Dateien",
+      "Songstruktur lehnt Lücken, Überlappungen, unbekannte Abschnitte und fremde Zeitbasis ab",
+      "Songstruktur verfeinert automatische Farben, erhält Beats und respektiert manuelle Gestaltung",
+      "Auto-Crossfade beginnt nur am Ende mit vorbereitetem, unbenutztem Zieldeck",
+      "Zeitbasierter Crossfade erreicht beide Endpunkte ohne Überschwingen"
+    ],
+    "candidate_lines": [
+      14
+    ]
+  },
+  {
+    "file": "test/dmx-active-passages.test.mjs",
+    "tests": [
+      "sustained dance passages keep visible movement throughout long sections at different tempos",
+      "relative low energy and vocal dominance cannot silence a measured groove",
+      "local phrases recover from a genuine pause inside one long quiet-labelled section",
+      "measured stem withdrawals remain dark and quiet passages do not acquire arbitrary motion",
+      "manual movement holds and rhythm suppression survive preparation of an active song"
+    ],
+    "candidate_lines": [
+      29,
+      36,
+      37,
+      39,
+      72,
+      85,
+      87
+    ]
+  },
+  {
+    "file": "test/dmx-activity.test.mjs",
+    "tests": [
+      "normal grooves and peaks keep every lamp active regardless of beat or accent",
+      "a measured rest dims every fixture together without a protected lamp",
+      "quiet labels, atmospheric character, missing analysis and brief dips do not manufacture pauses",
+      "rests remain symmetric on different rigs, through crossfades and seeks",
+      "a measured build stages individual fixtures progressively and holds on energy plateaus",
+      "developments inside verses and choruses work without an Aufbau label",
+      "instrument focus changes entrances and standout events briefly feature a single head",
+      "cached instrument levels reveal a quiet riser even while normalized drama stays zero",
+      "a deep measured withdrawal can extinguish the final lamp until the musical return",
+      "a sustained quiet phase stays fully dark across section boundaries until audible music returns",
+      "an atmospheric fade completes all four fixture stages despite an audible residual layer"
+    ],
+    "candidate_lines": [
+      41,
+      42,
+      43,
+      44,
+      74,
+      142
+    ]
+  },
+  {
+    "file": "test/dmx-ar.test.mjs",
+    "tests": [
+      "AR calibration preserves metre scale, yaw and floor with round trips",
+      "capture transforms scanned polygons to portable room coordinates without resizing",
+      "concave floor triangulation keeps recesses empty and rejects invalid saved geometry",
+      "room layout uses explicit positions without proportional scaling; bar cell offsets rotate rigidly",
+      "plane detection reads XRFrame planes and transforms all vertices through planeSpace",
+      "floor rays reject backwards, parallel and distant intersections",
+      "AR renderer emits no opaque floor and renders measured device dimensions",
+      "controller workflow aligns a saved room, places a device, edits height and disables artificial motion",
+      "controller manual capture stores arbitrary boundary and requires explicit floor calibration without local-floor",
+      "detected room capture is reviewed before replacing the room and preserves the old plan until adoption",
+      "AR session checks independent support, requests optional features, and recovers from denied permission",
+      "persistent anchors retain calibration, hide fixtures while tracking is lost, and release on end",
+      "late anchor creation after session end cannot retain resources or persistent handles",
+      "AR room drawing exposes only relevant actions and cannot finish before three corners",
+      "AR adding a device takes one palette selection and one trigger, with no draft saved",
+      "detected floor adoption accepts a closed polygon with repeated edge vertices",
+      "manual floor capture accepts a repeated closing corner but still rejects crossing boundaries",
+      "direct grip moves a fixture in three dimensions, previews first and saves once on release",
+      "invalid drops, tracking loss and reference reset do not overwrite a fixture",
+      "trigger picks a fixture directly for click placement and the panel takes priority",
+      "ray selection chooses the nearest rotated fixture and ignores misses and fixtures behind the ray",
+      "grip rotation follows the hand and a cancelled squeeze never commits",
+      "new fixture can be lifted before its first placement and disappears on cancel",
+      "room light targets survive serialization and affect the scene without moving the fixture",
+      "planned light types reach the 3D scene even without a connected show device",
+      "target direction determines persisted yaw, including after moving the fixture",
+      "unlit 3D fixtures turn and tilt with the target rather than only changing the beam",
+      "new room fixtures follow live show color and intensity, including blackout and restart",
+      "live moving heads use the room area while fixed spots stay aimed",
+      "floor light stays inside a concave room boundary",
+      "room zones survive validation and apply after placement, without changing source frames",
+      "room moving heads respect zones at their placed aim and remain dark during blackout",
+      "moving destinations are independent of mount rotation and legacy aim, and map into a saved area",
+      "allowed moving area rejects a wall recess crossing its interior",
+      "moving animation spans the interior even when source and room sizes differ or preview targets were redirected",
+      "wall choreography persists bounded wall targets and rejects invalid heights or edges",
+      "wall journeys intersect the real floor and wall continuously and respect exclusions",
+      "wall lighting renders a vertical clipped footprint and elevated beam in the shared XR geometry",
+      "wall rays stop at a nearer wall in a concave room rather than passing through it",
+      "wall excursions cannot override exclusion routing or sweep across a zone between frames",
+      "rendered floor footprints stay outside quiet zones throughout a moving show",
+      "a dark transfer cannot resume when the fixture itself lies inside a protected column",
+      "the real multi-head choreography explores three dimensions while avoiding a protected volume"
+    ],
+    "candidate_lines": [
+      31,
+      63,
+      76,
+      81,
+      83,
+      89,
+      94,
+      115,
+      131,
+      132,
+      147,
+      148,
+      153,
+      154,
+      155,
+      160,
+      161,
+      170,
+      171,
+      179,
+      239,
+      240,
+      242,
+      279,
+      289,
+      290,
+      294,
+      295,
+      296,
+      318,
+      322,
+      335,
+      336,
+      337,
+      346,
+      347,
+      379,
+      398,
+      412,
+      420,
+      433,
+      450,
+      464,
+      483
+    ]
+  },
+  {
+    "file": "test/dmx-assemblies.test.mjs",
+    "tests": [
+      "persistent assemblies rotate rigidly around their center, preserving heights and floor targets",
+      "out-of-room rotation is rejected atomically and malformed membership is cleaned",
+      "catalog profiles encode documented channels and preserve RGB preview and blackout"
+    ],
+    "candidate_lines": [
+      20
+    ]
+  },
+  {
+    "file": "test/dmx-auto-variety.test.mjs",
+    "tests": [
+      "unchanged audio does not cycle formations after a fixed number of bars",
+      "exceptional irregular audio accents can develop the picture at their actual times",
+      "local instrument balance changes a formation without a standout beat",
+      "manual movement holds and quiet passages remain authoritative"
+    ],
+    "candidate_lines": [
+      12,
+      20,
+      24,
+      33
+    ]
+  },
+  {
+    "file": "test/dmx-auto.test.mjs",
+    "tests": [
+      "color limit is adaptive: calm passages deliberately use one color on every lamp",
+      "a build increases its palette within the chosen ceiling",
+      "crossfades preserve the palette ceiling and interpolate per color slot",
+      "automatic activity holds without selected acoustic events",
+      "pause, disabled sources and zero brightness cannot light up the stage",
+      "Lauflicht preserves the travelling wave as a separate mode",
+      "DJ presets retain source pulses, calm base levels and four-beat group changes",
+      "DJ presets blend both decks and respect the requested color ceiling",
+      "ordinary playback does not gate fixtures on accents",
+      "musical color decisions change fixture groupings while retaining the palette",
+      "two-color base formations never leave a permanent solo fixture across long songs",
+      "spatial color changes dissolve while selected musical accent colors stay immediate",
+      "measured rolling motifs animate softly; held music and an unsupported beat grid do not",
+      "rolling color travels for the full measured step at different tempos and through irregular attacks",
+      "energetic automatic passages recover dim source frames while preserving dimmer limits and edits",
+      "moving source avoids baked-in spot attenuation before its own presence mask"
+    ],
+    "candidate_lines": [
+      10,
+      11,
+      12,
+      24,
+      32,
+      33,
+      34,
+      38,
+      47,
+      48,
+      52,
+      69,
+      77,
+      80,
+      86,
+      87,
+      91,
+      115,
+      116,
+      131,
+      132,
+      158,
+      187,
+      191,
+      194,
+      201,
+      202,
+      205
+    ]
+  },
+  {
+    "file": "test/dmx-automatic-restraint.test.mjs",
+    "tests": [
+      "192-fixture automatic room preserves source strength and uses selected moving rows",
+      "small rooms and explicit show lighting retain their authored brightness",
+      "ordinary percussion gets small movements and measured standouts get larger strokes",
+      "sustained high-energy grooves expand their rows without lifting washes or blackouts",
+      "inactive installed rows do not dim a sparse automatic group and beat blackouts do not pump gain",
+      "automatic accompaniment remains visible across the room and still respects silence"
+    ],
+    "candidate_lines": [
+      16,
+      17,
+      18,
+      19,
+      20,
+      22,
+      25,
+      32,
+      34,
+      38,
+      41,
+      42,
+      56,
+      61,
+      70,
+      71,
+      74,
+      77,
+      85,
+      86,
+      87
+    ]
+  },
+  {
+    "file": "test/dmx-bass-chase.test.mjs",
+    "tests": [
+      "bass detector preserves offbeat attacks and rejects steady bass and silence",
+      "measured bass attacks hand over distinct physical heads, including odd rigs",
+      "bass reactions respect quiet passages, manual rhythm and measured blackouts",
+      "stem bass is used when available and seeking is deterministic",
+      "room expansion preserves true off states instead of interpolating virtual groups",
+      "bass switching also reaches energetic automatic choreography",
+      "repeated bass figures keep their group identity and weak decorations do not invert it",
+      "measured bass articulation controls how long the handover lasts",
+      "bass handovers keep mirrored pairs together on even and odd physical rigs",
+      "a strong return after a bass pause reveals the whole formation together",
+      "only an active bass group lets dark members continue their formation"
+    ],
+    "candidate_lines": [
+      49,
+      94,
+      96,
+      98
+    ]
+  },
+  {
+    "file": "test/dmx-beam-physics.test.mjs",
+    "tests": [
+      "one cone illuminates both sides of floor/wall, wall/wall and wall/ceiling corners",
+      "beam stops at the first room surface",
+      "final spatial motors bound speed and acceleration after discontinuous targets",
+      "yaw seam uses a short continuous movement",
+      "prepared musical reversals stay on time while respecting the same motor envelope",
+      "vertical aiming retains the current pan instead of inventing a half-turn",
+      "a head tilts continuously across zenith and nadir without a lateral pan sweep",
+      "unlit moving heads hold their displayed pose and resume without a position jump",
+      "an explicitly dark protected-zone transfer can still reposition",
+      "a temporarily shuttered group member follows the same motor path as its lit partners"
+    ],
+    "candidate_lines": [
+      80,
+      91,
+      100
+    ]
+  },
+  {
+    "file": "test/dmx-beam-volume.test.mjs",
+    "tests": [
+      "bounded volume integration agrees with independent dense sampling from several views",
+      "volume has no haze beyond the ceiling, wall or outside the cone",
+      "zero-length beams are omitted and looking along the axis stays finite"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/dmx-ceiling-view.test.mjs",
+    "tests": [
+      "ceiling underside remains visible when the camera moves outside the floor boundary",
+      "ceiling stays open for overhead planning views and real-world AR",
+      "external views retain the concave room ceiling outline"
+    ],
+    "candidate_lines": [
+      17,
+      18,
+      22,
+      23,
+      29
+    ]
+  },
+  {
+    "file": "test/dmx-cinematic-motion.test.mjs",
+    "tests": [
+      "sustained soundtrack develops without a beat grid, following the recorded rise and release",
+      "a genre hint alone never starts a timed cinematic loop",
+      "hybrid soundtrack tags can establish the profile without an orchestral label",
+      "manual holds and measured silence retain priority over soundtrack motion",
+      "acoustic envelope ignores silence and preserves crescendos",
+      "missing downbeats do not discard measured exceptional attacks",
+      "long connected cinematic moves obey velocity, acceleration and jerk limits"
+    ],
+    "candidate_lines": [
+      14,
+      16,
+      17,
+      18,
+      23
+    ]
+  },
+  {
+    "file": "test/dmx-club-performance.test.mjs",
+    "tests": [
+      "surface cache reuses geometry through dimmer/color changes but invalidates room and aim edits",
+      "haze quality remains stable through a blackout and intense phases",
+      "distant fixture detail reduces geometry while retaining every beam"
+    ],
+    "candidate_lines": [
+      17,
+      23,
+      25,
+      33
+    ]
+  },
+  {
+    "file": "test/dmx-connection.test.mjs",
+    "tests": [
+      "DMX validates complete frames",
+      "plug, explicit start, frames, blackout and reconnect without restart",
+      "stale frames trigger blackout; other sessions cannot write or stop",
+      "demo never probes or sends, unavailable and shared ports cannot start",
+      "concurrent starts are serialized and shutdown ends output",
+      "OLA adapter uses port discovery, exclusive patch and full frame form protocol",
+      "failed transfer ends session and reports failed blackout",
+      "HTTP API protects output with authentication, write header and session ownership"
+    ],
+    "candidate_lines": [
+      13,
+      24,
+      27,
+      41
+    ]
+  },
+  {
+    "file": "test/dmx-device-manager.test.mjs",
+    "tests": [
+      "a mixed device list preserves common and type-specific properties",
+      "virtual moving heads do not shift addresses or write motor data to hardware",
+      "any number of moving heads use their own stable positions and ranges",
+      "automatic and individual light models support mixed and moving-only rigs"
+    ],
+    "candidate_lines": [
+      23,
+      25,
+      33
+    ]
+  },
+  {
+    "file": "test/dmx-environment-light.test.mjs",
+    "tests": [
+      "environment values default to dark and survive storage, layout mapping and scan capture",
+      "styles, scans and GLB geometry become black at zero environment light",
+      "environment dimming preserves beams, footprints, luminous lenses and input light power"
+    ],
+    "candidate_lines": [
+      38
+    ]
+  },
+  {
+    "file": "test/dmx-equipment.test.mjs",
+    "tests": [
+      "migrates old equipment and supports more than four spots or eight segments",
+      "mixed patch allocates channels without overlaps and clears unused data",
+      "empty stage stays dark and has no invented palette",
+      "universe capacity and invalid segment counts fail explicitly",
+      "each bar chase uses its own length"
+    ],
+    "candidate_lines": [
+      9,
+      11,
+      12,
+      20
+    ]
+  },
+  {
+    "file": "test/dmx-group-composition.test.mjs",
+    "tests": [
+      "all six compositions remain visibly distinct in a small permitted rectangle",
+      "composition membership cannot cancel another pair mask or relight blackout",
+      "question-answer hands over softly and frames keep a quieter perimeter",
+      "composition position and membership are continuous across musical handovers",
+      "intense compositions retain support without changing their lead or exceeding full power",
+      "group formations retain source motion and give driving music more travel without extra brightness"
+    ],
+    "candidate_lines": [
+      17,
+      21,
+      26,
+      27,
+      28,
+      68
+    ]
+  },
+  {
+    "file": "test/dmx-group-motion.test.mjs",
+    "tests": [
+      "ten distinct paths evolve through the second half and have smooth endpoints",
+      "group inference is independent of insertion order, supports explicit groups and irregular mounts",
+      "musical selection is deterministic, does not animate quiet pads, and respects movement holds",
+      "large room retains distinct group paths, bounds, brightness, colors and exact future mapping",
+      "final routed room targets evolve smoothly through motor playback",
+      "active passage handovers preserve position and velocity instead of stopping at the base pose"
+    ],
+    "candidate_lines": [
+      23,
+      28,
+      35,
+      41,
+      55,
+      59
+    ]
+  },
+  {
+    "file": "test/dmx-layout.test.mjs",
+    "tests": [
+      "layout validates dimensions, device bounds and stable IDs",
+      "symmetric placement yields symmetric directions to common stage targets",
+      "moving a fixture changes required angles and distance, not its choreography target",
+      "projection is finite directly under the fixture and scales with stage size",
+      "odd rigs identify the physically middle fixture independently of device order"
+    ],
+    "candidate_lines": [
+      17,
+      18,
+      26,
+      32
+    ]
+  },
+  {
+    "file": "test/dmx-light-gestures.test.mjs",
+    "tests": [
+      "local instruments choose stable roles instead of cycling a gesture catalogue",
+      "prominent offbeat arrivals retain their measured time and change when the sound moves",
+      "heads have separate movement starts and independent directions, retained for seven devices",
+      "shortened and staggered moves remain within velocity, acceleration and jerk bounds",
+      "leading roles change their emphasis without concealing every supporting head",
+      "explicit bar-only and strong-only lighting keep their selected rhythm",
+      "a confident melodic contour moves leading heads with the music and uncertain pitch cannot invent motion",
+      "sustained offbeat melody changes get their own arrival rather than a bar-delayed response",
+      "rhythmic gesture timing scales with the measured tempo",
+      "musical contrast builds fan, parallel and crossing figures without rotating a catalogue",
+      "coordinated formations share their start, progress and arrival under motor constraints"
+    ],
+    "candidate_lines": [
+      24,
+      27,
+      29,
+      47,
+      48,
+      51,
+      52,
+      89,
+      107,
+      108,
+      132,
+      133,
+      135,
+      136,
+      140,
+      142
+    ]
+  },
+  {
+    "file": "test/dmx-light-scenes.test.mjs",
+    "tests": [
+      "different musical situations select six distinct images across several tempos",
+      "labels alone do not dictate the image; measured character and contrast matter",
+      "occupancy and movement form the same picture; a groove answers without roaming",
+      "seven-device room projection retains distinct banks, parallel sweeps and high impact",
+      "quiet images hold while driven scenes develop without recurring dark transfers",
+      "manual movement and rhythm suppression also apply to authored scenes",
+      "whole-song direction limits repetition and reacts to independent musical profiles",
+      "all 25 geometries survive mapping to two, seven and twenty heads",
+      "missing analysis holds a stable image and the largest impact is reserved"
+    ],
+    "candidate_lines": [
+      36,
+      37,
+      54,
+      55,
+      62,
+      66,
+      67,
+      71,
+      82,
+      98,
+      101,
+      105,
+      118,
+      119,
+      122,
+      126,
+      130
+    ]
+  },
+  {
+    "file": "test/dmx-model.test.mjs",
+    "tests": [
+      "RGB dimmer and pixel profiles reproduce the same half-bright red",
+      "all fixtures turn off for stopped, disabled and zero-brightness frames",
+      "patch addresses do not overlap and RGB segments decode independently",
+      "invalid values cannot wrap around into unintended channel values"
+    ],
+    "candidate_lines": [
+      7
+    ]
+  },
+  {
+    "file": "test/dmx-moving-bars.test.mjs",
+    "tests": [
+      "sustained scenes develop on detected bars while the authored formation stays coordinated",
+      "scene timing follows tempo, and preparation uses the exported cue sequence",
+      "event selection retains exceptional audio timestamps but rejects ordinary repeated hits",
+      "ordinary rhythmic arrivals flow through available time without synthetic holds"
+    ],
+    "candidate_lines": [
+      11,
+      12,
+      13,
+      16,
+      31,
+      33,
+      34
+    ]
+  },
+  {
+    "file": "test/dmx-moving-cues.test.mjs",
+    "tests": [
+      "destinations arrive on selected audio events and hold between moves",
+      "all formations and transitions coordinate mirrored outer and inner pairs",
+      "audio energy and vocal presence shape formation width",
+      "dense cues respect motor speed; prepared playback adds no smoothing delay",
+      "connected groove destinations keep velocity instead of stopping at every hit",
+      "isolated gestures start and stop with negligible acceleration and retain holds",
+      "planned motion respects velocity, acceleration and jerk on both axes",
+      "an emphasized arrival brakes continuously without stopping the whole groove",
+      "continuous rhythmic evidence bridges sparse accents without a fixed 1.2 second stop",
+      "ignored intermediate accents cannot reset a continuing movement phrase",
+      "automatic groups evolve over several bars instead of repeating a four-second mirror loop",
+      "fast energetic phrases with irregular connected accents retain physical limits",
+      "section-flow journeys retain velocity across intermediate targets and into grooves",
+      "continuous curves carry acceleration through ordinary waypoints instead of restarting an easing cycle"
+    ],
+    "candidate_lines": [
+      10,
+      15,
+      31,
+      34,
+      41,
+      43,
+      102,
+      107,
+      120
+    ]
+  },
+  {
+    "file": "test/dmx-moving-direction.test.mjs",
+    "tests": [
+      "movement motifs are deterministic, song-derived and recalled without mutating the plan",
+      "instrument balance changes formation; builds open progressively and width is independent of speed",
+      "planned travel reaches acoustic cues, holds between journeys and bounds speed through section changes",
+      "prepared directions survive forward and backward seeking and leave manual styles intact",
+      "moderate sections keep moving while deliberately restrained moods can hold",
+      "section movement evolves between accents without changing its spatial character on each hit",
+      "build sections develop continuously and measured rising energy adds build accents",
+      "intense grooves follow actual accents continuously and stop moving through breaks",
+      "groove timing follows irregular audio accents and louder hits change the path",
+      "disco rhythmic formations give all four heads distinct roles beyond inner and outer pairs",
+      "automatic motion uses broad coherent arcs with fewer reversals than disco",
+      "automatic movement tempo follows a measured rise instead of a fixed eight-beat cycle",
+      "groove shapes describe distinct paths instead of reusing ellipses",
+      "actual automatic groove cues honor the musical shape and keep circles exceptional",
+      "ribbon formations preserve a fan opening rather than replacing it with a sweep",
+      "musical roles span the floor without forcing every head onto an independent area-filling path",
+      "musical phrases balance paired and independent movement without a fixed symmetry rule",
+      "each section keeps its character across short phrases while quiet passages still develop",
+      "spatial roles follow musical poses and never wander on an independent clock",
+      "a clear non-peak rhythm drives continuous choreography without waiting for a peak label",
+      "quiet section journeys respond to actual accent strength without changing their figure",
+      "prominent musical accents are not discarded by ordinary groove spacing",
+      "local musical energy develops the same section figure instead of being lost in its average",
+      "quiet spatial arcs share one height and preserve holds without a separate oscillator"
+    ],
+    "candidate_lines": [
+      41,
+      42,
+      48,
+      49,
+      50,
+      54,
+      63,
+      74,
+      75,
+      76,
+      85,
+      87,
+      95,
+      98,
+      99,
+      109,
+      111,
+      113,
+      115,
+      118,
+      127,
+      132,
+      148,
+      150,
+      167,
+      168,
+      178,
+      191,
+      192,
+      198,
+      201,
+      250,
+      253,
+      256,
+      264,
+      265,
+      271,
+      306
+    ]
+  },
+  {
+    "file": "test/dmx-moving-heads.test.mjs",
+    "tests": [
+      "motion uses the musical clock, repeats motifs and holds without a beat grid",
+      "breaks and wash stay restrained; builds increase their movement range",
+      "crossfades blend both choreographies continuously and ignore dark decks",
+      "seeks ease within motor limits, stay bounded and do not catch up after hidden time",
+      "deck flashes do not tug on movement during crossfades with a slow light base",
+      "device assignment preserves whole musical roles instead of averaging opposing heads into the centre"
+    ],
+    "candidate_lines": [
+      41,
+      42,
+      51,
+      52,
+      70,
+      71
+    ]
+  },
+  {
+    "file": "test/dmx-moving-moods.test.mjs",
+    "tests": [
+      "moods change spacing and range without inventing accents or breaking symmetry",
+      "fallback and demo use the same mood; invalid saved values use balanced",
+      "cached moods remain separate and unfinished variants resume correctly",
+      "show profiles route disco to its own movement cache without changing party or calm"
+    ],
+    "candidate_lines": [
+      12,
+      21,
+      22,
+      34
+    ]
+  },
+  {
+    "file": "test/dmx-moving-plan.test.mjs",
+    "tests": [
+      "prepared scene tracks are deterministic, interpolated and seek stable",
+      "prepared section transitions respect speed limits; wash and missing beats stay calm",
+      "preparation is opt-in, chunked, cancellable, cached and invalidated by show replacement",
+      "playback velocity is continuous across 50 ms sample boundaries without overshoot"
+    ],
+    "candidate_lines": [
+      10,
+      12,
+      34,
+      35,
+      37,
+      39,
+      40,
+      44
+    ]
+  },
+  {
+    "file": "test/dmx-moving-presence.test.mjs",
+    "tests": [
+      "normal passages use a partial rig, quiet passages rest, strong peaks open the rig",
+      "section entrances fade continuously and beat accents never change the active pair",
+      "a peak label without strong evidence and vocal-led passages stay sparse",
+      "measured blackouts still win over a strong section",
+      "room expansion reapplies the pair budget once to all seven physical heads",
+      "VR interpolation carries the unmasked power and musical density together",
+      "seven heads all participate across ordinary phrases with smooth mirrored handovers",
+      "strong measured energy opens all heads even without a peak label",
+      "low and intermediate energy do not leave only one visible pair or faint extra beams"
+    ],
+    "candidate_lines": [
+      13,
+      48,
+      49,
+      54,
+      74,
+      81,
+      95
+    ]
+  },
+  {
+    "file": "test/dmx-moving-shutter.test.mjs",
+    "tests": [
+      "relocations fade before motion, remain dark in transit and reveal the arrival",
+      "room presence cannot relight a muted transfer",
+      "an authorized unlit relocation moves, while an ordinary inactive head rests"
+    ],
+    "candidate_lines": [
+      20,
+      21,
+      30
+    ]
+  },
+  {
+    "file": "test/dmx-preview-fixtures.test.mjs",
+    "tests": [
+      "static fixtures cover a broad area and contribute less aerial light than moving beams",
+      "estimated fixture zoom changes cone coverage without changing its target or output",
+      "zero haze removes aerial beams while keeping lenses and illuminated surfaces"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/dmx-preview-optics.test.mjs",
+    "tests": [
+      "preview exposure preserves blackout and continuous ordered dimming",
+      "soft cone preserves colour and limits haze to a thin edge",
+      "haze favours forward scattering, weakens with distance and stays bounded on axis",
+      "lens glare disappears behind the head and changes continuously with the viewing angle",
+      "visible optics use a bounded clipped polygon per beam and one quad per lens, and add nothing during blackout"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/dmx-preview-prism.test.mjs",
+    "tests": [
+      "prism/gobo optics are opt-in, bounded, and leave source and total output intact",
+      "prism fans rotate around the head axis and stop at the first room surface",
+      "triad gobos project three separated apertures with bounded surface detail",
+      "nine optical rays still have one lens, no added fixture bodies and a full blackout"
+    ],
+    "candidate_lines": [
+      11,
+      12,
+      34
+    ]
+  },
+  {
+    "file": "test/dmx-rhythmic-drive.test.mjs",
+    "tests": [
+      "measured guitar-like rhythm survives a low relative drum share",
+      "a beat grid or phrase label alone cannot turn sustained music into a groove",
+      "groups hand over at measured changes, hold over identical phrases, and blend continuously"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/dmx-room-mesh.test.mjs",
+    "tests": [
+      "GLB imports selected scene, hierarchy transforms, indexed geometry, and material colors",
+      "glTF supports embedded buffers without fetching external resources",
+      "OBJ supports polygon triangulation, negative indices, Z-up and millimetres",
+      "malformed, oversized, compressed, animated and cyclic assets fail before committing",
+      "textured assets retain geometry and report material fallback",
+      "mesh and representation survive room exports; invalid imported plans are rejected",
+      "concave scan walls triangulate in 3D and captured rooms choose scan automatically",
+      "models and scans render as filled geometry in desktop/VR and remain hidden in AR"
+    ],
+    "candidate_lines": [
+      12,
+      16,
+      21,
+      27,
+      40,
+      51,
+      61
+    ]
+  },
+  {
+    "file": "test/dmx-room-presets.test.mjs",
+    "tests": [
+      "large club is a portable, independent room with 192 supported lights",
+      "all club lights receive live show frames without changing the source scene",
+      "club stage keeps its geometry and all three lighting sections when exported",
+      "additional stage room has no quiet zones and preserves the full stage setup",
+      "large hall preserves 192 lights and protects only the central DJ booth"
+    ],
+    "candidate_lines": [
+      13,
+      27,
+      28,
+      37,
+      40,
+      58,
+      69,
+      70,
+      71
+    ]
+  },
+  {
+    "file": "test/dmx-room-spread.test.mjs",
+    "tests": [
+      "large club spreads a shared gesture over all six mounting rows and both sides",
+      "an explicit focus still converges and blends continuously from distributed targets",
+      "prediction uses the same regional mapping as the future frame",
+      "room routing and motors retain distributed targets instead of pulling them back to center",
+      "small single-row rooms keep their authored shared focus",
+      "show reserves spatial rows for the climax and preserves blackout, shutter and manual control"
+    ],
+    "candidate_lines": [
+      10,
+      11,
+      12,
+      45,
+      46,
+      47,
+      48,
+      51,
+      53,
+      54,
+      55,
+      57
+    ]
+  },
+  {
+    "file": "test/dmx-room-style.test.mjs",
+    "tests": [
+      "styles survive room validation and serialization, with legacy fallback",
+      "materials cover concave floors without filling recesses, AR emits no materials",
+      "material covers unlit club floor and cutaway removes near-facing exterior walls"
+    ],
+    "candidate_lines": [
+      28
+    ]
+  },
+  {
+    "file": "test/dmx-room-surfaces.test.mjs",
+    "tests": [
+      "automatic room movement reaches walls and ceiling continuously without changing power",
+      "explicit targets and exclusion areas retain their existing routing",
+      "concave room rays stop at the first wall; desktop/XR geometry renders elevated footprints",
+      "room mapping carries legacy/virtual moving coordinates through to the displayed surface",
+      "plain stage preview uses the actual front wall beyond the dancefloor",
+      "quiet zones allow continuous wall-ceiling-wall journeys without crossing their footprint",
+      "a blocked preferred wall uses another free wall instead of locking onto the ceiling",
+      "quiet zones are full-height volumes: floor, wall and ceiling beams cannot pass through",
+      "musical lookahead follows fixture placement and the same wall/ceiling mapping",
+      "nine physically ordered heads preserve reflection on floor, walls and ceiling",
+      "the center head keeps its ceiling arc when musical depth crosses its mounting line",
+      "virtual room fixtures resolve exactly one center after cloning source roles",
+      "the middle fills the spatial gap on the neighbours receiving plane",
+      "room coordination preserves authored outer roles and ignores obsolete global figure hints",
+      "group coordination respects explicit fixture targets",
+      "five room heads with editor-saved target points coordinate their middle independently of four static fixtures",
+      "coordinated room motion preserves shared angular timing across seven emitters",
+      "designed motion reaches side and rear walls and unrelated quiet zones do not redirect it"
+    ],
+    "candidate_lines": [
+      12,
+      32,
+      44,
+      56,
+      73,
+      85,
+      94,
+      96,
+      169,
+      204,
+      225,
+      226,
+      228,
+      242,
+      248
+    ]
+  },
+  {
+    "file": "test/dmx-room-synchrony.test.mjs",
+    "tests": [
+      "room motion spans the physical rig once, including future samples",
+      "rendered light cones keep paired timing after room projection and motor smoothing",
+      "motion redistribution preserves fixture colors, brightness and authored non-mirrored gestures",
+      "seven and larger odd rigs keep the center on the symmetry axis through ceiling crossings",
+      "symmetric zone detours preserve independently lit partners of dark fixtures",
+      "seven-head automatic formation stays ordered through changing musical roles",
+      "coordinated heads keep facing forward as depth passes their mounting line"
+    ],
+    "candidate_lines": [
+      48
+    ]
+  },
+  {
+    "file": "test/dmx-room.test.mjs",
+    "tests": [
+      "room dimensions and light reach stay valid for edited or stored values",
+      "all fixture types share allowed target area and resize without mutating original show"
+    ],
+    "candidate_lines": [
+      16
+    ]
+  },
+  {
+    "file": "test/dmx-show.test.mjs",
+    "tests": [
+      "old shared encoding remains identical and design can reproduce it",
+      "fixture, group and section overrides have deterministic priority",
+      "independent fixture palettes and fixed colors encode separately",
+      "playback beat interpolation follows seeking and does not invent a missing grid",
+      "alternating groups and chase cells respond to beat period and offset",
+      "missing rhythm follows original brightness; pause and zero weights are black",
+      "crossfade mixes light per device and ignores paused sources",
+      "quiet automatic sections become sustained and settings survive serialization safely"
+    ],
+    "candidate_lines": [
+      32,
+      33,
+      35,
+      36,
+      40
+    ]
+  },
+  {
+    "file": "test/dmx-smooth-projection.test.mjs",
+    "tests": [
+      "smooth projection uses receiving surfaces instead of nested brightness rings",
+      "projective light coordinates agree at the floor/wall seam",
+      "GPU surfaces carry continuous projection data and blackout removes them",
+      "smooth wall targets retain their saved receiving bounds",
+      "haze stops on the receiving ceiling and preserves interpolated texture coordinates",
+      "grazing ceiling illumination weakens with incidence angle",
+      "coplanar receiving triangles have identical attenuation",
+      "receiver contact fades continuously to zero on the clipped plane"
+    ],
+    "candidate_lines": [
+      11,
+      12,
+      13,
+      20,
+      27,
+      30,
+      36,
+      49,
+      55,
+      62
+    ]
+  },
+  {
+    "file": "test/dmx-stage-3d.test.mjs",
+    "tests": [
+      "eye-level camera looks toward the stage and changes with viewer position and height",
+      "near-plane clipping retains visible floor and beam portions crossing behind the viewer",
+      "clipped dance floor remains finite while turning and looking up or down",
+      "dancing guests stay inside both floors after resizing, including steps and hops",
+      "crowd follows interpolated audio beats, tempo changes and numeric demo beats",
+      "pause and muted decks freeze the complete pose; no grid uses idle fallback",
+      "deck handoff has hysteresis and seeks crossfade poses before locking to the new beat",
+      "style boundaries and deck blends are continuous and share the same beat phase",
+      "dolly crosses the old zoom limit and orbit centre, reverses and keeps its eye while turning",
+      "camera pan follows screen axes, preserves view direction and also moves ego height"
+    ],
+    "candidate_lines": [
+      18,
+      22,
+      94
+    ]
+  },
+  {
+    "file": "test/dmx-stage-gpu.test.mjs",
+    "tests": [
+      "GPU camera uniforms reproduce Canvas projection for orbit, dolly and ego views",
+      "20 fixtures produce finite contiguous GPU batches and reuse storage",
+      "GPU stream remains finite when the camera crosses the fixtures and near plane"
+    ],
+    "candidate_lines": [
+      23
+    ]
+  },
+  {
+    "file": "test/dmx-stage-vr.test.mjs",
+    "tests": [
+      "world coordinates preserve meter scale, floor height and starting direction",
+      "shared geometry emits finite world polygons, beams, zones and guests",
+      "session renders both supplied eye poses with live scene and cleans up on end",
+      "insecure and unsupported browsers do not enable VR",
+      "permission rejection permits retry, local reference fallback uses eye height",
+      "ending during async graphics initialization disposes late resources",
+      "availability can be rechecked after connecting without selecting hardware",
+      "VR entry compensates arbitrary physical position and heading and starts inside the club",
+      "a saved local AR planner does not replace the live VR show",
+      "first real tracked VR frame renders the live scene from a recentered in-room origin"
+    ],
+    "candidate_lines": [
+      31
+    ]
+  },
+  {
+    "file": "test/dmx-surface-light.test.mjs",
+    "tests": [
+      "fixture bounce illuminates surfaces in a dark room and decays with distance",
+      "material reflectance, mixed colors and master power affect bounce independently from ambient",
+      "shared scene illuminates walls and ceiling from fixtures without adding light in blackout",
+      "coplanar floor triangles and wall sections share illumination regardless of tessellation or winding"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/dmx-vr-console.test.mjs",
+    "tests": [
+      "ray hits use panel coordinates, rejecting backwards and outside rays",
+      "walk follows headset yaw, deadzone prevents drift and snap preserves tracked head position",
+      "fallback console selects deck, controls playback, and exits even when disconnected",
+      "controller panel is half its original width and height, fallback remains readable"
+    ],
+    "candidate_lines": [
+      26,
+      33
+    ]
+  },
+  {
+    "file": "test/dmx-vr-playback.test.mjs",
+    "tests": [
+      "buffer keeps lights and guest animation moving across irregular network arrival intervals",
+      "controls stay current while visual state is buffered; room changes and long outages reset interpolation",
+      "matches moving fixtures by identity after reordering",
+      "normalized moving paths remain smooth when a paired room maps buffered frames",
+      "paired playback interpolates target height between floor and wall",
+      "local 20 Hz updates produce intermediate motion frames without delaying blackout",
+      "prepared local motion follows the audible time and expires prediction on a stalled source"
+    ],
+    "candidate_lines": [
+      43,
+      59
+    ]
+  },
+  {
+    "file": "test/dmx-vr-renderer.test.mjs",
+    "tests": [
+      "GPU room matrix agrees with worldToXR including rotation and floor calibration",
+      "eye basis preserves stereo displacement and room axes after navigation",
+      "beam bounds keep near-plane intersections and cull volumes outside either eye",
+      "VR uses a single smooth receiver layer and volumetric beams, with finite streams",
+      "projection cache invalidates aiming and room changes but keeps live color and power",
+      "192-light preset keeps every optical beam and stable haze resolution across blackout",
+      "distant devices lose geometric detail while retaining their light effects",
+      "quality responds to sustained missed deadlines and recovers slowly without reacting to pauses"
+    ],
+    "candidate_lines": [
+      33,
+      34,
+      35,
+      44,
+      48,
+      49,
+      52,
+      54,
+      58
+    ]
+  },
+  {
+    "file": "test/dmx-wash-seam.test.mjs",
+    "tests": [
+      "a wash reaches the wall continuously rather than acquiring a separate wall halo",
+      "LED bar projection retains its wider horizontal coverage on the wall"
+    ],
+    "candidate_lines": [
+      20
+    ]
+  },
+  {
+    "file": "test/dmx-zone-motion.test.mjs",
+    "tests": [
+      "routes cross-room travel around zones and all segments avoid padded areas",
+      "route planning handles overlapping obstacles and a fully covered floor",
+      "detours remain continuous at zone edges, target reversals and song seeks",
+      "a fully covered floor is off from the first frame and never moves",
+      "without zones choreography is untouched and fixed fixtures are never rerouted",
+      "detours in a concave room never cross the missing corner",
+      "quiet-zone detours remain within a mover-specific allowed area",
+      "an impassable strip permits a delayed, fully dark transfer and fades back in only after exit",
+      "new heads start at a free aim rather than moving through their initial zone",
+      "a zone edited over the current aim stops movement and light immediately",
+      "clearance includes the rendered footprint and a long frame cannot tunnel through zones",
+      "adding the first zone to a running show retains the current aim and stops it if covered",
+      "choreography inside a quiet zone moves in a free area instead of sticking to its edge",
+      "a dark transfer is exceptional across the entire rig and other heads keep moving",
+      "reachable detours never fade out, including routes around the corner of a concave room"
+    ],
+    "candidate_lines": [
+      9,
+      26,
+      33,
+      45,
+      68,
+      78,
+      83,
+      84,
+      91,
+      101,
+      109,
+      120,
+      131
+    ]
+  },
+  {
+    "file": "test/dmx-zone-plan.test.mjs",
+    "tests": [
+      "saved zones remain inside the room and tolerate invalid settings",
+      "manual aim changes fixed fixtures without changing source lights",
+      "fixed lights retain direction and switch off; moving targets are left to the continuous router",
+      "fully covered floor switches fixed fixtures off",
+      "a fixed footprint touching a zone is off even when its center is outside"
+    ],
+    "candidate_lines": [
+      19,
+      20,
+      24,
+      30,
+      32
+    ]
+  },
+  {
+    "file": "test/editor.test.mjs",
+    "tests": [
+      "Editor interpoliert Farben, Weißtemperatur und Helligkeit; harter Übergang erst am Punkt",
+      "Editor begrenzt Projekte und verwirft ungültige oder doppelte Zeitpunkte",
+      "Editor passt Ausgabe an RGB, Weißtemperatur und reine Dimmer an",
+      "Show transportiert Weißtemperatur nur an geeignete Lampen und stellt Zustand wieder her"
+    ],
+    "candidate_lines": [
+      18,
+      19
+    ]
+  },
+  {
+    "file": "test/hosting.test.mjs",
+    "tests": [
+      "hosted server serves web edition and health, never local APIs or private files",
+      "global crash restart exits nonzero once; new instance accepts marker baseline",
+      "Plesk CommonJS bootstrap loads selected ESM release and rejects traversal",
+      "installer downloads support HEAD, streaming ranges and invalid-range rejection"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/instrument-activity.test.mjs",
+    "tests": [
+      "stem envelopes survive structure validation and reject corrupt data",
+      "whole-song contrast keeps a vocal-led section quieter than a percussion entrance",
+      "silent stems stay finite and old structure results retain the fallback"
+    ],
+    "candidate_lines": [
+      26
+    ]
+  },
+  {
+    "file": "test/light-editor-model.test.mjs",
+    "tests": [
+      "move keeps duration and stops at neighbours without mutating source",
+      "shared boundary resizes both neighbours and preserves positive durations",
+      "beat, bar and free edits use the selected grid; gaps stay automatic"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/light-expression.test.mjs",
+    "tests": [
+      "atmospheric music holds light despite a dense event grid",
+      "flowing and voice-led music swells continuously instead of flashing on each event",
+      "percussive grooves and exceptional quiet hits remain clear",
+      "soft swells do not trigger abrupt group switches, silence stays dark",
+      "a rhythmic build swells, a supporting verse is softer, a feature retains punch"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/light-flicker.test.mjs",
+    "tests": [
+      "beat flicker caps only fast accents and preserves colors, development, darkness and motion",
+      "slow build swells remain unchanged when beat flicker is disabled",
+      "the limit applies to both plans during transitions and to older beat envelopes",
+      "invalid limits fall back to full intensity and numeric values stay bounded",
+      "weaker beats and decaying tails retain their original gradations below the ceiling"
+    ],
+    "candidate_lines": [
+      12,
+      15,
+      17,
+      18,
+      24,
+      29,
+      30,
+      31
+    ]
+  },
+  {
+    "file": "test/light-review.test.mjs",
+    "tests": [
+      "review export preserves effective edits, precise song position and reproducible frames"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/light-tuning.test.mjs",
+    "tests": [
+      "neutral controls preserve the prepared light and never mutate it",
+      "brightness dims once and zero switches output off",
+      "saturation, hue and dynamics have independent bounded effects"
+    ],
+    "candidate_lines": [
+      5,
+      6,
+      7
+    ]
+  },
+  {
+    "file": "test/live-analysis.test.mjs",
+    "tests": [
+      "Live-Spektrum trennt Mitten und Höhen bei 16 und 48 kHz ohne Stereoauslöschung oder Beatänderung",
+      "Live-Disco reagiert bei gleichem Beat auf Tonverläufe mit anderen Farben, identischer Helligkeit",
+      "API verwirft ungültige Klangmerkmale und lässt fehlendes Spektrum weiterhin zu"
+    ],
+    "candidate_lines": [
+      18,
+      25
+    ]
+  },
+  {
+    "file": "test/local-cover.test.mjs",
+    "tests": [
+      "reads ID3 v2.3 and v2.4 embedded covers; rejects linked and truncated artwork",
+      "reads FLAC picture metadata and M4A covr atoms",
+      "reads ID3 artwork in WAV chunks, handles absent and malformed tags"
+    ],
+    "candidate_lines": [
+      22
+    ]
+  },
+  {
+    "file": "test/melody-analysis.test.mjs",
+    "tests": [
+      "Harmonischer Ton wird trotz stärkerer zweiter Harmonischer kontinuierlich verfolgt",
+      "Steigen, Halten, Fallen und Pause sind unabhängig vom Beat in der Partitur sichtbar",
+      "Wiederholte und transponierte Tonmotive verwenden dieselbe Farbkurve",
+      "Unklare Tonspur hält Farbe; Stille erfindet weder Noten noch Motive",
+      "Ein einzelner sicher scheinender Ton in unklarer Passage erzeugt keinen Farbsprung",
+      "Unsichere Melodie blockiert hörbare Klangwechsel nicht; Beat-Helligkeit bleibt gleich",
+      "Sichere gehaltene Melodie führt, längere Lücken wechseln sanft zum Klangbild, Stille hält"
+    ],
+    "candidate_lines": [
+      27,
+      41,
+      43,
+      51,
+      67
+    ]
+  },
+  {
+    "file": "test/mood-analysis.test.mjs",
+    "tests": [
+      "Tonale Profile unterscheiden Dur/Moll und lehnen gleichmäßige oder leere Verteilungen ab",
+      "Stimmungsmodus verändert Farben, nicht Beat-Helligkeit, und lässt sich ausschalten",
+      "Unklare Folgepassage hält die zuvor erkannte Palette und Stille startet neutral",
+      "Gleiche Moll-Harmonik erhält bei niedriger und hoher Energie unterschiedliche Stimmungen",
+      "Palettenwechsel überblenden bei gleichbleibender Tonkontur statt sprunghaft umzuschalten"
+    ],
+    "candidate_lines": [
+      14,
+      15
+    ]
+  },
+  {
+    "file": "test/music-style.test.mjs",
+    "tests": [
+      "simultaneous electronic and orchestral evidence stays mixed",
+      "styles change within a song smoothly and uncertain evidence keeps neutral design",
+      "rejects missing intervals, invalid scores and mismatched audio duration",
+      "style changes design without shifting beats or overriding manual settings"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/music.test.mjs",
+    "tests": [
+      "Audiopegel und Einstellungen sind begrenzt; Weißlampen erhalten keine RGB-Werte",
+      "Keine Warteschlange: laufendes Paket beendet sich vor neuestem Pegel und Wiederherstellung",
+      "Abgelaufene Browserverbindung beendet Erfassung und stellt Zustand wieder her",
+      "Abbruch während Geräteprüfung startet keine Audioerfassung",
+      "Vier ausgefallene Lichtpakete beenden die Sitzung",
+      "Neue Regler validieren Grenzen, Farbcodes und Mindesthelligkeit",
+      "Helligkeit nutzt feine monotone Stufen und hält den gewählten Bereich ein",
+      "Kurven heben leise Musik unterschiedlich stark hervor; weiche Übergänge bremsen Sprünge",
+      "Disco wechselt auf Impulse, nicht bei konstantem Pegel oder Stille",
+      "Eigene Farben, Sättigung und Verlaufstempo verändern RGB bei gleicher Helligkeit",
+      "Zeitbasierte Glättung bleibt bei unterschiedlichen Paketabständen konsistent",
+      "Schwarze Wunschfarben erzeugen gültige numerische Lampenwerte",
+      "Wiederherstellung entfernt sceneId null und trennt Szene, Weißtemperatur und RGB",
+      "Gleiche Lichtwerte werden nicht dauernd gesendet; Fehler lösen eine Sendepause aus",
+      "Disco erhält acht klare Beats innerhalb einer Farbfamilie und wechselt danach weich"
+    ],
+    "candidate_lines": [
+      14,
+      23,
+      27,
+      66,
+      85,
+      92,
+      118,
+      131
+    ]
+  },
+  {
+    "file": "test/musical-attention.test.mjs",
+    "tests": [
+      "measured syncopations survive without a grid and stay deterministic and seekable",
+      "near-grid attacks are not doubled; silence, pads and spectral-only changes do not flash",
+      "ambiguous, missing and silent stems preserve neutral controls; voice focus is bounded",
+      "shared vocal focus reduces movement while all short accents retain the palette",
+      "weak subdivisions do not fill every gap; a prominent subdivision remains visible",
+      "a prominent hit survives in a quiet passage and displaces an earlier weaker grid event"
+    ],
+    "candidate_lines": [
+      25,
+      34,
+      42,
+      62,
+      64,
+      65,
+      76,
+      90
+    ]
+  },
+  {
+    "file": "test/musical-blackouts.test.mjs",
+    "tests": [
+      "an isolated musical stop reaches full darkness and returns on the audible entrance",
+      "quiet passages, pads, ordinary beat gaps, repeated stops and track edges stay out",
+      "blackout reaches spots and bars without darkening a second playing deck or explicit presets"
+    ],
+    "candidate_lines": [
+      29,
+      30
+    ]
+  },
+  {
+    "file": "test/musical-transition.test.mjs",
+    "tests": [
+      "prefers a section boundary near the old trigger and otherwise a bar",
+      "unreliable or absent grids fall back to the original time trigger",
+      "rate changes preserve enough actual time for the fade; do not pick distant sections",
+      "incoming cue uses a nearby detected downbeat and never skips a large intro",
+      "musical selection can be disabled independently of fade duration and manual tempo",
+      "pair fallback preserves existing timing and caps overlap for short incoming songs",
+      "bass-heavy pair chooses a bass handover, vocal pair reduces overlap",
+      "candidate comparison prefers a nearby vocal-free entry and respects the cue",
+      "handover gain curve is bounded, monotonic and keeps endpoints",
+      "manual transitions stay at the current exit and respect actual time at manual rates",
+      "automatic pair finds a vocal-free section outside the old narrow window",
+      "automatic duration follows actual three-beat bars instead of assuming four beats",
+      "automatic planning respects late loading, rates, cue window and immediate manual starts",
+      "automatic option keeps fallback and disabled musical timing predictable",
+      "different rhythms favor a shorter audible overlap without changing tempo data",
+      "automatic choice compares a short boundary handoff against blending without changing songs",
+      "sustained vocal endings differ from syllable gaps; context detects energy builds and drops",
+      "phrase estimates require an actual section anchor and absent context supplies no evidence",
+      "extended entry search is opt-in, bounded and never shifts an explicit cue",
+      "tonal estimates use existing chroma, ignore silence and uncertain keys",
+      "alternatives are finite, distinct, serializable and preserve musical bounds"
+    ],
+    "candidate_lines": [
+      154
+    ]
+  },
+  {
+    "file": "test/recovery-monitor.test.mjs",
+    "tests": [
+      "Server prüft konfigurierte Lampe ohne Browser und folgt geänderter IP",
+      "Deaktivierte Automatik und entfernte Lampe lösen keine Prüfung aus",
+      "Musik und laufendes Pairing pausieren Hintergrundprüfung",
+      "Prüfungen überlappen nicht und laufen nach Fehler weiter",
+      "Stop während Konfigurationslesen verhindert weitere Prüfung"
+    ],
+    "candidate_lines": [
+      30,
+      39,
+      42,
+      67
+    ]
+  },
+  {
+    "file": "test/recovery.test.mjs",
+    "tests": [
+      "Automatik prüft Identität, richtet einmal ein, bestätigt UDP und entfernt temporäres WLAN",
+      "Fremde MAC erhält keine Zugangsdaten und die AP-Verbindung wird aufgeräumt",
+      "Nicht erreichbares Lampen-WLAN wird vor Pairing als Verbindungsfehler gemeldet",
+      "Erneuter Einrichtungsmodus nach erfolgreichem Pairing startet einen neuen vollständigen Ablauf",
+      "Unklare Übertragung ohne frischen Status wird auch beim nächsten Versuch nicht erneut gesendet",
+      "Timeout mit wiederholt frisch bestätigtem Leerlauf erlaubt genau einen neuen Versuch",
+      "Nicht konfigurierte oder andere Lampe startet keine Netzumschaltung",
+      "Gescheiterte Versuche sperren nach Abkühlzeit und frischer Leerlaufprüfung nicht dauerhaft",
+      "Bestätigter Auftrag ohne Beitritt wird genau einmal wiederholt",
+      "Gleichzeitige Aufrufe starten nur einen Einrichtungsauftrag",
+      "Bereits im Heimnetz erreichbarer Beitritt wird vor Journal-Löschung abgeschlossen",
+      "Verlorene Status-5-Antwort am AP: bekannte Heimnetz-IP ermöglicht Abschluss und UDP",
+      "Wiederholung verbindet das Lampen-WLAN neu und prüft die MAC vor erneutem Senden",
+      "Ohne AP und UDP wird ein bestätigter HTTP-Heimnetz-Beitritt automatisch abgeschlossen",
+      "Fremdes Gerät an der gespeicherten Heimnetz-IP erhält keinen Abschluss"
+    ],
+    "candidate_lines": [
+      54,
+      75,
+      98,
+      147,
+      154
+    ]
+  },
+  {
+    "file": "test/rhythm-recovery.test.mjs",
+    "tests": [
+      "real drum attacks recover an energetic passage without manufacturing a replacement beat grid",
+      "stable stems and a reliable beat grid do not get extra recovery attacks",
+      "an established peak stays fully open while a true quiet-to-loud build still stages fixtures",
+      "measured non-percussive development moves the heads without adding brightness accents"
+    ],
+    "candidate_lines": [
+      16,
+      20,
+      22,
+      24,
+      28,
+      40,
+      42
+    ]
+  },
+  {
+    "file": "test/section-contrast.test.mjs",
+    "tests": [
+      "equal-energy verse and refrain retain different visual roles across profiles",
+      "a quiet predicted chorus does not suppress an actually energetic verse"
+    ],
+    "candidate_lines": [
+      16
+    ]
+  },
+  {
+    "file": "test/section-lighting.test.mjs",
+    "tests": [
+      "quiet edits mute accents only in the selected section without mutating the analysis",
+      "color changes happen on exact beat times and are stable after seeking",
+      "motif transfer copies lighting but preserves independent names and time boundaries",
+      "downbeat-only selection uses detected meter, and invalid boundaries are rejected"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/setlist-transition.test.mjs",
+    "tests": [
+      "saved set entries keep independent curve data when copied to the live queue",
+      "changed neighbours, files and impossible playback rates reject stale set transitions",
+      "legacy entries still load and broken persisted curves are ignored"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/setup-http.test.mjs",
+    "tests": [
+      "Setup-POST sendet explizite Länge, kanonische Header und keine Keepalive-Verbindung",
+      "Setup-HTTP begrenzt auch das Warten auf den Antwortkörper ohne POST-Wiederholung",
+      "Setup-HTTP folgt keiner Weiterleitung und liest leere Abschlussantworten"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/setup.test.mjs",
+    "tests": [
+      "Nach bestätigtem Beitritt erfolgt Abschluss im Heimnetz auch bei weiterhin erreichbarem AP",
+      "Abschluss folgt der bestätigten Heimnetz-IP, wenn das Einrichtungs-WLAN verschwindet",
+      "WLAN-Daten: Byte-Grenzen, vollständiges Passwort, zufällige IV, kein Klartextfeld",
+      "Einrichtung erfordert passendes Netz, Firmware und unveränderte MAC",
+      "Timeout: keine Wiederholung/Passwortausgabe; Abschluss erst nach WLAN-Bestätigung"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/show-arrangement.test.mjs",
+    "tests": [
+      "Songabschnitte erhalten gehaltenes Licht, fließende Strophen und intensivere Refrains",
+      "Konstante Musik erzeugt keinen Dauerblinker und keine Farbwechsel auf jedem Schlag",
+      "Stille bleibt auf Mindesthelligkeit, auch wenn ein Modell Beats behauptet",
+      "Neue automatische Gestaltung ist deterministisch, seekbar und ohne KI-Struktur verfügbar",
+      "Kräftige rhythmische Passagen bewegen Helligkeit und Farbe deutlich, leise Töne bleiben ruhig",
+      "Laute Intros bleiben beweglich; unsichere Struktur ist kein erzwungener Ambient-Modus",
+      "Gleicher Rhythmus bleibt in Strophe und Refrain aktiv, der Refrain hat mehr Kontrast",
+      "Ein schwächerer Schlag im durchgehenden Groove lässt die Bewegung nicht aussetzen",
+      "Kräftige Schläge treiben Helligkeit, ohne bei hoher Farbkontur ständig die Farbe zu wechseln",
+      "Ein leiser Anfang verdeckt keinen anhaltenden Aufbau; Flächen und einzelne Endschläge bleiben ruhig",
+      "automatic analysis retains measured offbeat bass attacks for moving-head switching"
+    ],
+    "candidate_lines": [
+      14,
+      15,
+      17,
+      19,
+      27,
+      33,
+      34,
+      35,
+      47,
+      48,
+      51,
+      53,
+      80,
+      91,
+      92,
+      109,
+      117
+    ]
+  },
+  {
+    "file": "test/show-clock.test.mjs",
+    "tests": [
+      "Show-Uhr reserviert den nächsten Sendetermin für den Beat",
+      "Beattermine bleiben über einen ganzen Track erhalten, auch bei nicht-rasterförmigem Tempo",
+      "Show-Uhr wartet auf die tatsächliche Audiozeit und beendet Timer beim Stoppen",
+      "preview captures a short off-grid pulse and its decay at double playback speed"
+    ],
+    "candidate_lines": [
+      41,
+      43,
+      45,
+      46,
+      48
+    ]
+  },
+  {
+    "file": "test/show-colors.test.mjs",
+    "tests": [
+      "steady beats retain a color family; measured phrase changes cue a new one",
+      "legacy comparison: energetic sections alternate contrasting colors on selected musical accents",
+      "a returning chorus recovers its color family instead of continuing a global color counter"
+    ],
+    "candidate_lines": [
+      10,
+      14,
+      25,
+      46
+    ]
+  },
+  {
+    "file": "test/show-patterns.test.mjs",
+    "tests": [
+      "long passages vary on detected bars without assuming four beats per bar",
+      "broad waves, alternating accents and builds have distinct temporal shapes",
+      "patterns are seekable, preserve beat grid and profiles, and keep silence dark",
+      "builds keep rising across visual phrases and waves end continuously",
+      "local style can soften an intense passage and the following entrance stays crisp",
+      "downbeats retain strong alternating accents and internal changes morph deterministically",
+      "strong audible attacks keep driving patterns rather than rotating into soft waves"
+    ],
+    "candidate_lines": [
+      10,
+      13,
+      33,
+      37,
+      39,
+      45,
+      84
+    ]
+  },
+  {
+    "file": "test/show-plan.test.mjs",
+    "tests": [
+      "Vorab-Show nutzt den ganzen Verlauf, bleibt deterministisch und hält Helligkeitsgrenzen ein",
+      "Zeitposition wählt beim Springen sofort das richtige vorberechnete Bild",
+      "Stille erzeugt ruhiges Licht statt erfundener Beats",
+      "Show-Sitzung validiert Lichtbilder, berücksichtigt Weißlampen und stellt Ausgangszustand wieder her",
+      "Ausbleibende Show-Bilder beenden den Ablauf und stellen das Licht wieder her",
+      "Wiederkehrende Klangabschnitte erhalten dieselbe Farbfamilie statt fortlaufendem Farbkreis",
+      "Unveränderter Klang bleibt farblich zusammenhängend, ohne zeitgesteuerte Wanderung",
+      "Gleiche Beats erzeugen trotz anderer Lautstärke und Tonhöhe identische Helligkeit",
+      "Lauter Ton ohne Beats hebt die Mindesthelligkeit nicht an",
+      "Farbglättung verändert keine Beat-Helligkeit",
+      "Kurze Pegelschwankungen zerhacken eine anhaltende Passage nicht",
+      "Frequenzverteilung und Klangtextur verändern Farben, aber niemals Beat-Helligkeit",
+      "Klangverlauf nutzt beide Palettenenden und erhält kräftige Farben bei 100 Prozent Sättigung",
+      "Vorbereitete Bilder werden ohne zusätzlichen Timer weitergeleitet, aber nicht unbegrenzt gesendet"
+    ],
+    "candidate_lines": [
+      9,
+      11,
+      12,
+      21,
+      61,
+      65,
+      69,
+      73,
+      80,
+      93,
+      102,
+      104,
+      106
+    ]
+  },
+  {
+    "file": "test/show-score.test.mjs",
+    "tests": [
+      "sustained loud music develops pictures across phrases without a permanent impact or random playback",
+      "all six families have distinct targets; constant pads do not rotate forms",
+      "contrasts, builds and vocals alter composition; uniform strong attacks do not become repeated hits",
+      "three-beat bars, off-grid arrivals, manual holds and no-grid material remain usable",
+      "phrase occupancy is symmetric for any head count and manual rhythm wins",
+      "convergence uses real mount positions and heights, including predicted room aim",
+      "review exports the active show score and the actual show movement",
+      "a dark transfer prepares a quiet-to-active entrance before the actual beat",
+      "focus survives predictive playback and respects fixture motion range",
+      "unmetered changing sustained music develops from measured expression without invented beat accents",
+      "whole-song context reserves the full ensemble for the strongest contrasting passage",
+      "bar counting alone does not invent new show pictures"
+    ],
+    "candidate_lines": [
+      22,
+      27,
+      28,
+      30,
+      31,
+      35,
+      40,
+      42,
+      43,
+      44,
+      55,
+      66,
+      68,
+      114,
+      131,
+      132,
+      160
+    ]
+  },
+  {
+    "file": "test/song-palette.test.mjs",
+    "tests": [
+      "absolute timbre creates distinct deterministic song palettes, not random per-song colors",
+      "section palettes evolve with measured timbre, constant sound does not acquire a color clock",
+      "choreography and stage use song colors, including two-deck blends and seeks",
+      "track and section overrides take precedence, including one-color holds"
+    ],
+    "candidate_lines": [
+      33,
+      56
+    ]
+  },
+  {
+    "file": "test/spectral-analysis.test.mjs",
+    "tests": [
+      "Spektralanalyse unterscheidet gleich laute Tonhöhen und erhält die Tonklasse über Oktaven",
+      "Spektralanalyse ignoriert Stille und verliert gegenphasiges Stereo nicht",
+      "Vorab-Show stellt Tonwechsel ohne Lautstärkeänderung als geglätteten Farbverlauf dar",
+      "Tonverlaufsband erkennt steigende Töne auch über einem lauteren Bass",
+      "Fünf Frequenzbereiche trennen Bass, Mitten und Höhen und bilden normierte Anteile",
+      "Breitbandiges Rauschen wird von harmonischem Dauerton unterschieden",
+      "Harmonische Profile unterscheiden unterschiedliche Mehrklänge",
+      "Klangänderung ist bei gleichem Spektrum null und reagiert auf veränderte Frequenzanteile"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/spectral-build.test.mjs",
+    "tests": [
+      "spectral rise with falling loudness becomes a build before the pre-drop withdrawal",
+      "bright pads, fades, alternating timbres and a single spectral change are not builds",
+      "compiled show retains spectral evidence and renders the rise separately from its withdrawal"
+    ],
+    "candidate_lines": [
+      14,
+      19,
+      47,
+      48
+    ]
+  },
+  {
+    "file": "test/spotify-playback.test.mjs",
+    "tests": [
+      "single-track playback, pause, seek and cancellation address the SDK device",
+      "missing stream consent is actionable and does not initialize SDK",
+      "late SDK initialization cannot restart playback after stop",
+      "confirmed end advances once; ordinary pause never advances",
+      "mixed queues retain duplicates and provider metadata through saving and copying"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/spotify.test.mjs",
+    "tests": [
+      "PKCE uses S256 and validates state, age, denial and callback origins",
+      "does not send bearer tokens to foreign pagination URLs",
+      "refreshes concurrent requests once, preserving rotated refresh token",
+      "retries a rejected access token once and disconnects on repeated 401",
+      "disconnect during refresh cannot resurrect account",
+      "respects Retry-After without hammering API and explains restricted playlists",
+      "accepts new and legacy playlist items, skips unsupported entries, preserves versions",
+      "only cross-site document navigation to callback is exempt from local request protection",
+      "Spotify artwork accepts provider CDNs and preserves album images",
+      "playback requests use PUT, refreshed access and accept empty 204 responses"
+    ],
+    "candidate_lines": [
+      18,
+      99
+    ]
+  },
+  {
+    "file": "test/stage-motifs.test.mjs",
+    "tests": [
+      "repeated motifs share their first color, distinct and unknown motifs stay separate",
+      "repeated chorus starts repeat movement while retaining current song colors",
+      "quiet passages leave headroom; builds rise without exceeding original brightness",
+      "calm lighting uses the slow base without accents, preserves limits and supports old shows",
+      "shared emphasis follows selected musical attacks without anticipating or inventing beats"
+    ],
+    "candidate_lines": [
+      14,
+      23
+    ]
+  },
+  {
+    "file": "test/stage-motion.test.mjs",
+    "tests": [
+      "loud sustained sound and quiet driving rhythm are classified by character, not level",
+      "legacy pattern engine develops steady music slowly while standout cues stay responsive",
+      "atmospheric auto output does not add a continuous wave or rotate the chosen colors",
+      "current automatic engine uses analyzed evidence and keeps the original cached plan unchanged"
+    ],
+    "candidate_lines": [
+      21,
+      22,
+      23,
+      26,
+      32,
+      46,
+      51,
+      55
+    ]
+  },
+  {
+    "file": "test/structure-analysis.test.mjs",
+    "tests": [
+      "Songstruktur-API cached validierte Ergebnisse und entfernt temporäres Audio",
+      "Songstruktur-API schützt LAN-Zugang und meldet fehlendes Modell und kaputtes Ergebnis",
+      "Abbruch beendet Inferenz, räumt Dateien auf und gibt den Analyseplatz frei"
+    ],
+    "candidate_lines": [
+      16
+    ]
+  },
+  {
+    "file": "test/structure-client.test.mjs",
+    "tests": [
+      "client preserves instrument results without a deadline",
+      "lost connection retries once only when the service is idle"
+    ],
+    "candidate_lines": [
+      17
+    ]
+  },
+  {
+    "file": "test/style-analysis.test.mjs",
+    "tests": [
+      "style API validates PCM and caches successful model output",
+      "style inference requires access token and rejects invalid timelines",
+      "one style job at a time; cancellation releases the slot",
+      "missing style model falls back explicitly; cancellation is propagated"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/tidal.test.mjs",
+    "tests": [
+      "TIDAL PKCE binds state, callback, expiry and read-only scopes",
+      "TIDAL never sends credentials to foreign pagination hosts",
+      "concurrent TIDAL reads refresh once; disconnect cancels late token install",
+      "TIDAL respects rate limits and retries 401 only once",
+      "TIDAL JSON:API resolves covers, artists and ISO durations, preserving duplicate playlist entries"
+    ],
+    "candidate_lines": [
+      9,
+      38
+    ]
+  },
+  {
+    "file": "test/transition-audio.test.mjs",
+    "tests": [
+      "RMS profile follows actual positions and playback rates, rejecting missing or silent audio",
+      "Dynamic curves reduce the RMS dip across arbitrary levels while preserving endpoints and gain bounds",
+      "Manual partial fades and muted channels preserve the linear control relationship",
+      "Aborting automation holds the current value including on browsers without cancelAndHoldAtTime",
+      "custom points independently shape each deck and preserve handover endpoints",
+      "invalid custom curves fall back to the standard fade without invalid audio values"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/transition-library.test.mjs",
+    "tests": [
+      "directed variants preserve identity, names and independent queued copies",
+      "missing/replaced files and tempo mismatches are rejected, lighting reanalysis is allowed",
+      "tempo context and rate-dependent duration bounds survive saving"
+    ],
+    "candidate_lines": [
+      14
+    ]
+  },
+  {
+    "file": "test/transition-preview.test.mjs",
+    "tests": [
+      "manual transition updates a copy and clears stale audio curve analysis",
+      "edits validate both track ends and playback rates",
+      "time edits retain own control points; choosing another style resets them",
+      "single proposal gains editable templates without pretending they are analyzed"
+    ],
+    "candidate_lines": [
+      31
+    ]
+  },
+  {
+    "file": "test/transition-status.test.mjs",
+    "tests": [
+      "transition readiness requires two prepared and accessible decks",
+      "background analysis distinguishes usable fallback from final pair plan"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/transition-timeline.test.mjs",
+    "tests": [
+      "timeline start positions preserve overlap and cannot cross either file boundary",
+      "shared overlap length respects both source rates and duration limits"
+    ],
+    "candidate_lines": []
+  },
+  {
+    "file": "test/vr-preview.test.mjs",
+    "tests": [
+      "preview sends complete snapshots, reconnects with latest state, and isolates the LAN reader",
+      "invalid geometry is rejected before relaying",
+      "configured preview port remains stable and reports conflicts instead of silently changing",
+      "paired headset can queue limited commands, publisher acknowledges once, read link cannot control",
+      "fixed test path pairs latest active preview with controls and survives session replacement",
+      "room plans cross the paired headset bridge, validate geometry and are acknowledged once",
+      "imported GLB geometry survives the headset stream and return transfer",
+      "LAN preview serves the full recursive module graph, including room and zone dependencies",
+      "remembered preview token survives a new server instance and changed session code"
+    ],
+    "candidate_lines": [
+      12,
+      14,
+      27,
+      28,
+      29,
+      52,
+      81,
+      86
+    ]
+  }
+]

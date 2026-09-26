@@ -20,7 +20,7 @@ test('ten distinct paths evolve through the second half and have smooth endpoint
   for(const progress of [0,1])assert.ok(at(progress).every(p=>Math.hypot(p.x,p.y)<1e-10));
   assert.ok(at(.00001).every(p=>Math.hypot(p.x,p.y)<1e-8));
  }
- assert.equal(signatures.size,10);
+ assert.equal(signatures.size,GROUP_MOTIONS.length);
 });
 test('group inference is independent of insertion order, supports explicit groups and irregular mounts',()=>{
  const room=largeClubRoom(),fixtures=Object.entries(room.positions).filter(([,p])=>p.type==='moving').map(([id,position])=>({id,position}));
