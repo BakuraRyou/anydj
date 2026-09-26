@@ -57,15 +57,15 @@ test('lens glare disappears behind the head and changes continuously with the vi
   }
 });
 
-test('visible optics still use one quad per beam and lens, and add nothing during blackout',()=>{
+test('visible optics use a bounded clipped polygon per beam and one quad per lens, and add nothing during blackout',()=>{
   const scene=createStageGpuScene(),layout={width:8,depth:6,height:3,room:true,positions:{}};
   const camera={mode:'dancer',x:0,y:0,eyeHeight:1.7,yaw:0,pitch:0,zoom:1};
   const lights=Array.from({length:20},(_,i)=>({id:String(i),type:'moving',power:.22,color:'#20eecc',position:{x:-3.5+i*7/19,y:5,height:2.5},target:{x:0,y:2,z:0}}));
   const original=structuredClone(lights);
-  const count=(frame,kind)=>{let n=0;for(let i=9;i<frame.vertices.length;i+=10)if(frame.vertices[i]===kind)n++;return n;};
+  const count=(frame,kind)=>{let n=0;for(let i=10;i<frame.vertices.length;i+=11)if(frame.vertices[i]===kind)n++;return n;};
   const frame=scene.build(640,360,layout,lights,camera);
-  assert.equal(count(frame,1),20*6);assert.equal(count(frame,2),20*6);
+  assert.ok(count(frame,8)>=20*6&&count(frame,8)<=20*9);assert.equal(count(frame,2),20*6);
   assert.deepEqual(lights,original,'preview exposure does not modify fixture output');
   const dark=scene.build(640,360,layout,lights.map(l=>({...l,power:0})),camera);
-  assert.equal(count(dark,1),0);assert.equal(count(dark,2),0);
+  assert.equal(count(dark,8),0);assert.equal(count(dark,2),0);
 });

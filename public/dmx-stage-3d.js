@@ -28,26 +28,26 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
   const fullButton=panel.querySelector('[data-stage3d-full]'),fullControls=panel.querySelector('.stage-3d-full-controls');
   let workspace=null,vr=null,share=null,planner=null;
   let full=false,returnExpanded=false,returnFocus=expand;
-  const transport=createStageTransport(panel,{isVisible:()=>dialog.open&&!full});
-  const fullTransport=createStageFullTransport(panel,{dialog,topControls:fullControls,canvas:panel.querySelector('canvas')});
-  dialog.addEventListener('keydown',event=>{if(event.target===canvas&&navigateKey(event))return;if(event.target.closest('[data-layout-map],.light-editor,.stage-ar-planner,.stage-3d-full-transport,.stage-3d-full-controls'))return;transport.handleShortcut(event);if(event.defaultPrevented)event.stopPropagation();},{capture:true});
+  const transport=createStageTransport(panel,{isVisible:()=>dialog.open});
+  const fullTransport=createStageFullTransport(panel,{dialog,topControls:fullControls,canvas:panel.querySelector('canvas'),onDeckTools:id=>{transport.vrCommand({action:'select',deck:id});workspace.show('music');}});
+  dialog.addEventListener('keydown',event=>{if(event.target===canvas&&navigateKey(event))return;if(event.target.closest('[data-layout-map],.light-editor,.stage-ar-planner,.stage-3d-inspector,.stage-3d-tool-tabs,.stage-3d-full-transport,.stage-3d-full-controls'))return;transport.handleShortcut(event);if(event.defaultPrevented)event.stopPropagation();},{capture:true});
   function leaveFull(){
     stopWalking();
-    full=false;fullTransport.setActive(false);dialog.classList.remove('stage-3d-full');fullControls.hidden=true;fullButton.setAttribute('aria-pressed','false');
+    full=false;fullTransport.setActive(returnExpanded);dialog.classList.remove('stage-3d-full');fullControls.hidden=true;fullButton.setAttribute('aria-pressed','false');fullButton.textContent='Vollbild';
     if(returnExpanded){fullButton.focus();requestDraw();}else dialog.close();
   }
   fullButton.onclick=()=>{
-    if(full)return;returnFocus=fullButton;
+    if(full){leaveFull();return;}returnFocus=fullButton;
     returnExpanded=dialog.open;full=true;
-    dialog.classList.add('stage-3d-full');fullControls.hidden=false;fullControls.querySelector('span').textContent=camera.mode==='dancer'?'WASD: gehen · Links ziehen: umsehen · Rechts ziehen: verschieben · Mausrad: vor / zurück · Esc: Vollbild verlassen':'Mausrad: vor / zurück · Links ziehen: drehen · Rechts ziehen: verschieben · Esc: Vollbild verlassen';fullButton.setAttribute('aria-pressed','true');
+    dialog.classList.add('stage-3d-full');fullControls.hidden=false;fullControls.querySelector('span').textContent=camera.mode==='dancer'?'WASD: gehen · Links ziehen: umsehen · Rechts ziehen: verschieben · Mausrad: vor / zurück · Esc: Vollbild verlassen':'Mausrad: vor / zurück · Links ziehen: drehen · Rechts ziehen: verschieben · Esc: Vollbild verlassen';fullButton.setAttribute('aria-pressed','true');fullButton.textContent='Fensteransicht';
     if(!dialog.open){dialog.append(panel);expand.textContent='Schließen';dialog.showModal();}
     dialog.scrollTop=0;canvas.focus({preventScroll:true});fullTransport.setActive(true);requestDraw();
   };
   panel.querySelector('[data-stage3d-full-close]').onclick=leaveFull;
   dialog.addEventListener('cancel',event=>{event.preventDefault();if(full)leaveFull();else dialog.close();});
-  expand.onclick=()=>{returnFocus=expand;if(dialog.open){dialog.close();return;}dialog.append(panel);expand.textContent='Schließen';dialog.showModal();requestDraw();};
-  dialog.addEventListener('keydown',event=>{if(event.key==='Escape'&&!event.defaultPrevented){event.preventDefault();event.stopPropagation();if(full)leaveFull();else dialog.close();}});
-  dialog.addEventListener('close',()=>{void vr?.stop();stopWalking();if(disposed)return;workspace?.close();full=false;fullTransport.setActive(false);dialog.classList.remove('stage-3d-full');fullControls.hidden=true;fullButton.setAttribute('aria-pressed','false');marker.after(panel);expand.textContent='Große Ansicht';returnFocus.focus();requestDraw();});
+  expand.onclick=()=>{returnFocus=expand;if(dialog.open){dialog.close();return;}dialog.append(panel);expand.textContent='Schließen';dialog.showModal();fullTransport.setActive(true);requestDraw();};
+  dialog.addEventListener('keydown',event=>{if(event.key==='Escape'&&!event.defaultPrevented){event.preventDefault();event.stopPropagation();if(workspace?.dismiss())return;if(full)leaveFull();else dialog.close();}});
+  dialog.addEventListener('close',()=>{void vr?.stop();stopWalking();if(disposed)return;workspace?.close();full=false;fullTransport.setActive(false);dialog.classList.remove('stage-3d-full');fullControls.hidden=true;fullButton.setAttribute('aria-pressed','false');fullButton.textContent='Vollbild';marker.after(panel);expand.textContent='Große Ansicht';returnFocus.focus();requestDraw();});
   const canvas=panel.querySelector('canvas'),ctx=canvas.getContext('2d'),status=panel.querySelector('[role=status]');
   let enabled=false,disposed=false,visible=true,renderer=null,graphics=null,moveCamera=null,loading=null,raf=0,viewportSize=null,lights=[],moving=[],drag=null;
   const room=createRoomSettings(panel,{getLayout,onChange:()=>{if(room.value.enabled){dancer.y=Math.max(.15,dancer.y);q('dancer-aim').checked=false;}syncDancer();requestDraw();}});

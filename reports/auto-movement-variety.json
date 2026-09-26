@@ -1,0 +1,135 @@
+{
+  "before": {
+    "cues": 67,
+    "formations": [
+      "parallel",
+      "cross",
+      "fan"
+    ],
+    "changes": [
+      {
+        "time": 4,
+        "formation": "parallel"
+      },
+      {
+        "time": 16,
+        "formation": "cross"
+      },
+      {
+        "time": 18,
+        "formation": "parallel"
+      },
+      {
+        "time": 20,
+        "formation": "fan"
+      },
+      {
+        "time": 22,
+        "formation": "parallel"
+      },
+      {
+        "time": 36,
+        "formation": "fan"
+      },
+      {
+        "time": 44,
+        "formation": "parallel"
+      },
+      {
+        "time": 58,
+        "formation": "fan"
+      },
+      {
+        "time": 60,
+        "formation": "parallel"
+      },
+      {
+        "time": 98,
+        "formation": "fan"
+      },
+      {
+        "time": 102.02,
+        "formation": "parallel"
+      }
+    ]
+  },
+  "after": {
+    "cues": 67,
+    "formations": [
+      "parallel",
+      "cross",
+      "wings",
+      "fan"
+    ],
+    "changes": [
+      {
+        "time": 4,
+        "formation": "parallel"
+      },
+      {
+        "time": 12.16,
+        "formation": "cross"
+      },
+      {
+        "time": 16,
+        "formation": "wings"
+      },
+      {
+        "time": 18,
+        "formation": "cross"
+      },
+      {
+        "time": 20,
+        "formation": "fan"
+      },
+      {
+        "time": 22,
+        "formation": "wings"
+      },
+      {
+        "time": 24,
+        "formation": "cross"
+      },
+      {
+        "time": 29.5,
+        "formation": "wings"
+      },
+      {
+        "time": 32,
+        "formation": "cross"
+      },
+      {
+        "time": 34,
+        "formation": "wings"
+      },
+      {
+        "time": 42,
+        "formation": "cross"
+      },
+      {
+        "time": 58,
+        "formation": "fan"
+      },
+      {
+        "time": 60,
+        "formation": "wings"
+      },
+      {
+        "time": 96,
+        "formation": "cross"
+      },
+      {
+        "time": 98,
+        "formation": "fan"
+      },
+      {
+        "time": 102.02,
+        "formation": "wings"
+      },
+      {
+        "time": 103.52,
+        "formation": "cross"
+      }
+    ]
+  }
+}

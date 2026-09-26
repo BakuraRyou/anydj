@@ -1,14 +1,15 @@
-import {lightProfile,lightFootprint,beamSurfacePatches} from './dmx-light-geometry.js';
+import {beamVolume,sampleBeamVolume,volumeCorners} from './dmx-beam-volume.js';
+import {lightProfile,lightFootprint,beamSurfacePatches,previewOpticalRays,clipBeamReceiver} from './dmx-light-geometry.js';
 export {lightProfile} from './dmx-light-geometry.js';
 import {createSurfaceLighting} from './dmx-surface-light.js';
 import {surfaceTriangles} from './dmx-room-mesh.js';
 import {roomStyles,roomStyleId,drawRoomMaterial,sceneEnvironmentBrightness,environmentColor} from './dmx-room-style.js';
-import {triangulateFloor,insideRoom} from './dmx-ar-model.js';
+import {triangulateFloor} from './dmx-ar-model.js';
 // Standalone software 3D renderer. World axes: x across, y into stage, z up.
 // No DOM, DMX output, music analysis or external dependencies.
-const add=(a,b)=>a.map((v,i)=>v+b[i]);
-const mul=(a,s)=>a.map(v=>v*s);
-const dot=(a,b)=>a.reduce((s,v,i)=>s+v*b[i],0);
+const add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+const mul=(a,s)=>[a[0]*s,a[1]*s,a[2]*s];
+const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 const unit=a=>mul(a,1/(Math.hypot(...a)||1));
 // Clip geometry crossing the eye plane instead of dropping whole beams/floors.
@@ -216,6 +217,22 @@ function lightSprite(kind,color){
   if(lightSprites.size>=96)lightSprites.delete(lightSprites.keys().next().value);
   lightSprites.set(key,canvas);return canvas;
 }
+// Reused small mask; evaluated at draw time so queued beams do not share contents.
+let volumeSprite=null;
+let contactSprite=null;
+function softenBeamContact(sprite,contact){
+ if(!contact)return sprite;
+ contactSprite??=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(96,192):globalThis.document?.createElement('canvas');
+ if(!contactSprite)return sprite;
+ const canvas=contactSprite;if(canvas.width!==96)canvas.width=96;if(canvas.height!==192)canvas.height=192;
+ const ctx=canvas.getContext('2d');if(!ctx)return sprite;
+ const gx=(contact[1]-contact[0])/96,gy=(contact[3]-contact[0])/192,n=gx*gx+gy*gy;
+ if(n<1e-12)return sprite;
+ ctx.clearRect(0,0,96,192);ctx.globalCompositeOperation='source-over';ctx.drawImage(sprite,0,0);
+ const x=-contact[0]*gx/n,y=-contact[0]*gy/n,mask=ctx.createLinearGradient(x,y,x+gx/n,y+gy/n);
+ for(const t of [0,.125,.25,.5,.75,.875,1])mask.addColorStop(t,`rgba(255,255,255,${t*t*(3-2*t)})`);
+ ctx.globalCompositeOperation='destination-in';ctx.fillStyle=mask;ctx.fillRect(0,0,96,192);ctx.globalCompositeOperation='source-over';return canvas;
+}
 let floorGrain=null;
 function floorTexture(){
   if(floorGrain)return floorGrain;
@@ -239,7 +256,7 @@ export function renderStage3d(ctx,width,height,layout,lights,camera,crowd=[],tim
   ctx.clearRect(0,0,width,height);
   const ambient=sceneEnvironmentBrightness(layout);
   const bg=ctx.createLinearGradient(0,0,0,height);bg.addColorStop(0,environmentColor('#080e19',ambient));bg.addColorStop(1,environmentColor('#192a3b',ambient));ctx.fillStyle=bg;ctx.fillRect(0,0,width,height);
-  drawStageGeometry(layout,lights,crowd,time,{polygon,paint,footprint,beam,lens,floorSurface,eye:project.eye,wallVisible:(a,b,winding)=>winding*((b[0]-a[0])*(project.eye[1]-a[1])-(b[1]-a[1])*(project.eye[0]-a[0]))>=0,thickness:p=>Math.max(.8,Math.min(5,height*.022/Math.max(.3,project.depth(p))))});
+  drawStageGeometry(layout,lights,crowd,time,{polygon,paint,footprint,beam,lens,floorSurface,surfaceLayers:Math.max(32,Math.min(96,Math.floor(768/Math.max(1,lights.filter(l=>l.power>0).length)))),eye:project.eye,wallVisible:(a,b,winding)=>winding*((b[0]-a[0])*(project.eye[1]-a[1])-(b[1]-a[1])*(project.eye[0]-a[0]))>=0,thickness:p=>Math.max(.8,Math.min(5,height*.022/Math.max(.3,project.depth(p))))});
   drawStageLabel(ctx,width,height,layout,camera,project);
   function footprint(center,radius,stretch,angle,color,strength,floorFaces,type){
     if(!ctx.createRadialGradient||project.depth(center)<=.08)return false;
@@ -260,7 +277,32 @@ export function renderStage3d(ctx,width,height,layout,lights,camera,crowd=[],tim
     for(const face of faces){const points=clipNear(face.map(p=>[...p,.006]),project.depth);if(points.length<3)continue;points.map(project).forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();}
     ctx.clip();ctx.globalAlpha=ambient/100;ctx.fillStyle=ctx.createPattern(texture,'repeat');ctx.fillRect(0,0,width,height);ctx.restore();
   }
-  function beam(start,end,radius,color,power){
+  function beam(start,end,radius,color,power,ray){
+    const volume=beamVolume(ray,layout);
+    volumeSprite??=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(1,1):globalThis.document?.createElement('canvas');
+    if(volume&&volumeSprite){
+      const corners=volumeCorners(volume).map(project),near=corners.some(p=>p.depth<=.08);
+      const left=near?0:Math.max(0,Math.floor(Math.min(...corners.map(p=>p.x)))),top=near?0:Math.max(0,Math.floor(Math.min(...corners.map(p=>p.y))));
+      const right=near?width:Math.min(width,Math.ceil(Math.max(...corners.map(p=>p.x)))),bottom=near?height:Math.min(height,Math.ceil(Math.max(...corners.map(p=>p.y))));
+      if(right<=left||bottom<=top)return true;
+      const scale=Math.min(.5,Math.sqrt(12000/Math.max(1,lights.reduce((n,l)=>n+(l.power>0?(l.prism===3?3:1)*(l.gobo==='triad'?3:1):0),0))/((right-left)*(bottom-top))));
+      const w=Math.max(1,Math.ceil((right-left)*scale)),h=Math.max(1,Math.ceil((bottom-top)*scale));
+      const forward=[-Math.sin(camera.yaw)*Math.cos(camera.pitch),Math.cos(camera.yaw)*Math.cos(camera.pitch),-Math.sin(camera.pitch)];
+      const rightVector=unit(cross(forward,[0,0,1])),up=cross(rightVector,forward),focal=camera.mode==='dancer'?width/(2*Math.tan(Math.PI/5)):Math.min(width,height)*1.2;
+      queue.push({depth:(project.depth(start)+project.depth(end))/2,draw:()=>{
+        const buffer=volumeSprite;buffer.width=w;buffer.height=h;const raster=buffer.getContext('2d',{willReadFrequently:true});
+        const rgb=color.startsWith('#')?[1,3,5].map(i=>parseInt(color.slice(i,i+2),16)):(color.match(/[\d.]+/g)||[0,0,0]).slice(0,3).map(Number),pixels=raster.createImageData(w,h),direction=[0,0,0];
+        for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+          const sx=(left+(x+.5)*(right-left)/w-width/2)/focal,sy=(height/2-top-(y+.5)*(bottom-top)/h)/focal;
+          for(let k=0;k<3;k++)direction[k]=forward[k]+rightVector[k]*sx+up[k]*sy;
+          const norm=Math.hypot(...direction);for(let k=0;k<3;k++)direction[k]/=norm;
+          const alpha=sampleBeamVolume(volume.data,project.eye,direction,4),i=(y*w+x)*4;
+          pixels.data[i]=rgb[0];pixels.data[i+1]=rgb[1];pixels.data[i+2]=rgb[2];pixels.data[i+3]=Math.round(alpha*255);
+        }
+        raster.putImageData(pixels,0,0);ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=previewLightExposure(power);ctx.imageSmoothingEnabled=true;ctx.drawImage(buffer,left,top,right-left,bottom-top);ctx.restore();
+      }});return true;
+    }
+
     if(project.depth(start)<=.1||project.depth(end)<=.1)return false;
     const a=project(start),b=project(end),dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy);
     if(length<2)return true;
@@ -268,7 +310,10 @@ export function renderStage3d(ctx,width,height,layout,lights,camera,crowd=[],tim
     const r=beamHaloScale*Math.max(1,Math.hypot(edge.x-b.x,edge.y-b.y)),sprite=lightSprite('beam',color);
     if(!sprite)return false;
     const response=previewBeamResponse(start,end,project.eye,radius);
-    queue.push({depth:(a.depth+b.depth)/2,draw:()=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=Math.min(1,previewLightExposure(power)*response);ctx.transform(dy/length*r,-dx/length*r,dx,dy,a.x,a.y);ctx.drawImage(sprite,-1,0,2,1);ctx.restore();}});return true;
+    const side=unit(cross(add(end,mul(start,-1)),add(project.eye,mul(start,-1)))),worldRadius=radius*beamHaloScale;
+    const quad=[add(start,mul(side,-worldRadius)),add(start,mul(side,worldRadius)),add(end,mul(side,worldRadius)),add(end,mul(side,-worldRadius))];
+    const receiver=clipBeamReceiver(quad,[[-1,0],[1,0],[1,1],[-1,1]],ray,layout,Math.max(.04,worldRadius*.8)),clipped=receiver.points.map(project);
+    queue.push({depth:(a.depth+b.depth)/2,draw:()=>{ctx.save();ctx.beginPath();clipped.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));ctx.closePath();ctx.clip();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=Math.min(1,previewLightExposure(power)*response);ctx.transform(dy/length*r,-dx/length*r,dx,dy,a.x,a.y);ctx.drawImage(softenBeamContact(sprite,receiver.contact),-1,0,2,1);ctx.restore();}});return true;
   }
   function lens(center,radius,color,power){
     if(power<=0||project.depth(center)<=.1)return;
@@ -290,16 +335,22 @@ export function drawStageLabel(ctx,width,height,layout,camera,project=stageCamer
   if(front.depth>0){ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillStyle=environmentColor('#b0c8d4',ambient);ctx.fillText(layout.roomPlan?layout.roomPlan.name:layout.room?'CLUB · TANZ- & LICHTFLÄCHE':'TANZFLÄCHE',front.x,front.y);}
 }
 
+const fixtureBoxes=new Map();
+const lensCircles=new Map([8,16].map(n=>[n,Array.from({length:n},(_,i)=>[Math.cos(i*Math.PI*2/n),Math.sin(i*Math.PI*2/n)])]));
 // Shared world geometry: desktop canvas and stereoscopic WebXR use the same scene.
-export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{},thickness=()=>1,footprint=null,beam=null,lens=null,floorSurface=null,wallVisible=()=>true,eye=null}){
+export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{},thickness=()=>1,footprint=null,beam=null,lens=null,floorSurface=null,surfacePatch=null,surfaceLayers=undefined,projectSurfaces=beamSurfacePatches,fixtureDetail=()=>true,wallVisible=()=>true,eye=null}){
   const ambient=layout.ar?100:sceneEnvironmentBrightness(layout),rawPolygon=polygon,colors=new Map();
   const surfaceLight=createSurfaceLighting(layout.ar?[]:lights,ambient,[0,layout.depth/2,(layout.height||3)/2]);
   const dim=color=>{if(!color)return color;if(!colors.has(color))colors.set(color,environmentColor(color,ambient));return colors.get(color);};
   polygon=(points,fill,alpha=1,stroke=null,lineWidth=.7,emissive=false)=>rawPolygon(points,emissive?fill:fill&&points.length>=3?surfaceLight(points,fill):dim(fill),alpha,emissive?stroke:dim(stroke),lineWidth,emissive);
   const line=(a,b,color)=>polygon([a,b],null,1,color);
   const box=(p,size,rotation=0,pitch=0)=>{
+    const key=[...p,...size,rotation,pitch].join(',');let v=fixtureBoxes.get(key);
+    if(v){fixtureBoxes.delete(key);fixtureBoxes.set(key,v);}else{
     const [x,y,z]=p,[w,d,h]=size;
-    const v=[[-w,-d,0],[w,-d,0],[w,d,0],[-w,d,0],[-w,-d,h*.88],[w,-d,h*.88],[w,d,h*.88],[-w,d,h*.88],[-w*.85,-d*.85,h],[w*.85,-d*.85,h],[w*.85,d*.85,h],[-w*.85,d*.85,h]].map(v=>[v[0],v[1]*Math.cos(pitch)-(v[2]-h/2)*Math.sin(pitch),v[1]*Math.sin(pitch)+(v[2]-h/2)*Math.cos(pitch)+h/2]).map(v=>add([v[0]*Math.cos(rotation)-v[1]*Math.sin(rotation),v[0]*Math.sin(rotation)+v[1]*Math.cos(rotation),v[2]],[x,y,z]));
+    v=[[-w,-d,0],[w,-d,0],[w,d,0],[-w,d,0],[-w,-d,h*.88],[w,-d,h*.88],[w,d,h*.88],[-w,d,h*.88],[-w*.85,-d*.85,h],[w*.85,-d*.85,h],[w*.85,d*.85,h],[-w*.85,d*.85,h]].map(v=>[v[0],v[1]*Math.cos(pitch)-(v[2]-h/2)*Math.sin(pitch),v[1]*Math.sin(pitch)+(v[2]-h/2)*Math.cos(pitch)+h/2]).map(v=>add([v[0]*Math.cos(rotation)-v[1]*Math.sin(rotation),v[0]*Math.sin(rotation)+v[1]*Math.cos(rotation),v[2]],[x,y,z]));
+    fixtureBoxes.set(key,v);if(fixtureBoxes.size>1024)fixtureBoxes.delete(fixtureBoxes.keys().next().value);
+    }
     for(let i=0;i<4;i++)polygon([v[4+i],v[4+(i+1)%4],v[8+(i+1)%4],v[8+i]],'#394650');
     [[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[8,9,10,11]].forEach((face,i)=>polygon(face.map(j=>v[j]),['#222b34','#303c47','#151d25','#1b252e','#46535e'][i],1,null));
   };
@@ -335,7 +386,9 @@ export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{}
   }else line([-w,0,.01],[w,0,.01],'#9abec8');paint();
   }
   const ceilingBoundary=layout.roomPlan?.boundary||[[-w,-danceDepth],[w,-danceDepth],[w,d],[-w,d]],ceilingHeight=layout.height||3;
-  if(!layout.ar&&eye&&eye[2]<ceilingHeight&&insideRoom([eye[0],eye[1]],ceilingBoundary)&&(!layout.roomPlan||layout.roomPlan.representation==='style')){
+  // The underside is visible from below even when the orbit camera sits
+  // outside the floor boundary. Overhead planning views keep the roof open.
+  if(!layout.ar&&eye&&eye[2]<ceilingHeight&&(!layout.roomPlan||layout.roomPlan.representation==='style')){
     for(const face of triangulateFloor(ceilingBoundary))polygon(face.map(p=>[...p,ceilingHeight]),material.wall);paint();
   }
   for(const zone of layout.ar?[]:layout.zones||[]){
@@ -354,13 +407,19 @@ export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{}
       result=next;
     }return result;
   };
-  for(const light of layout.ar?[]:lights){
+  const opticalRays=new Map(lights.map(light=>[light,previewOpticalRays(light,layout)]));
+  for(const light of layout.ar?[]:[...opticalRays.values()].flat()){
     if(light.power<=0)continue;
-    const {height,length,radius,stretch,angle}=lightFootprint(light),profile=lightProfile(light.type,light.beamAngle);
+    const {height,length,radius,stretch,angle}=lightFootprint(light),profile=lightProfile(light.type,light.beamAngle,light.previewAperture);
     const p=[light.position.x,light.position.y,height],t=[light.target.x,light.target.y,light.target.z||.012];
     const strength=Math.min(1,light.power)*profile.power/(1+.015*length*length);
-    if(light.type==='moving'&&!layout.roomPlan?.positions[light.id]?.wallTarget){
-      for(const patch of beamSurfacePatches(light,layout,floorFaces))polygon(patch.points,light.color,strength*patch.alpha,null,.7,true);
+    // All fixture cones illuminate every receiving plane, including broad washes.
+    // Explicit wall-only regions are clipped inside the shared projector.
+    if(!layout.roomPlan?.positions?.[light.id]?.wallTarget||light.wallIndex>=0){
+      for(const patch of projectSurfaces(light,layout,floorFaces,{smooth:!!surfacePatch,layers:surfaceLayers})){
+       if(surfacePatch)surfacePatch(patch,light.color,strength);
+       else polygon(patch.points,light.color,strength*patch.alpha,null,.7,true);
+      }
       continue;
     }
     if(light.wallIndex>=0){
@@ -390,13 +449,14 @@ export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{}
   const bodies=new Set();
   for(const light of lights){
     const p=[light.position.x,light.position.y,light.position.height],t=[light.target.x,light.target.y,light.target.z||.025];
+    const detailed=layout.selectedFixture===light.id||fixtureDetail(light,p);
     // A subtle suspension line anchors fixtures in space.
     if(layout.ar||layout.selectedFixture===light.id)line([p[0],p[1],0],p,'#314858');
     if(!light.modelSize&&light.type!=='moving')box(add(p,[0,0,.04]),light.type==='bar'?[.12,.08,.12]:[.17,.17,.22]);
     else if(!bodies.has(light.id)){
       bodies.add(light.id);const size=light.modelSize||{width:.34,depth:.34,height:.44},a=(light.rotation||0)*Math.PI/180,position=layout.positions?.[light.id]||light.position,base=[position.x,position.y,light.modelSize?position.height:lightFootprint(light).height-size.height*.71];
       const pitch=light.aimed?Math.atan2(lightFootprint(light).height-t[2],Math.hypot(t[0]-base[0],t[1]-base[1])):0;
-      if(light.type==='moving'){
+      if(light.type==='moving'&&detailed){
         const headAngle=(light.aimRotation??light.rotation??0)*Math.PI/180;
         const local=(x,y,z)=>[base[0]+x*Math.cos(headAngle)-y*Math.sin(headAngle),base[1]+x*Math.sin(headAngle)+y*Math.cos(headAngle),base[2]+z];
         box(base,[size.width/2,size.depth/2,size.height*.18],a);
@@ -410,11 +470,12 @@ export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{}
     if(light.aimed&&light.modelSize)p[2]+=light.modelSize.height*(light.type==='moving'?.71:.5);
     if(Number.isFinite(light.emissionHeight))p[2]=light.emissionHeight;
     const axis=unit(add(t,mul(p,-1))),u=unit(cross(axis,Math.abs(axis[1])<.9?[0,1,0]:[0,0,1])),v=cross(axis,u);
-    const ring=(center,r)=>Array.from({length:16},(_,i)=>add(center,add(mul(u,Math.cos(i*Math.PI/8)*r),mul(v,Math.sin(i*Math.PI/8)*r))));
+    const segments=detailed?16:8;
+    const ring=(center,r)=>lensCircles.get(segments).map(([c,s])=>{c*=r;s*=r;return [center[0]+(u[0]*c+v[0]*s),center[1]+(u[1]*c+v[1]*s),center[2]+(u[2]*c+v[2]*s)];});
     const front=add(p,mul(axis,light.aimed&&light.modelSize?light.modelSize.depth*(light.type==='moving'?.42:.5)+.01:.08));
     polygon(ring(add(front,mul(axis,-.003)),.15),'#424b54',1);
     polygon(ring(front,.135),'#0b1118',1);
-    for(const sign of [-1,1])for(const side of [-1,1]){
+    if(detailed)for(const sign of [-1,1])for(const side of [-1,1]){
       const center=add(front,add(mul(u,sign*.112),mul(v,side*.112))),r=.009;
       polygon([add(center,mul(u,-r)),add(center,mul(v,r)),add(center,mul(u,r)),add(center,mul(v,-r))],'#5b6269',1);
     }
@@ -422,15 +483,19 @@ export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{}
     (lensPower>0?rawPolygon:polygon)(ring(add(front,mul(axis,.002)),.105),lensPower>0?light.color:'#25313c',Math.max(.3,lensPower));
     lens?.(add(front,mul(axis,.004)),.2,light.color,lensPower);
     if(light.power<=0)continue;
-    const distance=Math.hypot(...add(t,mul(p,-1))),profile=lightProfile(light.type,light.beamAngle),radius=Math.min(profile.maxRadius,distance*profile.spread);
-    const haze=Math.max(0,Math.min(1,layout.hazeDensity??.65)),volumePower=light.power*profile.volume*haze/.65;
-    if(volumePower<=0)continue;
-    if(beam?.(front,t,radius,light.color,volumePower))continue;
-    // A readable haze volume keeps coordinated beam figures visible in XR
-    // and the polygon fallback too. Zero power still emits no volume.
-    for(const [scale,opacity] of [[1,.024],[.65,.034],[.3,.055]]){
-      const start=ring(p,.035*scale),end=ring(t,radius*scale);
-      for(let i=0;i<16;i++)polygon([start[i],start[(i+1)%16],end[(i+1)%16],end[i]],light.color,volumePower*opacity,null,.7,true);
+    for(const ray of opticalRays.get(light)){
+      const target=[ray.target.x,ray.target.y,ray.target.z??.025];
+      const distance=Math.hypot(...add(target,mul(p,-1))),profile=lightProfile(ray.type,ray.beamAngle,ray.previewAperture),radius=Math.min(profile.maxRadius,distance*profile.spread);
+      const haze=Math.max(0,Math.min(1,layout.hazeDensity??.65)),volumePower=ray.power*profile.volume*haze/.65;
+      if(volumePower<=0)continue;
+      if(beam?.(front,target,radius,ray.color,volumePower,ray))continue;
+      // Polygon fallback shares the optical directions and receiving surfaces.
+      const rayAxis=unit(add(target,mul(front,-1))),ru=unit(cross(rayAxis,Math.abs(rayAxis[1])<.9?[0,1,0]:[0,0,1])),rv=cross(rayAxis,ru);
+      const rayRing=(center,r)=>Array.from({length:16},(_,i)=>add(center,add(mul(ru,Math.cos(i*Math.PI/8)*r),mul(rv,Math.sin(i*Math.PI/8)*r))));
+      for(const [scale,opacity] of [[1,.024],[.65,.034],[.3,.055]]){
+        const start=rayRing(front,.035*scale),end=rayRing(target,radius*scale);
+        for(let i=0;i<16;i++){const clipped=clipBeamReceiver([start[i],start[(i+1)%16],end[(i+1)%16],end[i]],[[0,0],[1,0],[1,1],[0,1]],ray,layout);polygon(clipped.points,ray.color,volumePower*opacity,null,.7,true);}
+      }
     }
   }
   // Share the fixture/beam depth queue so people belong to the scene.

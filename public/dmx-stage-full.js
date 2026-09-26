@@ -5,12 +5,12 @@ const setText=(node,value)=>{if(node.textContent!==value)node.textContent=value;
 const setDisabled=(node,value)=>{if(node.disabled!==value)node.disabled=value;};
 
 // A view of the existing decks and mixer; playback stays owned by dj.js.
-export function createStageFullTransport(host,{dialog,topControls,canvas}){
+export function createStageFullTransport(host,{dialog,topControls,canvas,onDeckTools}){
   const section=document.createElement('section');
   section.className='stage-3d-full-transport';section.hidden=true;
   section.setAttribute('aria-label','Decks und Überblendung im Vollbild');
   const deckMarkup=id=>`<article class="stage-3d-mini-deck" data-full-deck="${id}" aria-label="Deck ${id}">
-    <div class="stage-3d-mini-heading"><span class="stage-3d-mini-badge">${id}</span><strong data-full-title>Kein Track geladen</strong><button type="button" class="button" data-full-play disabled aria-label="Deck ${id} abspielen">Play</button></div>
+    <div class="stage-3d-mini-heading"><button type="button" class="stage-3d-mini-badge" data-full-deck-tools aria-label="Deck ${id}: Song laden und Tempo einstellen">${id}</button><strong data-full-title>Kein Track geladen</strong><button type="button" class="button" data-full-play disabled aria-label="Deck ${id} abspielen">Play</button></div>
     <div class="stage-3d-mini-timeline"><canvas width="640" height="80" aria-hidden="true"></canvas><input data-full-seek type="range" min="0" max="1" step="0.01" value="0" disabled aria-label="Abspielposition Deck ${id}"></div>
     <div class="stage-3d-mini-clock"><output data-full-position>0:00</output><span data-full-state>Kein Track</span><span data-full-duration>0:00</span></div>
   </article>`;
@@ -22,6 +22,7 @@ export function createStageFullTransport(host,{dialog,topControls,canvas}){
     <p data-full-status></p>
   </div>${deckMarkup('B')}`;
   host.append(section);
+  const sizeObserver=new ResizeObserver(()=>host.style.setProperty('--stage-deck-height',section.getBoundingClientRect().height+'px'));sizeObserver.observe(section);
   const q=name=>section.querySelector(`[data-full-${name}]`);
   const cards=[...section.querySelectorAll('[data-full-deck]')].map(element=>({
     element,id:element.dataset.fullDeck,title:element.querySelector('[data-full-title]'),play:element.querySelector('[data-full-play]'),seek:element.querySelector('[data-full-seek]'),
@@ -38,6 +39,7 @@ export function createStageFullTransport(host,{dialog,topControls,canvas}){
     clearTimeout(idleTimer);
     if(!active)return;
     idleTimer=setTimeout(()=>{
+      if(!dialog.classList.contains('stage-3d-full')||host.querySelector('.stage-3d-workspace.has-tools,.stage-view-menu[open]')||host.querySelector('.stage-view-toolbar')?.contains(document.activeElement)){scheduleHide();return;}
       if(pointers.size||hovered()||document.activeElement===profile||(keyboardFocus&&ownsFocus())){scheduleHide();return;}
       // Return pointer-initiated focus to the scene before hiding its control.
       if(ownsFocus())canvas.focus({preventScroll:true});
@@ -52,6 +54,7 @@ export function createStageFullTransport(host,{dialog,topControls,canvas}){
     if(wasIdle)update();
     scheduleHide();
   }
+  host.addEventListener('stage-tools-change',reveal,options);
   dialog.addEventListener('pointermove',event=>{hoverPointer=event.pointerType==='mouse'||event.pointerType==='pen';reveal();},options);
   dialog.addEventListener('pointerdown',event=>{if(!active)return;keyboardFocus=false;hoverPointer=event.pointerType==='mouse'||event.pointerType==='pen';pointers.add(event.pointerId);reveal();},options);
   for(const type of ['pointerup','pointercancel'])window.addEventListener(type,event=>{pointers.delete(event.pointerId);if(active)scheduleHide();},options);
@@ -62,6 +65,7 @@ export function createStageFullTransport(host,{dialog,topControls,canvas}){
   // Keep native Space/arrow behavior in controls; Escape still reaches the dialog.
   section.addEventListener('keydown',event=>{if(event.key!=='Escape')event.stopPropagation();},options);
   for(const card of cards){
+    const edit=card.element.querySelector('[data-full-deck-tools]');edit.title='Song laden und Tempo einstellen';edit.onclick=()=>onDeckTools?.(card.id);
     card.play.onclick=()=>{if(!card.play.disabled){api?.toggle(card.id);update();}};
     card.seek.oninput=()=>{if(!card.seek.disabled){api?.seek(card.id,Number(card.seek.value));update();}};
   }
@@ -113,6 +117,6 @@ export function createStageFullTransport(host,{dialog,topControls,canvas}){
       section.hidden=!active||!api;update();
     },
     setActive,
-    destroy(){setActive(false);events.abort();section.remove();}
+    destroy(){setActive(false);sizeObserver.disconnect();events.abort();section.remove();}
   };
 }

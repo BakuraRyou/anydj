@@ -1,0 +1,174 @@
+{
+  "description": "Ceiling seen from an orbit-like camera outside the front wall but below ceiling height.",
+  "layout": {
+    "width": 10,
+    "depth": 8,
+    "height": 4,
+    "room": true,
+    "positions": {},
+    "environmentBrightness": 12
+  },
+  "camera": {
+    "mode": "dancer",
+    "x": 0,
+    "y": -4,
+    "eyeHeight": 2.7,
+    "yaw": 0,
+    "pitch": -0.04,
+    "zoom": 1
+  },
+  "lights": [
+    {
+      "id": "head0",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#ff8b22",
+      "position": {
+        "x": -4.0,
+        "y": 6,
+        "height": 2
+      },
+      "target": {
+        "x": -3.2,
+        "y": 4.5,
+        "z": 4
+      },
+      "targetSurface": "ceiling",
+      "aimed": true,
+      "aimRotation": 0
+    },
+    {
+      "id": "head1",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#16b9f4",
+      "position": {
+        "x": -2.857142857142857,
+        "y": 6,
+        "height": 2
+      },
+      "target": {
+        "x": -2.285714285714286,
+        "y": 4.5,
+        "z": 4
+      },
+      "targetSurface": "ceiling",
+      "aimed": true,
+      "aimRotation": 0
+    },
+    {
+      "id": "head2",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#16b9f4",
+      "position": {
+        "x": -1.7142857142857144,
+        "y": 6,
+        "height": 2
+      },
+      "target": {
+        "x": -1.3714285714285717,
+        "y": 4.5,
+        "z": 4
+      },
+      "targetSurface": "ceiling",
+      "aimed": true,
+      "aimRotation": 0
+    },
+    {
+      "id": "head3",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#ff8b22",
+      "position": {
+        "x": -0.5714285714285716,
+        "y": 6,
+        "height": 2
+      },
+      "target": {
+        "x": -0.4571428571428573,
+        "y": 4.5,
+        "z": 4
+      },
+      "targetSurface": "ceiling",
+      "aimed": true,
+      "aimRotation": 0
+    },
+    {
+      "id": "head4",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#16b9f4",
+      "position": {
+        "x": 0.5714285714285712,
+        "y": 6,
+        "height": 2
+      },
+      "target": {
+        "x": 0.45714285714285696,
+        "y": 4.5,
+        "z": 4
+      },
+      "targetSurface": "ceiling",
+      "aimed": true,
+      "aimRotation": 0
+    },
+    {
+      "id": "head5",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#16b9f4",
+      "position": {
+        "x": 1.7142857142857144,
+        "y": 6,
+        "height": 2
+      },
+      "target": {
+        "x": 1.3714285714285717,
+        "y": 4.5,
+        "z": 4
+      },
+      "targetSurface": "ceiling",
+      "aimed": true,
+      "aimRotation": 0
+    },
+    {
+      "id": "head6",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#ff8b22",
+      "position": {
+        "x": 2.8571428571428568,
+        "y": 6,
+        "height": 2
+      },
+      "target": {
+        "x": 2.2857142857142856,
+        "y": 4.5,
+        "z": 4
+      },
+      "targetSurface": "ceiling",
+      "aimed": true,
+      "aimRotation": 0
+    },
+    {
+      "id": "head7",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#16b9f4",
+      "position": {
+        "x": 4.0,
+        "y": 6,
+        "height": 2
+      },
+      "target": {
+        "x": 3.2,
+        "y": 4.5,
+        "z": 4
+      },
+      "targetSurface": "ceiling",
+      "aimed": true,
+      "aimRotation": 0
+    }
+  ]
+}

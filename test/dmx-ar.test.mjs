@@ -310,15 +310,15 @@ test('live moving heads use the room area while fixed spots stay aimed',async()=
  assert.deepEqual(plan,before);
 });
 
-test('room light footprints illuminate only the ground inside a concave boundary',()=>{
+test('floor light stays inside a concave room boundary',()=>{
  const plan=newRoomPlan(4,4,3);plan.boundary=[[-2,0],[2,0],[2,2],[0,2],[0,4],[-2,4]];plan.positions.lamp={...fixture,type:'spot',x:-1,y:1,height:2,target:{x:0,y:2}};
  const source={...scene(),lights:[{...scene().lights[0],id:'lamp',type:'spot',power:1,color:'#ff6600'}]};
  const footprints=[];const value=applyRoomPlan(source,plan);
- drawStageGeometry(value.layout,value.lights,[],0,{polygon:(points,fill,alpha,stroke,width,emissive)=>{if(emissive&&points.every(p=>Math.abs(p[2]-.012)<1e-8))footprints.push({points,alpha});}});
+ drawStageGeometry(value.layout,value.lights,[],0,{polygon:(points,fill,alpha,stroke,width,emissive)=>{if(emissive&&points.every(p=>p[2]>0&&p[2]<.02))footprints.push({points,alpha});}});
  assert.ok(footprints.length>=10,'soft layers illuminate the room floor');
  for(const {points,alpha} of footprints){assert.ok(alpha>0&&alpha<1);for(const p of points)assert.ok(insideRoom(p,plan.boundary),'no light in the missing room corner');}
  for(const ar of [false,true]){const result=applyRoomPlan({...source,lights:source.lights.map(l=>({...l,power:ar?1:0}))},plan,ar),ground=[];
- drawStageGeometry(result.layout,result.lights,[],0,{polygon:(points,fill,alpha,stroke,width,emissive)=>{if(emissive&&points.every(p=>Math.abs(p[2]-.012)<1e-8))ground.push(points);}});
+ drawStageGeometry(result.layout,result.lights,[],0,{polygon:(points,fill,alpha,stroke,width,emissive)=>{if(emissive&&points.every(p=>p[2]>0&&p[2]<.02))ground.push(points);}});
  assert.equal(ground.length,0,ar?'AR does not paint over the real floor':'blackout emits no floor light');}
 });
 

@@ -36,7 +36,7 @@ import { analyzeStyle } from './style-analysis.js';
 import { analyzeStructure } from './structure-analysis.js';
 import { showFrameAt, transitionFrame } from './show-plan.js';
 import { deckGains, mixDeckFrames, fileIdentity, formatTime, crossfadePosition, automaticFadeSource } from './dj-model.js';
-import { readShow, saveShow, readLibrary, saveTrack, removeTrack, readFolder, saveFolder, saveFolderChanges, readQueue, saveQueue, readQueueLists, saveQueueLists, readTransitionLibrary, saveTransitionLibrary } from './dj-library.js';
+import { libraryTracks, readShow, saveShow, readLibrary, saveTrack, removeTrack, readFolder, saveFolder, saveFolderChanges, readQueue, saveQueue, readQueueLists, saveQueueLists, readTransitionLibrary, saveTransitionLibrary } from './dj-library.js';
 
 import {scanFolder, folderChanges, audioFile} from './dj-folder.js';
 
@@ -623,7 +623,7 @@ async function addFiles(entries) {
     if(file.size>50*1024*1024) {notice(`${file.name}: maximal 50 MB pro Track.`,true); continue;}
     let track = tracks.find(t => !t.folderId && fileIdentity(t) === fileIdentity(file));
     if(track) {track.file = file; track.queuePreparationError=null; track.handle = handle || track.handle; if(track.failed) {track.failed=false; track.state='Wartet auf Analyse';}}
-    else {track = {id:crypto.randomUUID(),name:file.name,size:file.size,lastModified:file.lastModified,order:tracks.length,file,handle:handle||null,state:'Wartet auf Analyse'}; tracks.push(track);}
+    else {track = {id:crypto.randomUUID(),name:file.name,size:file.size,lastModified:file.lastModified,order:tracks.length,addedAt:Date.now(),file,handle:handle||null,state:'Wartet auf Analyse'}; tracks.push(track);}
     await persist(track); added.push(track);
   }
   renderLibrary(); void prepareTracks(); return added;
@@ -667,16 +667,17 @@ function groupTrackActions(row,compact=false) {
   row.append(actions);
 }
 const localCovers=createLocalCovers({save:persist,changed:()=>renderLibrary()});
+const libraryView=()=>libraryTracks(tracks,{query:$('trackSearch').value,filter:$('trackFilter').value,sort:$('trackSort').value});
 function renderLibrary() {
   if(libraryDragging)return;
   spotifyLibrary.refresh();
   tidalLibrary.refresh();
   const scroll=$('trackList').scrollTop;
   $('trackList').replaceChildren(); $('trackCount').textContent=tracks.length;
-  const query=$('trackSearch').value.toLocaleLowerCase();
+  const visible=libraryView();$('trackCount').textContent=visible.length===tracks.length?tracks.length:`${visible.length} / ${tracks.length}`;
   if(!tracks.length) {const li=document.createElement('li');li.className='dj-empty';li.textContent='Dateien hierher ziehen';$('trackList').append(li);}
-  for(const [index,track] of tracks.entries()) {
-    if(!`${track.name} ${track.relativePath||''}`.toLocaleLowerCase().includes(query))continue;
+  for(const track of visible) {
+    const index=tracks.indexOf(track);
     const li=document.createElement('li');li.draggable=true;li.ondragstart=event=>{libraryDragging=true;event.dataTransfer.effectAllowed='copy';event.dataTransfer.setData('application/x-wiz-track',track.id);};
     li.ondragend=()=>{libraryDragging=false;clearLibraryQueueDrop();renderLibrary();};
     const info=document.createElement('div');info.className='dj-track-info';
@@ -689,7 +690,7 @@ function renderLibrary() {
     li.append(button('Übergänge',()=>showTransitionLinks(track),!transitionLibraryReady,'Gespeicherte Übergänge'));
     li.append(button('Abschnitte',()=>editSections(track),!track.basePlan?.arrangement,'Abschnittslicht bearbeiten'));
     li.append(button('Neu berechnen',()=>recalculateShow(track),Boolean(track.phase)||track.missing||track.pendingChange,'Lichtshow neu berechnen'));
-    for(const [label,offset] of [['↑',-1],['↓',1]]) li.append(button(label,async()=>{const target=index+offset;[tracks[index],tracks[target]]=[tracks[target],tracks[index]];await Promise.all(tracks.map((t,i)=>{t.order=i;return persist(t);}));renderLibrary();},index+offset<0||index+offset>=tracks.length,label==='↑'?'In Bibliothek nach oben':'In Bibliothek nach unten'));
+    if($('trackSort').value==='manual'&&!$('trackSearch').value.trim()&&$('trackFilter').value==='all')for(const [label,offset] of [['↑',-1],['↓',1]]) li.append(button(label,async()=>{const target=index+offset;[tracks[index],tracks[target]]=[tracks[target],tracks[index]];await Promise.all(tracks.map((t,i)=>{t.order=i;return persist(t);}));renderLibrary();},index+offset<0||index+offset>=tracks.length,label==='↑'?'In Bibliothek nach oben':'In Bibliothek nach unten'));
     if(!folder || track.folderId!==folder.id) li.append(button('×',async()=>{track.deleted=true;tracks=tracks.filter(t=>t!==track);await removeTrack(track.id).catch(()=>{});await Promise.all(tracks.map((t,i)=>{t.order=i;return persist(t);}));renderLibrary();},decks.some(d=>d.track===track),'Track entfernen'));
     groupTrackActions(li,true);$('trackList').append(li);
   }
@@ -1002,6 +1003,8 @@ function paintAnalysis(element,track) {
   else {element.removeAttribute('tabindex');element.removeAttribute('aria-label');if(element.analysisDefaultRole)element.setAttribute('role',element.analysisDefaultRole);else element.removeAttribute('role');}
 }
 $('trackSearch').oninput=renderLibrary;
+try{const saved=JSON.parse(localStorage.getItem('anydj-library-view-v1')||'null');for(const [id,key] of [['trackFilter','filter'],['trackSort','sort']])if([...$(id).options].some(o=>o.value===saved?.[key]))$(id).value=saved[key];}catch{}
+for(const id of ['trackFilter','trackSort'])$(id).onchange=()=>{try{localStorage.setItem('anydj-library-view-v1',JSON.stringify({filter:$('trackFilter').value,sort:$('trackSort').value}));}catch{}renderLibrary();};
 function renderFolder() {
   $('folderBar').hidden=!folder;
   $('folderName').textContent=folder?.name||'';
@@ -1024,7 +1027,7 @@ async function applyFolderEntries(entries) {
     Object.assign(track,{queuePreparationError:null,file:entry.file,handle:entry.handle,name:entry.file.name,size:entry.file.size,lastModified:entry.file.lastModified,
       revision:(track.revision||0)+1,sectionEdits:null,plan:null,basePlan:null,windows:null,refined:false,structureState:null,phase:null,analysisWarnings:[],failed:false,missing:false,pendingChange:false,state:''});
   }
-  for(const entry of changes.add)tracks.push({id:crypto.randomUUID(),folderId:folder.id,relativePath:entry.path,
+  for(const entry of changes.add)tracks.push({id:crypto.randomUUID(),addedAt:Date.now(),folderId:folder.id,relativePath:entry.path,
     name:entry.file.name,size:entry.file.size,lastModified:entry.file.lastModified,file:entry.file,handle:entry.handle});
   tracks.forEach((track,index)=>track.order=index);
   if(dirty)renderLibrary();
@@ -1227,8 +1230,7 @@ function consumeQueue(deck) {
   persistQueue();renderQueue();
 }
 $('enqueueAll').onclick=()=>{
-  const query=$('trackSearch').value.toLocaleLowerCase();
-  for(const track of tracks)if(!track.missing&&!track.pendingChange&&`${track.name} ${track.relativePath||''}`.toLocaleLowerCase().includes(query))displayedQueue().push({id:crypto.randomUUID(),trackId:track.id});
+  for(const track of libraryView())if(!track.missing&&!track.pendingChange)displayedQueue().push({id:crypto.randomUUID(),trackId:track.id});
   persistDisplayedQueue();renderQueue();
 };
 function editQueue(action,listId=selectedQueueList) {

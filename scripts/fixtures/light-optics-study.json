@@ -1,0 +1,66 @@
+{
+  "description": "Optics study: left triad gobo, right three-facet prism; approximate optical apertures.",
+  "layout": {
+    "width": 10,
+    "depth": 8,
+    "height": 4,
+    "room": true,
+    "positions": {},
+    "environmentBrightness": 6,
+    "hazeDensity": 0.5
+  },
+  "camera": {
+    "mode": "dancer",
+    "x": 0,
+    "y": -4,
+    "eyeHeight": 4.5,
+    "yaw": 0,
+    "pitch": 0.43,
+    "zoom": 1
+  },
+  "lights": [
+    {
+      "id": "gobo",
+      "type": "moving",
+      "power": 1,
+      "color": "#30aaff",
+      "position": {
+        "x": -2,
+        "y": 5,
+        "height": 3
+      },
+      "target": {
+        "x": -2,
+        "y": 2,
+        "z": 0
+      },
+      "beamAngle": 28,
+      "aimed": true,
+      "aimRotation": 0,
+      "gobo": "triad",
+      "opticsRotation": 20
+    },
+    {
+      "id": "prism",
+      "type": "moving",
+      "power": 1,
+      "color": "#ffb33a",
+      "position": {
+        "x": 2,
+        "y": 5,
+        "height": 3
+      },
+      "target": {
+        "x": 2,
+        "y": 2,
+        "z": 0
+      },
+      "beamAngle": 6,
+      "aimed": true,
+      "aimRotation": 0,
+      "prism": 3,
+      "prismSpread": 22,
+      "opticsRotation": 0
+    }
+  ]
+}

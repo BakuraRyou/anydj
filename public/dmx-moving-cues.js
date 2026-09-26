@@ -216,6 +216,7 @@ export function barMovingCues(plan){
  const gestures=lightingGestures(plan),gestureByTime=new Map(gestures.map(g=>[g.time,g]));
  const initial=gestureByTime.has(0)?gesturePose(gestureByTime.get(0)):scenes[0].start===0?scenePose(scenes[0],0):restingHeads();
  const cues=[{time:0,travel:0,pose:initial,reason:'scene-entry',scene:scenes[0].kind,section:0}];
+ let variationAnchor=null,variationFormation=null,variationPrevious=null,variationCount=0,variationTime=-Infinity;
  // Phrases establish images; rhythmic pictures develop on measured downbeats
  // with short holds instead of staying frozen for an entire verse or chorus.
  const entries=scenes.filter(s=>s.start>0).map(s=>({time:s.start,kind:'entry'}));
@@ -230,7 +231,33 @@ export function barMovingCues(plan){
   if(!entry&&!rhythmic&&!cinematic&&!['build','sweep'].includes(scene.kind))continue;
   if(!entry&&event.kind==='accent'&&!rhythmic&&!cinematic)continue;
   if(!entry&&event.kind==='development'&&scene.kind!=='build')continue;
-  const authored=rhythmic?gestureByTime.get(time):null;
+  let authored=rhythmic?gestureByTime.get(time):null;
+  if(authored){
+   if(!variationAnchor){variationAnchor=authored;variationFormation=authored.formation;}
+   const contrast=Math.max(Math.abs(authored.energy-variationAnchor.energy)/.14,
+    Math.abs(authored.drive-variationAnchor.drive)/.18,Math.abs(authored.vocals-variationAnchor.vocals)/.2,
+    Math.abs(authored.tone-variationAnchor.tone)/.18);
+   const leadChanged=authored.leader!==variationAnchor.leader;
+   const melodicChange=Number.isFinite(authored.contour)&&Number.isFinite(variationAnchor.contour)&&Math.abs(authored.contour-variationAnchor.contour)>=.18;
+   const standout=authored.kind==='accent'&&authored.accent>=.65;
+   // The grid supplies possible arrival times, never a variety timer. Change
+   // the picture only when measured sound changes, with a minimum recovery
+   // time so analysis noise cannot repeatedly restart a motor transition.
+   if(time-variationTime>=1.5&&(contrast>=1||leadChanged||melodicChange||standout)){
+    const features=[authored.energy,authored.drive,authored.vocals,authored.tone];
+    const candidates=[['fan',[.55,.65,.15,.5]],['parallel',[.45,.5,.7,.45]],
+     ['wings',[.8,.9,.15,.6]],['tiers',[.55,.5,.5,.8]],['cross',[.9,.85,.1,.4]]];
+    const ranked=candidates.map(([formation,target])=>({formation,score:
+     features.reduce((n,v,i)=>n+Math.abs(v-target[i]),0)+
+     (formation===variationFormation?.3:formation===variationPrevious?.12:0)-
+     (standout&&formation==='cross'?.25:0)-(melodicChange&&formation==='tiers'?.2:0)})).sort((a,b)=>a.score-b.score);
+    const next=ranked[0].formation;
+    if(next!==variationFormation){variationPrevious=variationFormation;variationFormation=next;variationCount++;}
+    variationAnchor=authored;variationTime=time;
+   }
+   authored={...authored,formation:variationFormation,variation:variationCount,
+    coordinated:['parallel','cross'].includes(variationFormation)||authored.coordinated};
+  }
   if(rhythmic&&!authored)continue;
   if(!entry&&!rhythmic&&event.kind==='bar'&&event.bar%2)continue;
   const poseTime=event.kind==='development'&&scene.kind==='build'?scene.start+event.progress*(scene.end-scene.start):time;
@@ -249,7 +276,7 @@ export function barMovingCues(plan){
    const reach=sharedReach??motionReach([previous.pose[i]],[p],headTravel?.[i]??available,authored ? .85 : .65);
    return {pan:previous.pose[i].pan+(p.pan-previous.pose[i].pan)*reach,tilt:previous.pose[i].tilt+(p.tilt-previous.pose[i].tilt)*reach};
   });
-  cues.push({time,travel:available,pose,...(authored?{headTravel,formation:authored.formation,coordinated:authored.coordinated,gesture:authored.name,leader:authored.leader,group:authored.group}:{}),scene:scene.kind,shape:scene.kind,section:scene.sectionIndex,
+  cues.push({time,travel:available,pose,...(authored?{headTravel,formation:authored.formation,variation:authored.variation,coordinated:authored.coordinated,gesture:authored.name,leader:authored.leader,group:authored.group}:{}),scene:scene.kind,shape:scene.kind,section:scene.sectionIndex,
    reason:entry?'scene-entry':cinematic?'cinematic-development':event.kind==='development'?'build-development':rhythmic?'scene-rhythm':'scene-development',
    ...(entry&&!cinematic&&distance>18&&scene.drive<.45?{darkTravel:true}:{}),purpose:entry?'establish':scene.kind==='build'?'build':rhythmic?'groove':'sweep'});
  }

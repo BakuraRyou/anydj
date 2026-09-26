@@ -1,7 +1,7 @@
 {
   "reference": "https://www.youtube.com/watch?v=Q3aCtuhyVaQ",
   "timeSeconds": 24,
-  "description": "Approximate 2D reconstruction: 8 upper magenta, 6 lower magenta, 8 interleaved blue sources. Positions, depth and fixture type inferred, not calibrated. Prism/gobo sub-rays omitted. Beam angles are visual estimates (upper 10 degrees, lower 8, blue 18); no fixture specifications available.",
+  "description": "Approximate reference at 24 seconds; blue three-facet linear prisms and upper magenta triad gobos are visual hypotheses, not identified fixture specifications.",
   "layout": {
     "width": 16,
     "depth": 10,
@@ -44,7 +44,9 @@
         "height": 0.3
       },
       "emissionHeight": 4.2,
-      "beamAngle": 10
+      "beamAngle": 10,
+      "gobo": "triad",
+      "opticsRotation": 25
     },
     {
       "id": "upper-1",
@@ -69,7 +71,9 @@
         "height": 0.3
       },
       "emissionHeight": 4.2,
-      "beamAngle": 10
+      "beamAngle": 10,
+      "gobo": "triad",
+      "opticsRotation": 25
     },
     {
       "id": "upper-2",
@@ -94,7 +98,9 @@
         "height": 0.3
       },
       "emissionHeight": 4.2,
-      "beamAngle": 10
+      "beamAngle": 10,
+      "gobo": "triad",
+      "opticsRotation": 25
     },
     {
       "id": "upper-3",
@@ -119,7 +125,9 @@
         "height": 0.3
       },
       "emissionHeight": 4.2,
-      "beamAngle": 10
+      "beamAngle": 10,
+      "gobo": "triad",
+      "opticsRotation": 25
     },
     {
       "id": "upper-4",
@@ -144,7 +152,9 @@
         "height": 0.3
       },
       "emissionHeight": 4.2,
-      "beamAngle": 10
+      "beamAngle": 10,
+      "gobo": "triad",
+      "opticsRotation": 25
     },
     {
       "id": "upper-5",
@@ -169,7 +179,9 @@
         "height": 0.3
       },
       "emissionHeight": 4.2,
-      "beamAngle": 10
+      "beamAngle": 10,
+      "gobo": "triad",
+      "opticsRotation": 25
     },
     {
       "id": "upper-6",
@@ -194,7 +206,9 @@
         "height": 0.3
       },
       "emissionHeight": 4.2,
-      "beamAngle": 10
+      "beamAngle": 10,
+      "gobo": "triad",
+      "opticsRotation": 25
     },
     {
       "id": "upper-7",
@@ -219,7 +233,9 @@
         "height": 0.3
       },
       "emissionHeight": 4.2,
-      "beamAngle": 10
+      "beamAngle": 10,
+      "gobo": "triad",
+      "opticsRotation": 25
     },
     {
       "id": "lower-0",
@@ -394,7 +410,10 @@
         "height": 0.3
       },
       "emissionHeight": 4.25,
-      "beamAngle": 18
+      "beamAngle": 7,
+      "prism": 3,
+      "prismSpread": 18,
+      "opticsRotation": 20
     },
     {
       "id": "rear-1",
@@ -419,7 +438,10 @@
         "height": 0.3
       },
       "emissionHeight": 4.25,
-      "beamAngle": 18
+      "beamAngle": 7,
+      "prism": 3,
+      "prismSpread": 18,
+      "opticsRotation": 20
     },
     {
       "id": "rear-2",
@@ -444,7 +466,10 @@
         "height": 0.3
       },
       "emissionHeight": 4.25,
-      "beamAngle": 18
+      "beamAngle": 7,
+      "prism": 3,
+      "prismSpread": 18,
+      "opticsRotation": 20
     },
     {
       "id": "rear-3",
@@ -469,7 +494,10 @@
         "height": 0.3
       },
       "emissionHeight": 4.25,
-      "beamAngle": 18
+      "beamAngle": 7,
+      "prism": 3,
+      "prismSpread": 18,
+      "opticsRotation": 20
     },
     {
       "id": "rear-4",
@@ -494,7 +522,10 @@
         "height": 0.3
       },
       "emissionHeight": 4.25,
-      "beamAngle": 18
+      "beamAngle": 7,
+      "prism": 3,
+      "prismSpread": 18,
+      "opticsRotation": -20
     },
     {
       "id": "rear-5",
@@ -519,7 +550,10 @@
         "height": 0.3
       },
       "emissionHeight": 4.25,
-      "beamAngle": 18
+      "beamAngle": 7,
+      "prism": 3,
+      "prismSpread": 18,
+      "opticsRotation": -20
     },
     {
       "id": "rear-6",
@@ -544,7 +578,10 @@
         "height": 0.3
       },
       "emissionHeight": 4.25,
-      "beamAngle": 18
+      "beamAngle": 7,
+      "prism": 3,
+      "prismSpread": 18,
+      "opticsRotation": -20
     },
     {
       "id": "rear-7",
@@ -569,7 +606,10 @@
         "height": 0.3
       },
       "emissionHeight": 4.25,
-      "beamAngle": 18
+      "beamAngle": 7,
+      "prism": 3,
+      "prismSpread": 18,
+      "opticsRotation": -20
     }
   ]
 }

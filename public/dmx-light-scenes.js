@@ -385,6 +385,8 @@ export function gesturePose(gesture){
   if(gesture.coordinated)tilt=.76+energy*.06+pitch*.16+(opening-.5)*.08+accent*.04;
   if(gesture.formation==='parallel')pan=pitch*14;
   else if(gesture.formation==='cross')pan=-role*span*.7+pitch*6;
+  else if(gesture.formation==='wings'){pan=role*span*.85+pitch*6;tilt+=Math.abs(role)*.14-.07;}
+  else if(gesture.formation==='tiers'){pan=role*span*.45+pitch*6;tilt+=(Math.abs(role)<.5?.1:-.07);}
   return {pan:Math.max(-40,Math.min(40,pan)),tilt:Math.max(.55,Math.min(1.08,tilt))};
  });
 }

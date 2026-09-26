@@ -20,7 +20,7 @@ test('20 fixtures produce finite contiguous GPU batches and reuse storage',()=>{
   const frame=scene.build(1280,720,layout,lights,camera),buffer=frame.vertices.buffer;
   assert.ok(frame.vertices.every(Number.isFinite));let first=0;
   for(const batch of frame.batches){assert.equal(batch.first,first);assert.equal(batch.count%(batch.mode==='lines'?2:3),0);first+=batch.count;}
-  assert.equal(first*10,frame.vertices.length);
+  assert.equal(first*11,frame.vertices.length);
   assert.ok(frame.batches.some(b=>b.mode==='add'));
   const dark=scene.build(1280,720,layout,lights.map(l=>({...l,power:0})),camera);
   assert.equal(dark.vertices.buffer,buffer);assert.ok(!dark.batches.some(b=>b.mode==='add'));

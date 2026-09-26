@@ -3,7 +3,8 @@ import {createStageGpuScene} from './dmx-stage-gpu-scene.js';
 export {moveStageCamera,createCrowdMotion} from './dmx-stage-3d-renderer.js';
 // Keep the original canvas as the input/accessibility and text layer. Each GPU
 // backend owns a separate canvas, so a lost/bound context never traps fallback.
-export async function createDesktopRenderer(canvas,{onInvalidate=()=>{},backends=['webgpu','webgl']}={}){
+// Prefer WebGL for this small per-beam workload; software WebGPU can be much slower.
+export async function createDesktopRenderer(canvas,{onInvalidate=()=>{},backends=['webgl','webgpu']}={}){
   let active=null,layer=null,disposed=false,next=0,switching=null;
   const scene=createStageGpuScene();
   const remove=()=>{active?.destroy();active=null;layer?.remove();layer=null;};

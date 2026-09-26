@@ -1,0 +1,38 @@
+{
+  "layout": {
+    "width": 8,
+    "depth": 6,
+    "height": 3,
+    "room": true,
+    "positions": {},
+    "environmentBrightness": 8
+  },
+  "camera": {
+    "mode": "dancer",
+    "x": 0,
+    "y": -2,
+    "eyeHeight": 1.5,
+    "yaw": 0,
+    "pitch": -0.06,
+    "zoom": 1
+  },
+  "lights": [
+    {
+      "id": "head",
+      "type": "moving",
+      "power": 1,
+      "color": "#00ccee",
+      "position": {
+        "x": -1,
+        "y": 4,
+        "height": 1.5
+      },
+      "target": {
+        "x": 1,
+        "y": 2,
+        "z": 3
+      },
+      "targetSurface": "ceiling"
+    }
+  ]
+}

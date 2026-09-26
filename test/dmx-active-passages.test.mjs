@@ -94,6 +94,6 @@ test('manual movement holds and rhythm suppression survive preparation of an act
  assert.deepEqual(movingPresenceAt({movingPlan:plan,songTime:21}),movingPresenceAt({movingPlan:plan,songTime:25}));
  assert.ok(cues.some(c=>c.time>40&&c.time<44));
  const job=movingPlanJob(plan);while(!job.done)job.advance();
- assert.equal(job.result.version,34);assert.deepEqual(job.result.cues,cues);
+ assert.equal(job.result.version,35);assert.deepEqual(job.result.cues,cues);
  for(const t of [3,23,53,103,153])assert.deepEqual(movingPlanAt(job.result,t),movingCueAt(cues,t));
 });

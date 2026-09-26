@@ -20,11 +20,11 @@ test('estimated fixture zoom changes cone coverage without changing its target o
 test('zero haze removes aerial beams while keeping lenses and illuminated surfaces',()=>{
   const scene=createStageGpuScene(),layout={width:10,depth:8,height:4,room:true,positions:{},environmentBrightness:5};
   const camera={mode:'dancer',x:0,y:-2,eyeHeight:2,yaw:0,pitch:0,zoom:1};
-  const count=(f,k)=>{let n=0;for(let i=9;i<f.vertices.length;i+=10)if(f.vertices[i]===k)n++;return n;};
+  const count=(f,k)=>{let n=0;for(let i=10;i<f.vertices.length;i+=11)if(f.vertices[i]===k)n++;return n;};
   const clear=scene.build(640,360,{...layout,hazeDensity:0},[{...lamp,type:'spot'}],camera);
-  assert.equal(count(clear,1),0);assert.ok(count(clear,2)>0);assert.ok(count(clear,4)>0);
+  assert.equal(count(clear,8),0);assert.ok(count(clear,2)>0);assert.ok(clear.batches.filter(b=>b.mode==='add').reduce((n,b)=>n+b.count,0)>count(clear,2),'surface illumination remains without haze');
   const haze=scene.build(640,360,{...layout,hazeDensity:.65},[{...lamp,type:'spot'}],camera);
-  assert.equal(count(haze,1),6);
+  assert.equal(count(haze,8),6);
   const low=scene.build(640,360,{...layout,hazeDetail:false},[{...lamp,type:'spot'}],camera);
   assert.equal(low.camera[3],0);
 });

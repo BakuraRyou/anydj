@@ -24,7 +24,7 @@ async function transaction(mode,action,name='tracks') {
   });
 }
 const metadata=track=>({id:track.id,name:track.name,size:track.size,lastModified:track.lastModified,
-  cover:track.cover||null,coverKey:track.coverKey||null,hotCues:track.hotCues||null,colorMode:track.colorMode||null,sectionEdits:track.sectionEdits||null,order:track.order,handle:track.handle||null,folderId:track.folderId||null,relativePath:track.relativePath||null});
+  cover:track.cover||null,coverKey:track.coverKey||null,hotCues:track.hotCues||null,colorMode:track.colorMode||null,sectionEdits:track.sectionEdits||null,order:track.order,addedAt:track.addedAt??null,handle:track.handle||null,folderId:track.folderId||null,relativePath:track.relativePath||null});
 export const readLibrary=()=>transaction('readonly',store=>store.getAll());
 export async function removeTrack(id) {
   const db=await openDatabase();
@@ -72,3 +72,16 @@ export const saveShow=(track,options)=>transaction('readwrite',store=>store.put(
 
 export const readTransitionLibrary=()=>transaction('readonly',store=>store.get('transitionLibrary'),'settings');
 export const saveTransitionLibrary=value=>transaction('readwrite',store=>store.put(value,'transitionLibrary'),'settings');
+
+// View preferences never reorder the stored library or an existing queue.
+export function libraryTracks(tracks,{query='',filter='all',sort='newest'}={}){
+ const text=query.trim().toLocaleLowerCase();
+ const problem=t=>Boolean(t.missing||t.pendingChange||t.failed||t.queuePreparationError||(!t.file&&!t.handle));
+ const ready=t=>Boolean(t.plan&&!t.phase&&!t.recalculate&&!problem(t));
+ const rows=tracks.filter(t=>!t.deleted&&`${t.name} ${t.relativePath||''}`.toLocaleLowerCase().includes(text)&&
+  (filter==='ready'?ready(t):filter==='pending'?!problem(t)&&!ready(t):filter==='problems'?problem(t):filter==='folder'?Boolean(t.folderId):filter==='files'?!t.folderId:true));
+ const order=t=>Number.isFinite(t.order)?t.order:tracks.indexOf(t);
+ const date=t=>Number.isFinite(t.addedAt)?t.addedAt:0;
+ return rows.sort((a,b)=>sort==='az'?a.name.localeCompare(b.name,'de',{numeric:true,sensitivity:'base'})||order(a)-order(b):sort==='za'?b.name.localeCompare(a.name,'de',{numeric:true,sensitivity:'base'})||order(a)-order(b):sort==='manual'?order(a)-order(b):
+  (sort==='oldest'?1:-1)*(date(a)-date(b)||order(a)-order(b)));
+}

@@ -250,3 +250,5 @@
 
 #queueList [data-queue-light-editor]{display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;padding:0;flex-shrink:0}
 #queueList [data-queue-light-editor] svg{pointer-events:none}
+
+#libraryTools{flex-wrap:wrap;gap:8px}#libraryTools #trackSearch{flex:1 1 180px}.dj-library-filters{display:flex;gap:8px;flex-wrap:wrap;flex:1 1 280px}.dj-library-filters label{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);flex:1;min-width:0}.dj-library-filters select{width:100%;min-width:0;flex:1}.dj-library-filters select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}

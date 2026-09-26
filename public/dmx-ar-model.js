@@ -115,10 +115,25 @@ export function applyRoomPlan(scene, plan, ar=false) {
   // Only motion is resampled: each fixture retains its own light/color frame.
   const sourceHeads=[...groups.values()].map(cells=>cells[0]).filter(l=>l.type==='moving').sort((a,b)=>a.position.x-b.position.x||String(a.id).localeCompare(String(b.id)));
   const roomHeads=Object.entries(plan.positions).filter(([id,p])=>p.type==='moving'||groups.get(id)?.[0].type==='moving').sort(([a,p],[b,q])=>p.x-q.x||a.localeCompare(b));
+  // Large multi-row rigs need spatial coverage as well as a shared gesture.
+  // Group actual mounting rows; small rigs keep their authored mapping.
+  const rows=[];
+  if(roomHeads.length>=16)for(const entry of [...roomHeads].sort((a,b)=>a[1].y-b[1].y||a[1].x-b[1].x)){
+    const row=rows.at(-1);
+    if(row&&Math.abs(entry[1].y-row.y)<=Math.max(.25,plan.depth*.008))row.heads.push(entry);
+    else rows.push({y:entry[1].y,heads:[entry]});
+  }
+  const distributed=rows.length>=2&&rows.every(row=>row.heads.length>=4);
+  const rowById=new Map();
+  if(distributed)for(const row of rows){
+    row.heads.sort((a,b)=>a[1].x-b[1].x||a[0].localeCompare(b[0]));
+    row.anchor=row.heads.reduce((sum,[,p])=>sum+(p.target?.y??p.y),0)/row.heads.length;
+    row.heads.forEach(([id])=>rowById.set(id,row));
+  }
   const motionById=new Map();
   const uv=light=>({x:Math.max(0,Math.min(1,light.motionUV?.x??(light.target.x/(scene.layout.width*.9)+.5))),y:Math.max(0,Math.min(1,light.motionUV?.y??((light.target.y/scene.layout.depth-.1)/.65)))});
-  if(sourceHeads.length)roomHeads.forEach(([id],rank)=>{
-    const at=(roomHeads.length===1?.5:rank/(roomHeads.length-1))*(sourceHeads.length-1),lo=Math.floor(at),hi=Math.min(sourceHeads.length-1,lo+1),fraction=at-lo;
+  if(sourceHeads.length)for(const sampling of distributed?rows.map(row=>row.heads):[roomHeads])sampling.forEach(([id],rank)=>{
+    const at=(sampling.length===1?.5:rank/(sampling.length-1))*(sourceHeads.length-1),lo=Math.floor(at),hi=Math.min(sourceHeads.length-1,lo+1),fraction=at-lo;
     const a=sourceHeads[lo],b=sourceHeads[hi],mix=(a,b)=>({x:a.x+(b.x-a.x)*fraction,y:a.y+(b.y-a.y)*fraction});
     const motionUV=mix(uv(a),uv(b));let motionAhead;
     if(a.motionAhead&&b.motionAhead&&Math.abs(a.motionAhead.seconds-b.motionAhead.seconds)<.001){
@@ -135,8 +150,20 @@ export function applyRoomPlan(scene, plan, ar=false) {
     let target=p.target?{...p.target}:{...light.target},motionUV=light.motionUV;
     if(light.type==='moving'){
       const range=p.motionArea||{x:0,y:0,width:1,depth:1};
-      const nx=Math.max(0,Math.min(1,Number.isFinite(light.motionUV?.x)?light.motionUV.x:light.target.x/(scene.layout.width*.9)+.5));
-      const ny=Math.max(0,Math.min(1,Number.isFinite(light.motionUV?.y)?light.motionUV.y:(light.target.y/scene.layout.depth-.1)/.65));
+      let nx=Math.max(0,Math.min(1,Number.isFinite(light.motionUV?.x)?light.motionUV.x:light.target.x/(scene.layout.width*.9)+.5));
+      let ny=Math.max(0,Math.min(1,Number.isFinite(light.motionUV?.y)?light.motionUV.y:(light.target.y/scene.layout.depth-.1)/.65));
+      const row=rowById.get(light.id);
+      if(row&&!p.wallTarget){
+        const clamp=v=>Math.max(0,Math.min(1,v));
+        // Focus is an authored gesture, never a timer or a default room center.
+        const focus=light.motionPresentation==='show'?clamp(light.motionFocus??0):0;
+        const homeX=clamp((p.x/plan.width+.5-range.x)/Math.max(.001,range.width));
+        const center=Math.max(.04,Math.min(.96,(row.anchor/plan.depth-range.y)/Math.max(.001,range.depth)));
+        const span=Math.min(.6,2/rows.length,2*center,2*(1-center));
+        const localY=center+(ny-.5)*span;
+        nx=nx+(homeX-nx)*.28*(1-focus);
+        ny=localY+(ny-localY)*focus;
+      }
       motionUV={x:nx,y:ny};
       target={x:(range.x+range.width*nx-.5)*plan.width,y:(range.y+range.depth*ny)*plan.depth};
       if(!insideRoom([target.x,target.y],plan.boundary)){

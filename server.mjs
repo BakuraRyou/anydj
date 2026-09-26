@@ -72,6 +72,8 @@ const STATIC = new Map([
   ['/dmx-room.js', ['dmx-room.js', 'text/javascript; charset=utf-8']],
   ['/dmx-zone-plan.js', ['dmx-zone-plan.js', 'text/javascript; charset=utf-8']],
   ['/dmx-zone-motion.js', ['dmx-zone-motion.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-room-presets.js', ['dmx-room-presets.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-beam-volume.js', ['dmx-beam-volume.js', 'text/javascript; charset=utf-8']],
   ['/dmx-light-geometry.js', ['dmx-light-geometry.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-workspace.js', ['dmx-stage-workspace.js', 'text/javascript; charset=utf-8']],
   ['/dmx-vr-setup.js', ['dmx-vr-setup.js', 'text/javascript; charset=utf-8']],
@@ -624,7 +626,7 @@ export async function createApp({
   });
   async function previewAddresses(){
     if(!bridgeTask)bridgeTask=(async()=>{
-      const allowed=new Set(['/dmx-device-manager.js','/dmx-device-manager.css','/dmx-activity.js','/dmx-light-scenes.js','/instrument-activity.js','/musical-attention.js','/show-action.js','/show-score.js','/vr-test','/vr-test/','/api/vr-preview/test-connect','/vr-view','/vr-view-boot.js','/vr-view.js','/vr-view.css','/dmx-stage-vr.js','/dmx-vr-console.js','/dmx-vr-playback.js','/dmx-surface-light.js','/dmx-light-geometry.js','/dmx-zone-plan.js','/dmx-zone-motion.js','/dmx-ar-model.js','/dmx-room-style.js','/dmx-room-mesh.js','/dmx-ar-planner.js','/dmx-ar-controls.js','/dmx-ar.css','/dmx-stage-3d-renderer.js','/api/vr-preview/stream','/api/vr-preview/pair']);
+      const allowed=new Set(['/dmx-room-presets.js','/dmx-beam-volume.js','/dmx-device-manager.js','/dmx-device-manager.css','/dmx-activity.js','/dmx-light-scenes.js','/instrument-activity.js','/musical-attention.js','/show-action.js','/show-score.js','/vr-test','/vr-test/','/api/vr-preview/test-connect','/vr-view','/vr-view-boot.js','/vr-view.js','/vr-view.css','/dmx-stage-vr.js','/dmx-vr-console.js','/dmx-vr-playback.js','/dmx-surface-light.js','/dmx-light-geometry.js','/dmx-zone-plan.js','/dmx-zone-motion.js','/dmx-ar-model.js','/dmx-room-style.js','/dmx-room-mesh.js','/dmx-ar-planner.js','/dmx-ar-controls.js','/dmx-ar.css','/dmx-stage-3d-renderer.js','/api/vr-preview/stream','/api/vr-preview/pair']);
       previewBridge=(previewTls?https.createServer.bind(https,previewTls):http.createServer)((req,res)=>{let path=(req.url||'').split('?')[0];if(req.method==='GET'&&(path==='/'||path==='/vr-view/')){req.url='/vr-view'+(req.url.includes('?')?req.url.slice(req.url.indexOf('?')):'');path='/vr-view';}if(req.method==='GET'&&path==='/favicon.ico'){res.writeHead(204);res.end();return;}if(!(req.method==='POST'&&['/api/vr-preview/command','/api/vr-preview/resume'].includes(path))&&(req.method!=='GET'||!allowed.has(path))){res.writeHead(403);res.end('Dieser Zugang ist nur für die VR-Vorschau.');return;}server.emit('request',req,res);});
       await new Promise((resolve,reject)=>{previewBridge.once('error',reject);previewBridge.listen(previewPort,'0.0.0.0',resolve);});
       return previewBridge.address().port;

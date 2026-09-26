@@ -1,12 +1,15 @@
-import {drawStageGeometry,stageCamera,beamHaloScale,lensHaloScale,previewLightExposure,previewBeamResponse} from './dmx-stage-3d-renderer.js';
+import {createBeamSurfaceCache} from './dmx-light-geometry.js';
+import {beamVolume,volumeCorners} from './dmx-beam-volume.js';
+import {drawStageGeometry,stageCamera,lensHaloScale,previewLightExposure} from './dmx-stage-3d-renderer.js';
 import {environmentColor,sceneEnvironmentBrightness} from './dmx-room-style.js';
 const sub=(a,b)=>a.map((v,i)=>v-b[i]);
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 const unit=a=>{const n=Math.hypot(...a)||1;return a.map(v=>v/n);};
 const offset=(p,v,s)=>p.map((n,i)=>n+v[i]*s);
-// A reusable interleaved stream: position, RGBA, UV, effect kind.
+// A reusable interleaved stream: position, RGBA, projective UVW, effect kind.
 // Geometry stays shared with Canvas/XR; projection and soft effects run on the GPU.
 export function createStageGpuScene(){
+  const surfaces=createBeamSurfaceCache();
   let data=new Float32Array(65536),length=0;
   const colors=new Map(),cameraData=new Float32Array(16),batches=[];
   const color=value=>{
@@ -15,22 +18,22 @@ export function createStageGpuScene(){
     if(colors.size>=512)colors.clear();colors.set(value,rgb);return rgb;
   };
   function vertex(p,rgb,alpha,uv,kind){
-    if(length+10>data.length){const next=new Float32Array(data.length*2);next.set(data);data=next;}
+    if(length+11>data.length){const next=new Float32Array(data.length*2);next.set(data);data=next;}
     data[length++]=p[0];data[length++]=p[1];data[length++]=p[2];
     data[length++]=rgb[0];data[length++]=rgb[1];data[length++]=rgb[2];data[length++]=alpha;
-    data[length++]=uv[0];data[length++]=uv[1];data[length++]=kind;
+    data[length++]=uv[0];data[length++]=uv[1];data[length++]=uv[2]??1;data[length++]=kind;
   }
-  function emit(points,fill,alpha,kind,uv,mode){
-    const first=length/10,rgb=color(fill);
+  function emit(points,fill,alpha,kind,uv,mode,volume=null){
+    const first=length/11,rgb=color(fill);
     if(mode==='lines')for(let i=0;i<(points.length===2?1:points.length);i++){
       vertex(points[i],rgb,alpha,[0,0],0);vertex(points[(i+1)%points.length],rgb,alpha,[0,0],0);
     }else for(let i=1;i<points.length-1;i++)for(const j of [0,i,i+1])vertex(points[j],rgb,alpha,uv?.[j]||[0,0],kind);
-    const count=length/10-first;if(!count)return;
+    const count=length/11-first;if(!count)return;
     const previous=batches.at(-1);
-    if(previous?.mode===mode)previous.count+=count;else batches.push({first,count,mode});
+    if(previous?.mode===mode&&!volume&&!previous.volume)previous.count+=count;else batches.push({first,count,mode,volume});
   }
   return {build(width,height,layout,lights,camera,crowd=[],time=0){
-    length=0;batches.length=0;
+    length=0;batches.length=0;surfaces.begin(layout);
     const project=stageCamera(layout,camera,width,height),eye=project.eye;
     const forward=[-Math.sin(camera.yaw)*Math.cos(camera.pitch),Math.cos(camera.yaw)*Math.cos(camera.pitch),-Math.sin(camera.pitch)];
     const right=unit(cross(forward,[0,0,1])),up=cross(right,forward);
@@ -39,7 +42,7 @@ export function createStageGpuScene(){
     const ambient=sceneEnvironmentBrightness(layout),queue=[];
     // The background uses clip-space vertices; all scene vertices use world space.
     const bg=color(environmentColor('#080e19',ambient)),bottom=color(environmentColor('#192a3b',ambient));
-    const first=length/10;
+    const first=length/11;
     for(const i of [0,1,2,0,2,3])vertex([[-1,-1,0],[1,-1,0],[1,1,0],[-1,1,0]][i],i<2?bottom:bg,1,[0,0],3);
     batches.push({first,count:6,mode:'normal'});
     function polygon(points,fill,alpha=1,stroke=null,lineWidth=.7,emissive=false,kind=0,uv=null){
@@ -49,11 +52,13 @@ export function createStageGpuScene(){
     function paint(){
       queue.sort((a,b)=>b.depth-a.depth);
       for(const p of queue){
-        if(p.fill)emit(p.points,p.fill,p.alpha,p.kind,p.uv,p.emissive?'add':'normal');
+        if(p.fill)emit(p.points,p.fill,p.alpha,p.kind,p.uv,p.emissive?'add':'normal',p.volume);
         if(p.stroke)emit(p.points,p.stroke,p.alpha,0,null,'lines');
       }queue.length=0;
     }
-    drawStageGeometry(layout,lights,crowd,time,{polygon,paint,eye,
+    drawStageGeometry(layout,lights,crowd,time,{polygon,paint,eye,projectSurfaces:(...args)=>surfaces.project(...args),
+      fixtureDetail:(light,p)=>focal*.35/Math.max(.08,project.depth(p))>=14,
+      surfacePatch(patch,tint,strength){polygon(patch.points,tint,Math.min(1,strength)*(patch.attenuation??1),null,.7,true,7,patch.uv);},
       wallVisible:(a,b,winding)=>winding*((b[0]-a[0])*(eye[1]-a[1])-(b[1]-a[1])*(eye[0]-a[0]))>=0,
       footprint(center,radius,stretch,angle,tint,strength,faces,type){
         paint();const c=Math.cos(angle),s=Math.sin(angle);
@@ -65,13 +70,21 @@ export function createStageGpuScene(){
       floorSurface(faces){
         paint();for(const face of faces)emit(face.map(p=>[...p,.006]),'#ffffff',ambient/100*.012,6,null,'normal');
       },
-      beam(start,end,radius,tint,power){
-        const axis=sub(end,start),side=unit(cross(axis,sub(eye,start)));
-        if(Math.hypot(...side)<.1)return false;
-        const response=previewBeamResponse(start,end,eye,radius);
-        radius*=beamHaloScale;
-        const points=[offset(start,side,-radius),offset(start,side,radius),offset(end,side,radius),offset(end,side,-radius)];
-        polygon(points,tint,Math.min(1,previewLightExposure(power)*response),null,.7,true,1,[[-1,0],[1,0],[1,1],[-1,1]]);return true;
+      beam(start,end,radius,tint,power,ray){
+        const volume=beamVolume(ray,layout);if(!volume)return true;
+        // A conservative screen rectangle only schedules fragments. It does
+        // not define beam shape: every fragment intersects the actual cone.
+        const corners=volumeCorners(volume);
+        if(corners.every(p=>project.depth(p)<=.08))return true;
+        let left=-1,rightEdge=1,bottomEdge=-1,top=1;
+        if(corners.every(p=>project.depth(p)>.08)){
+          const ndc=corners.map(p=>{const v=sub(p,eye),z=project.depth(p);return [v.reduce((n,x,i)=>n+x*right[i],0)*2*focal/width/z,v.reduce((n,x,i)=>n+x*up[i],0)*2*focal/height/z];});
+          left=Math.max(-1,Math.min(...ndc.map(p=>p[0])));rightEdge=Math.min(1,Math.max(...ndc.map(p=>p[0])));
+          bottomEdge=Math.max(-1,Math.min(...ndc.map(p=>p[1])));top=Math.min(1,Math.max(...ndc.map(p=>p[1])));
+        }
+        if(left>=rightEdge||bottomEdge>=top)return true;
+        const points=[[left,bottomEdge],[rightEdge,bottomEdge],[rightEdge,top],[left,top]].map(([x,y])=>eye.map((v,i)=>v+forward[i]+right[i]*x*width/(2*focal)+up[i]*y*height/(2*focal)));
+        queue.push({points,fill:tint,alpha:previewLightExposure(power),stroke:null,emissive:true,kind:8,uv:null,volume:volume.data,depth:(project.depth(start)+project.depth(end))/2});return true;
       },
       lens(center,radius,tint,power){
         const depth=project.depth(center);if(power<=0||depth<=.08)return;
@@ -80,6 +93,10 @@ export function createStageGpuScene(){
         polygon(points,tint,previewLightExposure(power),null,.7,true,2,[[-1,-1],[1,-1],[1,1],[-1,1]]);
       }
     });
-    return {vertices:data.subarray(0,length),camera:cameraData,batches};
+    // Use installed optical capacity, not momentary dimmer values, so a drop
+    // never reallocates the haze target or changes its resolution on the beat.
+    const capacity=lights.reduce((n,l)=>n+(['moving','spot','bar'].includes(l.type)?(l.prism===3?3:1)*(l.gobo==='triad'?3:1):0),0);
+    const volumeScale=capacity>96?1/3:capacity>32?.5:1;
+    return {vertices:data.subarray(0,length),camera:cameraData,batches,volumeScale};
   }};
 }

@@ -1,0 +1,156 @@
+{
+  "before": {
+    "size": [
+      1280,
+      720
+    ],
+    "fixtures": 192,
+    "results": [
+      {
+        "phase": "quiet",
+        "totalMs": {
+          "median": 85.9,
+          "p95": 97.9
+        },
+        "cpuMs": {
+          "median": 32,
+          "p95": 41.5
+        },
+        "renderMs": {
+          "median": 54.3,
+          "p95": 65.4
+        },
+        "vertices": 62171,
+        "beams": 72
+      },
+      {
+        "phase": "intense",
+        "totalMs": {
+          "median": 318.5,
+          "p95": 334.8
+        },
+        "cpuMs": {
+          "median": 35.8,
+          "p95": 55.6
+        },
+        "renderMs": {
+          "median": 279.6,
+          "p95": 298.7
+        },
+        "vertices": 72422,
+        "beams": 192
+      },
+      {
+        "phase": "quiet-again",
+        "totalMs": {
+          "median": 84.3,
+          "p95": 97.4
+        },
+        "cpuMs": {
+          "median": 29.7,
+          "p95": 45
+        },
+        "renderMs": {
+          "median": 54,
+          "p95": 63.5
+        },
+        "vertices": 62171,
+        "beams": 72
+      },
+      {
+        "phase": "intense-again",
+        "totalMs": {
+          "median": 321,
+          "p95": 345.2
+        },
+        "cpuMs": {
+          "median": 35.3,
+          "p95": 48.3
+        },
+        "renderMs": {
+          "median": 285.8,
+          "p95": 305
+        },
+        "vertices": 72422,
+        "beams": 192
+      }
+    ]
+  },
+  "after": {
+    "size": [
+      1280,
+      720
+    ],
+    "fixtures": 192,
+    "results": [
+      {
+        "phase": "quiet",
+        "totalMs": {
+          "median": 64.7,
+          "p95": 72.6
+        },
+        "cpuMs": {
+          "median": 15.7,
+          "p95": 25.7
+        },
+        "renderMs": {
+          "median": 47.3,
+          "p95": 57.3
+        },
+        "vertices": 50795,
+        "beams": 72
+      },
+      {
+        "phase": "intense",
+        "totalMs": {
+          "median": 142,
+          "p95": 156.4
+        },
+        "cpuMs": {
+          "median": 16.9,
+          "p95": 27.7
+        },
+        "renderMs": {
+          "median": 122.5,
+          "p95": 135.3
+        },
+        "vertices": 61046,
+        "beams": 192
+      },
+      {
+        "phase": "quiet-again",
+        "totalMs": {
+          "median": 59,
+          "p95": 68.6
+        },
+        "cpuMs": {
+          "median": 14.4,
+          "p95": 20.4
+        },
+        "renderMs": {
+          "median": 44.3,
+          "p95": 53.4
+        },
+        "vertices": 50795,
+        "beams": 72
+      },
+      {
+        "phase": "intense-again",
+        "totalMs": {
+          "median": 141,
+          "p95": 152.4
+        },
+        "cpuMs": {
+          "median": 17.6,
+          "p95": 35.4
+        },
+        "renderMs": {
+          "median": 121.5,
+          "p95": 135.9
+        },
+        "vertices": 61046,
+        "beams": 192
+      }
+    ]
+  }
+}

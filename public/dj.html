@@ -24,7 +24,7 @@
 <div id="folderBar" hidden><span id="folderName"></span><button id="syncFolder" class="button secondary">Aktualisieren</button><button id="disconnectFolder" class="button secondary" title="Ordnerverbindung trennen">Trennen</button></div>
 <p id="folderStatus" class="small muted" role="status"></p>
 <div id="libraryTools"><button id="enqueueAll" class="button secondary">Alle einreihen</button>
-<input id="trackSearch" type="search" placeholder="Tracks suchen" aria-label="Tracks suchen"></div>
+<input id="trackSearch" type="search" placeholder="Tracks suchen" aria-label="Tracks suchen"><div class="dj-library-filters"><label>Filter <select id="trackFilter"><option value="all">Alle Tracks</option><option value="ready">Vorbereitet</option><option value="pending">Analyse ausstehend</option><option value="problems">Handlungsbedarf</option><option value="folder">Aus Ordner</option><option value="files">Einzelne Dateien</option></select></label><label>Sortierung <select id="trackSort"><option value="newest">Neueste zuerst</option><option value="oldest">Älteste zuerst</option><option value="az">Titel A–Z</option><option value="za">Titel Z–A</option><option value="manual">Manuelle Reihenfolge</option></select></label></div></div>
 <input id="djFiles" type="file" accept="audio/*,.mp3,.wav,.flac,.ogg,.m4a" multiple hidden>
 <input id="djFolderFiles" type="file" webkitdirectory multiple hidden>
 <p id="libraryStatus" class="small muted" role="status"></p>

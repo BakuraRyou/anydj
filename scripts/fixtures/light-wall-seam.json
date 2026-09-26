@@ -1,0 +1,86 @@
+{
+  "description": "Regression: broad floor washes overlap the rear wall; camera and fixture positions approximate the reported screenshot.",
+  "layout": {
+    "width": 10,
+    "depth": 8,
+    "height": 4,
+    "room": true,
+    "positions": {},
+    "environmentBrightness": 4
+  },
+  "camera": {
+    "mode": "dancer",
+    "x": 0,
+    "y": -2,
+    "eyeHeight": 2.8,
+    "yaw": 0,
+    "pitch": 0.12,
+    "zoom": 1
+  },
+  "lights": [
+    {
+      "id": "wash-0",
+      "type": "spot",
+      "power": 0.8,
+      "color": "#ff1650",
+      "position": {
+        "x": -2.5,
+        "y": 7.4,
+        "height": 2.5
+      },
+      "target": {
+        "x": -2.5,
+        "y": 7.4,
+        "z": 0
+      }
+    },
+    {
+      "id": "wash-1",
+      "type": "spot",
+      "power": 0.8,
+      "color": "#00dccc",
+      "position": {
+        "x": -0.8,
+        "y": 7.4,
+        "height": 2.5
+      },
+      "target": {
+        "x": -0.8,
+        "y": 7.4,
+        "z": 0
+      }
+    },
+    {
+      "id": "wash-2",
+      "type": "spot",
+      "power": 0.8,
+      "color": "#00dccc",
+      "position": {
+        "x": 0.8,
+        "y": 7.4,
+        "height": 2.5
+      },
+      "target": {
+        "x": 0.8,
+        "y": 7.4,
+        "z": 0
+      }
+    },
+    {
+      "id": "wash-3",
+      "type": "spot",
+      "power": 0.8,
+      "color": "#ff1650",
+      "position": {
+        "x": 2.5,
+        "y": 7.4,
+        "height": 2.5
+      },
+      "target": {
+        "x": 2.5,
+        "y": 7.4,
+        "z": 0
+      }
+    }
+  ]
+}
