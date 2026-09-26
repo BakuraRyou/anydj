@@ -71,11 +71,13 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
       const devices=getDevices?.()??Array.from({length:4},(_,i)=>({id:`moving-${i}`}));syncDevices(devices);
       const spots=fixtures.filter(f=>f.profile==='dimmer-rgb');
       let colors=(spots.length?spots:fixtures).flatMap(f=>f.cells);
+      // Virtual heads need their own unmasked color source; spot exposure is
+      // applied separately from moving presence and must not be inherited.
       // These four virtual heads need a complete formation of their own.
       // Sampling a three/five-spot rig (or a bar) can turn balanced colors into
       // a permanent 3:1 split. Keep the real fixture output untouched.
-      if(mode==='auto'&&colors.length&&colors.length!==heads.length&&streams.length){
-        const preview=automaticStage(streams,colorLimit,previewEquipment,mode);
+      if(mode==='auto'&&streams.length){
+        const preview=automaticStage(streams,colorLimit,previewEquipment,mode,{movingSource:true});
         const frames=preview.frames.map(cells=>cells.map(frame=>adjustFrame(frame)));
         colors=decodeStage(encodeStage(frames,previewEquipment),previewEquipment).flatMap(f=>f.cells);
       }
@@ -92,7 +94,7 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
         const advance=s.songTime-previous,rate=elapsed>0?advance/elapsed:0;
         const progressing=advance>0&&advance<.3&&rate>=.25&&rate<=4&&s.frame?.state!==false;
         const movingPose=progressing?(preparation.read(s.movingPlan,s.songTime+predictionSeconds*rate,mode,mood)||preparation.read(s.movingPlan,s.songTime+predictionSeconds*rate,mode,previousMood)):null;
-        return {...s,movingPose};
+        return {...s,movingPose,songTime:progressing?s.songTime+predictionSeconds*rate:s.songTime};
       });
       const aheadTarget=!blackout&&!reducedMotion.matches&&aheadSources.filter(s=>s.frame&&s.frame.state!==false&&s.weight>0).every(s=>s.movingPose)?(movingHeadTargets(aheadSources,mode)||movingHeadTargets(aheadSources.filter(s=>s.movingPlan).map(s=>({...s,frame:s.frame&&s.frame.state!==false?{...s.frame,dimming:100}:s.frame})),mode)):null;
 
@@ -127,6 +129,7 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
       const shutters=mode==='auto'?presenceSources.map(s=>preparation.exposure(s.movingPlan,s.songTime,mode,mood)):[];
       const movingShutter=Math.min(1,...shutters.map(s=>s.level)),cueTransit=shutters.some(s=>s.transfer);
       const movingPresence=mode==='auto'?(presenceWeight?mixMovingPresence(presenceSources.map(s=>({presence:movingPresenceAt({...s,movingMood:mood}),weight:s.weight/presenceWeight}))):streams.length?{level:0,spread:0}:movingPresenceAt({})):null;
+      const aheadPresence=projectedAhead&&presenceWeight?mixMovingPresence(aheadSources.filter(s=>s.frame&&s.frame.state!==false&&s.weight>0).map(s=>({presence:movingPresenceAt({...s,movingMood:mood}),weight:s.weight/presenceWeight}))):null;
       const order=heads.map((_,i)=>i).sort((a,b)=>(projected?.[a].position.x??a)-(projected?.[b].position.x??b));
       const ranks=[];order.forEach((i,rank)=>{ranks[i]=rank;});
       heads.forEach((head,i)=>{
@@ -137,7 +140,7 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
         const power=basePower*movingPresenceLevel(movingPresence,ranks[i],heads.length)*movingShutter;
         const color=basePower?rgb.map(v=>Math.round(v/basePower)):rgb;
         const {pan,tilt}=projected?{pan:projected[i].frontPan,tilt:.55+.6*projected[i].tilt/90}:devicePoses[i];
-        if(projected)preview.push({...projected[i],motionPresentation:mood==='show'?'show':mood==='balanced'&&mode==='auto'?'auto':undefined,movingShutter,cueTransit,...(movingPresence?{movingPresence,movingPresenceBasePower:basePower}:{}),...(projectedAhead?{motionAhead:{seconds:predictionSeconds,target:projectedAhead[i].target,motionUV:projectedAhead[i].motionUV,motionFocus:projectedAhead[i].motionFocus}}:{}),color:`rgb(${color.join(',')})`,power});
+        if(projected)preview.push({...projected[i],motionRange:reducedMotion.matches?0:devices[i].motionRange??1,motionGroup:devices[i].group,motionPresentation:mood==='show'?'show':mood==='balanced'&&mode==='auto'?'auto':undefined,movingShutter,cueTransit,...(movingPresence?{movingPresence,movingPresenceBasePower:basePower}:{}),...(projectedAhead?{motionAhead:{seconds:predictionSeconds,movingPresence:aheadPresence,target:projectedAhead[i].target,motionUV:projectedAhead[i].motionUV,motionFocus:projectedAhead[i].motionFocus}}:{}),color:`rgb(${color.join(',')})`,power});
         if(projected)setStyle(i,'--head-position',String((projected[i].position.x/getLayout().width+.5)*100));
         setStyle(i,'--head-pan',`${pan.toFixed(2)}deg`);
         setStyle(i,'--head-tilt',tilt.toFixed(3));

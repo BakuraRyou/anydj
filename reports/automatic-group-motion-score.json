@@ -1,0 +1,226 @@
+[
+  {
+    "start": 0,
+    "end": 9.14,
+    "motion": null,
+    "energy": 0.07830022658931765,
+    "direction": 1,
+    "groupIndex": 0
+  },
+  {
+    "start": 9.14,
+    "end": 15.84,
+    "motion": "rising-steps",
+    "energy": 0.1597886054149885,
+    "direction": -1,
+    "groupIndex": 1
+  },
+  {
+    "start": 15.84,
+    "end": 22.54,
+    "motion": "opening-arch",
+    "energy": 0.2737021998659297,
+    "direction": -1,
+    "groupIndex": 2
+  },
+  {
+    "start": 22.54,
+    "end": 30.92,
+    "motion": "counter-fans",
+    "energy": 0.5994870881116757,
+    "direction": -1,
+    "groupIndex": 3
+  },
+  {
+    "start": 30.92,
+    "end": 44.32,
+    "motion": "folding-gates",
+    "energy": 0.5956842179201026,
+    "direction": -1,
+    "groupIndex": 4
+  },
+  {
+    "start": 44.32,
+    "end": 47.69,
+    "motion": "rising-steps",
+    "energy": 0.6669929799954822,
+    "direction": -1,
+    "groupIndex": 5
+  },
+  {
+    "start": 47.69,
+    "end": 61.1,
+    "motion": "braided-pairs",
+    "energy": 0.6854839948371947,
+    "direction": 1,
+    "groupIndex": 6
+  },
+  {
+    "start": 61.1,
+    "end": 67.76,
+    "motion": "orbit",
+    "energy": 0.6516055558927871,
+    "direction": 1,
+    "groupIndex": 7
+  },
+  {
+    "start": 67.76,
+    "end": 74.48,
+    "motion": "diagonal-curtain",
+    "energy": 0.5630719559840848,
+    "direction": 1,
+    "groupIndex": 8
+  },
+  {
+    "start": 74.48,
+    "end": 81.18,
+    "motion": "traveling-wave",
+    "energy": 0.6150551574392722,
+    "direction": 1,
+    "groupIndex": 9
+  },
+  {
+    "start": 81.18,
+    "end": 84.53,
+    "motion": "orbit",
+    "energy": 0.6557103092554786,
+    "direction": 1,
+    "groupIndex": 10
+  },
+  {
+    "start": 84.53,
+    "end": 91.24,
+    "motion": "counter-fans",
+    "energy": 0.5840626540427377,
+    "direction": -1,
+    "groupIndex": 11
+  },
+  {
+    "start": 91.24,
+    "end": 97.94,
+    "motion": "diagonal-curtain",
+    "energy": 0.5755534241879617,
+    "direction": -1,
+    "groupIndex": 12
+  },
+  {
+    "start": 97.94,
+    "end": 101.3,
+    "motion": "rising-steps",
+    "energy": 0.6324068518991238,
+    "direction": -1,
+    "groupIndex": 13
+  },
+  {
+    "start": 101.3,
+    "end": 108,
+    "motion": "ripple",
+    "energy": 0.6646173924224015,
+    "direction": 1,
+    "groupIndex": 14
+  },
+  {
+    "start": 108,
+    "end": 121.4,
+    "motion": "crossing-ribbons",
+    "energy": 0.6077557689003362,
+    "direction": 1,
+    "groupIndex": 15
+  },
+  {
+    "start": 121.4,
+    "end": 126.43,
+    "motion": "opening-arch",
+    "energy": 0.6500285181313692,
+    "direction": 1,
+    "groupIndex": 16
+  },
+  {
+    "start": 126.43,
+    "end": 134.76,
+    "motion": null,
+    "energy": 0.24919346360091238,
+    "direction": 1,
+    "groupIndex": 17
+  },
+  {
+    "start": 134.76,
+    "end": 141.44,
+    "motion": "traveling-wave",
+    "energy": 0.5176318912258563,
+    "direction": 1,
+    "groupIndex": 18
+  },
+  {
+    "start": 141.44,
+    "end": 148.22,
+    "motion": "braided-pairs",
+    "energy": 0.7364827040961324,
+    "direction": 1,
+    "groupIndex": 19
+  },
+  {
+    "start": 148.22,
+    "end": 154.9,
+    "motion": "folding-gates",
+    "energy": 0.6939387099051777,
+    "direction": 1,
+    "groupIndex": 20
+  },
+  {
+    "start": 154.9,
+    "end": 168.32,
+    "motion": "crossing-ribbons",
+    "energy": 0.7795643485301134,
+    "direction": 1,
+    "groupIndex": 21
+  },
+  {
+    "start": 168.32,
+    "end": 181.74,
+    "motion": "diagonal-curtain",
+    "energy": 0.7527567031262189,
+    "direction": 1,
+    "groupIndex": 22
+  },
+  {
+    "start": 181.74,
+    "end": 186.74,
+    "motion": "braided-pairs",
+    "energy": 0.7642493916786558,
+    "direction": 1,
+    "groupIndex": 23
+  },
+  {
+    "start": 186.74,
+    "end": 188.3,
+    "motion": null,
+    "energy": 0.14988626846197747,
+    "direction": 1,
+    "groupIndex": 24
+  },
+  {
+    "start": 188.3,
+    "end": 189.60000000000002,
+    "motion": null,
+    "energy": 0.03287648747765775,
+    "direction": 1,
+    "groupIndex": 25
+  },
+  {
+    "start": 189.60000000000002,
+    "end": 190.70000000000002,
+    "motion": null,
+    "energy": 0.08677650908486775,
+    "direction": 1,
+    "groupIndex": 26
+  },
+  {
+    "start": 190.70000000000002,
+    "end": 192.7024375,
+    "motion": null,
+    "energy": 0.0001797375599542805,
+    "direction": 1,
+    "groupIndex": 27
+  }
+]

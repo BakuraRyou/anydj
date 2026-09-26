@@ -20,7 +20,7 @@ export function createVRPlayback({delay=120}={}){
         const motionFocus=prev.motionFocus!==undefined||light.motionFocus!==undefined?mix(prev.motionFocus??0,light.motionFocus??0):undefined;
         const motionUV=prev.motionUV&&light.motionUV?{x:mix(prev.motionUV.x,light.motionUV.x),y:mix(prev.motionUV.y,light.motionUV.y)}:light.motionUV;
         const pa=prev.motionAhead,la=light.motionAhead;
-        const motionAhead=pa&&la?{seconds:mix(pa.seconds,la.seconds),motionFocus:mix(pa.motionFocus??0,la.motionFocus??0),target:{x:mix(pa.target.x,la.target.x),y:mix(pa.target.y,la.target.y),...((pa.target.z!==undefined||la.target.z!==undefined)?{z:mix(pa.target.z||0,la.target.z||0)}:{})},...(pa.motionUV&&la.motionUV?{motionUV:{x:mix(pa.motionUV.x,la.motionUV.x),y:mix(pa.motionUV.y,la.motionUV.y)}}:{})}:undefined;
+        const motionAhead=pa&&la?{...(pa.movingPresence&&la.movingPresence?{movingPresence:mixMovingPresence([{presence:pa.movingPresence,weight:1-t},{presence:la.movingPresence,weight:t}])}:{}),seconds:mix(pa.seconds,la.seconds),motionFocus:mix(pa.motionFocus??0,la.motionFocus??0),target:{x:mix(pa.target.x,la.target.x),y:mix(pa.target.y,la.target.y),...((pa.target.z!==undefined||la.target.z!==undefined)?{z:mix(pa.target.z||0,la.target.z||0)}:{})},...(pa.motionUV&&la.motionUV?{motionUV:{x:mix(pa.motionUV.x,la.motionUV.x),y:mix(pa.motionUV.y,la.motionUV.y)}}:{})}:undefined;
         const presence=prev.movingPresence&&light.movingPresence?{
           movingPresence:mixMovingPresence([{presence:prev.movingPresence,weight:1-t},{presence:light.movingPresence,weight:t}]),
           movingPresenceBasePower:mix(prev.movingPresenceBasePower,light.movingPresenceBasePower),
@@ -55,7 +55,7 @@ export function createMovingPreview({delay=60}={}){
      // adding the fallback jitter buffer's delay. Bound stalled-source travel.
      const age=Math.max(0,Math.min(.05,(now-receivedAt)/1000)),t=Math.min(1,age/ahead.seconds);
      const mix=(a,b)=>Object.fromEntries(Object.keys(a).map(k=>[k,a[k]+((b[k]??a[k])-a[k])*t]));
-     return {...light,...(light.motionFocus!==undefined?{motionFocus:light.motionFocus+((ahead.motionFocus??light.motionFocus)-light.motionFocus)*t}:{}),target:mix(light.target,ahead.target),...(light.motionUV&&ahead.motionUV?{motionUV:mix(light.motionUV,ahead.motionUV)}:{}),motionAhead:now-receivedAt<=150?{...ahead,seconds:Math.max(.001,ahead.seconds-age)}:undefined};
+     return {...light,...(light.movingPresence&&ahead.movingPresence?{movingPresence:mixMovingPresence([{presence:light.movingPresence,weight:1-t},{presence:ahead.movingPresence,weight:t}])}:{}),...(light.motionFocus!==undefined?{motionFocus:light.motionFocus+((ahead.motionFocus??light.motionFocus)-light.motionFocus)*t}:{}),target:mix(light.target,ahead.target),...(light.motionUV&&ahead.motionUV?{motionUV:mix(light.motionUV,ahead.motionUV)}:{}),motionAhead:now-receivedAt<=150?{...ahead,seconds:Math.max(.001,ahead.seconds-age)}:undefined};
     }
     const pose=poses.get(light.id);return pose?{...light,...(pose.motionFocus!==undefined?{motionFocus:pose.motionFocus}:{}),target:pose.target,...(pose.motionUV?{motionUV:pose.motionUV}:{})}:light;
    });

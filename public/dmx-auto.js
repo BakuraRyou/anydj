@@ -1,3 +1,4 @@
+import {lightingSceneAt,lightingScenes} from './dmx-light-scenes.js';
 import {showActionAt} from './show-action.js';
 import {activityAt} from './dmx-activity.js';
 import {passageIntensity} from './stage-motifs.js';
@@ -142,7 +143,24 @@ export function spatialColors(source,units,palette){
   return base.map((rgb,i)=>blendSpatialColor(rgb,
     blendSpatialColor(palette[slot(i,step)],palette[slot(i,step+1)],mix),amount));
 }
-export function automaticStage(streams,count=2,equipment,mode='auto'){
+// Recover mid-level exposure in measured energetic passages before fixture masks.
+// Zero stays zero; the configured ceiling and explicit section edits still win.
+export function automaticDimming(source){
+  const raw=clamp(source.frame?.dimming||0,0,100),plan=source.movingPlan,time=source.songTime;
+  if(!raw||source.frame?.state===false||!plan||!Number.isFinite(time))return raw;
+  if(plan.sectionLighting?.some(s=>time>=s.start&&time<s.end))return raw;
+  const scene=lightingSceneAt(plan,time);if(!scene)return raw;
+  const strength=s=>!s||s.kind==='silence'||s.kind==='sculpture'?0:ease((s.energy-.55)/.3);
+  const previous=lightingScenes(plan)[scene.index-1],blend=ease((time-scene.start)/.8);
+  const intensity=strength(previous)+(strength(scene)-strength(previous))*blend;
+  const ceiling=clamp(plan.effectiveOptions?.maximum??plan.beatTiming?.maximum??100,0,100);
+  if(raw>=ceiling)return raw;
+  const normalized=raw/ceiling;
+  const lifted=Math.min(raw*2.5,ceiling*Math.sqrt(normalized));
+  return raw+(lifted-raw)*intensity;
+}
+
+export function automaticStage(streams,count=2,equipment,mode='auto',{movingSource=false}={}){
   const chase=mode==='chase';
   const simple=['wash','follow','alternate'].includes(mode);
   const patch=stagePatch(equipment),units=patch.reduce((n,f)=>n+f.cells,0);
@@ -200,8 +218,11 @@ export function automaticStage(streams,count=2,equipment,mode='auto'){
         }
         return sum+clamp(s.frame.dimming||0,0,100)*passageIntensity(s.look,s.sectionProgress)*strength*s.weight;
       },0)/total:mode==='auto'?active.reduce((sum,s,k)=>{
-        const exposure=fixture.profile!=='rgb-pixels'?activity[k].spots[spotIndex]:activity[k].bars[index][cell];
-        return sum+clamp(s.frame.dimming||0,0,100)*passageIntensity(s.look,s.sectionProgress)*exposure*s.weight;
+        const moving=movingSource||fixture.type==='moving';
+        // Moving presence applies musical exposure after spatial expansion.
+        // Do not bake the spot mask and passage attenuation into its source too.
+        const exposure=moving?1:fixture.profile!=='rgb-pixels'?activity[k].spots[spotIndex]:activity[k].bars[index][cell];
+        return sum+automaticDimming(s)*(moving?1:passageIntensity(s.look,s.sectionProgress))*exposure*s.weight;
       },0)/total:level;
       return {state:true,r,g,b,dimming};
     });

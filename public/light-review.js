@@ -1,3 +1,4 @@
+import {automaticGroupScore} from './dmx-group-motion.js';
 import {movingMoodForProfile} from './dj-show-profile.js';
 import {planShowScore} from './show-score.js';
 import {lightingScenes} from './dmx-light-scenes.js';
@@ -19,7 +20,7 @@ export function lightReview(plan,{title='',time=0}={}){
   snapshot:{frame:showFrameAt(plan,position),palette:songPaletteAt(plan,position),
    section:plan.sections?.find(s=>position>=s.start&&position<s.end)??null,
    pose:cues?movingCueAt(cues,position):null},
-  decisions:{showScore:plan.showProfile==='show'?(plan.showScore||planShowScore(plan)):null,scenes:lightingScenes(plan),colors:plan.colorDirection??null,movement:plan.showProfile==='show'?null:movingDirections(plan),cues},plan});
+  decisions:{groupMotion:mood==='balanced'?automaticGroupScore(plan):null,showScore:plan.showProfile==='show'?(plan.showScore||planShowScore(plan)):null,scenes:lightingScenes(plan),colors:plan.colorDirection??null,movement:plan.showProfile==='show'?null:movingDirections(plan),cues},plan});
 }
 
 // Analysis plans may contain typed arrays. JSON arrays keep exported plans readable.

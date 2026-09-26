@@ -178,3 +178,30 @@ test('rolling color travels for the full measured step at different tempos and t
  const gap=[0,.5,1,1.5,4,4.5,5,5.5];
  assert.deepEqual(render(gap,2.3),render(gap,3.5),'real musical gaps settle instead of continuing to roll');
 });
+
+test('energetic automatic passages recover dim source frames while preserving dimmer limits and edits',async()=>{
+ const {automaticDimming}=await import('../public/dmx-auto.js');
+ const plan={duration:16,effectiveOptions:{maximum:80},sections:[{start:0,end:16,look:'peak',intensity:1}],arrangement:{patterns:{phrases:[{start:0,end:16,energy:1,movement:{driving:1}}]}}};
+ const s=source('peak',{movingPlan:plan,songTime:4,frame:{...frame,dimming:17}});
+ assert.ok(automaticDimming(s)>34);assert.ok(automaticDimming(s)<=80);
+ assert.ok(automaticStage([s]).frames.flat().every(f=>f.dimming>34));
+ for(const dimming of [0,80,100])assert.equal(automaticDimming({...s,frame:{...frame,dimming}}),dimming);
+ const edited={...s,movingPlan:{...plan,sectionLighting:[{start:0,end:16,rhythm:'none'}]}};
+ assert.equal(automaticDimming(edited),17);
+ assert.equal(automaticStage([s],2,undefined,'follow').frames[0][0].dimming,17);
+ const quiet={...s,movingPlan:{...plan,sections:[{start:0,end:16,look:'quiet',intensity:.2}],arrangement:undefined}};
+ assert.equal(automaticDimming(quiet),17);
+ assert.ok(automaticStage([{...s,frame:{...frame,dimming:0}}]).frames.flat().every(f=>f.dimming===0));
+});
+
+test('moving source avoids baked-in spot attenuation before its own presence mask',()=>{
+ const s=source('quiet',{frame:{...frame,dimming:60}});
+ const spots=automaticStage([s]).frames.flat();
+ const moving=automaticStage([s],2,undefined,'auto',{movingSource:true}).frames.flat();
+ assert.ok(spots.every(f=>f.dimming===30));
+ assert.ok(moving.every(f=>f.dimming===60));
+ assert.deepEqual(moving.map(({r,g,b})=>[r,g,b]),spots.map(({r,g,b})=>[r,g,b]));
+ const dark=automaticStage([{...s,frame:{...frame,dimming:0}}],2,undefined,'auto',{movingSource:true});
+ assert.ok(dark.frames.flat().every(f=>f.dimming===0));
+ assert.deepEqual(automaticStage([s],2,undefined,'follow',{movingSource:true}),automaticStage([s],2,undefined,'follow'));
+});

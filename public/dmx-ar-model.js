@@ -1,3 +1,4 @@
+import {presenceGroupOffset,presenceComposition,automaticFixtureGroups} from './dmx-group-motion.js';
 import {applyMovingPresence} from './dmx-activity.js';
 import {motionClearance,footprintClearance,lightFootprint,createRoomMotors,roomBeamHit,beamBoundary} from './dmx-light-geometry.js';
 import {validateRoomMesh,surfaceTriangles} from './dmx-room-mesh.js';
@@ -130,6 +131,8 @@ export function applyRoomPlan(scene, plan, ar=false) {
     row.anchor=row.heads.reduce((sum,[,p])=>sum+(p.target?.y??p.y),0)/row.heads.length;
     row.heads.forEach(([id])=>rowById.set(id,row));
   }
+  const groupRoles=automaticFixtureGroups(roomHeads.map(([id,p])=>({id,position:p,group:p.group??groups.get(id)?.[0].motionGroup})));
+  const motionGroupCount=Math.max(1,...[...groupRoles.values()].map(g=>g.row+1));
   const motionById=new Map();
   const uv=light=>({x:Math.max(0,Math.min(1,light.motionUV?.x??(light.target.x/(scene.layout.width*.9)+.5))),y:Math.max(0,Math.min(1,light.motionUV?.y??((light.target.y/scene.layout.depth-.1)/.65)))});
   if(sourceHeads.length)for(const sampling of distributed?rows.map(row=>row.heads):[roomHeads])sampling.forEach(([id],rank)=>{
@@ -137,7 +140,7 @@ export function applyRoomPlan(scene, plan, ar=false) {
     const a=sourceHeads[lo],b=sourceHeads[hi],mix=(a,b)=>({x:a.x+(b.x-a.x)*fraction,y:a.y+(b.y-a.y)*fraction});
     const motionUV=mix(uv(a),uv(b));let motionAhead;
     if(a.motionAhead&&b.motionAhead&&Math.abs(a.motionAhead.seconds-b.motionAhead.seconds)<.001){
-      motionAhead={seconds:a.motionAhead.seconds,motionUV:mix(uv(a.motionAhead),uv(b.motionAhead)),target:a.motionAhead.target,motionFocus:(a.motionAhead.motionFocus??0)+((b.motionAhead.motionFocus??0)-(a.motionAhead.motionFocus??0))*fraction};
+      motionAhead={seconds:a.motionAhead.seconds,movingPresence:a.motionAhead.movingPresence,motionUV:mix(uv(a.motionAhead),uv(b.motionAhead)),target:a.motionAhead.target,motionFocus:(a.motionAhead.motionFocus??0)+((b.motionAhead.motionFocus??0)-(a.motionAhead.motionFocus??0))*fraction};
     }
     motionById.set(id,{motionUV,motionAhead,...(a.motionFocus!==undefined||b.motionFocus!==undefined?{motionFocus:(a.motionFocus??0)+((b.motionFocus??0)-(a.motionFocus??0))*fraction}:{})});
   });
@@ -164,6 +167,16 @@ export function applyRoomPlan(scene, plan, ar=false) {
         nx=nx+(homeX-nx)*.28*(1-focus);
         ny=localY+(ny-localY)*focus;
       }
+      if(light.motionPresentation==='auto'&&!p.wallTarget){
+        const role=groupRoles.get(light.id);
+        if(role){
+          const rangeScale=Math.max(0,Math.min(1,light.motionRange??1));
+          const composition=presenceComposition(light.movingPresence,role.rank,role.count,role.row,motionGroupCount);
+          if(composition){const blend=composition.weight*rangeScale;nx+=(composition.x-nx)*blend;ny+=(composition.y-ny)*blend;}
+          else {const offset=presenceGroupOffset(light.movingPresence,role.rank,role.count,role.row);
+            nx=Math.max(0,Math.min(1,nx+offset.x*rangeScale));ny=Math.max(0,Math.min(1,ny+offset.y*rangeScale));}
+        }
+      }
       motionUV={x:nx,y:ny};
       target={x:(range.x+range.width*nx-.5)*plan.width,y:(range.y+range.depth*ny)*plan.depth};
       if(!insideRoom([target.x,target.y],plan.boundary)){
@@ -174,7 +187,7 @@ export function applyRoomPlan(scene, plan, ar=false) {
       }
     }
 
-    return {...light,...(motionUV?{motionUV}:{}),...(light.type==='moving'&&p.motionArea?{motionBounds:{left:(p.motionArea.x-.5)*plan.width,right:(p.motionArea.x+p.motionArea.width-.5)*plan.width,bottom:p.motionArea.y*plan.depth,top:(p.motionArea.y+p.motionArea.depth)*plan.depth}}:{}),aimed:light.type==='moving'||!!p.target,target,aimRotation:light.type==='moving'||p.target?roomFixtureRotation(p,target):p.rotation,position:{...p,x:p.x+dx*Math.cos(a)-dy*Math.sin(a),y:p.y+dx*Math.sin(a)+dy*Math.cos(a)},modelSize:p.size,rotation:p.rotation};
+    return {...light,...(light.type==='moving'?{motionGroup:p.group??groups.get(light.id)?.[0].motionGroup}:{}),...(motionUV?{motionUV}:{}),...(light.type==='moving'&&p.motionArea?{motionBounds:{left:(p.motionArea.x-.5)*plan.width,right:(p.motionArea.x+p.motionArea.width-.5)*plan.width,bottom:p.motionArea.y*plan.depth,top:(p.motionArea.y+p.motionArea.depth)*plan.depth}}:{}),aimed:light.type==='moving'||!!p.target,target,aimRotation:light.type==='moving'||p.target?roomFixtureRotation(p,target):p.rotation,position:{...p,x:p.x+dx*Math.cos(a)-dy*Math.sin(a),y:p.y+dx*Math.sin(a)+dy*Math.cos(a)},modelSize:p.size,rotation:p.rotation};
   });
   for(const [id,p] of Object.entries(plan.positions))if(!centers.has(id))lights.push({id,type:p.type||'spot',aimed:!!p.target,position:p,target:roomFixtureTarget(plan,id),color:'#7595a4',power:0,modelSize:p.size,rotation:p.rotation});
   // Virtual room fixtures may clone source roles or reorder the rig. Resolve
@@ -182,7 +195,7 @@ export function applyRoomPlan(scene, plan, ar=false) {
   const moving=lights.filter(l=>l.type==='moving').sort((a,b)=>a.position.x-b.position.x||a.id.localeCompare(b.id));
   moving.forEach((light,i)=>{if(moving.length%2&&i===Math.floor(moving.length/2))light.motionRole='center';else if(light.motionRole==='center')delete light.motionRole;});
   if(scene.lights.some(l=>l.motionAhead)){
-    const ahead=applyRoomPlan({...scene,lights:scene.lights.map(l=>{const {motionAhead,...current}=l;return motionAhead?{...current,target:motionAhead.target,motionUV:motionAhead.motionUV,motionFocus:motionAhead.motionFocus}:current;})},plan,ar);
+    const ahead=applyRoomPlan({...scene,lights:scene.lights.map(l=>{const {motionAhead,...current}=l;return motionAhead?{...current,target:motionAhead.target,motionUV:motionAhead.motionUV,motionFocus:motionAhead.motionFocus,movingPresence:motionAhead.movingPresence??current.movingPresence}:current;})},plan,ar);
     lights.forEach((light,i)=>{if(light.motionAhead)light.motionAhead={...light.motionAhead,target:ahead.lights[i].target,motionUV:ahead.lights[i].motionUV,motionFocus:ahead.lights[i].motionFocus};});
   }
   // The virtual room duplicates a few source fixtures into a much larger rig.
@@ -197,19 +210,32 @@ export function applyRoomPlan(scene, plan, ar=false) {
     if(!automatic)return light;
     const count=counts.get(light.type)||0;
     if(count<=24)return light;
-    // Broad washes add over large parts of the floor; narrow moving beams
-    // have a larger allowance. RGB stays untouched.
-    const allowance=light.type==='moving'?24:12;
+    // Keep wash support visible: avoid multiplying a second type penalty
+    // by a near-black supporting-row mask. RGB stays untouched.
     let accompaniment=1;
     if(light.type!=='moving'&&supportLayers.some(p=>Number.isFinite(p?.supportSelection))){
       const band=Math.min(5,Math.max(0,Math.floor(light.position.y/plan.depth*6)));
       accompaniment=supportLayers.reduce((sum,p)=>{
         if(!p)return sum;
         const role=Number.isFinite(p.supportSelection)?((band-p.supportSelection-3)%6+6)%6:null;
-        return sum+(p.weight??1)*(role===null?1:(p.supportLevel??.5)*(role<2?1:.35));
+        return sum+(p.weight??1)*(role===null?1:(p.supportLevel===0?0:(.65+.35*(p.supportLevel??.5))*(role<2?1:.65)));
       },0);
     }
-    const gain=accompaniment*Math.sqrt(24/count)*(1-(1-allowance/24)*Math.min(1,(count-24)/24));
+    // Budget the rows scheduled by the passage, not dark installed heads.
+    // Use the authored row allocation, never instantaneous power/beat masks,
+    // so blackouts and pair changes cannot brighten the surviving fixtures.
+    let capacity=count;
+    if(light.type==='moving'&&supportLayers.length){
+      let weight=0,occupancy=0;
+      for(const p of supportLayers){
+        if(!p)continue;
+        const w=p.weight??1;
+        const fraction=Number.isFinite(p.rowFraction)?Math.max(1,Math.min(motionGroupCount,Math.ceil(motionGroupCount*p.rowFraction)))/motionGroupCount:1;
+        weight+=w;occupancy+=w*fraction;
+      }
+      if(weight>0)capacity=count*occupancy/weight;
+    }
+    const gain=accompaniment*Math.min(1,Math.sqrt(24/Math.max(1,capacity)));
     return {...light,power:light.power*gain,...(Number.isFinite(light.movingPresenceBasePower)?{movingPresenceBasePower:light.movingPresenceBasePower*gain}:{})};
   });
   return {...scene,layout:{...roomPlanLayout(plan),ar},lights:balanced,crowd:ar?[]:scene.crowd};
@@ -477,7 +503,7 @@ export function roomMusicalAim(light,layout,plan=null){
  const map=value=>{const mapped=roomSurfaceChoreography(value,layout);return plan?wallChoreography(mapped,plan):mapped;};
  const value=map(current);
  if(!motionAhead||light.zoneTransit||(plan?.zones||layout.zones||[]).length)return value;
- const ahead=map({...current,target:motionAhead.target,motionUV:motionAhead.motionUV,motionFocus:motionAhead.motionFocus});
+ const ahead=map({...current,target:motionAhead.target,motionUV:motionAhead.motionUV,motionFocus:motionAhead.motionFocus,movingPresence:motionAhead.movingPresence??current.movingPresence});
  return {...value,motionAhead:{seconds:motionAhead.seconds,target:ahead.target}};
 }
 

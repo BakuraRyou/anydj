@@ -15,7 +15,7 @@ test('192-fixture automatic room limits additive wash power and uses selected mo
  const heads=result.filter(l=>l.type==='moving'),wash=result.filter(l=>l.type==='spot'||l.type==='bar');
  assert.equal(heads.length,72);assert.equal(wash.length,120);
  assert.ok(heads.filter(l=>l.power>0).length<=36);
- assert.ok(wash.every(l=>l.power<=.36),'broad washes cannot all run at original full power');
+ assert.ok(wash.every(l=>l.power<=.6),'broad washes cannot all run at original full power');
  assert.ok(result.reduce((sum,l)=>sum+l.power,0)<60,'full-source synthetic frame stays under 60 fixture-equivalents');
  assert.ok(result.filter(l=>l.power>0).every(l=>l.color==='#20aaff'));
  assert.deepEqual(applyMovingPresence(result),result,'reapplying presence does not erase the brightness budget');
@@ -43,4 +43,46 @@ test('ordinary percussion gets small movements and measured standouts get larger
  }
  const accent=gestures.find(g=>g.kind==='accent');assert.ok(accent);
  assert.notDeepEqual(gesturePose(accent),gesturePose(bars[0]));
+});
+
+test('sustained high-energy grooves expand their rows without lifting washes or blackouts',()=>{
+ const make=energy=>({...plan,arrangement:{...plan.arrangement,patterns:{phrases:[{...plan.arrangement.patterns.phrases[0],start:0,end:8,energy},{...plan.arrangement.patterns.phrases[0],start:8,end:32,energy}]}}});
+ const at=energy=>movingPresenceAt({movingPlan:make(energy),songTime:10,movingMood:'balanced'});
+ const low=at(.6),high=at(.95);
+ const rowFraction=p=>p.layers.find(l=>l.weight===1).rowFraction;
+ assert.equal(rowFraction(low),.34);assert.equal(rowFraction(high),.67);
+ const render=p=>{const s=source();s.lights=s.lights.map(l=>l.type==='moving'?{...l,movingPresence:p}:l);return applyRoomPlan(s,largeClubRoom()).lights;};
+ const a=render(low),b=render(high);
+ assert.ok(b.filter(l=>l.type==='moving').reduce((sum,l)=>sum+l.power,0)>a.filter(l=>l.type==='moving').reduce((sum,l)=>sum+l.power,0));
+ const wash=lights=>lights.filter(l=>l.type!=='moving').map(l=>l.power).sort((x,y)=>x-y);
+ const control={...high,layers:high.layers.map(l=>({...l,rowFraction:.34,groupMotion:l.groupMotion?{...l.groupMotion,energy:.6}:null}))};
+ assert.deepEqual(wash(render(control)),wash(b));
+ const dark=b.map(l=>({...l,movingPresenceBasePower:0}));
+ assert.ok(applyMovingPresence(dark).filter(l=>l.type==='moving').every(l=>l.power===0));
+});
+
+test('inactive installed rows do not dim a sparse automatic group and beat blackouts do not pump gain',()=>{
+ const s=source(),room=largeClubRoom();
+ const presence={level:1,spread:1,mask:'all',rowFraction:1/3,rowSelection:0};
+ s.lights=s.lights.map(l=>l.type==='moving'?{...l,movingPresence:presence,movingPresenceBasePower:.5,power:.5}:l);
+ const result=applyRoomPlan(s,room).lights.filter(l=>l.type==='moving');
+ const active=result.filter(l=>l.power>0);
+ assert.equal(active.length,24);
+ assert.ok(active.every(l=>Math.abs(l.power-.5)<1e-9),'24 selected heads retain source intensity despite 72 installed heads');
+ const full={...s,lights:s.lights.map(l=>l.type==='moving'?{...l,movingPresence:{...presence,rowFraction:1}}:l)};
+ const dense=applyRoomPlan(full,room).lights.filter(l=>l.type==='moving');
+ assert.ok(dense.every(l=>Math.abs(l.power-.5*Math.sqrt(24/72))<1e-9));
+ const pulse={...s,lights:s.lights.map(l=>l.type==='moving'?{...l,movingPresence:{...presence,mask:'center'}}:l)};
+ const pulsed=applyRoomPlan(pulse,room).lights.filter(l=>l.type==='moving'&&l.power>0);
+ assert.ok(pulsed.length<active.length);assert.ok(pulsed.every(l=>Math.abs(l.power-.5)<1e-9));
+});
+
+test('automatic accompaniment remains visible across the room and still respects silence',()=>{
+ const s=source(),room=largeClubRoom();
+ const setSupport=level=>({...s,lights:s.lights.map(l=>l.type==='moving'?{...l,movingPresence:{level:1,spread:1,mask:'all',rowFraction:1/3,supportSelection:0,supportLevel:level}}:l)});
+ const wash=applyRoomPlan(setSupport(.5),room).lights.filter(l=>l.type==='spot');
+ const expected=Math.sqrt(24/72)*(.65+.35*.5);
+ assert.ok(wash.every(l=>Math.abs(l.power-expected)<1e-9||Math.abs(l.power-expected*.65)<1e-9));
+ assert.ok(wash.every(l=>l.power>.3&&l.power<.5));
+ assert.ok(applyRoomPlan(setSupport(0),room).lights.filter(l=>l.type==='spot'||l.type==='bar').every(l=>l.power===0));
 });
