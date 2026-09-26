@@ -185,3 +185,12 @@
 .stage-assembly-list { display:flex; flex-wrap:wrap; gap:8px; }
 .stage-assembly-list:empty { display:none; }
 .stage-assembly-list [aria-pressed=true] { border-color:#96d9ce; background:#284744; }
+
+.stage-view-tabs{display:flex;gap:4px;margin-left:auto}
+.stage-view-tabs .button{min-height:32px;padding:5px 10px}
+.dj-page .stage-view-tabs .button[aria-selected=true]{background:#a2e7d41c;border-color:#82c9b6;color:#b9f4e3}
+.dj-light-heading .stage-expand-icon{display:grid;place-items:center;min-width:34px;min-height:34px;padding:6px}
+.stage-expand-icon svg{width:20px;height:20px}
+.dj-mixer-light>.stage-inline-toolbar{display:none}
+.stage-inline [role=tabpanel][hidden]{display:none!important}
+.dmx-stage>.stage-scene{height:230px;margin:12px 0}

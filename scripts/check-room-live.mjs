@@ -6,7 +6,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createApp} from '../server.mjs';
 
-const app=await createApp({demo:true});
+const app=await createApp({demo:true,previewPort:0});
 app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
 await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
@@ -64,8 +64,27 @@ try {
   await new Promise(r=>setTimeout(r,200));const black=await pixels();assert.notEqual(black,lit,'blackout changes visible room illumination');await new Promise(r=>setTimeout(r,250));assert.equal(await pixels(),black,'room lamps stay dark during blackout');
   await evaluate("document.querySelector('[data-stage3d-expand]').click();document.querySelector('#stageSettings').click();document.querySelector('[data-blackout]').click();document.querySelector('[data-close]').click();document.querySelector('[data-stage3d-expand]').click()");
   await new Promise(r=>setTimeout(r,200));assert.notEqual(await pixels(),black,'show resumes after blackout');assert.deepEqual(await stored(),plan,'show playback leaves the saved room untouched');
+  // Add a floor-spanning exclusion in the real editor, then consume the same
+  // scene stream and room renderer used by the connected preview.
+  await evaluate("document.querySelector('[data-workspace-tab=room]').click();document.querySelector('.ar-room-zones [data-zone-add]').click();for(const [key,value] of [['width',.8],['depth',6],['x',3.6],['y',0]]){const input=document.querySelector('.ar-room-zones [data-zone-'+key+']');input.value=value;input.dispatchEvent(new Event('change'));}");
+  assert.equal((await stored()).zones.length,1);
+  await evaluate(`(async()=>{
+    const pair=await (await fetch('/api/vr-preview/test-connect')).json(),{createRoomPreview}=await import('/dmx-ar-model.js'),{zoneObstacles,blockedSegment}=await import('/dmx-zone-motion.js');
+    const preview=createRoomPreview();let previous=null;
+    window.zoneFrames=[];window.roomStream=new EventSource('/api/vr-preview/stream?id='+pair.id);
+    roomStream.onmessage=e=>{const scene=JSON.parse(e.data).scene;if(!scene.roomPlan?.zones?.length)return;
+      const result=preview(scene,scene.roomPlan),head=result.lights.find(l=>l.type==='moving'),boxes=zoneObstacles(result.layout,scene.roomPlan.zones,0);
+      if(head){zoneFrames.push({target:head.target,power:head.power,crossed:previous&&blockedSegment(previous.target,head.target,boxes),previousPower:previous?.power,inside:blockedSegment(head.target,head.target,boxes)});previous=head;}
+    };
+  })()`);
+  await wait("window.zoneFrames?.length>=16");
+  const zoneFrames=await evaluate("roomStream.close();zoneFrames");
+  assert.ok(zoneFrames.every(f=>!f.crossed||(f.power===0&&f.previousPower===0)),'any exceptional crossing is fully dark before entry');
+  assert.ok(zoneFrames.every(f=>!f.inside||f.power===0),'no live light footprint is aimed into the quiet zone');
+  assert.ok(zoneFrames.some(f=>f.power>0),'the live show continues on the permitted side');
+  await writeFile('/tmp/anydj-room-live-quiet-zone.png',Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
   assert.deepEqual(errors,[]);assert.equal(requests.includes('/api/music/start'),false);
-  console.log('Live room browser passed: new Moving Head changes its actual aim angle; spot and LED bar follow live frames; blackout and resume work; placement stays saved; no hardware session.');
+  console.log('Live room browser passed: new Moving Head changes its actual aim angle; spot and LED bar follow live frames; blackout and resume work; placement stays saved; live streamed movement respects an impassable quiet zone; no hardware session.');
 } finally {
   ws?.close();chrome.kill('SIGKILL');app.server.closeAllConnections();
   await new Promise(resolve=>app.server.close(resolve));

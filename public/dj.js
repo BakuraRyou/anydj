@@ -160,10 +160,20 @@ const performanceControls=createPerformance({decks,mixer,ready:audioReady,
     if(!target)throw Error('Kein passendes Beat-Raster für Sync verfügbar.');
     deck.loop=null;deck.audio.currentTime=target.time;deck.audio.playbackRate=target.rate;deck.manualRate=target.rate;deck.transition=null;
   }});
-simplifyDJLayout(decks,mixer);
+simplifyDJLayout(decks,mixer,lightStage);
 // Optional 3D transport uses the same deck actions as the main controls.
 const stageLightDrafts=new Map();
 lightStage.setTransport({
+  getShowProfiles:()=>[...$('djShowProfile').options].map(option=>({value:option.value,label:option.textContent})),
+  getShowProfile:()=>$('djShowProfile').value,
+  setShowProfile:value=>{const input=$('djShowProfile');if(input.disabled||![...input.options].some(option=>option.value===value))return;input.value=value;input.dispatchEvent(new Event('change'));},
+  getMixer:()=>({position:Number($('crossfader').value),mix:$('mixValue').textContent,canCrossfade:!$('crossfader').disabled,
+    auto:$('autoCrossfade').checked,canAuto:!$('autoCrossfade').disabled,duration:$('fadeDuration').value,canDuration:!$('fadeDuration').disabled,
+    fading:!$('fadeCancel').hidden,canFade:!$('fadeCancel').hidden||!$('fadeNow').disabled,status:$('fadeStatus').textContent}),
+  setCrossfade:value=>{const input=$('crossfader');if(input.disabled)return;input.value=value;input.dispatchEvent(new Event('input'));},
+  setAutoCrossfade:value=>{const input=$('autoCrossfade');if(input.disabled)return;input.checked=value;input.dispatchEvent(new Event('change'));},
+  setFadeDuration:value=>{const input=$('fadeDuration');if(input.disabled)return;input.value=value;input.dispatchEvent(new Event('change'));},
+  fade:()=>($('fadeCancel').hidden?$('fadeNow'):$('fadeCancel')).click(),
   getTracks:()=>tracks.filter(t=>!t.deleted).map(t=>({id:t.id,title:t.name,ready:Boolean(t.plan&&!t.missing&&!t.pendingChange)})),
   importFiles:files=>addFiles(files),
   mountEditor:async(id,host,options)=>{const d=decks.find(d=>d.name===id);if(!d?.track?.basePlan?.arrangement)return null;return editSections(d.track,()=>d.audio.currentTime,{...options,host,externalAudio:d.audio,edits:stageLightDrafts.get(d.track.id)});},
@@ -200,6 +210,7 @@ lightTuning=createLightTuning(lightStage.tuningHost,()=>updateLightPreview());
 lightTuning.root.open=true;
 const tuneButton=document.createElement('button');tuneButton.type='button';tuneButton.className='button secondary';tuneButton.textContent='Licht feinjustieren';tuneButton.onclick=()=>lightStage.openSettings('tuning');
 mixer.querySelector('.dj-light-settings').append(tuneButton);
+lightStage.mountOptions(mixer.querySelector('.dj-light-settings'),fullButton);
 const transitionEditor=createTransitionPreview({host:document.querySelector('.dj-mixer-transition'),
  routing:performanceControls,
  getUnavailableReason:()=>fade?'Der laufende Übergang muss zuerst beendet werden.':decks.some(d=>d.spotify)?'Für die Hörprobe zwei lokale Audiodateien laden.':decks.some(d=>d.resumeTime!=null)?'Zuerst die Dateien in den Decks über „Datei verbinden“ erneut verbinden.':decks.some(d=>!d.track)?'Einen lokalen Titel in Deck A und einen in Deck B laden.':decks.some(d=>!d.track.plan)?'Die Songanalyse läuft noch. Danach „Paar neu laden“ wählen.':'Das nächste Deck der Warteschlange ist noch nicht bereit. Zwei vorbereitete Titel laden und das Paar neu laden.',
@@ -484,7 +495,7 @@ async function editSections(track,position=()=>0,embedded={}) {
     const frame=showFrameAt(plan,time,flickerControl.value),section=plan.sections?.find(s=>time>=s.start&&time<s.end);
     const motif=motifs?.[plan.sections?.indexOf(section)],grid=plan.beatGrid?.beats||plan.beatTiming?.times;
     const absoluteBeat=beatPosition(grid,time),startBeat=motif?beatPosition(grid,motif.start):null;
-    latest={frame,streams:[{frame,weight:1,movingPlan:plan,songTime:time,beat:absoluteBeat,
+    latest={frame,streams:[{frame,weight:1,movingPlan:plan,songTime:time,flicker:flickerControl.value,beat:absoluteBeat,
       motionCharacter:stageMotionAt(plan,time),palette:songPaletteAt(plan,time),motifColor:motif?.color,
       motionBeat:absoluteBeat!==null&&startBeat!==null?absoluteBeat-startBeat:null,look:section?.look,
       sectionProgress:section?(time-section.start)/Math.max(.001,section.end-section.start):0,
@@ -736,7 +747,7 @@ function updateLightPreview(){
     const grid=plan?.beatGrid?.beats||plan?.beatTiming?.times;
     const firstBeat=grid?.findIndex(t=>t>=motif?.start);
     const startBeat=motif?(beatPosition(grid,motif.start)??(firstBeat>=0?firstBeat:null)):null;
-    return {source:deck.track?`${deck.name}:${deck.track.id}`:null,playing:!deck.audio.paused&&!deck.audio.seeking,motionCharacter:stageMotionAt(plan,time),palette:songPaletteAt(plan,time),movingPlan:plan,songTime:time,motifColor:motif?.color,motionBeat:absoluteBeat!==null&&startBeat!==null?absoluteBeat-startBeat:null,frame:current[i],weight:weights[i],beat:beatPosition(plan?.beatGrid?.beats||plan?.beatTiming?.times,time),look:section?.look,sectionProgress:section?(time-section.start)/Math.max(.001,section.end-section.start):0,
+    return {source:deck.track?`${deck.name}:${deck.track.id}`:null,playing:!deck.audio.paused&&!deck.audio.seeking,motionCharacter:stageMotionAt(plan,time),palette:songPaletteAt(plan,time),movingPlan:plan,songTime:time,flicker:flickerControl.value,motifColor:motif?.color,motionBeat:absoluteBeat!==null&&startBeat!==null?absoluteBeat-startBeat:null,frame:current[i],weight:weights[i],beat:beatPosition(plan?.beatGrid?.beats||plan?.beatTiming?.times,time),look:section?.look,sectionProgress:section?(time-section.start)/Math.max(.001,section.end-section.start):0,
       accentStrength:stageAccentStrength(plan,time),washDimming:stageWashDimming(plan,time),sectionKey:section?`${deck.track.id}:${section.start}`:null,sectionName:section?`${deck.track.name} · ${section.title||section.label||section.lookLabel||'Abschnitt'}`:''};
   });
   fullMode.update(mixedFrame,lightStreams);

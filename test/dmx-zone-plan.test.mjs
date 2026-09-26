@@ -13,13 +13,21 @@ test('manual aim changes fixed fixtures without changing source lights',()=>{
  assert.deepEqual(zoneLights([lamp],layout,s)[0].target,{x:3.0000000000000004,y:3});assert.deepEqual(lamp,before);
  assert.deepEqual(zoneLights([{...lamp,type:'moving'}],layout,s)[0].target,lamp.target);
 });
-test('fixed lights retain direction and dim; moving targets are left to the continuous router',()=>{
+test('fixed lights retain direction and switch off; moving targets are left to the continuous router',()=>{
  const s=zoneSettings({zones:[{x:.4,y:.4,width:.2,depth:.2}]});
  const [fixed,moving]=zoneLights([lamp,{...lamp,type:'moving'}],layout,s);
- assert.deepEqual(fixed.target,lamp.target);assert.equal(fixed.power,.1);
+ assert.deepEqual(fixed.target,lamp.target);assert.equal(fixed.power,0);
  assert.deepEqual(moving.target,lamp.target);assert.equal(moving.power,1);
 });
-test('fully covered floor dims fixed fixtures',()=>{
+test('fully covered floor switches fixed fixtures off',()=>{
  const s=zoneSettings({zones:[{x:0,y:0,width:1,depth:1}]});
- assert.equal(zoneLights([lamp],layout,s)[0].power,.1);
+ assert.equal(zoneLights([lamp],layout,s)[0].power,0);
+});
+
+test('a fixed footprint touching a zone is off even when its center is outside',()=>{
+ const s=zoneSettings({zones:[{x:.4,y:.4,width:.2,depth:.2}]});
+ const outside={...lamp,target:{x:1.2,y:5}};
+ assert.equal(zoneLights([outside],layout,s)[0].power,0);
+ const safe={...lamp,position:{x:4,y:8,height:3},target:{x:4,y:7}};
+ assert.equal(zoneLights([safe],layout,s)[0].power,1);
 });

@@ -1,5 +1,5 @@
 // UI composition only: keep existing controls, handlers and saved settings intact.
-export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,transport,zones}){
+export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones}){
   const q=s=>panel.querySelector(s),heading=q('.stage-3d-heading'),canvas=q('canvas'),tools=q('.stage-3d-tools'),status=q(':scope>p[role=status]');
   heading.querySelector('strong').innerHTML='Lichtshow <small>3D-Vorschau</small>';
   q('[data-stage3d-full]').textContent='Vollbild';
@@ -14,6 +14,7 @@ export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,tran
   inspectorHeader.innerHTML='<strong></strong><button type="button" class="button secondary" data-tools-close aria-label="Werkzeuge schließen">✕</button>';
   inspector.append(inspectorHeader,body);heading.after(navigation,work);work.append(viewport,inspector);viewport.append(canvas,tools,status);
   const room=q('.stage-3d-room'),dancer=q('.stage-3d-dancer');room.open=true;
+  const zoneHome=document.createComment('Zonen im Gerätemanager');
   const pages=new Map(),buttons=new Map();let current='',cleanup=null,roomPlanner=null;
   for(const [key,title] of [['room','Raum'],['fixtures','Geräte'],['lighting','Licht'],['position','Standort']]){
     const button=document.createElement('button');button.type='button';button.className='button secondary';button.dataset.workspaceTab=key;button.textContent=title;button.setAttribute('aria-pressed','false');navigation.append(button);buttons.set(key,button);
@@ -22,9 +23,6 @@ export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,tran
   }
   pages.get('room').append(room);pages.get('position').append(dancer);
   const positionHint=document.createElement('p');positionHint.className='stage-3d-position-hint';positionHint.textContent='Wähle „Ego-Perspektive“, um den Raum mit WASD zu erkunden oder Standort und Augenhöhe einzustellen.';pages.get('position').append(positionHint);
-  const deviceActions=document.createElement('div');deviceActions.className='stage-3d-device-actions';deviceActions.innerHTML='<p>Geräte hinzufügen, in der Liste auswählen und direkt im Plan positionieren.</p>';pages.get('fixtures').append(deviceActions);
-  const backToPlan=document.createElement('button');backToPlan.type='button';backToPlan.className='button secondary';backToPlan.textContent='Zurück zur Raumaufstellung';backToPlan.hidden=true;backToPlan.onclick=()=>show('fixtures');deviceActions.prepend(backToPlan);
-  const deviceHost=document.createElement('div');deviceHost.className='stage-3d-device-editor';pages.get('fixtures').append(deviceHost);
   const lightPage=pages.get('lighting'),lightTabs=document.createElement('div');lightTabs.className='stage-3d-light-tabs';
   lightTabs.innerHTML='<button type="button" class="button secondary" data-light-view="song">Song-Licht</button><button type="button" class="button secondary" data-light-view="live">Live-Look & Verbindung</button>';
   const songHost=document.createElement('div');songHost.className='stage-3d-song-editor';
@@ -67,16 +65,15 @@ export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,tran
   lightTabs.querySelectorAll('button').forEach(b=>b.onclick=()=>chooseLight(b.dataset.lightView));
   function show(key,view='song'){
     cleanup?.();cleanup=null;current=key;
+    if(key==='room'){if(!zoneHome.parentNode)zones.panel.before(zoneHome);room.append(zones.panel);}else zoneHome.replaceWith(zones.panel);
     work.classList.toggle('has-tools',Boolean(key));work.classList.toggle('editing-room',key==='room');work.classList.toggle('editing-devices',key==='fixtures');inspector.hidden=!key;
     for(const [name,page] of pages){page.hidden=name!==key;buttons.get(name).setAttribute('aria-pressed',String(name===key));}
     if(key){inspectorHeader.querySelector('strong').textContent=key==='fixtures'?'Gerätemanager':buttons.get(key).textContent;body.scrollTop=0;}
-    backToPlan.hidden=true;
     if(roomPlanner){
       if(key==='room'){pages.get('room').prepend(roomPlanner.root);roomPlanner.openStep(1);}
-      if(key==='fixtures'&&roomPlanner.active){pages.get('fixtures').prepend(roomPlanner.root);roomPlanner.openStep(2);}
-      deviceActions.hidden=key==='fixtures'&&roomPlanner.active;deviceHost.hidden=key==='fixtures'&&roomPlanner.active;
+      if(key==='fixtures'){pages.get('fixtures').prepend(roomPlanner.root);roomPlanner.openStep(2);}
     }
-    if(key==='fixtures'&&!roomPlanner?.active)cleanup=mountLayout?.(deviceHost,zones);
+
     work.classList.toggle('editing-song',key==='lighting'&&view==='song');
     if(key==='lighting')chooseLight(view==='song'?'song':'live',view);
     positionHint.hidden=!dancer.hidden;
@@ -88,10 +85,35 @@ export function createStageWorkspace(panel,{mountLayout,mountLighting,onFit,tran
   room.querySelector('summary').after(mode);enabled.closest('label').classList.add('stage-3d-legacy-mode');
   const all=document.createElement('button');all.type='button';all.className='button secondary';all.textContent='Gesamten Raum beleuchten';all.dataset.roomAll='';room.querySelector('.stage-3d-room-fields').after(all);
   all.onclick=()=>{const range=q('[data-room-reach]');range.value=range.max;range.dispatchEvent(new Event('input'));};
-  const stageSetup=document.createElement('button');stageSetup.type='button';stageSetup.className='button secondary';stageSetup.textContent='Geräte, Lichtziele & Zonen bearbeiten';stageSetup.onclick=()=>show('fixtures');mode.after(stageSetup);
+  const stageSetup=document.createElement('button');stageSetup.type='button';stageSetup.className='button secondary';stageSetup.textContent='Geräte & Lichtziele bearbeiten';stageSetup.onclick=()=>show('fixtures');mode.after(stageSetup);
   const syncRoom=()=>{room.querySelector('.stage-3d-room-fields').hidden=!enabled.checked;all.hidden=!enabled.checked;q('[data-room-map]').toggleAttribute('hidden',!enabled.checked);stageSetup.hidden=false;mode.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(enabled.checked===(b.dataset.roomPreset==='true'))));all.disabled=!enabled.checked;};
   room.addEventListener('change',syncRoom);room.addEventListener('input',syncRoom);syncRoom();
+  const toolEvents=new AbortController();
+  function organizeTools(){
+    tools.classList.add('stage-view-toolbar');tools.setAttribute('aria-label','3D-Ansicht steuern');
+    const views=document.createElement('div');views.className='stage-view-group';views.setAttribute('role','group');views.setAttribute('aria-label','Perspektive');
+    views.append(q('[data-camera=front]'),q('[data-camera=top]'),q('[data-dancer]'));
+    const zoom=document.createElement('div');zoom.className='stage-view-group stage-view-zoom';zoom.setAttribute('role','group');zoom.setAttribute('aria-label','Ausschnitt');
+    reset.textContent='Einpassen';reset.title='Raum einpassen';zoom.append(q('[data-camera=out]'),q('[data-camera=in]'),reset);
+    const extras=document.createElement('div');extras.className='stage-view-extras';
+    function disclosure(label,kind){
+      const details=document.createElement('details');details.className='stage-view-menu';details.dataset.viewMenu=kind;
+      const summary=document.createElement('summary');summary.textContent=label;
+      const content=document.createElement('div');content.className='stage-view-popover';
+      const title=document.createElement('strong');title.textContent=kind==='help'?'Die 3D-Ansicht bedienen':'Mit einer Brille ansehen';content.append(title);
+      details.append(summary,content);extras.append(details);
+      details.addEventListener('toggle',()=>{if(details.open)for(const other of extras.children)if(other!==details)other.open=false;},{signal:toolEvents.signal});
+      return content;
+    }
+    const help=disclosure('Bedienung','help');help.append(q('[data-camera-help]'),status);
+    const xr=disclosure('AR / VR','xr'),actions=document.createElement('div');actions.className='stage-view-xr-actions';
+    actions.append(q('[data-stage-ar]'),q('[data-stage-vr]'),q('[data-vr-recheck]'));
+    xr.append(actions,q('.stage-vr-status'),q('.stage-vr-setup'),q('.stage-vr-share'));
+    tools.replaceChildren(views,zoom,extras);
+    document.addEventListener('pointerdown',event=>{for(const menu of extras.children)if(menu.open&&!menu.contains(event.target))menu.open=false;},{signal:toolEvents.signal});
+    tools.addEventListener('keydown',event=>{if(event.key!=='Escape')return;const open=[...extras.children].find(m=>m.open);if(open){event.preventDefault();event.stopPropagation();open.open=false;open.querySelector('summary').focus();}},{signal:toolEvents.signal});
+  }
   const fitButton=reset;fitButton.addEventListener('click',onFit);
   show('');
-  return {show,manageShowDevices(){show('fixtures');if(roomPlanner)pages.get('room').prepend(roomPlanner.root);deviceActions.hidden=false;deviceHost.hidden=false;backToPlan.hidden=!roomPlanner?.active;cleanup?.();cleanup=mountLayout?.(deviceHost,zones);},setRoomPlanner(value){roomPlanner=value;},update(){if(sessionKey){const d=transport.getSelected();if(`${d?.id}:${d?.trackId}`!==sessionKey)releaseSong();}if(current==='lighting'&&lightView==='song')void ensureSong();},refresh(){positionHint.hidden=!dancer.hidden;},close(){show('');releaseSong();},destroy(){disposed=true;releaseSong();cleanup?.();fitButton.removeEventListener('click',onFit);}};
+  return {show,organizeTools,setRoomPlanner(value){roomPlanner=value;},update(){if(sessionKey){const d=transport.getSelected();if(`${d?.id}:${d?.trackId}`!==sessionKey)releaseSong();}if(current==='lighting'&&lightView==='song')void ensureSong();},refresh(){positionHint.hidden=!dancer.hidden;},close(){show('');releaseSong();},destroy(){disposed=true;toolEvents.abort();releaseSong();cleanup?.();zoneHome.replaceWith(zones.panel);fitButton.removeEventListener('click',onFit);}};
 }

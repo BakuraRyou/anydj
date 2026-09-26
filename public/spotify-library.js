@@ -200,7 +200,9 @@ export function createSpotifyLibrary({getTracks,enqueueTracks,saveList,loadLocal
     });
     login.disabled=!callback;
     const disconnect=button('Verbindung trennen',()=>{revision++;controller?.abort();cancelAuth();playback.stop();onSpotifyError?.('Spotify getrennt.');client.disconnect();rows=[];next=null;currentPath='';title.textContent='Spotify getrennt.';status.textContent='';renderRows();d.box.close();});disconnect.disabled=!client.connected;
-    d.append(description,error);d.footer.prepend(login,disconnect);d.open();
+    d.append(description,error);
+    if(document.documentElement.dataset.edition==='web')d.append(node('p','Mit der Anmeldung forderst du die Verbindung zu Spotify an. Spotify erhält dabei Verbindungs-, Konto- und Nutzungsdaten; Anmeldetoken bleiben im Sitzungsspeicher dieses Browsers.','small muted'),link('Datenschutz zur Spotify-Verbindung','./datenschutz.html#streaming'));
+    d.footer.prepend(login,disconnect);d.open();
   }
   select(false);updateControls();
   window.addEventListener('pagehide',()=>{controller?.abort();cancelAuth();playback.stop();},{once:true});

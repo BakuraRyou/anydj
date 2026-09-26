@@ -28,12 +28,15 @@ try {
  ws.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.id){const p=pending.get(m.id);pending.delete(m.id);m.error?p.reject(Error(JSON.stringify(m.error))):p.resolve(m.result);}else if(m.method==='Runtime.exceptionThrown')errors.push(m.params.exceptionDetails);});
  const command=(method,params={},sessionId)=>new Promise((resolve,reject)=>{const id=next++;pending.set(id,{resolve,reject});ws.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}));});
  const {targetId}=await command('Target.createTarget',{url:'about:blank'});const {sessionId}=await command('Target.attachToTarget',{targetId,flatten:true});
- const c=(method,params)=>command(method,params,sessionId);await c('Runtime.enable');await c('Page.enable');
+ let acceptShared=false;const routingDialogs=[];
+ const c=(method,params)=>command(method,params,sessionId);
+ ws.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.method==='Page.javascriptDialogOpening'){routingDialogs.push(m.params);void c('Page.handleJavaScriptDialog',{accept:acceptShared});}});await c('Runtime.enable');await c('Page.enable');
  const evaluate=async expression=>{const r=await c('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true,userGesture:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
  const wait=async(expression,timeout=30000)=>{const start=Date.now();while(Date.now()-start<timeout){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Timed out: '+expression+' '+JSON.stringify(errors)+' '+await evaluate("({queue:document.querySelector('#queueStatus')?.textContent,status:document.querySelector('#djStatus')?.textContent,count:document.querySelector('#queueCount')?.textContent,start:document.querySelector('#queueStart')?.textContent,decks:[...document.querySelectorAll('audio')].map(a=>({time:a.currentTime,paused:a.paused}))})"));};
  await c('Emulation.setDeviceMetricsOverride',{width:1280,height:1000,deviceScaleFactor:1,mobile:false});
  await c('Page.addScriptToEvaluateOnNewDocument',{source:`const objectUrl=URL.createObjectURL.bind(URL);window.recordedBlobs=[];URL.createObjectURL=b=>{window.recordedBlobs.push(b);return objectUrl(b);};
  const Native=window.AudioContext;window.testAudioNodes=[];window.testGains=[];window.AudioContext=class extends Native {constructor(...args){super(...args);window.testContext=this;}async setSinkId(id){window.testMasterSink=id;}createGain(){const n=super.createGain();window.testGains.push(n);return n;}createBiquadFilter(){const n=super.createBiquadFilter();window.testAudioNodes.push(n);return n;}};
+ Object.defineProperty(navigator.mediaDevices,'enumerateDevices',{configurable:true,value:async()=>[{kind:'audiooutput',deviceId:'master-device',groupId:'master',label:'Test Master'},{kind:'audiooutput',deviceId:'cue-device',groupId:'cue',label:'Test Headphones'}]});
  Object.defineProperty(navigator.mediaDevices,'selectAudioOutput',{configurable:true,value:async()=>window.testOutput});
  HTMLMediaElement.prototype.setSinkId=async function(id){window.testCueSink=id;};
  const nativePlay=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){return this.srcObject?Promise.resolve():nativePlay.call(this);};`});
@@ -108,11 +111,30 @@ try {
  assert.ok(await evaluate("document.querySelector('[data-master-meter]').value<.001"),'master mute is in audio graph');
  await evaluate("window.testOutput={deviceId:'master-device',groupId:'master',label:'Test Master'};document.querySelector('[data-output=master]').click()");
  await wait("document.querySelector('[data-routing]').textContent.includes('Master: Test Master')");
+ assert.equal(await evaluate("document.querySelector('[data-output-select=cue] option[value=master-device]').disabled"),false,'shared output is selectable in the dropdown');
  await evaluate("document.querySelector('[data-output=cue]').click()");
- await wait("document.querySelector('[data-routing]').textContent.includes('anderen Ausgang')");
+ await wait("!document.querySelector('[data-output=cue]').disabled");
+ assert.equal(routingDialogs.length,1);
+ assert.equal(routingDialogs[0].type,'confirm');
+ assert.match(routingDialogs[0].message,/auch für dein Publikum/);
  assert.equal(await evaluate("deckA.querySelector('.dj-monitor').disabled"),true);
- await evaluate("window.testOutput={deviceId:'cue-device',groupId:'cue',label:'Test Headphones'};document.querySelector('[data-output=cue]').click()");
+ assert.equal(await evaluate("window.testCueSink"),undefined,'cancel does not route cue');
+ acceptShared=true;
+ await evaluate("document.querySelector('[data-output=cue]').click()");
+ await wait("document.querySelector('[data-routing]').textContent.includes('Gemeinsamer Ausgang')");
+ assert.equal(routingDialogs.length,2);
+ assert.equal(await evaluate("window.testCueSink"),'master-device');
  await wait("!deckA.querySelector('.dj-monitor').disabled");
+ // Aliases belonging to the same physical device require confirmation too.
+ acceptShared=false;
+ await evaluate("window.testOutput={deviceId:'master-alias',groupId:'master',label:'Master Alias'};document.querySelector('[data-output=cue]').click()");
+ await wait("!document.querySelector('[data-output=cue]').disabled");
+ assert.equal(routingDialogs.length,3);
+ assert.equal(await evaluate("window.testCueSink"),'master-device','cancel keeps existing routing');
+ assert.ok(await evaluate("document.querySelector('[data-routing]').textContent.includes('Gemeinsamer Ausgang')"));
+ await evaluate("window.testOutput={deviceId:'cue-device',groupId:'cue',label:'Test Headphones'};document.querySelector('[data-output=cue]').click()");
+ await wait("document.querySelector('[data-routing]').textContent.includes('Test Headphones')");
+ assert.equal(routingDialogs.length,3,'separate outputs need no confirmation');
  await evaluate("window.cueMeter=testContext.createAnalyser();testGains[1].connect(cueMeter);deckA.querySelector('.dj-monitor').click()");
  await wait("(()=>{const data=new Float32Array(cueMeter.fftSize);cueMeter.getFloatTimeDomainData(data);return data.some(v=>Math.abs(v)>.001);})()");
  assert.ok(await evaluate("document.querySelector('[data-master-meter]').value<.001"),'cue bypasses master without leaking');
@@ -124,5 +146,5 @@ try {
  if(process.argv.includes('--covers'))await wait("document.querySelector('#trackList img.dj-track-cover')?.naturalWidth>0");
  const restored=await evaluate("import('/dj-library.js').then(m=>m.readLibrary()).then(t=>t.find(x=>x.hotCues?.[0]!=null)?.hotCues)");assert.deepEqual(restored,saved);
  assert.deepEqual(errors,[]);
- console.log('DJ performance passed: A–Mixer–B order, actual audio meters, manual tempo, EQ graph, hotcue persistence, loop wrap, beat jump, sync, master mute, recording and isolated cue routing with simulated devices.');
+ console.log('DJ performance passed: A–Mixer–B order, actual audio meters, manual tempo, EQ graph, hotcue persistence, loop wrap, beat jump, sync, master mute, recording, confirmed shared output, cancellation and isolated cue routing with simulated devices.');
 } finally {ws?.close();chrome.kill('SIGKILL');app.server.closeAllConnections();await new Promise(r=>app.server.close(r));await rm(profile,{recursive:true,force:true,maxRetries:10,retryDelay:100});await rm(fixtures,{recursive:true,force:true});}

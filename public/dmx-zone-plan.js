@@ -1,3 +1,4 @@
+import {footprintClearance} from './dmx-light-geometry.js';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const finite=(v,f)=>Number.isFinite(Number(v))?Number(v):f;
 export function zoneSettings(raw={}){
@@ -9,14 +10,13 @@ export function zoneSettings(raw={}){
   return {zones,aims};
 }
 export function zoneLights(lights,layout,settings){
-  const low=layout.lightMin||0,w=layout.width,d=layout.depth,margin=.25;
-  const boxes=settings.zones.map(z=>({left:(z.x-.5)*w-margin,right:(z.x+z.width-.5)*w+margin,bottom:z.y*d-margin,top:(z.y+z.depth)*d+margin}));
-  const inside=p=>boxes.some(b=>p.x>=b.left&&p.x<=b.right&&p.y>=b.bottom&&p.y<=b.top);
+  const low=layout.lightMin||0,w=layout.width,d=layout.depth;
+  const boxes=settings.zones.map(z=>({left:(z.x-.5)*w,right:(z.x+z.width-.5)*w,bottom:z.y*d,top:(z.y+z.depth)*d}));
   return lights.map(light=>{
     const aim=light.type!=='moving'&&settings.aims[light.id];
     let target=aim?{x:(aim.x-.5)*w,y:clamp(aim.y*d,low,d)}:{...light.target},power=light.power;
     // Moving heads are routed continuously by dmx-zone-motion.js.
-    if(light.type!=='moving'&&inside(target))power*=.1;
+    if(light.type!=='moving'){const margin=footprintClearance(light,target);if(boxes.some(b=>target.x>=b.left-margin&&target.x<=b.right+margin&&target.y>=b.bottom-margin&&target.y<=b.top+margin))power=0;}
     return {...light,target,power};
   });
 }
@@ -24,7 +24,7 @@ export function createZonePlan(host,{getLayout,onChange,onPosition,getAims,onAim
   const key='anydj-3d-zones-v1';let saved;try{saved=JSON.parse(localStorage.getItem(key));}catch{}
   let settings=zoneSettings(getSettings?getSettings():saved),selected=settings.zones[0]?.id||'',fixtures=[],signature='',drag=null;
   const panel=document.createElement('section');panel.className='stage-3d-zone-plan';
-  panel.innerHTML=`<h3>Zonen & Lichtrichtung</h3><p>Tische und Sitzbereiche markieren oder einen festen Scheinwerfer auswählen und sein Ziel im Plan setzen.</p><div class="stage-3d-zone-actions"><button type="button" class="button secondary" data-zone-add>Ruhezone hinzufügen</button><select data-zone-fixture aria-label="Scheinwerfer ausrichten"><option value="">Zonen bearbeiten</option></select></div><svg data-zone-map viewBox="0 0 300 240" aria-label="Zonenplan: Ruhezone verschieben oder Lichtziel setzen" role="img"><rect x="10" y="10" width="280" height="220" fill="#142b35" stroke="#638891"/><text x="150" y="25" text-anchor="middle" fill="#c5d7df">HINTEN</text><g data-zone-shapes></g><g data-zone-lights></g><text x="150" y="225" text-anchor="middle" fill="#c5d7df">VORNE</text></svg><p data-zone-help></p><div data-zone-fields><label>Ruhezone<select data-zone-select></select></label><label>Name<input data-zone-name maxlength="60"></label><div class="stage-3d-room-fields"><label>Von links (m)<input data-zone-x type="number" min="0" step="0.1"></label><label>Von vorne (m)<input data-zone-y type="number" min="0" step="0.1"></label><label>Breite (m)<input data-zone-width type="number" min="0.1" step="0.1"></label><label>Tiefe (m)<input data-zone-depth type="number" min="0.1" step="0.1"></label></div><button type="button" class="button secondary" data-zone-delete>Zone entfernen</button></div><div data-zone-aim hidden><p>Den offenen Zielkreis ziehen oder im Plan ein neues Lichtziel anklicken.</p><button type="button" class="button secondary" data-zone-reset>Ausrichtung zurücksetzen</button></div><p data-zone-status role="status"></p><small>Nur 3D-Vorschau: Moving Heads umfahren Ruhezonen mit flüssigen Wegen. Ist kein freier Weg möglich, wird weich abgeblendet. Feste Scheinwerfer bleiben ausgerichtet und werden dort abgedimmt. Lichtkegel und Schwenkwege können die Zonen weiterhin streifen.</small>`;
+  panel.innerHTML=`<h3>Zonen & Lichtrichtung</h3><p>Tische und Sitzbereiche markieren oder einen festen Scheinwerfer auswählen und sein Ziel im Plan setzen.</p><div class="stage-3d-zone-actions"><button type="button" class="button secondary" data-zone-add>Ruhezone hinzufügen</button><select data-zone-fixture aria-label="Scheinwerfer ausrichten"><option value="">Zonen bearbeiten</option></select></div><svg data-zone-map viewBox="0 0 300 240" aria-label="Zonenplan: Ruhezone verschieben oder Lichtziel setzen" role="img"><rect x="10" y="10" width="280" height="220" fill="#142b35" stroke="#638891"/><text x="150" y="25" text-anchor="middle" fill="#c5d7df">HINTEN</text><g data-zone-shapes></g><g data-zone-lights></g><text x="150" y="225" text-anchor="middle" fill="#c5d7df">VORNE</text></svg><p data-zone-help></p><div data-zone-fields><label>Ruhezone<select data-zone-select></select></label><label>Name<input data-zone-name maxlength="60"></label><div class="stage-3d-room-fields"><label>Von links (m)<input data-zone-x type="number" min="0" step="0.1"></label><label>Von vorne (m)<input data-zone-y type="number" min="0" step="0.1"></label><label>Breite (m)<input data-zone-width type="number" min="0.1" step="0.1"></label><label>Tiefe (m)<input data-zone-depth type="number" min="0.1" step="0.1"></label></div><button type="button" class="button secondary" data-zone-delete>Zone entfernen</button></div><div data-zone-aim hidden><p>Den offenen Zielkreis ziehen oder im Plan ein neues Lichtziel anklicken.</p><button type="button" class="button secondary" data-zone-reset>Ausrichtung zurücksetzen</button></div><p data-zone-status role="status"></p><small>Ruhezonen gelten vom Boden bis zur Decke: Auch Lichtstrahlen dürfen sie nicht durchqueren. In der Vorschau: Moving Heads umfahren Ruhezonen mit Abstand für den gesamten Lichtfleck. Freie Umwege haben Vorrang. Nur wenn länger kein freier Weg besteht, dürfen sie selten vollständig abgeblendet in einen freien Bereich wechseln. Vorher blenden sie aus, danach wieder ein. Feste Scheinwerfer werden ausgeschaltet, wenn ihr Lichtfleck eine Ruhezone trifft.</small>`;
   (host.querySelector('.stage-3d-room')||host).append(panel);
   const q=n=>panel.querySelector(`[data-zone-${n}]`),map=q('map'),svg=(tag,attrs,parent)=>{const e=document.createElementNS('http://www.w3.org/2000/svg',tag);for(const [k,v]of Object.entries(attrs))e.setAttribute(k,v);parent.append(e);return e;};
   function setAim(id,p){if(onAim)onAim(id,p);else if(p)settings.aims[id]=p;else delete settings.aims[id];}

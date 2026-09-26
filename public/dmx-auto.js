@@ -1,3 +1,4 @@
+import {showActionAt} from './show-action.js';
 import {activityAt} from './dmx-activity.js';
 import {passageIntensity} from './stage-motifs.js';
 import {stagePatch} from './dmx-model.js';
@@ -88,6 +89,18 @@ const ease=x=>{const v=clamp(x,0,1);return v*v*(3-2*v);};
 // Only measured, driving bounce/sweep phrases carry a travelling palette.
 // Pair selected attacks into steps; a beat grid alone never animates colors.
 export function spatialColors(source,units,palette){
+  const action=showActionAt(source.movingPlan,source.songTime);
+  if(action&&palette.length>1){
+    const {cue,progress}=action;
+    // Center and edges share one color wave. Normalize brightness during
+    // complementary blends so a color transition does not invent a blackout.
+    return Array.from({length:units},(_,i)=>{
+      const radius=units===1?0:Math.abs(2*i/(units-1)-1);
+      const wave=cue.action==='launch'?ease(progress*1.6-radius*.6):cue.action==='hit'?ease(progress)*radius:cue.phase?1-radius:radius;
+      return blendSpatialColor(palette[0],palette.at(-1),wave*ease(progress/.16)*(1-ease((progress-.72)/.28)));
+    });
+  }
+  if(source.movingPlan?.showProfile==='show')return Array.from({length:units},()=>palette[0]);
   const count=palette.length,slots=spatialColorSlots(source,units,count);
   let base=slots.map(i=>palette[i]);
   // A musical layout change is a short dissolve, not a simultaneous hard swap.

@@ -1,0 +1,1474 @@
+{
+  "summary": {
+    "cues": 209,
+    "limited": 201,
+    "belowHalf": 179,
+    "medianReach": 0.14005915516424944,
+    "meanTravel": 0.4321732663769508
+  },
+  "cues": [
+    {
+      "time": 4.0600000000000005,
+      "formation": "parallel",
+      "reach": 0.0003616154328755979,
+      "travel": 0.0600000000000005,
+      "distance": 8.865560226077024
+    },
+    {
+      "time": 4.48,
+      "formation": "parallel",
+      "reach": 0.08771619346690683,
+      "travel": 0.41999999999999993,
+      "distance": 31.532968892950475
+    },
+    {
+      "time": 5,
+      "formation": "parallel",
+      "reach": 0.1214313795041784,
+      "travel": 0.5199999999999996,
+      "distance": 43.22906776458627
+    },
+    {
+      "time": 5.46,
+      "formation": "parallel",
+      "reach": 0.13206491104465584,
+      "travel": 0.45999999999999996,
+      "distance": 27.515842812362095
+    },
+    {
+      "time": 5.96,
+      "formation": "parallel",
+      "reach": 0.33193528178592274,
+      "travel": 0.5,
+      "distance": 11.5659146649124
+    },
+    {
+      "time": 7.2,
+      "formation": "fan",
+      "reach": 1,
+      "travel": 0.792255497154153,
+      "distance": 18.564897329806062
+    },
+    {
+      "time": 7.46,
+      "formation": "fan",
+      "reach": 1,
+      "travel": 0.2599999999999998,
+      "distance": 0.2873049501104177
+    },
+    {
+      "time": 10.48,
+      "formation": "parallel",
+      "reach": 0.10055253784316974,
+      "travel": 0.4800000000000004,
+      "distance": 41.06080352183241
+    },
+    {
+      "time": 11,
+      "formation": "parallel",
+      "reach": 0.10691027440399656,
+      "travel": 0.5199999999999996,
+      "distance": 49.10066279969333
+    },
+    {
+      "time": 11.5,
+      "formation": "parallel",
+      "reach": 0.14614119116858576,
+      "travel": 0.5,
+      "distance": 31.932589500268183
+    },
+    {
+      "time": 12.02,
+      "formation": "parallel",
+      "reach": 0.274962957661204,
+      "travel": 0.5199999999999996,
+      "distance": 19.091172781903712
+    },
+    {
+      "time": 12.16,
+      "formation": "parallel",
+      "reach": 0.00454867886030602,
+      "travel": 0.14000000000000057,
+      "distance": 22.521411120189725
+    },
+    {
+      "time": 12.52,
+      "formation": "parallel",
+      "reach": 0.04141761195090113,
+      "travel": 0.35999999999999943,
+      "distance": 42.05515281916428
+    },
+    {
+      "time": 13,
+      "formation": "parallel",
+      "reach": 0.07828350004060285,
+      "travel": 0.4800000000000004,
+      "distance": 52.74122896726088
+    },
+    {
+      "time": 13.54,
+      "formation": "parallel",
+      "reach": 0.16317540480377588,
+      "travel": 0.5399999999999991,
+      "distance": 36.02660589118355
+    },
+    {
+      "time": 15.04,
+      "formation": "fan",
+      "reach": 1,
+      "travel": 0.7082541183270294,
+      "distance": 13.263681770577946
+    },
+    {
+      "time": 16.02,
+      "formation": "cross",
+      "reach": 0.000010282173285260396,
+      "travel": 0.019999999999999574,
+      "distance": 29.04703688419543
+    },
+    {
+      "time": 16.54,
+      "formation": "cross",
+      "reach": 0.15920503789388768,
+      "travel": 0.5199999999999996,
+      "distance": 32.97235692272561
+    },
+    {
+      "time": 17.02,
+      "formation": "cross",
+      "reach": 0.11660749182442394,
+      "travel": 0.4800000000000004,
+      "distance": 35.40739909076084
+    },
+    {
+      "time": 17.54,
+      "formation": "cross",
+      "reach": 0.13753883228942201,
+      "travel": 0.5199999999999996,
+      "distance": 38.1664235907363
+    },
+    {
+      "time": 18.04,
+      "formation": "parallel",
+      "reach": 0.0004834940252061131,
+      "travel": 0.03999999999999915,
+      "distance": 3.2632030393794875
+    },
+    {
+      "time": 18.54,
+      "formation": "parallel",
+      "reach": 0.1452474034719136,
+      "travel": 0.5,
+      "distance": 32.129088404455075
+    },
+    {
+      "time": 19.04,
+      "formation": "parallel",
+      "reach": 0.12589021459814662,
+      "travel": 0.5,
+      "distance": 37.069336020778934
+    },
+    {
+      "time": 19.54,
+      "formation": "parallel",
+      "reach": 0.31962323533986614,
+      "travel": 0.5,
+      "distance": 14.600523837712995
+    },
+    {
+      "time": 20.04,
+      "formation": "fan",
+      "reach": 0.00013532442380240176,
+      "travel": 0.03999999999999915,
+      "distance": 17.656334800449926
+    },
+    {
+      "time": 21.02,
+      "formation": "fan",
+      "reach": 1,
+      "travel": 0.9800000000000004,
+      "distance": 11.445252485637118
+    },
+    {
+      "time": 22.02,
+      "formation": "parallel",
+      "reach": 0.00001202677750449637,
+      "travel": 0.019999999999999574,
+      "distance": 24.833474017041315
+    },
+    {
+      "time": 22.5,
+      "formation": "parallel",
+      "reach": 0.43158365443281727,
+      "travel": 0.4800000000000004,
+      "distance": 9.56655322228548
+    },
+    {
+      "time": 22.64,
+      "formation": "parallel",
+      "reach": 0.013577234866705402,
+      "travel": 0.14000000000000057,
+      "distance": 7.545178946405473
+    },
+    {
+      "time": 23,
+      "formation": "parallel",
+      "reach": 0.11146131041979469,
+      "travel": 0.35999999999999943,
+      "distance": 15.627162406756137
+    },
+    {
+      "time": 23.26,
+      "formation": "parallel",
+      "reach": 0.02979221032006466,
+      "travel": 0.26000000000000156,
+      "distance": 22.0249071692662
+    },
+    {
+      "time": 23.5,
+      "formation": "parallel",
+      "reach": 0.021731241299546022,
+      "travel": 0.23999999999999844,
+      "distance": 23.749034529876187
+    },
+    {
+      "time": 24,
+      "formation": "parallel",
+      "reach": 0.23455775932911824,
+      "travel": 0.5,
+      "distance": 19.895597058968587
+    },
+    {
+      "time": 24.26,
+      "formation": "parallel",
+      "reach": 0.09114520752554432,
+      "travel": 0.26000000000000156,
+      "distance": 6.970073992349455
+    },
+    {
+      "time": 24.5,
+      "formation": "parallel",
+      "reach": 0.04395661893667584,
+      "travel": 0.23999999999999844,
+      "distance": 11.741030417819006
+    },
+    {
+      "time": 24.76,
+      "formation": "parallel",
+      "reach": 0.025310185307865767,
+      "travel": 0.26000000000000156,
+      "distance": 25.925162486374894
+    },
+    {
+      "time": 25,
+      "formation": "parallel",
+      "reach": 0.012927177966048219,
+      "travel": 0.23999999999999844,
+      "distance": 39.92333062602357
+    },
+    {
+      "time": 25.26,
+      "formation": "parallel",
+      "reach": 0.012631160016485978,
+      "travel": 0.26000000000000156,
+      "distance": 51.948567337461924
+    },
+    {
+      "time": 25.5,
+      "formation": "parallel",
+      "reach": 0.00873476295831755,
+      "travel": 0.23999999999999844,
+      "distance": 59.085289716825685
+    },
+    {
+      "time": 25.76,
+      "formation": "parallel",
+      "reach": 0.01063447188921492,
+      "travel": 0.26000000000000156,
+      "distance": 61.70223340682692
+    },
+    {
+      "time": 26,
+      "formation": "parallel",
+      "reach": 0.008969341530494092,
+      "travel": 0.23999999999999844,
+      "distance": 57.54000984858918
+    },
+    {
+      "time": 26.26,
+      "formation": "parallel",
+      "reach": 0.013476234811464255,
+      "travel": 0.26000000000000156,
+      "distance": 48.69094935244621
+    },
+    {
+      "time": 26.5,
+      "formation": "parallel",
+      "reach": 0.014654825099672964,
+      "travel": 0.23999999999999844,
+      "distance": 35.216796958669065
+    },
+    {
+      "time": 26.76,
+      "formation": "parallel",
+      "reach": 0.03277606731098636,
+      "travel": 0.26000000000000156,
+      "distance": 20.01981081014969
+    },
+    {
+      "time": 27,
+      "formation": "parallel",
+      "reach": 0.09043553740259477,
+      "travel": 0.23999999999999844,
+      "distance": 4.729518938590726
+    },
+    {
+      "time": 27.26,
+      "formation": "parallel",
+      "reach": 0.053602734173086065,
+      "travel": 0.26000000000000156,
+      "distance": 12.241365609221885
+    },
+    {
+      "time": 27.5,
+      "formation": "parallel",
+      "reach": 0.026187128535312305,
+      "travel": 0.23999999999999844,
+      "distance": 19.708002704613257
+    },
+    {
+      "time": 28,
+      "formation": "parallel",
+      "reach": 0.20927022759534905,
+      "travel": 0.5,
+      "distance": 22.2997161148516
+    },
+    {
+      "time": 28.26,
+      "formation": "parallel",
+      "reach": 0.044739657067247314,
+      "travel": 0.26000000000000156,
+      "distance": 14.666421463186477
+    },
+    {
+      "time": 28.5,
+      "formation": "parallel",
+      "reach": 0.08574573259960222,
+      "travel": 0.23999999999999844,
+      "distance": 4.8679221209387755
+    },
+    {
+      "time": 28.76,
+      "formation": "parallel",
+      "reach": 0.06068080652729079,
+      "travel": 0.26000000000000156,
+      "distance": 10.813479652278026
+    },
+    {
+      "time": 29.02,
+      "formation": "parallel",
+      "reach": 0.026283714439087558,
+      "travel": 0.259999999999998,
+      "distance": 24.96491385140123
+    },
+    {
+      "time": 29.26,
+      "formation": "parallel",
+      "reach": 0.01316110050875553,
+      "travel": 0.240000000000002,
+      "distance": 39.21374201623
+    },
+    {
+      "time": 30,
+      "formation": "parallel",
+      "reach": 0.5105928403993681,
+      "travel": 0.5,
+      "distance": 9.139702513291335
+    },
+    {
+      "time": 30.5,
+      "formation": "parallel",
+      "reach": 0.43849512145388414,
+      "travel": 0.5,
+      "distance": 10.642459718123575
+    },
+    {
+      "time": 31.02,
+      "formation": "parallel",
+      "reach": 0.36759204805375667,
+      "travel": 0.5199999999999996,
+      "distance": 14.280410474400831
+    },
+    {
+      "time": 31.52,
+      "formation": "parallel",
+      "reach": 0.3858319762399822,
+      "travel": 0.5,
+      "distance": 12.09507493947071
+    },
+    {
+      "time": 32,
+      "formation": "parallel",
+      "reach": 0.6121486204487535,
+      "travel": 0.4800000000000004,
+      "distance": 4.4370203887510655
+    },
+    {
+      "time": 32.52,
+      "formation": "parallel",
+      "reach": 0.6990187534331631,
+      "travel": 0.5200000000000031,
+      "distance": 7.5096201747831195
+    },
+    {
+      "time": 33,
+      "formation": "parallel",
+      "reach": 0.28123004472298246,
+      "travel": 0.4799999999999969,
+      "distance": 14.681105655218465
+    },
+    {
+      "time": 33.5,
+      "formation": "parallel",
+      "reach": 0.18353097499726317,
+      "travel": 0.5,
+      "distance": 25.427133848857153
+    },
+    {
+      "time": 34.02,
+      "formation": "parallel",
+      "reach": 0.1469601747463564,
+      "travel": 0.5200000000000031,
+      "distance": 35.71964542362234
+    },
+    {
+      "time": 34.52,
+      "formation": "parallel",
+      "reach": 0.10733446509664239,
+      "travel": 0.5,
+      "distance": 43.47780242315334
+    },
+    {
+      "time": 35.02,
+      "formation": "parallel",
+      "reach": 0.09821658864163749,
+      "travel": 0.5,
+      "distance": 47.51403740659245
+    },
+    {
+      "time": 35.52,
+      "formation": "parallel",
+      "reach": 0.1020629061881434,
+      "travel": 0.5,
+      "distance": 45.723435094667046
+    },
+    {
+      "time": 36.52,
+      "formation": "fan",
+      "reach": 0.282525195036308,
+      "travel": 0.5200000000000031,
+      "distance": 18.58016709857972
+    },
+    {
+      "time": 37.02,
+      "formation": "fan",
+      "reach": 0.2157946408534426,
+      "travel": 0.5,
+      "distance": 21.625498428554785
+    },
+    {
+      "time": 37.5,
+      "formation": "fan",
+      "reach": 0.18562993420399815,
+      "travel": 0.4799999999999969,
+      "distance": 22.241929986693886
+    },
+    {
+      "time": 38.5,
+      "formation": "fan",
+      "reach": 1,
+      "travel": 1,
+      "distance": 22.493066886607224
+    },
+    {
+      "time": 39.04,
+      "formation": "fan",
+      "reach": 0.755226974981891,
+      "travel": 0.5399999999999991,
+      "distance": 7.783959252966213
+    },
+    {
+      "time": 39.52,
+      "formation": "fan",
+      "reach": 0.36025386387068364,
+      "travel": 0.480000000000004,
+      "distance": 11.460718160353057
+    },
+    {
+      "time": 40.02,
+      "formation": "fan",
+      "reach": 0.000012776261968501634,
+      "travel": 0.020000000000003126,
+      "distance": 23.37668618592309
+    },
+    {
+      "time": 40.52,
+      "formation": "fan",
+      "reach": 0.34394575021937884,
+      "travel": 0.5,
+      "distance": 13.568031190064502
+    },
+    {
+      "time": 41,
+      "formation": "fan",
+      "reach": 0.48430429851316714,
+      "travel": 0.4799999999999969,
+      "distance": 8.525152497459544
+    },
+    {
+      "time": 41.52,
+      "formation": "fan",
+      "reach": 0.7016051378418365,
+      "travel": 0.5200000000000031,
+      "distance": 7.481936847670003
+    },
+    {
+      "time": 42.32,
+      "formation": "fan",
+      "reach": 0.0660353248344407,
+      "travel": 0.3200000000000003,
+      "distance": 18.525519026880563
+    },
+    {
+      "time": 42.5,
+      "formation": "fan",
+      "reach": 0.014999560837198542,
+      "travel": 0.17999999999999972,
+      "distance": 14.51562498150205
+    },
+    {
+      "time": 43.02,
+      "formation": "fan",
+      "reach": 0.9701041610259085,
+      "travel": 0.5200000000000031,
+      "distance": 5.411135777195408
+    },
+    {
+      "time": 43.52,
+      "formation": "fan",
+      "reach": 0.5832453633808351,
+      "travel": 0.5,
+      "distance": 8.001206627028985
+    },
+    {
+      "time": 44.02,
+      "formation": "parallel",
+      "reach": 0.000009622731455688579,
+      "travel": 0.020000000000003126,
+      "distance": 31.037618377082197
+    },
+    {
+      "time": 44.5,
+      "formation": "parallel",
+      "reach": 0.25812146749357545,
+      "travel": 0.4799999999999969,
+      "distance": 15.9954460204
+    },
+    {
+      "time": 45,
+      "formation": "parallel",
+      "reach": 0.2606858389780502,
+      "travel": 0.5,
+      "distance": 17.901496625060638
+    },
+    {
+      "time": 45.5,
+      "formation": "parallel",
+      "reach": 0.22153824694175026,
+      "travel": 0.5,
+      "distance": 21.06483521959839
+    },
+    {
+      "time": 46,
+      "formation": "parallel",
+      "reach": 0.24407210249550135,
+      "travel": 0.5,
+      "distance": 19.12003305151469
+    },
+    {
+      "time": 46.5,
+      "formation": "parallel",
+      "reach": 0.40216948422174553,
+      "travel": 0.5,
+      "distance": 11.603731386276912
+    },
+    {
+      "time": 47.02,
+      "formation": "parallel",
+      "reach": 0.7321522717148939,
+      "travel": 0.5200000000000031,
+      "distance": 6.383700810564889
+    },
+    {
+      "time": 47.5,
+      "formation": "parallel",
+      "reach": 0.28392831959071657,
+      "travel": 0.4799999999999969,
+      "distance": 14.541585728227284
+    },
+    {
+      "time": 48.02,
+      "formation": "parallel",
+      "reach": 0.20795525838564402,
+      "travel": 0.5200000000000031,
+      "distance": 25.242763150517252
+    },
+    {
+      "time": 48.5,
+      "formation": "parallel",
+      "reach": 0.11753359157102652,
+      "travel": 0.4799999999999969,
+      "distance": 35.12840835383534
+    },
+    {
+      "time": 49.02,
+      "formation": "parallel",
+      "reach": 0.12078126608278042,
+      "travel": 0.5200000000000031,
+      "distance": 43.46175117700494
+    },
+    {
+      "time": 49.5,
+      "formation": "parallel",
+      "reach": 0.08946646504663656,
+      "travel": 0.4799999999999969,
+      "distance": 46.14877762128748
+    },
+    {
+      "time": 50,
+      "formation": "parallel",
+      "reach": 0.10478665457480585,
+      "travel": 0.5,
+      "distance": 44.53493324701184
+    },
+    {
+      "time": 50.52,
+      "formation": "parallel",
+      "reach": 0.1407355898222319,
+      "travel": 0.5200000000000031,
+      "distance": 37.29948721545196
+    },
+    {
+      "time": 51,
+      "formation": "parallel",
+      "reach": 0.1795241911937198,
+      "travel": 0.4799999999999969,
+      "distance": 22.99839354543965
+    },
+    {
+      "time": 51.5,
+      "formation": "parallel",
+      "reach": 0.6464591640136815,
+      "travel": 0.5,
+      "distance": 6.071383935724716
+    },
+    {
+      "time": 52.5,
+      "formation": "parallel",
+      "reach": 0.11670693324813966,
+      "travel": 0.5,
+      "distance": 39.98619907820305
+    },
+    {
+      "time": 53.02,
+      "formation": "parallel",
+      "reach": 0.11212969227471971,
+      "travel": 0.5200000000000031,
+      "distance": 46.81512297806357
+    },
+    {
+      "time": 53.52,
+      "formation": "parallel",
+      "reach": 0.15649318564440332,
+      "travel": 0.5,
+      "distance": 29.820254776272815
+    },
+    {
+      "time": 54.02,
+      "formation": "parallel",
+      "reach": 0.7192716807383033,
+      "travel": 0.5,
+      "distance": 2.44972924443038
+    },
+    {
+      "time": 54.52,
+      "formation": "parallel",
+      "reach": 0.16600830742153183,
+      "travel": 0.5,
+      "distance": 28.111042990258117
+    },
+    {
+      "time": 55,
+      "formation": "parallel",
+      "reach": 0.11775966216831613,
+      "travel": 0.4799999999999969,
+      "distance": 35.06097014866256
+    },
+    {
+      "time": 55.5,
+      "formation": "parallel",
+      "reach": 0.23492425038389242,
+      "travel": 0.5,
+      "distance": 19.8645591463666
+    },
+    {
+      "time": 56.52,
+      "formation": "parallel",
+      "reach": 0.18806595399986822,
+      "travel": 0.5200000000000031,
+      "distance": 27.91236383666289
+    },
+    {
+      "time": 57.02,
+      "formation": "parallel",
+      "reach": 0.13425263309459312,
+      "travel": 0.5,
+      "distance": 34.76033623399087
+    },
+    {
+      "time": 57.52,
+      "formation": "parallel",
+      "reach": 0.12319364411375498,
+      "travel": 0.5,
+      "distance": 37.88074214573557
+    },
+    {
+      "time": 59.54,
+      "formation": "fan",
+      "reach": 1,
+      "travel": 0.7407560701966891,
+      "distance": 15.174780752950127
+    },
+    {
+      "time": 60.04,
+      "formation": "parallel",
+      "reach": 0.00015134078673534177,
+      "travel": 0.03999999999999915,
+      "distance": 15.787768683346037
+    },
+    {
+      "time": 60.160000000000004,
+      "formation": "parallel",
+      "reach": 0.0052774489198948735,
+      "travel": 0.12000000000000455,
+      "distance": 12.224087997670742
+    },
+    {
+      "time": 60.54,
+      "formation": "parallel",
+      "reach": 0.14777526573146404,
+      "travel": 0.37999999999999545,
+      "distance": 13.862635648304023
+    },
+    {
+      "time": 61.04,
+      "formation": "parallel",
+      "reach": 0.19236145410150474,
+      "travel": 0.5,
+      "distance": 24.259884541131477
+    },
+    {
+      "time": 61.54,
+      "formation": "parallel",
+      "reach": 0.16954624266132912,
+      "travel": 0.5,
+      "distance": 27.52444756908235
+    },
+    {
+      "time": 62.04,
+      "formation": "parallel",
+      "reach": 0.1894522503550052,
+      "travel": 0.5,
+      "distance": 24.632416125551586
+    },
+    {
+      "time": 62.52,
+      "formation": "parallel",
+      "reach": 0.24634219835664972,
+      "travel": 0.480000000000004,
+      "distance": 16.76029534340092
+    },
+    {
+      "time": 63.02,
+      "formation": "parallel",
+      "reach": 0.624627761252711,
+      "travel": 0.5,
+      "distance": 4.453848805484945
+    },
+    {
+      "time": 63.52,
+      "formation": "parallel",
+      "reach": 0.3614429711335323,
+      "travel": 0.5,
+      "distance": 12.911211558579742
+    },
+    {
+      "time": 64.02,
+      "formation": "parallel",
+      "reach": 0.19805039362887458,
+      "travel": 0.4999999999999929,
+      "distance": 23.56302646593728
+    },
+    {
+      "time": 64.08,
+      "formation": "parallel",
+      "reach": 0.00038882421953960206,
+      "travel": 0.060000000000002274,
+      "distance": 20.73944881712697
+    },
+    {
+      "time": 64.52,
+      "formation": "parallel",
+      "reach": 0.09444860854400816,
+      "travel": 0.4399999999999977,
+      "distance": 33.671249536564716
+    },
+    {
+      "time": 65.02,
+      "formation": "parallel",
+      "reach": 0.10974937116073098,
+      "travel": 0.5,
+      "distance": 42.52112442477875
+    },
+    {
+      "time": 65.52,
+      "formation": "parallel",
+      "reach": 0.10103691999388115,
+      "travel": 0.5,
+      "distance": 46.18773678917847
+    },
+    {
+      "time": 66.02,
+      "formation": "parallel",
+      "reach": 0.10551528132623109,
+      "travel": 0.5,
+      "distance": 44.22740107414691
+    },
+    {
+      "time": 66.24,
+      "formation": "parallel",
+      "reach": 0.010254063477749566,
+      "travel": 0.21999999999999886,
+      "distance": 38.767590448013394
+    },
+    {
+      "time": 66.52,
+      "formation": "parallel",
+      "reach": 0.0229516791779264,
+      "travel": 0.28000000000000114,
+      "distance": 35.70724943391205
+    },
+    {
+      "time": 67.02,
+      "formation": "parallel",
+      "reach": 0.17921245266119798,
+      "travel": 0.5,
+      "distance": 26.039857149263074
+    },
+    {
+      "time": 67.52,
+      "formation": "parallel",
+      "reach": 0.5291132074793247,
+      "travel": 0.5,
+      "distance": 8.819788659025335
+    },
+    {
+      "time": 68.52,
+      "formation": "parallel",
+      "reach": 0.1852259724228994,
+      "travel": 0.5,
+      "distance": 25.194450894888266
+    },
+    {
+      "time": 69.02,
+      "formation": "parallel",
+      "reach": 0.14005915516424944,
+      "travel": 0.5,
+      "distance": 33.31925471915062
+    },
+    {
+      "time": 69.52,
+      "formation": "parallel",
+      "reach": 0.12700829430116947,
+      "travel": 0.5,
+      "distance": 36.743007158263175
+    },
+    {
+      "time": 69.76,
+      "formation": "parallel",
+      "reach": 0.015184370786889454,
+      "travel": 0.2400000000000091,
+      "distance": 33.98863260410291
+    },
+    {
+      "time": 70.02,
+      "formation": "parallel",
+      "reach": 0.0189954855635242,
+      "travel": 0.2599999999999909,
+      "distance": 34.543505848916006
+    },
+    {
+      "time": 70.54,
+      "formation": "parallel",
+      "reach": 0.1725181411210173,
+      "travel": 0.5200000000000102,
+      "distance": 30.427903403221464
+    },
+    {
+      "time": 71.02,
+      "formation": "parallel",
+      "reach": 0.2400701946429738,
+      "travel": 0.47999999999998977,
+      "distance": 17.1981699191769
+    },
+    {
+      "time": 71.52,
+      "formation": "parallel",
+      "reach": 0.761140858770923,
+      "travel": 0.5,
+      "distance": 1.2464398350187231
+    },
+    {
+      "time": 72.02,
+      "formation": "parallel",
+      "reach": 0.3068786349784183,
+      "travel": 0.5,
+      "distance": 15.206880293230116
+    },
+    {
+      "time": 72.16,
+      "formation": "parallel",
+      "reach": 0.0068826712526457315,
+      "travel": 0.14000000000000057,
+      "distance": 14.884143511472885
+    },
+    {
+      "time": 72.52,
+      "formation": "parallel",
+      "reach": 0.06914603749110207,
+      "travel": 0.35999999999999943,
+      "distance": 25.190510739304987
+    },
+    {
+      "time": 73.02,
+      "formation": "parallel",
+      "reach": 0.12958724333875815,
+      "travel": 0.5,
+      "distance": 36.01177512872455
+    },
+    {
+      "time": 73.52,
+      "formation": "parallel",
+      "reach": 0.11578414025187862,
+      "travel": 0.5,
+      "distance": 40.304886805003925
+    },
+    {
+      "time": 74.04,
+      "formation": "parallel",
+      "reach": 0.13757386535088886,
+      "travel": 0.5200000000000102,
+      "distance": 38.15670454519018
+    },
+    {
+      "time": 74.52,
+      "formation": "parallel",
+      "reach": 0.13898521949083034,
+      "travel": 0.47999999999998977,
+      "distance": 29.706525737955424
+    },
+    {
+      "time": 74.96000000000001,
+      "formation": "parallel",
+      "reach": 0.1704606905483293,
+      "travel": 0.44000000000001194,
+      "distance": 18.656516387661053
+    },
+    {
+      "time": 75.02,
+      "formation": "parallel",
+      "reach": 0.0005507687732687636,
+      "travel": 0.05999999999998806,
+      "distance": 14.641352944060475
+    },
+    {
+      "time": 75.52,
+      "formation": "parallel",
+      "reach": 0.7650126025513708,
+      "travel": 0.5,
+      "distance": 2.2196603205853016
+    },
+    {
+      "time": 76.52,
+      "formation": "parallel",
+      "reach": 0.15672466579821176,
+      "travel": 0.5,
+      "distance": 29.776210674299065
+    },
+    {
+      "time": 77.02,
+      "formation": "parallel",
+      "reach": 0.12386868671607588,
+      "travel": 0.5,
+      "distance": 37.67430486579155
+    },
+    {
+      "time": 77.52,
+      "formation": "parallel",
+      "reach": 0.1122200551640948,
+      "travel": 0.5,
+      "distance": 41.584961438869286
+    },
+    {
+      "time": 78.02,
+      "formation": "parallel",
+      "reach": 0.11825382087411992,
+      "travel": 0.5,
+      "distance": 39.46313643120495
+    },
+    {
+      "time": 78.4,
+      "formation": "parallel",
+      "reach": 0.06143429182510395,
+      "travel": 0.38000000000000966,
+      "distance": 33.34545912075966
+    },
+    {
+      "time": 78.52,
+      "formation": "parallel",
+      "reach": 0.0021419039506434326,
+      "travel": 0.11999999999999034,
+      "distance": 30.11899762386865
+    },
+    {
+      "time": 79.02,
+      "formation": "parallel",
+      "reach": 0.21818944998221754,
+      "travel": 0.5,
+      "distance": 21.388140751292056
+    },
+    {
+      "time": 79.52,
+      "formation": "parallel",
+      "reach": 0.6860790934450949,
+      "travel": 0.5,
+      "distance": 4.643728858312038
+    },
+    {
+      "time": 80.02,
+      "formation": "parallel",
+      "reach": 0.3399084091283868,
+      "travel": 0.5,
+      "distance": 13.729188632411914
+    },
+    {
+      "time": 80.52,
+      "formation": "parallel",
+      "reach": 0.19661913571087639,
+      "travel": 0.5,
+      "distance": 23.734549792390936
+    },
+    {
+      "time": 81.02,
+      "formation": "parallel",
+      "reach": 0.14759638221341084,
+      "travel": 0.5,
+      "distance": 31.617757811428564
+    },
+    {
+      "time": 81.44,
+      "formation": "parallel",
+      "reach": 0.07990406968980945,
+      "travel": 0.4200000000000017,
+      "distance": 34.61590893602242
+    },
+    {
+      "time": 81.52,
+      "formation": "parallel",
+      "reach": 0.000580378670439882,
+      "travel": 0.0799999999999983,
+      "distance": 32.934819351955184
+    },
+    {
+      "time": 82.02,
+      "formation": "parallel",
+      "reach": 0.13121736606217688,
+      "travel": 0.5,
+      "distance": 35.56439827069371
+    },
+    {
+      "time": 82.52,
+      "formation": "parallel",
+      "reach": 0.16716249944998132,
+      "travel": 0.5,
+      "distance": 27.916947174285554
+    },
+    {
+      "time": 83.02,
+      "formation": "parallel",
+      "reach": 0.3089785901337098,
+      "travel": 0.5,
+      "distance": 15.103527608975034
+    },
+    {
+      "time": 83.25,
+      "formation": "parallel",
+      "reach": 0.08394891607374398,
+      "travel": 0.23000000000000398,
+      "distance": 5.3931843806218005
+    },
+    {
+      "time": 83.52,
+      "formation": "parallel",
+      "reach": 0.09783943395104987,
+      "travel": 0.269999999999996,
+      "distance": 2.141857125229164
+    },
+    {
+      "time": 84.52,
+      "formation": "parallel",
+      "reach": 0.12854627700863086,
+      "travel": 0.47999999999998977,
+      "distance": 32.11892320866299
+    },
+    {
+      "time": 85.02,
+      "formation": "parallel",
+      "reach": 0.11463851179862021,
+      "travel": 0.5,
+      "distance": 40.70766964302859
+    },
+    {
+      "time": 85.54,
+      "formation": "parallel",
+      "reach": 0.11842520919096058,
+      "travel": 0.5200000000000102,
+      "distance": 44.326418075977756
+    },
+    {
+      "time": 86.04,
+      "formation": "parallel",
+      "reach": 0.11108488217032407,
+      "travel": 0.5,
+      "distance": 42.00991688060097
+    },
+    {
+      "time": 86.54,
+      "formation": "parallel",
+      "reach": 0.1349281422347429,
+      "travel": 0.5,
+      "distance": 34.586310827194055
+    },
+    {
+      "time": 87.04,
+      "formation": "parallel",
+      "reach": 0.21637175574294257,
+      "travel": 0.5,
+      "distance": 21.567818085327342
+    },
+    {
+      "time": 87.36,
+      "formation": "parallel",
+      "reach": 0.13153340209641678,
+      "travel": 0.3199999999999932,
+      "distance": 9.300593211828089
+    },
+    {
+      "time": 87.54,
+      "formation": "parallel",
+      "reach": 0.03141026662327299,
+      "travel": 0.18000000000000682,
+      "distance": 3.2830289008163938
+    },
+    {
+      "time": 88.04,
+      "formation": "parallel",
+      "reach": 0.3865643177898904,
+      "travel": 0.5,
+      "distance": 12.072160962365759
+    },
+    {
+      "time": 88.54,
+      "formation": "parallel",
+      "reach": 0.2096482407672496,
+      "travel": 0.5,
+      "distance": 22.259507876565372
+    },
+    {
+      "time": 89.02,
+      "formation": "parallel",
+      "reach": 0.13824124710208213,
+      "travel": 0.47999999999998977,
+      "distance": 29.86639723346036
+    },
+    {
+      "time": 89.54,
+      "formation": "parallel",
+      "reach": 0.15347730840332544,
+      "travel": 0.5200000000000102,
+      "distance": 34.20287590357496
+    },
+    {
+      "time": 90.04,
+      "formation": "parallel",
+      "reach": 0.1449672811685806,
+      "travel": 0.5,
+      "distance": 32.191171890985935
+    },
+    {
+      "time": 90.48,
+      "formation": "parallel",
+      "reach": 0.12744837279232726,
+      "travel": 0.4399999999999977,
+      "distance": 24.952869911086648
+    },
+    {
+      "time": 90.54,
+      "formation": "parallel",
+      "reach": 0.0003844594868589465,
+      "travel": 0.060000000000002274,
+      "distance": 20.974901844363902
+    },
+    {
+      "time": 91.04,
+      "formation": "parallel",
+      "reach": 0.3620059746874319,
+      "travel": 0.5,
+      "distance": 12.89113161929447
+    },
+    {
+      "time": 91.54,
+      "formation": "parallel",
+      "reach": 0.5604632172680676,
+      "travel": 0.5,
+      "distance": 3.9202461723141937
+    },
+    {
+      "time": 92.54,
+      "formation": "parallel",
+      "reach": 0.1460746622326177,
+      "travel": 0.5,
+      "distance": 31.94713303006101
+    },
+    {
+      "time": 93.04,
+      "formation": "parallel",
+      "reach": 0.11659110338930617,
+      "travel": 0.5,
+      "distance": 40.02592420010237
+    },
+    {
+      "time": 93.54,
+      "formation": "parallel",
+      "reach": 0.10656201122287055,
+      "travel": 0.5,
+      "distance": 43.792967241454406
+    },
+    {
+      "time": 94.04,
+      "formation": "parallel",
+      "reach": 0.11071977509528091,
+      "travel": 0.5,
+      "distance": 42.14844785089858
+    },
+    {
+      "time": 94.54,
+      "formation": "parallel",
+      "reach": 0.13474998084301912,
+      "travel": 0.5,
+      "distance": 34.63203955556205
+    },
+    {
+      "time": 95.02,
+      "formation": "parallel",
+      "reach": 0.1925623445957431,
+      "travel": 0.47999999999998977,
+      "distance": 21.441201334910467
+    },
+    {
+      "time": 95.52,
+      "formation": "parallel",
+      "reach": 0.6924193828050608,
+      "travel": 0.5,
+      "distance": 4.478354934264887
+    },
+    {
+      "time": 96.02,
+      "formation": "parallel",
+      "reach": 0.0000230024847099181,
+      "travel": 0.01999999999999602,
+      "distance": 12.984104562308904
+    },
+    {
+      "time": 96.5,
+      "formation": "parallel",
+      "reach": 0.7326623434460945,
+      "travel": 0.480000000000004,
+      "distance": 2.4762487357337335
+    },
+    {
+      "time": 97,
+      "formation": "parallel",
+      "reach": 0.36629713935245806,
+      "travel": 0.5,
+      "distance": 12.74011223488238
+    },
+    {
+      "time": 97.5,
+      "formation": "parallel",
+      "reach": 0.3181713299679668,
+      "travel": 0.5,
+      "distance": 14.667150139318029
+    },
+    {
+      "time": 98.52,
+      "formation": "fan",
+      "reach": 0.24273879838447696,
+      "travel": 0.519999999999996,
+      "distance": 21.62557188331582
+    },
+    {
+      "time": 99.52,
+      "formation": "fan",
+      "reach": 1,
+      "travel": 1,
+      "distance": 9.843072731829196
+    },
+    {
+      "time": 100.02,
+      "formation": "parallel",
+      "reach": 0.000009617341641322188,
+      "travel": 0.01999999999999602,
+      "distance": 31.055012684921934
+    },
+    {
+      "time": 100.52,
+      "formation": "parallel",
+      "reach": 0.282574951374237,
+      "travel": 0.5,
+      "distance": 16.514792425766785
+    },
+    {
+      "time": 101.02,
+      "formation": "parallel",
+      "reach": 0.21131436780524293,
+      "travel": 0.5,
+      "distance": 22.08400079528753
+    },
+    {
+      "time": 101.52,
+      "formation": "parallel",
+      "reach": 0.6860655406885794,
+      "travel": 0.5,
+      "distance": 6.075320722510472
+    },
+    {
+      "time": 102.02,
+      "formation": "parallel",
+      "reach": 0.15603425010309363,
+      "travel": 0.5,
+      "distance": 29.907963563021234
+    },
+    {
+      "time": 102.52,
+      "formation": "parallel",
+      "reach": 0.08926438661243687,
+      "travel": 0.5,
+      "distance": 52.279154585222656
+    },
+    {
+      "time": 103.02,
+      "formation": "parallel",
+      "reach": 0.08023533557688685,
+      "travel": 0.5,
+      "distance": 58.1622377860532
+    },
+    {
+      "time": 103.52,
+      "formation": "parallel",
+      "reach": 0.11282856015907773,
+      "travel": 0.5,
+      "distance": 41.36068616037555
+    },
+    {
+      "time": 104.02,
+      "formation": "parallel",
+      "reach": 0.5150391389667243,
+      "travel": 0.5,
+      "distance": 8.768618939099
+    },
+    {
+      "time": 104.52,
+      "formation": "parallel",
+      "reach": 0.19155097645553631,
+      "travel": 0.5,
+      "distance": 24.3625313377085
+    },
+    {
+      "time": 105.02,
+      "formation": "parallel",
+      "reach": 0.15360286073167484,
+      "travel": 0.5,
+      "distance": 30.381378604782334
+    },
+    {
+      "time": 105.5,
+      "formation": "parallel",
+      "reach": 0.3130842310916071,
+      "travel": 0.480000000000004,
+      "distance": 13.187403228851991
+    },
+    {
+      "time": 106.02,
+      "formation": "parallel",
+      "reach": 0.2676092937055823,
+      "travel": 0.519999999999996,
+      "distance": 19.61578112869445
+    },
+    {
+      "time": 107.02,
+      "formation": "parallel",
+      "reach": 0.718914427819014,
+      "travel": 1,
+      "distance": 41.5441191760107
+    },
+    {
+      "time": 107.54,
+      "formation": "parallel",
+      "reach": 0.23571284857248934,
+      "travel": 0.5200000000000102,
+      "distance": 22.270170527930695
+    },
+    {
+      "time": 108.04,
+      "formation": "fan",
+      "reach": 0.00007413666285754931,
+      "travel": 0.04000000000000625,
+      "distance": 32.22876834806369
+    },
+    {
+      "time": 109,
+      "formation": "fan",
+      "reach": 0.8185492382661054,
+      "travel": 0.9599999999999937,
+      "distance": 35.02782564520416
+    },
+    {
+      "time": 110,
+      "formation": "fan",
+      "reach": 1,
+      "travel": 0.8029469871048415,
+      "distance": 6.825018517698068
+    }
+  ]
+}

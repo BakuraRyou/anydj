@@ -2,7 +2,7 @@ import {phraseMovement} from './stage-motion.js';
 import {planPatterns,patternEnvelope} from './show-patterns.js';
 import {musicStyleAt} from './music-style.js';
 import {instrumentDrama,dramaAt} from './instrument-activity.js';
-import {musicalAttention,offbeatAttacks,acousticSalience,selectAccentEvents} from './musical-attention.js';
+import {musicalAttention,bassAttackEvents,offbeatAttacks,acousticSalience,selectAccentEvents} from './musical-attention.js';
 const clamp=value=>Math.max(0,Math.min(1,value));
 const step=.125;
 const looks={held:'Ruhige Passage',flow:'Klangbewegung',lift:'Aufbau',peak:'Rhythmische Akzente'};
@@ -81,6 +81,22 @@ export function musicalBlackouts(windows){
   return candidates.filter((cue,i)=>(!i||cue.start-candidates[i-1].end>=3)&&
     (i===candidates.length-1||candidates[i+1].start-cue.end>=3));
 }
+// Slow acoustic expression remains available even when beat or stem models
+// cannot establish a grid. Values describe the recording, not elapsed progress.
+export function motionEnvelope(windows){
+ const sorted=windows.map(w=>w.rms||0).sort((a,b)=>a-b);
+ const reference=Math.max(.015,sorted[Math.floor(sorted.length*.95)]||0);
+ const samples=[];
+ for(let time=0;time<windows.length*.02;time+=.25){
+  const local=windows.slice(Math.max(0,Math.floor((time-.3)/.02)),Math.min(windows.length,Math.ceil((time+.3)/.02)));
+  const sum=local.reduce((s,w)=>s+w.rms,0),peak=Math.max(.008,...local.map(w=>w.rms));
+  const pitched=local.filter(w=>w.leadConfidence>=.35&&Number.isFinite(w.leadMidi));
+  samples.push({time,energy:clamp(sum/Math.max(1,local.length)/reference),tone:sum?local.reduce((s,w)=>s+(w.tone??.5)*w.rms,0)/sum:.5,
+   sustain:local.filter(w=>w.rms>=peak*.45).length/Math.max(1,local.length),pitch:pitched.length>=local.length*.5?pitched.reduce((s,w)=>s+w.leadMidi,0)/pitched.length:null});
+ }
+ return samples;
+}
+
 export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicStyle=null,instruments=null) {
   const drama=instrumentDrama(instruments,duration);
   const prefix=[0];for(const window of windows)prefix.push(prefix.at(-1)+window.rms);
@@ -282,7 +298,7 @@ export function arrangeShow(windows,duration,sections,beats,downbeats=[],musicSt
       developments.push({time:t,progress:clamp((level-start)/(end-start))});previous=level;last=t;
     }
   }
-  return {version:8,developments,motionTimes:fallbackTimes.length?[...new Set([...beats,...events.filter(e=>e.source==='instrument').map(e=>e.time)])].sort((a,b)=>a-b):undefined,blackouts:musicalBlackouts(windows),drama,patterns,step,bases,lookTrack,passages,times,accents,decays,eventSources:events.map(e=>e.source),eventSalience:events.map(e=>e.salience),decay:.25};
+  return {version:8,motionEnvelope:motionEnvelope(windows),bassAttacks:bassAttackEvents(windows.map(w=>w.bass||0),.02),developments,motionTimes:fallbackTimes.length?[...new Set([...beats,...events.filter(e=>e.source==='instrument').map(e=>e.time)])].sort((a,b)=>a-b):undefined,blackouts:musicalBlackouts(windows),drama,patterns,step,bases,lookTrack,passages,times,accents,decays,eventSources:events.map(e=>e.source),eventSalience:events.map(e=>e.salience),decay:.25};
 }
 function eventAt(arrangement,time) {
   let lo=0,hi=arrangement.times.length;
@@ -325,6 +341,11 @@ export function arrangementAccentProfile(arrangement,index){
 function expressedAccent(arrangement,time,flicker=1){
   const latest=eventAt(arrangement,time);
   if(latest<0)return 0;
+  if(arrangement.presentation==='show'){
+    let level=0;
+    for(let i=latest;i>=0&&time-arrangement.times[i]<=2;i--)level=Math.max(level,(arrangement.accents[i]||0)*Math.exp(-(time-arrangement.times[i])/(arrangement.decays?.[i]??.22)));
+    return Math.min(flicker,level);
+  }
   // Legacy plans without phrase evidence retain their stored envelope.
   if(arrangementAccentProfile(arrangement,latest).kind==='legacy')return Math.min(flicker,arrangement.accents[latest]*patternEnvelope(arrangement.patterns?.events[latest],time-arrangement.times[latest],arrangement.decays?.[latest]??arrangement.decay??.22));
   let level=0;

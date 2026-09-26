@@ -1,3 +1,4 @@
+import {compactDeviceManager} from './dmx-device-manager.js';
 import {importRoomModel,modelFileLimit} from './dmx-room-mesh.js';
 import {createZonePlan} from './dmx-zone-plan.js';
 import {roomStyleOptions} from './dmx-room-style.js';
@@ -6,7 +7,7 @@ import {roomId,roomFixtureRotation,roomFixtureTarget,newRoomPlan,createRoomPrevi
 const storageKey='anydj-ar-rooms-v1';
 export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan=null,onStartAR=()=>{},onManageShow=null}={}) {
   let plans=[],selected='',enabled=false,disposed=false,step=1,fixture='',mode='select',draft=[],pointer=null,drag=null,preview=null,arReady=false;
-  const renderRoom=createRoomPreview();let roomZones=null,zoneDrag=null;
+  const renderRoom=createRoomPreview();let roomZones=null,zoneDrag=null,compact=null;
   let mapView={key:'',zoom:1,x:0,y:0},pan=null;
   let undo=null,storageError='',lastMessage='';
   try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved){plans=(saved.plans||[]).slice(0,20).flatMap(p=>{try{return [validateRoomPlan(p)];}catch{return [];}});selected=saved.selected;enabled=saved.enabled===true;}}catch{storageError='Deine Räume konnten nicht geladen werden. Du kannst eine Sicherung importieren.';}
@@ -14,6 +15,7 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   const current=()=>plans.find(p=>p.id===selected)||null;
   const root=document.createElement('details');root.className='stage-ar-planner';root.open=true;
   root.innerHTML=`<summary>Deinen Raum planen</summary>
+    <div class="ar-room-switcher"><label>Aktiver Raum<select data-ar-room aria-label="Aktiver Raum"></select></label><div class="ar-actions"><button type="button" data-ar-new-room>+ Neuer Raum</button><button type="button" data-ar-copy>Duplizieren</button></div><p>Änderungen werden je Raum automatisch gespeichert. Duplizieren übernimmt Geräte, Lichtziele und Ruhezonen.</p></div>
     <nav class="ar-steps" aria-label="Schritte zur Aufstellung"><button type="button" data-ar-step="1"><b>1</b> Raum</button><button type="button" data-ar-step="2"><b>2</b> Geräte</button><button type="button" data-ar-step="3"><b>3</b> Fertig</button></nav>
     <div class="ar-guidance"><strong data-ar-title></strong><p data-ar-help></p></div>
     <p data-ar-status role="status" aria-live="polite"></p>
@@ -33,16 +35,18 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
       <svg data-ar-map tabindex="0" role="group" aria-label="Interaktiver Raumplan. Mausrad zum Zoomen, freie Fläche zum Verschieben. Geräte anklicken oder ziehen; Escape bricht die Platzierung ab."></svg>
       <div class="ar-actions" data-ar-draw-actions hidden><button type="button" data-ar-point-undo>Letzten Punkt entfernen</button><button class="ar-primary" type="button" data-ar-draw-finish>Raumform übernehmen</button><button type="button" data-ar-cancel>Abbrechen</button></div>
       <div class="ar-actions" data-ar-place-actions hidden><button type="button" data-ar-place-cancel>Platzierung abbrechen</button></div>
+      <div data-ar-room-zones></div>
     </div>
     <div data-ar-page="2" hidden>
       <div class="ar-empty" data-ar-empty><strong>Dein Raum ist bereit. Jetzt kommt das erste Gerät.</strong><p>Wähle einen Gerätetyp und tippe anschließend im Plan auf seinen Standort.</p></div>
       <div class="ar-add-types" aria-label="Gerät hinzufügen">${Object.entries(deviceTypes).map(([type,label])=>`<button type="button" data-ar-template="${type}">+ ${label}</button>`).join('')}</div>
-      <div class="ar-actions"><button type="button" data-ar-manage-show>Showgeräte, Gruppen & Lichtsteuerung</button></div><p data-ar-show-functions>Mehrfachauswahl, feste Gruppen, Gruppendrehung, symmetrische Aufstellung, Lichtgruppe, Lichtstärke und Bewegungsbereich.</p><div data-ar-room-zones></div><details data-ar-show-devices><summary>Geräte aus meiner Lichtshow</summary><p>Bereits in der Show konfigurierte Geräte in diesen Raum übernehmen.</p><div data-ar-available></div><button type="button" data-ar-add>Alle Showgeräte übernehmen</button></details>
+      <div class="ar-actions"><button type="button" data-ar-manage-show>Showgeräte, Gruppen & Lichtsteuerung</button></div><p data-ar-show-functions>Mehrfachauswahl, feste Gruppen, Gruppendrehung, symmetrische Aufstellung, Lichtgruppe, Lichtstärke und Bewegungsbereich.</p><details data-ar-show-devices><summary>Geräte aus meiner Lichtshow</summary><p>Bereits in der Show konfigurierte Geräte in diesen Raum übernehmen.</p><div data-ar-available></div><button type="button" data-ar-add>Alle Showgeräte übernehmen</button></details>
       <div class="ar-device-list" data-ar-devices aria-label="Geräte im Raum"></div>
       <select data-ar-fixture aria-label="Ausgewähltes Gerät" hidden></select>
       <section class="ar-device-editor" data-ar-device-editor hidden><label>Gerätename<input data-ar-device-name maxlength="60"></label>
         <div class="ar-actions"><button type="button" class="ar-primary" data-ar-place>Im Plan platzieren</button><button type="button" data-ar-duplicate>Duplizieren</button><button type="button" data-ar-remove>Entfernen</button></div>
-        <div class="ar-fields"><label>Höhe über dem Boden (m)<input data-ar-z type="number" min="0" max="15" step="0.1" required></label><label>Drehung (°)<input data-ar-rotation type="number" min="-360" max="360" step="15" required></label></div>
+        <div class="ar-fields"><label>Höhe über dem Boden (m)<input data-ar-z type="number" min="0" max="15" step="0.1" required></label><label><span data-ar-rotation-label>Drehung (°)</span><input data-ar-rotation type="number" min="-360" max="360" step="15" required></label></div>
+        <p data-ar-rotation-help hidden>Die Montageausrichtung dreht den Sockel und das Symbol im Plan. Der bewegliche Kopf folgt weiterhin der musikalischen Choreografie.</p>
         <fieldset data-ar-motion-area hidden><legend>Erlaubter Bewegungsbereich</legend><p>Moving Heads bewegen sich frei in dieser Bodenfläche. Ruhezonen gelten weiterhin.</p><div class="ar-fields"><label>Links (m)<input data-ar-area-left type="number" step="0.1"></label><label>Rechts (m)<input data-ar-area-right type="number" step="0.1"></label><label>Vorne (m)<input data-ar-area-front type="number" step="0.1"></label><label>Hinten (m)<input data-ar-area-back type="number" step="0.1"></label></div><button type="button" data-ar-area-reset>Gesamter Raum</button><details><summary>Wand in die Choreografie einbeziehen</summary><label>Zusätzliche Zielfläche<select data-ar-wall><option value="">Nur Boden</option></select></label><div class="ar-fields" data-ar-wall-fields hidden><label>Bereich ab (%)<input data-ar-wall-start type="number" min="0" max="98" step="1"></label><label>Bereich bis (%)<input data-ar-wall-end type="number" min="2" max="100" step="1"></label><label>Ab Höhe (m)<input data-ar-wall-min type="number" min="0" step="0.1"></label><label>Bis Höhe (m)<input data-ar-wall-max type="number" min="0.1" step="0.1"></label></div><p>Die Automatik wechselt musikalisch zwischen Boden und Wand. Außerhalb des Wandbereichs wird der Strahl ausgeblendet. Wandnummern stehen im Plan.</p></details></fieldset>
         <details><summary>Genau positionieren & Gerätemaße</summary><div class="ar-fields"><label>Seitlich zur Raummitte (m)<input data-ar-x type="number" step="0.01" required></label><label>Abstand von vorne (m)<input data-ar-y type="number" step="0.01" required></label></div>
         <p>Trage hier die Außenmaße deines Geräts ein. Die Vorschau beginnt mit Beispielmaßen.</p><div class="ar-fields"><label>Gerätebreite (m)<input data-ar-size-width type="number" min="0.01" max="12" step="0.01" required></label><label>Gerätetiefe (m)<input data-ar-size-depth type="number" min="0.01" max="12" step="0.01" required></label><label>Gerätehöhe (m)<input data-ar-size-height type="number" min="0.01" max="12" step="0.01" required></label></div></details>
@@ -54,7 +58,7 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
     </div>
     <div class="ar-navigation"><button type="button" data-ar-back>Zurück</button><button type="button" class="ar-primary" data-ar-next>Weiter zu den Geräten →</button></div>
     <button type="button" data-ar-undo hidden>Letzte Änderung rückgängig</button>
-    <details class="ar-library"><summary>Gespeicherte Räume & Dateien</summary><label>Raum auswählen<select data-ar-room></select></label><div class="ar-actions"><button type="button" data-ar-new-room>Weiteren Raum anlegen</button><button type="button" data-ar-copy>Raum duplizieren</button><button type="button" data-ar-delete>Raum löschen</button><button type="button" data-ar-export>Exportieren</button><label class="ar-import">Importieren<input data-ar-import type="file" accept="application/json,.json"></label></div></details>`;
+    <details class="ar-library"><summary>Raumdateien & Verwaltung</summary><div class="ar-actions"><button type="button" data-ar-delete>Raum löschen</button><button type="button" data-ar-export>Exportieren</button><label class="ar-import">Importieren<input data-ar-import type="file" accept="application/json,.json"></label></div></details>`;
   host.prepend(root);
   const q=name=>root.querySelector(`[data-ar-${name}]`);
   function notify(text,error=false){lastMessage=text;q('status').textContent=text;q('status').dataset.error=String(error);}
@@ -136,7 +140,7 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
         const pos=drag?.id===id&&!drag.aim&&preview?{...p,x:preview[0],y:preview[1]}:p,x=pos.x,y=plan.depth-pos.y;
         const type=p.type||(/moving/.test(id)?'moving':'spot'),code={moving:'MH',spot:'S',bar:'LED',stand:'ST',truss:'TR'}[type]||'G',color={moving:'#b9adff',spot:'#ffc38a',bar:'#8ce1de'}[type]||'#bdd9e6',icon=12/pixelsPerMeter;
         const g=put('g',{'data-device-id':id,'data-device-type':type,role:'button',tabindex:0,'aria-label':`${deviceName(id,p,i)} · ${deviceTypes[type]||'Gerät'} auswählen`,'aria-pressed':String(id===fixture)});
-        const mark=(tag,attrs,text)=>g.append(element(tag,attrs,text)),orientation=roomFixtureRotation(pos,drag?.id===id&&drag.aim&&preview?{x:preview[0],y:preview[1]}:roomFixtureTarget(plan,id,getScene()?.lights));
+        const mark=(tag,attrs,text)=>g.append(element(tag,attrs,text)),orientation=type==='moving'?(pos.rotation||0):roomFixtureRotation(pos,drag?.id===id&&drag.aim&&preview?{x:preview[0],y:preview[1]}:roomFixtureTarget(plan,id,getScene()?.lights));
         mark('rect',{x:x-p.size.width/2,y:y-p.size.depth/2,width:p.size.width,height:p.size.depth,transform:`rotate(${-orientation} ${x} ${y})`,fill:'#142b35',stroke:color,'stroke-width':scale*.06});
         if(type==='moving'){
           mark('path',{d:`M ${x-icon} ${y-icon*.7} V ${y+icon*.7} H ${x+icon} V ${y-icon*.7}`,fill:'none',stroke:color,'stroke-width':3/pixelsPerMeter});
@@ -170,11 +174,12 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   function sync(){
     const plan=current(),ids=Object.keys(plan?.positions||{});if(!plan)step=1;root.querySelector('.ar-navigation').hidden=!plan||['aim','place','draw'].includes(mode);if(!ids.includes(fixture))fixture=ids[0]||'';
     q('start').hidden=!!plan;q('room-fields').hidden=!plan;q('map-section').hidden=!plan||step===3;
+    q('room-zones').hidden=mode!=='select';
     root.querySelectorAll('[data-ar-page]').forEach(n=>n.hidden=Number(n.dataset.arPage)!==step);
     root.querySelectorAll('[data-ar-step]').forEach(n=>{n.disabled=Number(n.dataset.arStep)>1&&!plan;n.setAttribute('aria-current',Number(n.dataset.arStep)===step?'step':'false');});
     q('title').textContent=step===1?'1 · Lege deinen Raum an':step===2?'2 · Stelle deine Geräte auf':'3 · Deine Aufstellung ist bereit';
-    q('help').textContent=step===1?(plan?'Prüfe die Maße. Bei einer anderen Raumform kannst du die Ecken direkt im Plan setzen.':'Wähle einen einfachen Einstieg. Du kannst alles später ändern.'):step===2?'Zwei Punkte pro Leuchte: Gerät und Lichtziel direkt im Plan ziehen.':'Deine Änderungen sind gespeichert. Du kannst den Raum jetzt in der Lichtshow oder in AR verwenden.';
-    q('room').replaceChildren(...plans.map(p=>new Option(p.name,p.id)));q('room').value=selected;
+    q('help').textContent=step===1?(plan?'Prüfe die Maße und lege unter dem Raumplan Ruhezonen für Tische und Sitzbereiche an. Die Raumecken kannst du direkt im Plan setzen.':'Wähle einen einfachen Einstieg. Du kannst alles später ändern.'):step===2?'Zwei Punkte pro Leuchte: Gerät und Lichtziel direkt im Plan ziehen.':'Deine Änderungen sind gespeichert. Du kannst den Raum jetzt in der Lichtshow oder in AR verwenden.';
+    q('room').replaceChildren(...(plans.length?plans.map(p=>new Option(p.name,p.id)):[new Option('Noch kein Raum','')]));q('room').value=selected;q('room').disabled=!plans.length;q('new-room').disabled=plans.length>=20;
     for(const k of ['name','width','depth','height']){q(k).value=plan?.[k]??'';q(k).disabled=!plan||mode==='draw'||(k!=='name'&&!!plan.mesh);}
     q('enabled').checked=enabled;q('enabled').disabled=!plan;
     q('brightness').value=plan?.environmentBrightness??30;q('brightness-value').textContent=`${plan?.environmentBrightness??30} %`;
@@ -190,29 +195,30 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
     q('empty').hidden=ids.length>0;q('device-editor').hidden=!fixture;
     q('fixture').replaceChildren(...ids.map((id,i)=>new Option(deviceName(id,plan.positions[id],i),id)));q('fixture').value=fixture;
     q('devices').replaceChildren(...ids.map((id,i)=>{const b=document.createElement('button');b.type='button';b.className='ar-device';b.dataset.selectDevice=id;b.setAttribute('aria-pressed',String(id===fixture));const number=document.createElement('b'),name=document.createElement('span'),small=document.createElement('small');number.textContent=String(i+1);name.textContent=deviceName(id,plan.positions[id],i);small.textContent=`${deviceTypes[plan.positions[id].type]||'Lichtgerät'} · ${plan.positions[id].height.toFixed(2)} m hoch · ${plan.positions[id].type==='moving'?'freier Bewegungsbereich':roomFixtureRotation(plan.positions[id],roomFixtureTarget(plan,id,getScene()?.lights)).toFixed(1)+'°'}`;b.append(number,name,small);b.onclick=()=>selectFixture(id);return b;}));
-    const p=plan?.positions[fixture];q('rotation').closest('label').hidden=p?.type==='moving';q('motion-area').hidden=p?.type!=='moving';
+    const p=plan?.positions[fixture];q('rotation').closest('label').hidden=false;q('rotation-label').textContent=p?.type==='moving'?'Montageausrichtung (°)':'Drehung (°)';q('rotation-help').hidden=p?.type!=='moving';q('motion-area').hidden=p?.type!=='moving';
     if(p?.type==='moving'){const a=p.motionArea||{x:0,y:0,width:1,depth:1};for(const [key,value] of [['left',(a.x-.5)*plan.width],['right',(a.x+a.width-.5)*plan.width],['front',a.y*plan.depth],['back',(a.y+a.depth)*plan.depth]])q('area-'+key).value=Number(value.toFixed(3));}
     q('wall').replaceChildren(new Option('Nur Boden',''),...(plan?.boundary||[]).map((_,i)=>new Option('Wand '+(i+1),String(i))));q('wall').value=p?.wallTarget?String(p.wallTarget.wall):'';q('wall-fields').hidden=!p?.wallTarget;
     if(p?.wallTarget){const w=p.wallTarget;for(const [key,value] of [['start',w.start*100],['end',w.end*100],['min',w.minHeight],['max',w.maxHeight]])q('wall-'+key).value=value;}
     q('device-name').value=p?deviceName(fixture,p,ids.indexOf(fixture)):'';
-    for(const [key,field] of [['x','x'],['y','y'],['height','z'],['rotation','rotation']]){q(field).disabled=!p;q(field).value=key==='rotation'&&p?Number(roomFixtureRotation(p,roomFixtureTarget(plan,fixture,getScene()?.lights)).toFixed(1)):p?.[key]??'';}
+    for(const [key,field] of [['x','x'],['y','y'],['height','z'],['rotation','rotation']]){q(field).disabled=!p;q(field).value=key==='rotation'&&p?Number((p.type==='moving'?(p.rotation||0):roomFixtureRotation(p,roomFixtureTarget(plan,fixture,getScene()?.lights))).toFixed(1)):p?Number(p[key].toFixed(2)):'';}
     for(const k of ['width','depth','height']){q('size-'+k).disabled=!p;q('size-'+k).value=p?.size[k]??'';}
     q('back').hidden=step===1;q('next').hidden=step===3;q('next').disabled=!plan||mode==='draw'||mode==='place';q('next').textContent=step===1?'Weiter zu den Geräten →':'Aufstellung abschließen →';
     q('summary').textContent=plan?`${plan.name} · ${plan.width.toFixed(1)} × ${plan.depth.toFixed(1)} m · ${ids.length} Geräte`:'';
     q('view').textContent=arReady?'Jetzt in AR ansehen':'So öffnest du die Aufstellung in AR';q('view-help').textContent=arReady?'In der Brille führen wir dich durch die Ausrichtung im echten Raum.':'Öffne die gekoppelte Vorschau im Browser deiner Brille. Dort kannst du AR starten.';q('scan-start').disabled=!arReady;
     q('undo').hidden=!undo;
     for(const k of ['copy','delete','export','send','draw'])q(k).disabled=!plan;
+    q('copy').disabled=!plan||plans.length>=20;
     const availableLights=available().filter(l=>!plan?.positions[l.id]);q('available').replaceChildren(...availableLights.map((l,i)=>{const b=document.createElement('button');b.type='button';b.textContent='+ '+deviceName(l.id,{name:l.name,type:l.type},i);b.onclick=()=>attempt(()=>{seed(getScene(),l.id);beginPlacement();});return b;}));q('add').disabled=!availableLights.length;q('show-devices').hidden=!available().length&&!onManageShow;q('manage-show').hidden=!onManageShow;
-    q('show-functions').hidden=!onManageShow;roomZones?.reload();drawMap();
+    q('show-functions').hidden=!onManageShow;roomZones?.reload();compact?.refresh({step,fixture,moving:p?.type==='moving',mode});drawMap();
   }
-  function newPlan(draw=false){const plan=newRoomPlan();let number=1;while(plans.some(p=>p.name===plan.name))plan.name=`Mein Raum ${++number}`;fixture='';step=1;mode='select';enabled=true;commit(plan,{message:'Gib deinem Raum einen Namen und prüfe Breite und Tiefe.'});if(draw){q('help').textContent='Wie groß ist dein Raum ungefähr? Passe Breite und Tiefe der Zeichenfläche an. Wähle dann „Raumecken im Plan setzen“.';q('width').focus({preventScroll:true});}else q('name').focus({preventScroll:true});}
+  function newPlan(draw=false){if(plans.length>=20)throw Error('Du hast bereits 20 Räume.');const plan=newRoomPlan();let number=1;while(plans.some(p=>p.name===plan.name))plan.name=`Mein Raum ${++number}`;fixture='';step=1;mode='select';enabled=true;commit(plan,{message:'Gib deinem Raum einen Namen und prüfe Breite und Tiefe.'});if(draw){q('help').textContent='Wie groß ist dein Raum ungefähr? Passe Breite und Tiefe der Zeichenfläche an. Wähle dann „Raumecken im Plan setzen“.';q('width').focus({preventScroll:true});}else q('name').focus({preventScroll:true});}
   const scanHelp=()=>{if(!arReady){step=1;sync();}q('scan-help').hidden=false;if(arReady)onStartAR();else notify('Öffne die Vorschau im Browser deiner Brille. Die Schritte dafür stehen direkt hier.');};
   q('new').onclick=()=>attempt(()=>newPlan());q('start-draw').onclick=()=>attempt(()=>newPlan(true));q('draw').onclick=beginDraw;
   q('scan').onclick=q('scan-again').onclick=q('view').onclick=scanHelp;q('scan-start').onclick=onStartAR;
-  q('new-room').onclick=()=>{mode='select';selected='';enabled=false;step=1;fixture='';sync();notify('Wähle, wie du den nächsten Raum anlegen möchtest.');};
-  q('copy').onclick=()=>attempt(()=>commit({...current(),id:roomId(),name:(current().name+' · Kopie').slice(0,80)}));
+  q('new-room').onclick=()=>attempt(()=>newPlan());
+  q('copy').onclick=()=>attempt(()=>{if(!current()||plans.length>=20)return;const plan=structuredClone(current()),base=plan.name.slice(0,60);let name=base+' · Kopie',n=2;while(plans.some(p=>p.name===name))name=base+' · Kopie '+n++;enabled=true;mode='select';draft=[];preview=null;fixture='';step=1;commit({...plan,id:roomId(),name},{message:'Raum dupliziert. Änderungen gelten nur für diese Kopie.'});q('name').focus({preventScroll:true});});
   q('delete').onclick=()=>{const plan=current();if(!plan||!confirm(`„${plan.name}“ mit allen Gerätepositionen löschen?`))return;undo={plans:structuredClone(plans),selected,enabled};plans=plans.filter(p=>p.id!==plan.id);selected=plans[0]?.id||'';if(!selected)enabled=false;step=1;mode='select';sync();persist();notify('Raum entfernt. Du kannst die Änderung rückgängig machen.');};
-  q('room').onchange=()=>{selected=q('room').value;step=1;mode='select';fixture='';sync();persist();};
+  q('room').onchange=()=>{const id=q('room').value;if(!plans.some(p=>p.id===id))return;selected=id;enabled=true;step=1;mode='select';fixture='';draft=[];preview=null;pointer=null;drag=null;zoneDrag=null;pan=null;sync();persist();if(!storageError)notify('Raum gewechselt. Änderungen werden hier automatisch gespeichert.');};
   q('brightness').oninput=()=>attempt(()=>commit({...current(),environmentBrightness:Number(q('brightness').value)}));
   q('representation').onchange=()=>attempt(()=>commit({...current(),representation:q('representation').value}));
   q('model-file').onchange=async()=>{
@@ -301,6 +307,7 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   roomZones.panel.classList.add('ar-room-zones');roomZones.panel.querySelector('h3').textContent='Ruhezonen';roomZones.panel.querySelector('p').textContent='Zone hinzufügen, dann das Rechteck oben im Raumplan verschieben. Die helle Ecke verändert die Größe.';
   const importZones=document.createElement('button');importZones.type='button';importZones.textContent='Bisherige Showzonen übernehmen';importZones.dataset.arImportZones='';
   importZones.onclick=()=>attempt(()=>{const saved=JSON.parse(localStorage.getItem('anydj-3d-zones-v1')||'null');if(!saved?.zones?.length){notify('Keine bisherigen Showzonen gespeichert.');return;}commit({...current(),zones:[...(current().zones||[]),...saved.zones.map(z=>({...z,id:roomId()}))]},{message:'Showzonen übernommen. Prüfe ihre Position im Raum.'});});roomZones.panel.querySelector('.stage-3d-zone-actions').append(importZones);
+  compact=compactDeviceManager(root);
   sync();if(storageError)notify(storageError,true);
-  return {root,get plan(){return current();},get active(){return enabled&&!!current();},get layout(){return enabled&&current()?roomPlanLayout(current()):null;},scene(scene,ar=false){return enabled&&current()?renderRoom(scene,current(),ar):scene;},seed,save:commit,use(plan){validateRoomPlan(plan);enabled=true;commit(plan);},notify,openStep(value){root.open=true;go(value);},setARSupport(value){if(arReady===value)return;arReady=value;sync();},destroy(){disposed=true;roomZones?.destroy();root.remove();}};
+  return {root,get moving(){return renderRoom.active();},get plan(){return current();},get active(){return enabled&&!!current();},get layout(){return enabled&&current()?roomPlanLayout(current()):null;},scene(scene,ar=false){return enabled&&current()?renderRoom(scene,current(),ar):scene;},seed,save:commit,use(plan){validateRoomPlan(plan);enabled=true;commit(plan);},notify,openStep(value){root.open=true;go(value);},setARSupport(value){if(arReady===value)return;arReady=value;sync();},destroy(){disposed=true;compact?.destroy();roomZones?.destroy();root.remove();}};
 }

@@ -297,8 +297,14 @@ try {
   assert.ok(Math.abs(preparedSong.dark-preparedSong.later)<.02);
   assert.equal(preparedSong.power,'0');assert.equal(preparedSong.paused,preparedSong.dark);
   console.log('Five-minute synthetic song, cooperative browser preparation: '+Math.round(preparedSong.preparationMs)+' ms.');
-  assert.deepEqual(await evaluate("[...document.querySelector('#djShowProfile').options].map(o=>o.textContent)"),['Automatisch','Party','Disco','Ruhig','Atmosphärisch']);
+  assert.deepEqual(await evaluate("[...document.querySelector('#djShowProfile').options].map(o=>o.textContent)"),['Automatisch','Show','Party','Disco','Ruhig','Atmosphärisch']);
   assert.equal(await evaluate("document.querySelector('[data-moving-mood-control]')===null"),true);
+  await evaluate("const select=document.querySelector('#djShowProfile');select.value='show';select.dispatchEvent(new Event('change'))");
+  assert.equal(await evaluate("localStorage.getItem('anydj-moving-mood')"),'show');
+  await reload();await wait("document.querySelector('#djShowProfile')");
+  assert.equal(await evaluate("document.querySelector('#djShowProfile').value"),'show');
+  assert.equal(await evaluate("localStorage.getItem('anydj-moving-mood')"),'show');
+
   assert.ok(await evaluate("document.querySelector('#djMaxFlicker').closest('.dj-light-settings')!==null"));
   assert.equal(await evaluate("document.querySelector('#djMaxFlicker').value"),'100');
   await evaluate("const input=document.querySelector('#djMaxFlicker');input.value=25;input.dispatchEvent(new Event('input',{bubbles:true}))");

@@ -484,7 +484,7 @@
         {
           "id": "routing",
           "title": "Vorhören vorbereiten",
-          "text": "Wähle zuerst einen eigenen Master-Ausgang und danach einen anderen physischen Ausgang für die Kopfhörer. Anschließend aktivierst du „Auf Kopfhörern vorhören“ in den Mix-Werkzeugen des gewünschten Decks. Ist die Auswahl deaktiviert, unterstützt dein Browser getrennte Ausgänge hier nicht.",
+          "text": "Wähle zuerst den Master-Ausgang und danach den Kopfhörerausgang. Zum Testen kannst du nach Bestätigung denselben Ausgang verwenden; dann ist auch die Vorschau dort hörbar. Anschließend aktivierst du „Auf Kopfhörern vorhören“ in den Mix-Werkzeugen des gewünschten Decks. Ist die Auswahl deaktiviert, unterstützt dein Browser getrennte Ausgänge hier nicht.",
           "target": ".dj-routing"
         },
         {

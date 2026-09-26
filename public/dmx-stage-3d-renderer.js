@@ -1,3 +1,5 @@
+import {lightProfile,lightFootprint,beamSurfacePatches} from './dmx-light-geometry.js';
+export {lightProfile} from './dmx-light-geometry.js';
 import {createSurfaceLighting} from './dmx-surface-light.js';
 import {surfaceTriangles} from './dmx-room-mesh.js';
 import {roomStyles,roomStyleId,drawRoomMaterial,sceneEnvironmentBrightness,environmentColor} from './dmx-room-style.js';
@@ -43,8 +45,14 @@ export function stageCamera(layout,camera,width,height){
   const eye=dancer?[camera.x,camera.y,camera.eyeHeight]:camera.eye||add(center,mul(forward,-distance));
   const right=unit(cross(forward,[0,0,1])),up=cross(right,forward);
   const focal=dancer?width/(2*Math.tan(Math.PI/5)):Math.min(width,height)*1.2;
-  const depth=p=>dot(add(p,mul(eye,-1)),forward);
-  const project=p=>{const v=add(p,mul(eye,-1)),z=depth(p);return {x:width/2+dot(v,right)*focal/z,y:height/2-dot(v,up)*focal/z,depth:z};};
+  // Projection is called for every vertex; keep this path allocation-free
+  // apart from its result, and compute eye-relative coordinates only once.
+  const depth=p=>(p[0]-eye[0])*forward[0]+(p[1]-eye[1])*forward[1]+(p[2]-eye[2])*forward[2];
+  const project=p=>{
+    const x=p[0]-eye[0],y=p[1]-eye[1],z=p[2]-eye[2],distance=x*forward[0]+y*forward[1]+z*forward[2];
+    return {x:width/2+(x*right[0]+y*right[1]+z*right[2])*focal/distance,
+      y:height/2-(x*up[0]+y*up[1]+z*up[2])*focal/distance,depth:distance};
+  };
   project.depth=depth;project.eye=eye;
   return project;
 }
@@ -138,26 +146,71 @@ export function stickFigureSegments(layout,person,motion=0,index=0){
 }
 // Small bounded sprite cache: changing show colours must not grow GPU/bitmap memory forever.
 const lightSprites=new Map();
-let beamAlpha=null;
+// These constants and transfer curve also size the GPU billboards. They affect
+// preview exposure only; fixture power, beam intersections and DMX stay physical.
+export const beamHaloScale=1.12,lensHaloScale=1.45;
+export function previewLightExposure(power){
+  const p=Math.max(0,Math.min(1,Number.isFinite(power)?power:0));
+  return 1.8*p/(1+.8*p);
+}
+// A bounded single-scattering approximation, evaluated once per beam, not
+// per pixel. Incident direction points along the beam; outgoing points to eye.
+// HG g=.35 favours forward scattering. Omit 1/(4*pi) in preview exposure units.
+export function previewBeamResponse(start,end,eye,radius){
+  const delta=add(end,mul(start,-1)),length=Math.hypot(...delta);
+  if(length<1e-6)return 0;
+  const midpoint=add(start,mul(delta,.5)),view=add(eye,mul(midpoint,-1)),distance=Math.hypot(...view);
+  const cosine=Math.max(-1,Math.min(1,dot(unit(delta),unit(view))));
+  const phase=.8775/Math.pow(1.1225-.7*cosine,1.5);
+  // Irradiance falls as width squared, while the visible path through the
+  // cone grows with width: use inverse width, not inverse-square radiance.
+  const dilution=.24/(.12+Math.max(.035,radius)*.5);
+  const path=Math.min(1.6,1/Math.sqrt(Math.max(.12,1-cosine*cosine)));
+  return Math.min(1.8,(.25+.75*phase)*path*dilution*Math.exp(-.035*length-.018*distance));
+}
+export function previewLensVisibility(center,axis,eye){
+  const cosine=dot(axis,unit(add(eye,mul(center,-1))));
+  return smooth((cosine-.02)/.48);
+}
+// Soft radial energy profile inside the cone. Preserve saturated light colour;
+// white belongs to the small source highlight, not a stripe along the beam.
+// This analytic profile is mirrored in GLSL/WGSL and cached for Canvas.
+export function previewLightSample(kind,x,y=0){
+  if(kind==='beam'){
+    const along=Math.max(0,Math.min(1,y)),across=Math.abs(x)*beamHaloScale/(.035+.965*along);
+    const edge=Math.max(0,1-across*across),halo=Math.max(0,1-across*across/(beamHaloScale*beamHaloScale));
+    const body=.72*edge*edge+.018*halo*halo;
+    return {alpha:Math.min(1,body*(1-.22*along)/(.6+along)*Math.min(1,along*40)*Math.min(1,(1-along)*40)),white:0};
+  }
+  const radius=Math.hypot(x,y),edge=Math.max(0,1-radius*radius),core=Math.max(0,1-radius*radius/.1);
+  return {alpha:.07*edge*edge+.93*core*core,white:.65*Math.max(0,1-radius/.12)};
+}
+const opticsMasks=new Map();
 function lightSprite(kind,color){
   const key=kind+color;if(lightSprites.has(key))return lightSprites.get(key);
   const canvas=typeof OffscreenCanvas!=='undefined'?new OffscreenCanvas(96,192):globalThis.document?.createElement('canvas');
   if(!canvas)return null;canvas.width=96;canvas.height=kind==='beam'?192:96;
   const ctx=canvas.getContext('2d');if(!ctx)return null;
-  if(kind==='beam'){
-    if(!beamAlpha){
-    ctx.fillStyle='#ffffff';ctx.fillRect(0,0,96,192);
-    const data=ctx.getImageData(0,0,96,192);
-    for(let y=0;y<192;y++)for(let x=0;x<96;x++){
-      const along=y/191,across=Math.abs((x-47.5)/48)/(.035+.965*along);
-      data.data[(y*96+x)*4+3]=Math.round(255*Math.pow(Math.max(0,1-across*across),3)*(.32-.2*along)*Math.min(1,along*24)*Math.min(1,(1-along)*18));
-    }beamAlpha=data;
+  if(kind==='beam'||kind==='lens'){
+    const h=canvas.height;
+    let mask=opticsMasks.get(kind);
+    if(!mask){
+      mask=new Float32Array(96*h*2);
+      for(let y=0;y<h;y++)for(let x=0;x<96;x++){
+        const sample=previewLightSample(kind,(x-47.5)/48,kind==='beam'?y/191:(y-47.5)/48),i=(y*96+x)*2;
+        mask[i]=sample.alpha;mask[i+1]=sample.white;
+      }opticsMasks.set(kind,mask);
     }
-    ctx.putImageData(beamAlpha,0,0);ctx.globalCompositeOperation='source-in';ctx.fillStyle=color;ctx.fillRect(0,0,96,192);
+    ctx.fillStyle=color;ctx.fillRect(0,0,1,1);
+    const rgb=ctx.getImageData(0,0,1,1).data,data=ctx.createImageData(96,h);
+    for(let i=0;i<96*h;i++){
+      const white=mask[i*2+1];
+      for(let c=0;c<3;c++)data.data[i*4+c]=Math.round(rgb[c]+(255-rgb[c])*white);
+      data.data[i*4+3]=Math.round(255*mask[i*2]);
+    }ctx.putImageData(data,0,0);
   }else{
     const glow=ctx.createRadialGradient(48,48,0,48,48,48);
-    glow.addColorStop(0,kind==='lens'?'#ffffff':color);
-    glow.addColorStop(kind==='moving'?.3:.08,color);
+    glow.addColorStop(0,color);glow.addColorStop(kind==='moving'?.3:.08,color);
     glow.addColorStop(1,'transparent');ctx.fillStyle=glow;ctx.fillRect(0,0,96,96);
   }
   if(lightSprites.size>=96)lightSprites.delete(lightSprites.keys().next().value);
@@ -176,9 +229,6 @@ function floorTexture(){
   }ctx.putImageData(grain,0,0);
   return floorGrain=canvas;
 }
-export function lightProfile(type){
-  return type==='moving'?{spread:.045,stretch:1,power:1.35}:type==='bar'?{spread:.095,stretch:1.65,power:.65}:{spread:.12,stretch:1,power:1};
-}
 export function renderStage3d(ctx,width,height,layout,lights,camera,crowd=[],time=0){
   const project=stageCamera(layout,camera,width,height),queue=[];
   const polygon=(points,fill,alpha=1,stroke=null,lineWidth=.7,emissive=false)=>{
@@ -190,9 +240,7 @@ export function renderStage3d(ctx,width,height,layout,lights,camera,crowd=[],tim
   const ambient=sceneEnvironmentBrightness(layout);
   const bg=ctx.createLinearGradient(0,0,0,height);bg.addColorStop(0,environmentColor('#080e19',ambient));bg.addColorStop(1,environmentColor('#192a3b',ambient));ctx.fillStyle=bg;ctx.fillRect(0,0,width,height);
   drawStageGeometry(layout,lights,crowd,time,{polygon,paint,footprint,beam,lens,floorSurface,eye:project.eye,wallVisible:(a,b,winding)=>winding*((b[0]-a[0])*(project.eye[1]-a[1])-(b[1]-a[1])*(project.eye[0]-a[0]))>=0,thickness:p=>Math.max(.8,Math.min(5,height*.022/Math.max(.3,project.depth(p))))});
-  const danceDepth=layout.room?0:Math.max(4,layout.depth);
-  const front=project([0,-danceDepth+.4,.01]);
-  if(front.depth>0){ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillStyle=environmentColor('#b0c8d4',ambient);ctx.fillText(layout.roomPlan?layout.roomPlan.name:layout.room?'CLUB · TANZ- & LICHTFLÄCHE':'TANZFLÄCHE',front.x,front.y);}
+  drawStageLabel(ctx,width,height,layout,camera,project);
   function footprint(center,radius,stretch,angle,color,strength,floorFaces,type){
     if(!ctx.createRadialGradient||project.depth(center)<=.08)return false;
     const c=project(center),u=project([center[0]+Math.cos(angle)*radius*stretch,center[1]+Math.sin(angle)*radius*stretch,center[2]]),v=project([center[0]-Math.sin(angle)*radius,center[1]+Math.cos(angle)*radius,center[2]]);
@@ -217,21 +265,29 @@ export function renderStage3d(ctx,width,height,layout,lights,camera,crowd=[],tim
     const a=project(start),b=project(end),dx=b.x-a.x,dy=b.y-a.y,length=Math.hypot(dx,dy);
     if(length<2)return true;
     const edge=project(add(end,mul(unit(cross(add(end,mul(start,-1)),Math.abs(end[0]-start[0])+Math.abs(end[1]-start[1])<.001?[0,1,0]:[0,0,1])),radius)));
-    const r=Math.max(1,Math.hypot(edge.x-b.x,edge.y-b.y)),sprite=lightSprite('beam',color);
+    const r=beamHaloScale*Math.max(1,Math.hypot(edge.x-b.x,edge.y-b.y)),sprite=lightSprite('beam',color);
     if(!sprite)return false;
-    queue.push({depth:(a.depth+b.depth)/2,draw:()=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=Math.min(1,power)*.5;ctx.transform(dy/length*r,-dx/length*r,dx,dy,a.x,a.y);ctx.drawImage(sprite,-1,0,2,1);ctx.restore();}});return true;
+    const response=previewBeamResponse(start,end,project.eye,radius);
+    queue.push({depth:(a.depth+b.depth)/2,draw:()=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=Math.min(1,previewLightExposure(power)*response);ctx.transform(dy/length*r,-dx/length*r,dx,dy,a.x,a.y);ctx.drawImage(sprite,-1,0,2,1);ctx.restore();}});return true;
   }
   function lens(center,radius,color,power){
     if(power<=0||project.depth(center)<=.1)return;
     const p=project(center),sprite=lightSprite('lens',color);if(!sprite)return;
-    const r=Math.min(24,Math.max(2,Math.min(width,height)*1.2*radius/p.depth));
-    queue.push({depth:p.depth-.001,draw:()=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=Math.min(1,power)*.65;ctx.drawImage(sprite,p.x-r,p.y-r,r*2,r*2);ctx.restore();}});
+    const r=lensHaloScale*Math.min(24,Math.max(2,Math.min(width,height)*1.2*radius/p.depth));
+    queue.push({depth:p.depth-.001,draw:()=>{ctx.save();ctx.globalCompositeOperation='lighter';ctx.globalAlpha=previewLightExposure(power);ctx.drawImage(sprite,p.x-r,p.y-r,r*2,r*2);ctx.restore();}});
   }
   function paint(){
     queue.sort((a,b)=>b.depth-a.depth);
     for(const item of queue){if(item.draw){item.draw();continue;}ctx.beginPath();item.p.forEach((p,i)=>i?ctx.lineTo(p.x,p.y):ctx.moveTo(p.x,p.y));if(item.p.length>2)ctx.closePath();ctx.globalAlpha=item.alpha;ctx.globalCompositeOperation=item.emissive?'lighter':'source-over';if(item.fill){ctx.fillStyle=item.fill;if(item.alpha===1&&!item.stroke&&item.p.length>2){ctx.strokeStyle=item.fill;ctx.lineWidth=.65;ctx.stroke();}ctx.fill();}if(item.stroke){ctx.strokeStyle=item.stroke;ctx.lineWidth=item.lineWidth;ctx.stroke();}}
     ctx.globalAlpha=1;ctx.globalCompositeOperation='source-over';queue.length=0;
   }
+}
+
+export function drawStageLabel(ctx,width,height,layout,camera,project=stageCamera(layout,camera,width,height)){
+  const ambient=sceneEnvironmentBrightness(layout);
+  const danceDepth=layout.room?0:Math.max(4,layout.depth);
+  const front=project([0,-danceDepth+.4,.01]);
+  if(front.depth>0){ctx.font='11px system-ui';ctx.textAlign='center';ctx.fillStyle=environmentColor('#b0c8d4',ambient);ctx.fillText(layout.roomPlan?layout.roomPlan.name:layout.room?'CLUB · TANZ- & LICHTFLÄCHE':'TANZFLÄCHE',front.x,front.y);}
 }
 
 // Shared world geometry: desktop canvas and stereoscopic WebXR use the same scene.
@@ -300,13 +356,15 @@ export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{}
   };
   for(const light of layout.ar?[]:lights){
     if(light.power<=0)continue;
-    const height=light.position.height+(light.aimed&&light.modelSize?light.modelSize.height*(light.type==='moving'?.71:.5):0);
-    const p=[light.position.x,light.position.y,height],t=[light.target.x,light.target.y,light.target.z||.012],length=Math.hypot(...add(t,mul(p,-1)));
-    const profile=lightProfile(light.type);
-    const radius=Math.min(1.8,Math.max(.12,length*profile.spread)),stretch=Math.min(3,length/Math.max(.3,height))*profile.stretch,angle=Math.atan2(t[1]-p[1],t[0]-p[0]);
+    const {height,length,radius,stretch,angle}=lightFootprint(light),profile=lightProfile(light.type,light.beamAngle);
+    const p=[light.position.x,light.position.y,height],t=[light.target.x,light.target.y,light.target.z||.012];
     const strength=Math.min(1,light.power)*profile.power/(1+.015*length*length);
-    if(light.wallIndex>=0&&layout.roomPlan){
-      const boundary=layout.roomPlan.boundary,a=boundary[light.wallIndex],b=boundary[(light.wallIndex+1)%boundary.length];
+    if(light.type==='moving'&&!layout.roomPlan?.positions[light.id]?.wallTarget){
+      for(const patch of beamSurfacePatches(light,layout,floorFaces))polygon(patch.points,light.color,strength*patch.alpha,null,.7,true);
+      continue;
+    }
+    if(light.wallIndex>=0){
+      const boundary=layout.roomPlan?.boundary||[[-w,layout.room?(layout.lightMin||0):-danceDepth],[w,layout.room?(layout.lightMin||0):-danceDepth],[w,d],[-w,d]],a=boundary[light.wallIndex],b=boundary[(light.wallIndex+1)%boundary.length];
       const size=Math.hypot(b[0]-a[0],b[1]-a[1]),ux=(b[0]-a[0])/size,uy=(b[1]-a[1])/size;
       const winding=boundary.reduce((n,v,i)=>{const q=boundary[(i+1)%boundary.length];return n+v[0]*q[1]-q[0]*v[1];},0)>=0?1:-1;
       const center=(t[0]-a[0])*ux+(t[1]-a[1])*uy,du=(t[0]-p[0])*ux+(t[1]-p[1])*uy,dz=t[2]-p[2];
@@ -314,12 +372,13 @@ export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{}
       for(let layer=6;layer>=1;layer--){
         const fraction=layer/6,r=radius*fraction*1.4,alpha=strength*(.04+.45*(1-fraction));
         const ring=Array.from({length:20},(_,i)=>{const phase=i*Math.PI/10,u=Math.cos(phase)*r*elongation,v=Math.sin(phase)*r;return [center+u*Math.cos(angle)-v*Math.sin(angle),t[2]+u*Math.sin(angle)+v*Math.cos(angle)];});
-        const limits=layout.roomPlan.positions[light.id]?.wallTarget,left=(limits?.start||0)*size,right=(limits?.end??1)*size,bottom=limits?.minHeight||0,top=limits?.maxHeight??layout.height;
+        const limits=layout.roomPlan?.positions[light.id]?.wallTarget,left=(limits?.start||0)*size,right=(limits?.end??1)*size,bottom=limits?.minHeight||0,top=limits?.maxHeight??layout.height??3;
         const clipped=clipFloor(ring,[[left,bottom],[right,bottom],[right,top],[left,top]]);
         if(clipped.length>2)polygon(clipped.map(([u,z])=>[a[0]+ux*u-uy*.006*winding,a[1]+uy*u+ux*.006*winding,z]),light.color,alpha,null,.7,true);
       }
       continue;
     }
+    if(light.targetSurface==='ceiling')t[2]-=.006;
     if(footprint?.(t,radius*1.4,stretch,angle,light.color,strength,floorFaces,light.type))continue;
     for(let layer=10;layer>=1;layer--){
       const fraction=layer/10,r=radius*fraction*1.4,alpha=strength*(.025+.32*(1-fraction));
@@ -333,10 +392,10 @@ export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{}
     const p=[light.position.x,light.position.y,light.position.height],t=[light.target.x,light.target.y,light.target.z||.025];
     // A subtle suspension line anchors fixtures in space.
     if(layout.ar||layout.selectedFixture===light.id)line([p[0],p[1],0],p,'#314858');
-    if(!light.modelSize)box(add(p,[0,0,.04]),light.type==='bar'?[.12,.08,.12]:[.17,.17,.22]);
+    if(!light.modelSize&&light.type!=='moving')box(add(p,[0,0,.04]),light.type==='bar'?[.12,.08,.12]:[.17,.17,.22]);
     else if(!bodies.has(light.id)){
-      bodies.add(light.id);const size=light.modelSize,a=(light.rotation||0)*Math.PI/180,position=layout.positions[light.id]||light.position,base=[position.x,position.y,position.height];
-      const pitch=light.aimed?Math.atan2(position.height+size.height*(light.type==='moving'?.71:.5)-t[2],Math.hypot(t[0]-base[0],t[1]-base[1])):0;
+      bodies.add(light.id);const size=light.modelSize||{width:.34,depth:.34,height:.44},a=(light.rotation||0)*Math.PI/180,position=layout.positions?.[light.id]||light.position,base=[position.x,position.y,light.modelSize?position.height:lightFootprint(light).height-size.height*.71];
+      const pitch=light.aimed?Math.atan2(lightFootprint(light).height-t[2],Math.hypot(t[0]-base[0],t[1]-base[1])):0;
       if(light.type==='moving'){
         const headAngle=(light.aimRotation??light.rotation??0)*Math.PI/180;
         const local=(x,y,z)=>[base[0]+x*Math.cos(headAngle)-y*Math.sin(headAngle),base[1]+x*Math.sin(headAngle)+y*Math.cos(headAngle),base[2]+z];
@@ -349,7 +408,8 @@ export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{}
       line([base[0],base[1],.02],[base[0]+Math.sin(a)*.5,base[1]-Math.cos(a)*.5,.02],'#ffd384');}
     }
     if(light.aimed&&light.modelSize)p[2]+=light.modelSize.height*(light.type==='moving'?.71:.5);
-    const axis=unit(add(t,mul(p,-1))),u=unit(cross(axis,[0,1,0])),v=cross(axis,u);
+    if(Number.isFinite(light.emissionHeight))p[2]=light.emissionHeight;
+    const axis=unit(add(t,mul(p,-1))),u=unit(cross(axis,Math.abs(axis[1])<.9?[0,1,0]:[0,0,1])),v=cross(axis,u);
     const ring=(center,r)=>Array.from({length:16},(_,i)=>add(center,add(mul(u,Math.cos(i*Math.PI/8)*r),mul(v,Math.sin(i*Math.PI/8)*r))));
     const front=add(p,mul(axis,light.aimed&&light.modelSize?light.modelSize.depth*(light.type==='moving'?.42:.5)+.01:.08));
     polygon(ring(add(front,mul(axis,-.003)),.15),'#424b54',1);
@@ -358,15 +418,19 @@ export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{}
       const center=add(front,add(mul(u,sign*.112),mul(v,side*.112))),r=.009;
       polygon([add(center,mul(u,-r)),add(center,mul(v,r)),add(center,mul(u,r)),add(center,mul(v,-r))],'#5b6269',1);
     }
-    (light.power>0?rawPolygon:polygon)(ring(add(front,mul(axis,.002)),.105),light.power>0?light.color:'#25313c',Math.max(.3,light.power));
-    lens?.(add(front,mul(axis,.004)),.2,light.color,light.power);
+    const lensPower=light.power*(eye?previewLensVisibility(front,axis,eye):1);
+    (lensPower>0?rawPolygon:polygon)(ring(add(front,mul(axis,.002)),.105),lensPower>0?light.color:'#25313c',Math.max(.3,lensPower));
+    lens?.(add(front,mul(axis,.004)),.2,light.color,lensPower);
     if(light.power<=0)continue;
-    const distance=Math.hypot(...add(t,mul(p,-1))),radius=Math.min(1.8,distance*lightProfile(light.type).spread);
-    if(beam?.(front,t,radius,light.color,light.power))continue;
-    // A faint volume suggests haze; the illuminated surface carries the light.
-    for(const [scale,opacity] of [[1,.012],[.65,.016],[.3,.022]]){
+    const distance=Math.hypot(...add(t,mul(p,-1))),profile=lightProfile(light.type,light.beamAngle),radius=Math.min(profile.maxRadius,distance*profile.spread);
+    const haze=Math.max(0,Math.min(1,layout.hazeDensity??.65)),volumePower=light.power*profile.volume*haze/.65;
+    if(volumePower<=0)continue;
+    if(beam?.(front,t,radius,light.color,volumePower))continue;
+    // A readable haze volume keeps coordinated beam figures visible in XR
+    // and the polygon fallback too. Zero power still emits no volume.
+    for(const [scale,opacity] of [[1,.024],[.65,.034],[.3,.055]]){
       const start=ring(p,.035*scale),end=ring(t,radius*scale);
-      for(let i=0;i<16;i++)polygon([start[i],start[(i+1)%16],end[(i+1)%16],end[i]],light.color,light.power*opacity,null,.7,true);
+      for(let i=0;i<16;i++)polygon([start[i],start[(i+1)%16],end[(i+1)%16],end[i]],light.color,volumePower*opacity,null,.7,true);
     }
   }
   // Share the fixture/beam depth queue so people belong to the scene.

@@ -32,3 +32,13 @@ test('projection is finite directly under the fixture and scales with stage size
   const point=projectMovingHeads(layout,poses)[0];assert.equal(point.tilt,90);assert.equal(point.distance,3);
   const wider=projectMovingHeads(stageLayout({width:16}),poses)[0];assert.equal(wider.target.x,target.x*2);
 });
+
+test('odd rigs identify the physically middle fixture independently of device order',()=>{
+ for(const count of [1,3,5,9]){
+  const devices=Array.from({length:count},(_,i)=>({id:`head-${i}`})).reverse();
+  const layout=stageLayout({positions:Object.fromEntries(devices.map(d=>[d.id,{x:Number(d.id.slice(5))-(count-1)/2,y:5,height:2}]))});
+  const heads=projectMovingHeads(layout,devices.map(()=>({pan:0,tilt:.8})),devices);
+  assert.deepEqual(heads.filter(h=>h.motionRole==='center').map(h=>h.id),[`head-${(count-1)/2}`]);
+ }
+ assert.ok(projectMovingHeads(stageLayout(),restingHeads()).every(h=>!h.motionRole));
+});

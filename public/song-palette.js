@@ -39,6 +39,12 @@ export function songPaletteAt(plan,time){
  const edit=plan?.sectionLighting?.find(s=>time>=s.start&&time<s.end);
  if(edit?.palette)return edit.palette;
  if(plan?.effectiveOptions?.palette==='custom')return plan.colorPalette;
+ if(plan?.showProfile==='show'&&plan.showCues?.length){
+  let lo=0,hi=plan.showCues.length;
+  while(lo<hi){const mid=(lo+hi)>>>1;if(plan.showCues[mid].time<=time)lo=mid+1;else hi=mid;}
+  const cue=plan.showCues[lo-1];
+  if(cue&&time<cue.end)return [[cue.r,cue.g,cue.b],...(cue.contrast?[cue.contrast]:[])];
+ }
  if(plan?.directionActive){
   const colors=directionAt(plan.colorDirection,time);
   if(edit&&edit.movement<1){const anchor=directionAt(plan.colorDirection,edit.start);return colors.map((rgb,i)=>rgb.map((v,c)=>Math.round(anchor[i][c]*(1-edit.movement)+v*edit.movement)));}

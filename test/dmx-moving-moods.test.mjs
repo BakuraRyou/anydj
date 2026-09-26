@@ -1,7 +1,8 @@
+// The selectable pattern moods retain their original cadence and motor constraints.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {MOVING_MOODS,movingMood} from '../public/dmx-moving-moods.js';
-import {movingCues,movingCueAt} from '../public/dmx-moving-cues.js';
+import {patternMovingCues as movingCues,movingCueAt} from '../public/dmx-moving-cues.js';
 import {movingPlanJob,createMovingPreparation} from '../public/dmx-moving-plan.js';
 import {movingHeadTargets} from '../public/dmx-moving-model.js';
 const times=Array.from({length:64},(_,i)=>(i+1)*.5);

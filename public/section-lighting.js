@@ -63,7 +63,7 @@ export function applySectionLighting(plan,edits=[]) {
   });
   const sectionLighting=edits.map(e=>{
     const a=hex(e.colorA),b=hex(e.colorB);
-    return {start:e.start,end:e.end,movement:e.movement,palette:e.colors==='auto'?null:e.colors==='hold'?[a]:e.colors==='pair'?[a,b]:[a,b,[a[1],a[2],a[0]],[b[2],b[0],b[1]]],
+    return {start:e.start,end:e.end,movement:e.movement,rhythm:e.rhythm,palette:e.colors==='auto'?null:e.colors==='hold'?[a]:e.colors==='pair'?[a,b]:[a,b,[a[1],a[2],a[0]],[b[2],b[0],b[1]]],
       events:source.times.filter((t,i)=>t>=e.start&&t<e.end&&selected[i]&&source.accents[i]>0)};
   });
   const colorEvents=(plan.colorEvents||[]).flatMap((event,i)=>{

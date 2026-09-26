@@ -11,6 +11,7 @@ export function roomLayout(room){
 export function roomLights(lights,source,room){
   const low=room.depth-room.reach;
   return lights.map(light=>({...light,
+    ...(light.motionAhead?{motionAhead:{...light.motionAhead,target:{x:clamp(light.motionAhead.target.x/source.width*room.width,-room.width/2,room.width/2),y:low+clamp(light.motionAhead.target.y/source.depth,0,1)*room.reach}}}:{}),
     position:{x:clamp(light.position.x/source.width*room.width,-room.width/2,room.width/2),y:clamp(light.position.y/source.depth*room.depth,0,room.depth),height:clamp(light.position.height,.3,room.height-.3)},
     target:{x:clamp(light.target.x/source.width*room.width,-room.width/2,room.width/2),y:low+clamp(light.target.y/source.depth,0,1)*room.reach}}));
 }

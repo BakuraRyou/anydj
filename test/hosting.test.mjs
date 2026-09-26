@@ -23,7 +23,11 @@ test('hosted server serves web edition and health, never local APIs or private f
   t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve);}));
   const base=`http://127.0.0.1:${server.address().port}`;
   const home=await fetch(base);assert.equal(home.status,200);assert.match(await home.text(),/AnyDj/);
-  assert.match(home.headers.get('Content-Security-Policy'),/https:\/\/api.spotify.com/);
+  const csp=home.headers.get('Content-Security-Policy');
+  assert.match(csp,/https:\/\/api.spotify.com/);
+  assert.match(csp,/script-src[^;]*https:\/\/www\.googletagmanager\.com/);
+  assert.match(csp,/connect-src[^;]*https:\/\/\*\.google-analytics\.com/);
+  assert.doesNotMatch(csp,/unsafe-eval/);
   assert.equal(await (await fetch(base+'/dj')).text(),'DJ');
   assert.equal((await fetch(base+'/spotify-callback.html?code=example')).status,200);
   const preview=await fetch(base+'/product-preview.webp');assert.equal(preview.status,200);assert.equal(preview.headers.get('Content-Type'),'image/webp');assert.equal(await preview.text(),'preview-fixture');

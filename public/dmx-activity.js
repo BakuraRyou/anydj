@@ -1,6 +1,9 @@
+import {showScoreAt} from './show-score.js';
+import {showActionAt} from './show-action.js';
+import {lightingScenes,lightingSceneAt,scenePresence,bassPresence} from './dmx-light-scenes.js';
 import {instrumentDevelopment,instrumentRests} from './instrument-activity.js';
-// Light pauses are reserved for measured musical withdrawals. Accents and
-// beat counts never alternate the active fixtures; brightness carries rhythm.
+// Whole-rig pauses are reserved for measured musical withdrawals. Measured
+// bass attacks can hand the light between groups within an active passage.
 const cache=new WeakMap(),restCache=new WeakMap();
 const quiet=look=>/held|quiet|break|outro/.test(look||'');
 const smooth=value=>{const v=Math.max(0,Math.min(1,value));return v*v*(3-2*v);};
@@ -88,6 +91,9 @@ function cuesFor(plan){
     }
     if(!quiet(section.look)||!Number.isFinite(level)||!Number.isFinite(previous)||
       level>.35||previous-level<.18||section.end-section.start<3)continue;
+    // A quiet structural label or a lower relative level must not erase an
+    // audible beat. Raw instrument withdrawals and measured blackouts still win.
+    if(lightingScenes(plan).some(scene=>scene.start<section.end&&scene.end>section.start&&scene.drive>=.45))continue;
     cues.push({start:section.start,end:section.end,kind:'rest'});
   }
   // One standout per development may briefly feature a single head. Ordinary
@@ -164,4 +170,122 @@ export function activityAt(source,units){
     const base=1-amount*(1-level);
     return darkness*(i===focused?base+(1-base)*emphasis:base*(1-.35*emphasis));
   });
+}
+
+// Moving beams are accents above the base lighting, not a permanently lit rig.
+// Decide density per musical section so individual beats cannot chatter the mask.
+const presenceCache=new WeakMap();
+function presenceSections(plan){
+ if(presenceCache.has(plan))return presenceCache.get(plan);
+ const drama=plan.arrangement?.drama;
+ const profiles=(plan.sections||[]).map(section=>{
+  const mean=key=>{
+   if(!(drama?.step>0))return undefined;
+   const values=drama[key]?.slice(Math.max(0,Math.floor(section.start/drama.step)),Math.ceil(section.end/drama.step)).filter(Number.isFinite)||[];
+   return values.length?values.reduce((sum,v)=>sum+v,0)/values.length:undefined;
+  };
+  const energy=mean('intensity')??section.intensity??.4,vocals=mean('vocalShare')??0;
+  if(quiet(section.look))return {level:0,spread:0};
+  if(vocals<.55&&(energy>=.75||section.look==='peak'&&energy>=.6))return {level:.85,spread:1};
+  if(section.look==='lift')return {level:.8,spread:.35};
+  return {level:vocals>=.55?.55:.75,spread:vocals>=.55?0:energy>=.6?.65:energy>=.45?1/3:0};
+ });
+ presenceCache.set(plan,profiles);return profiles;
+}
+// Keep discrete group identities while blending; interpolating a group number
+// would briefly select unrelated heads during section changes or deck mixes.
+export function mixMovingPresence(entries){
+ const layers=entries.flatMap(({presence,weight})=>(presence.layers||[presence]).map(layer=>({...layer,weight:(layer.weight??1)*weight})));
+ return {level:layers.reduce((sum,p)=>sum+p.level*p.weight,0),spread:layers.reduce((sum,p)=>sum+p.spread*p.weight,0),layers};
+}
+export function movingPresenceAt(source){
+ const plan=source.movingPlan,time=source.songTime;
+ const scene=(!source.movingMood||source.movingMood==='balanced'||source.movingMood==='show')&&lightingSceneAt(plan,time);
+ if(scene){
+  if(source.movingMood==='show'){
+   const level=activityAt(source,1)[0],action=showActionAt(plan,time),picture=showScoreAt(plan,time);
+   const selection=picture?{occupancy:picture.occupancy,selection:picture.index%2}:{};
+   const rhythm=plan.sectionLighting?.find(s=>time>=s.start&&time<s.end)?.rhythm;
+   if(action&&(!rhythm||rhythm==='auto')&&action.cue.action!=='hit')return {level,spread:1,...selection,mask:'show-action',action:action.cue.action,phase:action.cue.phase,progress:action.progress,amount:Math.max(0,Math.min(1,source.flicker??1))};
+   return rhythm&&rhythm!=='auto'?{level,spread:1,mask:'all'}:{level,spread:1,...selection,mask:'show-score'};
+  }
+  const scenes=lightingScenes(plan),previous=scenes[scene.index-1];
+  const t=smooth((time-scene.start)/(scene.kind==='impact'?.2:.8));
+  const presence=mixMovingPresence([{presence:previous?scenePresence(previous,plan,previous.end-.001):{level:0,spread:0},weight:1-t},{presence:scenePresence(scene,plan,time),weight:t}]);
+  const darkness=activityAt(source,1)[0];
+  return {...presence,level:presence.level*darkness,layers:presence.layers.map(p=>({...p,level:p.level*darkness}))};
+ }
+ const profiles=plan?presenceSections(plan):[];
+ const sections=plan?.sections||[];
+ const index=Number.isFinite(time)?sections.findIndex(s=>time>=s.start&&time<s.end):-1;
+ const phrases=plan?.arrangement?.patterns?.phrases||[];
+ const phraseIndex=Number.isFinite(time)?phrases.findIndex(p=>time>=p.start&&time<p.end):-1;
+ const segment=phraseIndex>=0?phrases[phraseIndex]:sections[index];
+ const group=phraseIndex>=0?phraseIndex:Math.max(0,index);
+ const fallback={level:quiet(source.look)?0:.65,spread:1/3};
+ const current={...(profiles[index]||fallback),group};
+ let presence=current;
+ if(segment){
+  const previousTime=segment.start-.0001,previousIndex=sections.findIndex(s=>previousTime>=s.start&&previousTime<s.end);
+  const previous={...(profiles[previousIndex]||{level:0,spread:0}),group:Math.max(0,group-1)};
+  const fade=smooth((time-segment.start)/Math.min(1.2,(segment.end-segment.start)/2));
+  presence=mixMovingPresence([{presence:previous,weight:1-fade},{presence:current,weight:fade}]);
+ }
+ const bass=plan&&bassPresence(lightingSceneAt(plan,time),plan,time);
+ if(bass)presence=bass;
+ const darkness=activityAt(source,1)[0];
+ return {...presence,level:presence.level*darkness,...(presence.layers?{layers:presence.layers.map(p=>({...p,level:p.level*darkness}))}:{})};
+}
+export function movingPresenceLevel(presence,rank,count){
+ if(!presence)return 1;
+ if(presence.layers)return presence.layers.reduce((sum,p)=>sum+(p.weight??1)*movingPresenceLevel(p,rank,count),0);
+ const slots=Math.ceil(count/2),slot=Math.min(rank,count-1-rank);
+ if(presence.occupancy!==undefined){
+  const n=Math.max(1,Math.ceil(slots*presence.occupancy)),selected=presence.selection?slots-1-slot:slot;
+  if(presence.occupancy<=0||selected>=n)return 0;
+ }
+ if(presence.mask==='show-score')return presence.level;
+ if(presence.mask==='show-action'){
+  if(count===1)return presence.level;
+  const p=presence.progress,amount=presence.amount??1;
+  const recover=smooth((p-.72)/.28);
+  const radius=slots===1?0:(slots-1-slot)/(slots-1);
+  const group=count===2?rank:slot%2;
+  const staged=presence.action==='launch'?smooth(p*2-radius):group===presence.phase?1-smooth((p-.35)/.25):smooth((p-.12)/.25);
+  return presence.level*(1-amount*(1-staged)*(1-recover));
+ }
+ if(presence.mask==='bass-chase'){
+  if(count===1)return presence.level;
+  // Evaluate discrete groups AFTER expansion to the physical rig: interpolated
+  // four-head masks otherwise leave the extra heads permanently half lit.
+  // Mirrored pairs preserve the formation on even and odd rigs alike.
+  const group=count===2?rank:slot%2;
+  const delay=group===presence.phase?0:Math.min(.075,presence.duration*.22);
+  const age=presence.age-delay;
+  const pulse=group===presence.phase?1-smooth((age-presence.duration*.48)/.07):smooth(age/.025);
+  // Rejoin the underlying full picture at the end, without an all-rig blackout.
+  const recover=smooth((presence.age-presence.duration+.075)/.075);
+  return presence.level*(pulse+(1-pulse)*recover);
+ }
+ if(presence.mask==='roles'&&presence.roles?.length){
+  const at=(count===1?.5:rank/(count-1))*(presence.roles.length-1),lo=Math.floor(at),hi=Math.min(presence.roles.length-1,lo+1);
+  return presence.level*(presence.roles[lo]+(presence.roles[hi]-presence.roles[lo])*(at-lo));
+ }
+ if(presence.mask==='all')return presence.level;
+ if(presence.mask==='edges')return presence.level*(slot===0?1:0);
+ if(presence.mask==='gather')return presence.level*smooth(1+presence.spread*(slots-1)-slot);
+ if(presence.mask==='center')return presence.level*(slot===slots-1?1:0);
+ if(presence.mask==='answer')return presence.level*(slot%2===0?(presence.pairMix??1):1-(presence.pairMix??1));
+ if(presence.mask==='expand')return presence.level*smooth(1+presence.spread*(slots-1)-(slots-1-slot));
+ const order=(slot-(presence.group||0)%slots+slots)%slots;
+ // Select whole groups at useful brightness. Fractional density used to
+ // leave extra beams barely visible and looked like only one active pair.
+ const budget=Math.min(slots,Math.max(2,Math.round(1+(slots-1)*presence.spread)));
+ return presence.level*smooth(budget-order);
+}
+export function applyMovingPresence(lights){
+ const ordered=lights.filter(l=>l.type==='moving').sort((a,b)=>a.position.x-b.position.x||String(a.id).localeCompare(String(b.id)));
+ const ranks=new Map(ordered.map((l,i)=>[l.id,i]));
+ return lights.map(l=>l.type==='moving'&&l.movingPresence&&Number.isFinite(l.movingPresenceBasePower)
+  ?{...l,movingGroupActive:l.movingPresenceBasePower>0&&(l.movingPresence.layers||[l.movingPresence]).some(p=>(p.weight??1)>0&&p.level>0&&(p.mask==='bass-chase'||p.mask==='show-action')),power:l.movingPresenceBasePower*movingPresenceLevel(l.movingPresence,ranks.get(l.id),ordered.length)*(l.movingShutter??1)}:l);
 }

@@ -32,11 +32,10 @@ Instrumenten-/Strukturanalyse. Auto Beat ist deshalb deaktiviert. Die
 Browseranalyse wird als eigene Betriebsart ausgewiesen; bewusst nicht
 enthaltene KI-Funktionen erzeugen keine Teilanalyse-Warnung.
 
-Die Startseite nutzt keine externen Schriftarten, Tracker oder eingebetteten
-Dienste. Der Hoster kann unabhängig davon normale Zugriffsprotokolle führen.
-Die Seite ist vorbereitet, wurde aber nicht auf einem öffentlichen Server
-veröffentlicht. Betreiberangaben und vorhandene Website-Navigation können beim
-Einbinden ergänzt werden.
+Die Informationsseiten laden Schriftarten und Bilder lokal. Optionales Google
+Analytics wird ausschließlich nach Einwilligung geladen; ohne Mess-ID bleibt es
+deaktiviert. Die DJ-Demo und OAuth-Callbacks werden nicht durch Analytics erfasst.
+Siehe [Datenschutz und Analytics](#datenschutz-und-google-analytics).
 
 ## Prüfung
 
@@ -145,58 +144,129 @@ Hardwareempfehlungen und tatsächliche Funktionsgrenzen stehen auf der
 Downloadseite unter `downloads.html#systemanforderungen`. Die empfohlene
 KI-Zielklasse ist keine gemessene Mindesthardware.
 
-## Rechtstexte
+## Datenschutz und Google Analytics
 
-`impressum.html` und `datenschutz.html` werden vom Web-Build übernommen und sind
-auf Startseite, Downloadseite und in der Web-Demo verlinkt. Die Links im Pult
-öffnen einen neuen Tab, um die laufende Audio-Sitzung zu erhalten.
+`impressum.html` und `datenschutz.html` werden mit dem gemeinsamen Header und
+Footer gebaut. Die Betreiberangaben sind die bestätigten Angaben von Animatus
+Erik Heldt in Lübeck. Die Datenschutzerklärung beschreibt Netcup-Webhosting und
+E-Mail-Empfang, Serverprotokolle, Einwilligungsverwaltung, Google Analytics 4,
+lokale DJ-Daten, Spotify/TIDAL, Kontakt und Betroffenenrechte.
 
-Stand 23.09.2026 ist das Impressum mit den bestätigten Betreiberangaben ergänzt.
-Die Datenschutzerklärung bleibt ein **Entwurf** mit sichtbaren Platzhaltern und
-`noindex`. Betreibername (Animatus Erik Heldt, Inhaber Erik Heldt), E-Mail,
-USt-IdNr. und Erklärung zur Verbraucherstreitbeilegung wurden aus dem vom Nutzer
-benannten [Animatus-Impressum](https://www.animatus.de/impressum) übernommen.
-Die Quellen widersprechen sich bei Anschrift und Telefon:
+### Mess-ID konfigurieren
 
-- Impressum: Braunstraße 6, 23552 Lübeck; +49 451 50498827.
-- [Datenschutzerklärung](https://www.animatus.de/datenschutz), Stand 29.11.2023:
-  Traberstieg 13, 22941 Bargteheide; +49 4532 2650084.
+In `web/analytics-config.json` die öffentliche GA4-Mess-ID eintragen:
 
-Der Nutzer hat ausdrücklich die Lübecker Angaben aus dem Impressum bestätigt.
-Diese Anschrift ist in beiden Rechtstexten eingetragen; die Telefonnummer ist
-im Impressum direkt anklickbar.
-Der veraltete OS-Plattform-Verweis wurde nicht übernommen:
-[Die Plattform wurde am 20.07.2025 eingestellt](https://consumer-redress.ec.europa.eu/site-relocation_en).
-Vor Veröffentlichung fehlen außerdem Hosting-/E-Mail-Anbieter, tatsächliche
-Logdaten und Löschfristen sowie gegebenenfalls Angaben zu Datenschutzbeauftragten.
-Die fremde Website-Datenschutzerklärung ist kein Nachweis dafür, welche
-Dienste AnyDj tatsächlich nutzt; ihre Diensteliste wurde nicht übernommen.
+```json
+{"measurementId": "G-XXXXXXXXXX"}
+```
 
-Die Beschreibung der Demo basiert auf dem Quellcode: lokale Audioverarbeitung,
-Local Storage/IndexedDB sowie optionale Spotify-/TIDAL-Verbindungen mit Tokens
-im Session Storage. Die Erforderlichkeit der einzelnen Speicherzugriffe und die
-Einbindung der Streaming-Dienste müssen mit den tatsächlich eingesetzten
-Rechtsgrundlagen und gegebenenfalls einer Einwilligungssteuerung abgeglichen
-werden. Die Rechtstexte selbst implementieren keine Einwilligungssteuerung.
-Zusätzliche Dienste des Hosters sind im Quellcode nicht erkennbar.
+Eine leere Zeichenfolge deaktiviert Analytics vollständig. Alternativ überschreibt
+die Umgebungsvariable die Datei für den jeweiligen Build:
 
-Nach Ergänzung und Prüfung die Entwurfsnotiz, alle Platzhalter und das
-`noindex`-Metaelement entfernen. Die Footer-Links bleiben erhalten. Beim
-Web-only-Deployment wird auch die Downloadseite aktualisiert; bestehende
-Downloadkarten und Installer bleiben erhalten.
+```sh
+ANYDJ_GA_MEASUREMENT_ID=G-XXXXXXXXXX npm run build:web
+ANYDJ_GA_MEASUREMENT_ID=G-XXXXXXXXXX npm run deploy:web
+# Explizit deaktivieren, auch wenn die Datei eine Mess-ID enthält:
+ANYDJ_GA_MEASUREMENT_ID= npm run build:hosting
+```
 
-Geprüfte Grundlagen und Anbieterinformationen:
+`G-XXXXXXXXXX` ist nur ein Beispiel, kein produktiver Datenstrom. Ungültige Werte
+brechen vor dem Löschen des bisherigen Web-Builds ab. Die Konfiguration ist
+öffentlich; hier niemals API-Secrets oder Zugangsdaten eintragen. Änderungen
+benötigen einen neuen Build und ein Deployment. `--skip-build` verwendet weiterhin
+die zuvor gebaute Konfiguration. Der Build schreibt `analytics-config.js` in die
+Web-Ausgabe; die Desktop-App erhält keine Analytics-Einbindung.
 
-- [§ 5 DDG – Anbieterkennzeichnung](https://www.gesetze-im-internet.de/ddg/__5.html)
-- [DSGVO, insbesondere Art. 6, 13 und 15–22](https://eur-lex.europa.eu/eli/reg/2016/679)
-- [§ 25 TDDDG – Endgerätespeicherung](https://www.gesetze-im-internet.de/ttdsg/__25.html)
-- [§ 36 VSBG – Verbraucherstreitbeilegung](https://www.gesetze-im-internet.de/vsbg/__36.html)
-- [Spotify Datenschutz](https://www.spotify.com/de/legal/privacy-policy/)
-- [TIDAL Datenschutz](https://tidal.com/privacy)
+### Einwilligung und Datenumfang
 
-Header und Footer der Website werden beim Build aus `web/header.html` und
-`web/footer.html` eingesetzt. Änderungen daran gelten für Startseite, Downloads,
-Impressum und Datenschutz. Web-Deployments lesen nur die kleine veröffentlichte
-Downloadseite zurück und übernehmen deren `download-grid`; Installer werden
-weiterhin ausschließlich auf dem Server verschoben. Ein fehlender oder nicht
-eindeutiger Downloadbereich bricht die Aktivierung ab, ohne die Live-Seite zu ändern.
+- Basic Consent Mode: kein Google-Skript, kein Google-Request und keine cookielosen
+  Pings vor Zustimmung oder nach Ablehnung. Ohne konfigurierte ID erscheint kein
+  automatisches Einwilligungsbanner; die Einstellungen bleiben zugänglich.
+- Gleich gestaltete Schaltflächen „Nur notwendige“ und „Analytics erlauben“.
+  Die Entscheidung liegt mit Zeitstempel, Fassung und Mess-ID für 180 Tage im
+  Local Storage (`anydj-privacy-v1`). Bei neuer Mess-ID/Fassung ist sie ungültig.
+- „Cookie-Einstellungen“ steht auf allen Informationsseiten und in der Web-Demo.
+  Ablehnen nach Zustimmung setzt sofort das Disable-Flag, löscht erreichbare
+  `_ga`-Cookies und lädt eine zuvor messende Informationsseite neu, um den
+  Google-Code zu entladen. Die DJ-Demo lädt dabei nicht neu; Audio bleibt erhalten.
+  Änderungen werden über `storage` zwischen Tabs sowie beim Wiederanzeigen und
+  nach Ablauf abgeglichen. Blockierter oder ungültiger Speicher erlaubt kein Tracking.
+- Messung nur auf Startseite, Downloads, Impressum und Datenschutz. Keine
+  Einbindung in DJ-Demo, OAuth-Callbacks oder Desktop-App. Seitenadresse ohne
+  Query/Fragment, leerer Referrer, keine eigenen Musik-, Konto- oder Suchereignisse.
+- Google-Signale, Anzeigenpersonalisierung und alle drei Werbe-Einwilligungen
+  deaktiviert. Hostgebundene Analytics-Cookies gelten höchstens 180 Tage, ohne
+  Verlängerung bei jedem Aufruf; der Cookie-Pfad folgt dem Hosting-Unterordner.
+- Bei Änderungen von Zwecken, Anbietern oder Einwilligungstext auch `VERSION`
+  in `web/privacy.js` erhöhen und Datenschutzerklärung aktualisieren.
+
+### Einstellungen außerhalb des Website-Codes
+
+Der Code kann die folgenden Einstellungen in den Netcup-/Google-Konten nicht
+ändern. Sie müssen zur tatsächlichen Nutzung passen:
+
+1. **Netcup:** AVV nach Art. 28 DSGVO im Kundenkonto vorhalten. Im Webhosting
+   unter „Protokolle / Protokoll-Rotation“ tatsächliche Logfelder, Rotation,
+   Löschfrist und eventuelle Backups prüfen. Es gibt keine universelle gesetzliche
+   Aufbewahrungsfrist für Webserver-Logs. Die Datenschutzerklärung nennt deshalb
+   Zweck- und Löschkriterien, keine erfundene Tageszahl. Die konkreten Einstellungen
+   wurden nicht über das Panel geprüft; die festgestellte Frist anschließend im
+   Hosting-Abschnitt ergänzen. Netcups Frist für die eigene Website ist kein Beleg
+   für die Frist dieses Webspaces. Zusätzliche Plesk-Webstatistiken prüfen.
+2. **Google Analytics:** Bedingungen zur Auftragsverarbeitung akzeptieren,
+   Datenfreigaben auf das Erforderliche beschränken, Google-Signale und
+   Werbeverknüpfungen ausschalten. **Erweiterte Messung im Web-Datenstrom
+   ausschalten**, damit keine zusätzlichen Formular-, Such-, Link- oder
+   Downloadereignisse außerhalb der hier beschriebenen Messung entstehen.
+   Automatische Seitenaufrufe stammen aus der Code-Konfiguration.
+3. **Aufbewahrung bei Google:** zwei Monate einstellen und Zurücksetzen der
+   Aufbewahrungsdauer bei neuer Aktivität deaktivieren. Der Cookie-Zeitraum ist
+   eine andere Einstellung. Solange kein produktiver Datenstrom feststeht,
+   beschreibt die Erklärung die GA4-Standardoptionen zwei/14 Monate und die
+   getrennte Aufbewahrung aggregierter Berichte. Nach Einrichtung durch die
+   tatsächliche Einstellung ersetzen. Keine unbestätigte Kontoeinstellung wird
+   durch das Eintragen der Mess-ID automatisch vorgenommen.
+4. **Hosting-Sicherheitsrichtlinien:** Der Node-Server erlaubt die erforderlichen
+   Google-Tag- und Analytics-Adressen in seiner CSP. Falls Plesk die Dateien
+   direkt ausliefert und eigene CSP-Header setzt, diese entsprechend abgleichen;
+   keine pauschalen Freigaben für beliebige Skripte oder `unsafe-eval` nötig.
+
+Hosting und E-Mail über Netcup wurden vom Betreiber bestätigt. Die genauen
+Aufbewahrungseinstellungen und Vertragsunterlagen sind nicht aus dem Quellcode
+nachprüfbar. Die Texte ersetzen keine individuelle rechtliche Prüfung der
+betrieblichen Verarbeitung und der Verträge.
+
+### Prüfen
+
+```sh
+npm run build:hosting
+node scripts/check-privacy.mjs
+node scripts/check-site.mjs
+node scripts/check-web.mjs
+node --test test/hosting.test.mjs
+```
+
+Der Datenschutz-Browsertest nutzt eine ausschließlich im Testserver eingesetzte
+Mess-ID und fängt Google-Anfragen ab. Es werden keine Testdaten an Google gesendet.
+Er prüft fehlende/ungültige/abgelaufene Einwilligung, Ablehnen, Zustimmen,
+Widerruf und Cookie-Löschung, mehrere Tabs, blockierten Speicher, fehlende Mess-ID,
+Unterordner, Mobilansicht sowie den Ausschluss der Demo und OAuth-Callbacks.
+
+### Quellen für den Abgleich (25.09.2026)
+
+- [DSGVO](https://eur-lex.europa.eu/eli/reg/2016/679/oj?locale=de)
+- [§ 25 TDDDG](https://www.gesetze-im-internet.de/ttdsg/__25.html)
+- [Netcup-Impressum](https://www.netcup.com/de/kontakt/impressum)
+- [Netcup-Auftragsverarbeitung](https://www.netcup.com/de/helpcenter/dokumentation/general/avv)
+- [Netcup-Protokollverwaltung](https://www.netcup.com/de/helpcenter/dokumentation/webhosting/interface)
+- [Google Basic Consent Mode](https://support.google.com/analytics/answer/10000067?hl=de)
+- [GA4-Konfiguration](https://developers.google.com/analytics/devguides/collection/ga4/reference/config)
+- [GA4-Aufbewahrung](https://support.google.com/analytics/answer/7667196?hl=de)
+- [Google-Datenübermittlungen](https://policies.google.com/privacy/frameworks?hl=de)
+- [Spotify-Datenschutz](https://www.spotify.com/de/legal/privacy-policy/)
+- [TIDAL-Datenschutz](https://tidal.com/privacy)
+
+Header und Footer werden aus `web/header.html` und `web/footer.html` eingesetzt.
+Web-Deployments übernehmen nur die veröffentlichten Downloadkarten aus der
+bisherigen Seite; Datenschutz- und Cookie-Elemente stammen aus der neuen Vorlage.
+Installer bleiben auf dem Server erhalten.

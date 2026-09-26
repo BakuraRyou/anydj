@@ -38,6 +38,11 @@ try {
   const wait=async expression=>{const end=Date.now()+25000;while(Date.now()<end){try{if(await evaluate(expression))return;}catch(error){if(!/Inspected target navigated|Execution context was destroyed|Cannot find context/.test(error.message))throw error;}await new Promise(r=>setTimeout(r,100));}throw Error('Timeout: '+expression);};
 
 
+  const clickVisible=async selector=>{
+    const point=await evaluate(`(()=>{const node=document.querySelector(${JSON.stringify(selector)});if(!node?.checkVisibility())throw Error('Control is not visible: '+${JSON.stringify(selector)});node.scrollIntoView({block:'center',behavior:'instant'});const r=node.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;if(!node.contains(document.elementFromPoint(x,y)))throw Error('Control is covered: '+${JSON.stringify(selector)});return {x,y};})()`);
+    await c('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...point});
+    await c('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...point});
+  };
   const reload=async()=>{const origin=await evaluate('performance.timeOrigin');await c('Page.reload');await wait(`performance.timeOrigin!==${origin}&&document.readyState==='complete'`);};
   await c('Emulation.setDeviceMetricsOverride',{width:1280,height:900,deviceScaleFactor:1,mobile:false});
   await c('Page.navigate',{url:base+'/dj'});await wait("document.querySelector('#inlineLightStage')");
@@ -45,15 +50,38 @@ try {
   await wait("document.querySelector('#stageLayoutDialog').open&&document.querySelector('[data-layout-aim]').textContent.includes('Pan')");
   await evaluate("document.querySelector('[data-layout-close]').click();document.querySelector('[data-stage3d-toggle]').click()");
   await wait("document.querySelector('.stage-3d-dialog').open");
-  await evaluate("document.querySelector('[data-workspace-tab=room]').click()");
+  await clickVisible('[data-workspace-tab=room]');
   assert.equal(await evaluate("document.querySelector('[data-ar-start]').hidden"),false,'first visit shows three clear entry points');
   assert.equal(await evaluate("document.querySelector('[data-ar-next]').disabled"),true);
   await writeFile('/tmp/anydj-room-start.png',Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  // Both preview modes expose the existing editor directly in the Room tab.
+  const showZones=()=>evaluate("JSON.parse(localStorage.getItem('anydj-3d-zones-v1')).zones");
+  await clickVisible('[data-room-preset="false"]');
+  await clickVisible('.stage-3d-room [data-zone-add]');
+  const firstShowZone=(await showZones())[0];
+  assert.equal((await showZones()).length,1);
+  assert.equal(await evaluate("document.querySelector('.stage-3d-room [data-zone-width]').checkVisibility()"),true,'zone dimensions are editable in stage mode');
+  await clickVisible('[data-workspace-tab=fixtures]');
+  await clickVisible('.stage-device-manager [data-zone-add]');
+  assert.equal((await showZones()).length,2,'device manager retains the same zone editor');
+  await clickVisible('[data-workspace-tab=room]');
+  assert.deepEqual((await showZones())[0],firstShowZone,'tab switches preserve zones');
+  await clickVisible('[data-room-preset="true"]');
+  await clickVisible('.stage-3d-room [data-zone-add]');
+  assert.equal((await showZones()).length,3,'club mode can add zones directly');
+  await clickVisible('.stage-3d-room [data-zone-delete]');
+  const savedShowZones=await showZones();
+  assert.equal(savedShowZones.length,2,'zone deletion is reachable in the Room tab');
   const change=async(field,value)=>evaluate(`(()=>{const input=document.querySelector('[data-ar-${field}]');input.value=${JSON.stringify(value)};input.dispatchEvent(new Event('change'));})()`);
   const mapPosition=async(x,y)=>evaluate(`(()=>{const svg=document.querySelector('[data-ar-map]');svg.scrollIntoView({block:'center'});const room=JSON.parse(localStorage.getItem('anydj-ar-rooms-v1'));const plan=room.plans.find(p=>p.id===room.selected);const p=new DOMPoint(${x},plan.depth-${y}).matrixTransform(svg.getScreenCTM());return {x:p.x,y:p.y};})()`);
   const tap=async(x,y)=>{const p=await mapPosition(x,y);await c('Input.dispatchMouseEvent',{type:'mouseMoved',...p});await c('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...p});await c('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...p});};
   const stored=()=>evaluate("(()=>{const s=JSON.parse(localStorage.getItem('anydj-ar-rooms-v1'));return s.plans.find(p=>p.id===s.selected);})()");
-  await evaluate("document.querySelector('[data-ar-start-draw]').click()");
+  await clickVisible('[data-ar-start-draw]');
+  await clickVisible('.ar-room-zones [data-zone-add]');
+  assert.equal((await stored()).zones.length,1,'a new room supports zones before any devices are added');
+  assert.equal(Object.keys((await stored()).positions).length,0);
+  await clickVisible('.ar-room-zones [data-zone-delete]');
+  assert.equal((await stored()).zones.length,0);
   assert.equal(await evaluate("document.querySelector('[data-ar-width]').disabled"),false,'drawing starts with choosing the room dimensions');
   await evaluate("document.querySelector('[data-ar-draw]').click()");
   assert.equal(await evaluate("document.querySelector('[data-ar-map]').dataset.mode"),'draw');
@@ -130,7 +158,9 @@ try {
   await change('x','-2');
   await writeFile('/tmp/anydj-ar-editor.png',Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
   // Room-scoped zones share the zoomable map and survive export/reload/headset transfer.
-  await evaluate("document.querySelector('.ar-room-zones [data-zone-add]').click()");
+  await clickVisible('[data-ar-step="1"]');
+  await clickVisible('.ar-room-zones [data-zone-add]');
+  await writeFile('/tmp/anydj-room-quiet-zones.png',Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
   const zoneId=(await stored()).zones[0].id;
   assert.equal(await evaluate("document.querySelectorAll('[data-ar-map] [data-ar-zone]').length"),1);
   await evaluate("const n=document.querySelector('.ar-room-zones [data-zone-name]');n.value='Sitzbereich';n.dispatchEvent(new Event('change'))");
@@ -146,9 +176,20 @@ try {
   await c('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,x:handle.x+12,y:handle.y-12});
   assert.ok((await stored()).zones[0].width>beforeResize.width,'corner resizes the zone');
   await evaluate("document.querySelector('[data-ar-zoom-fit]').click()");
+  await clickVisible('[data-ar-step="2"]');
   await evaluate("document.querySelector('[data-ar-template=moving]').click()");
   const mover=await evaluate("document.querySelector('[data-ar-fixture]').value");
-  assert.equal(await evaluate("document.querySelector('[data-ar-rotation]').closest('label').hidden"),true);
+  assert.equal(await evaluate("document.querySelector('[data-ar-rotation]').closest('label').hidden"),false);
+  assert.equal(await evaluate("document.querySelector('[data-ar-rotation-label]').textContent"),'Montageausrichtung (°)');
+  const movingTarget=(await stored()).positions[mover].target;
+  await change('rotation','90');
+  assert.equal((await stored()).positions[mover].rotation,90);
+  assert.deepEqual((await stored()).positions[mover].target,movingTarget,'mount rotation does not redirect the musical target');
+  assert.ok((await evaluate(`document.querySelector('[data-device-id="${mover}"] rect').getAttribute('transform')`)).startsWith('rotate(-90 '),'map footprint follows the saved mount rotation');
+  await change('rotation','-45');
+  assert.equal((await stored()).positions[mover].rotation,-45);
+  assert.equal(Number(await evaluate("document.querySelector('[data-ar-rotation]').value")),-45);
+  assert.ok((await evaluate(`document.querySelector('[data-device-id="${mover}"] rect').getAttribute('transform')`)).startsWith('rotate(45 '));
   assert.equal(await evaluate("document.querySelector('[data-ar-motion-area]').hidden"),false);
   assert.equal(await evaluate(`document.querySelector('[data-ar-light-target="${mover}"]')`),null);
   await evaluate("for(const [key,value] of [['left',-3],['right',-1],['front',1],['back',4]])document.querySelector('[data-ar-area-'+key+']').value=value;document.querySelector('[data-ar-area-back]').dispatchEvent(new Event('change'))");
@@ -174,6 +215,17 @@ try {
   await wait("document.querySelector('.stage-3d-dialog').open");
   assert.equal(await evaluate("document.querySelector('[data-ar-name]').value"),'AR integration room');
   assert.deepEqual((await stored()).zones,savedZones,'room zones survive reload');
+  assert.deepEqual(await showZones(),savedShowZones,'show zones survive room planning and reload');
+  await clickVisible('[data-workspace-tab=room]');
+  assert.equal(await evaluate("document.querySelector('.ar-room-zones [data-zone-add]').checkVisibility()"),true,'saved room exposes zone creation in the Room tab after reload');
+  assert.equal(await evaluate("document.querySelector('.stage-3d-room [data-zone-add]').checkVisibility()"),false,'only the active room zone editor is visible');
+  await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
+  await clickVisible('.ar-room-zones [data-zone-add]');
+  assert.equal((await stored()).zones.length,savedZones.length+1,'room zone creation is reachable on mobile');
+  await writeFile('/tmp/anydj-room-quiet-zones-mobile.png',Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  await clickVisible('.ar-room-zones [data-zone-delete]');
+  assert.deepEqual((await stored()).zones,savedZones);
+  await c('Emulation.setDeviceMetricsOverride',{width:1280,height:900,deviceScaleFactor:1,mobile:false});
   assert.deepEqual((await stored()).positions[mover].motionArea,{x:.125,y:1/6,width:.25,depth:.5},'moving area survives reload');
   assert.deepEqual((await stored()).positions[mover].wallTarget,wallTarget,'wall target survives reload');
   await evaluate("document.querySelector('[data-share-start]').click()");
@@ -218,7 +270,7 @@ try {
   })()`);
   assert.equal(pixels.alpha,true);assert.deepEqual(pixels.clear,[0,0,0,0]);assert.ok(pixels.transparent>50000);assert.ok(pixels.opaque>100);assert.equal(pixels.error,0);
   assert.deepEqual(errors,[]);
-  console.log('AR browser passed: persisted room editor, validation, headset-to-DJ transfer with confirmation, transparent WebGL, measured device and controller panel.',pixels);
+  console.log('AR browser passed: visible Room-tab zone creation in stage, club and saved rooms, mobile controls, persisted room editor, validation, headset-to-DJ transfer with confirmation, transparent WebGL, measured device and controller panel.',pixels);
 } finally {
   ws?.close();chrome.kill('SIGKILL');app.server.closeAllConnections();
   await new Promise(resolve=>app.server.close(resolve));

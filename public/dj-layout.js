@@ -1,5 +1,5 @@
 // Group existing controls without replacing their event handlers or audio state.
-export function simplifyDJLayout(decks,mixer){
+export function simplifyDJLayout(decks,mixer,lightStage){
  const statusbar=document.createElement('footer');statusbar.className='dj-statusbar';statusbar.setAttribute('aria-label','Verbindungsstatus');
  document.querySelector('.shell').append(statusbar);statusbar.append(document.getElementById('djConnection'));
  const disclosure=(title,className)=>{const node=document.createElement('details');node.className=className;const summary=document.createElement('summary');summary.textContent=title;node.append(summary);return node;};
@@ -41,7 +41,7 @@ export function simplifyDJLayout(decks,mixer){
  // Standalone stage button (without inline preview) remains accessible too.
  const stage=mixer.querySelector('#openLightStage');if(stage&&!light.contains(stage))light.append(stage);
  const show=light.querySelector('.dj-show-choice');if(show?.firstChild?.nodeType===Node.TEXT_NODE)show.firstChild.textContent='Stil ';
- const lightHeader=document.createElement('div');lightHeader.className='dj-light-heading';lightHeader.append(title);
+ const lightHeader=document.createElement('div');lightHeader.className='dj-light-heading';lightHeader.append(title);if(lightStage?.tabs)lightHeader.append(lightStage.tabs);
  const settings=light.querySelector('#stageSettings');if(settings)lightHeader.append(settings);
  light.prepend(lightHeader);
  const lightOptions=document.createElement('div');lightOptions.className='dj-light-quick';

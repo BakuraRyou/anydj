@@ -1,10 +1,12 @@
+// Pattern-engine regression coverage for the retained alternative modes.
+// Default scene choreography is covered in dmx-light-scenes and dmx-moving-bars.
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {movingCues,movingCueAt} from '../public/dmx-moving-cues.js';
-import {movingPlanJob,movingPlanAt} from '../public/dmx-moving-plan.js';
+import {patternMovingCues as movingCues,movingCueAt} from '../public/dmx-moving-cues.js';
+import {movingPlanAt} from '../public/dmx-moving-plan.js';
 import {followMovingHeads,movingHeadTargets,MOVING_LIMITS} from '../public/dmx-moving-model.js';
 const song=(times=[2,4,6])=>({duration:12,sections:[{start:0,end:12,look:'peak'}],beatGrid:{beats:Array.from({length:25},(_,i)=>i/2)},arrangement:{times,accents:times.map(()=>.6),patterns:{phrases:[{start:0,end:12,energy:.8,tone:.5}],events:times.map((_,i)=>({kind:'bounce',alternate:i%2}))}}});
-const compile=p=>{const job=movingPlanJob(p);while(!job.done)job.advance();return job.result;};
+const compile=p=>{const cues=movingCues(p,'auto'),step=.05;return {duration:p.duration,step,cues,values:Float32Array.from(Array.from({length:Math.ceil(p.duration/step)+1},(_,i)=>movingCueAt(cues,i*step).flatMap(p=>[p.pan,p.tilt])).flat())};};
 const symmetric=pose=>{for(const [a,b] of [[0,3],[1,2]]){assert.ok(Math.abs(pose[a].pan+pose[b].pan)<1e-5);assert.ok(Math.abs(pose[a].tilt-pose[b].tilt)<1e-5);}};
 test('destinations arrive on selected audio events and hold between moves',()=>{
   const cues=movingCues(song(),'auto'),plan=compile(song());
@@ -116,7 +118,7 @@ test('automatic groups evolve over several bars instead of repeating a four-seco
  assert.deepEqual(movingCues(plan,'auto'),cues);
  const a=movingCueAt(cues,6),b=movingCueAt(cues,10);
  assert.ok(a.some((p,i)=>Math.abs(p.pan-b[i].pan)>2));
- assert.ok(cues.some(c=>Math.abs(c.pose[0].pan+c.pose[3].pan)>2));
+ for(const cue of cues)symmetric(cue.pose); // Default percussion pairs share a mirrored phase.
 });
 test('fast energetic phrases with irregular connected accents retain physical limits',()=>{
  const p=rhythmicSong([1,1.8,3.2,4.1,5.7,6.5,8,9.3,10.2,11.6,13,14.5,16,17.3,18.2],.96);

@@ -1,3 +1,5 @@
+import {applyMovingPresence} from './dmx-activity.js';
+import {motionClearance,footprintClearance,lightFootprint,createRoomMotors,roomBeamHit,beamBoundary} from './dmx-light-geometry.js';
 import {validateRoomMesh,surfaceTriangles} from './dmx-room-mesh.js';
 import {zoneLights} from './dmx-zone-plan.js';
 import {createZoneMotion,blockedSegment,zoneObstacles} from './dmx-zone-motion.js';
@@ -108,16 +110,34 @@ export function applyRoomPlan(scene, plan, ar=false) {
     const index=assigned.get(p.type)||0;assigned.set(p.type,index+1);
     for(const light of pool[index%pool.length])frames.push({...light,id,type:p.type});
   }
+  // Spread the authored motion over the final spatial rig, not insertion order.
+  // Cycling four source roles makes additional room heads restart the gesture.
+  // Only motion is resampled: each fixture retains its own light/color frame.
+  const sourceHeads=[...groups.values()].map(cells=>cells[0]).filter(l=>l.type==='moving').sort((a,b)=>a.position.x-b.position.x||String(a.id).localeCompare(String(b.id)));
+  const roomHeads=Object.entries(plan.positions).filter(([id,p])=>p.type==='moving'||groups.get(id)?.[0].type==='moving').sort(([a,p],[b,q])=>p.x-q.x||a.localeCompare(b));
+  const motionById=new Map();
+  const uv=light=>({x:Math.max(0,Math.min(1,light.motionUV?.x??(light.target.x/(scene.layout.width*.9)+.5))),y:Math.max(0,Math.min(1,light.motionUV?.y??((light.target.y/scene.layout.depth-.1)/.65)))});
+  if(sourceHeads.length)roomHeads.forEach(([id],rank)=>{
+    const at=(roomHeads.length===1?.5:rank/(roomHeads.length-1))*(sourceHeads.length-1),lo=Math.floor(at),hi=Math.min(sourceHeads.length-1,lo+1),fraction=at-lo;
+    const a=sourceHeads[lo],b=sourceHeads[hi],mix=(a,b)=>({x:a.x+(b.x-a.x)*fraction,y:a.y+(b.y-a.y)*fraction});
+    const motionUV=mix(uv(a),uv(b));let motionAhead;
+    if(a.motionAhead&&b.motionAhead&&Math.abs(a.motionAhead.seconds-b.motionAhead.seconds)<.001){
+      motionAhead={seconds:a.motionAhead.seconds,motionUV:mix(uv(a.motionAhead),uv(b.motionAhead)),target:a.motionAhead.target,motionFocus:(a.motionAhead.motionFocus??0)+((b.motionAhead.motionFocus??0)-(a.motionAhead.motionFocus??0))*fraction};
+    }
+    motionById.set(id,{motionUV,motionAhead,...(a.motionFocus!==undefined||b.motionFocus!==undefined?{motionFocus:(a.motionFocus??0)+((b.motionFocus??0)-(a.motionFocus??0))*fraction}:{})});
+  });
+  for(let i=0;i<frames.length;i++)if(frames[i].type==='moving'&&motionById.has(frames[i].id))frames[i]={...frames[i],...motionById.get(frames[i].id)};
   const centers=new Map();
   for(const light of frames){const p=centers.get(light.id)||{x:0,y:0,count:0};p.x+=light.position.x;p.y+=light.position.y;p.count++;centers.set(light.id,p);}
   const lights = frames.filter(l=>plan.positions[l.id]).map(light=>{
     const p=plan.positions[light.id],center=centers.get(light.id),source=scene.layout.positions?.[light.id]||{x:center.x/center.count,y:center.y/center.count};
     const dx=light.position.x-source.x,dy=light.position.y-source.y,a=p.rotation*Math.PI/180;
-    let target=p.target?{...p.target}:{...light.target};
+    let target=p.target?{...p.target}:{...light.target},motionUV=light.motionUV;
     if(light.type==='moving'){
       const range=p.motionArea||{x:0,y:0,width:1,depth:1};
       const nx=Math.max(0,Math.min(1,Number.isFinite(light.motionUV?.x)?light.motionUV.x:light.target.x/(scene.layout.width*.9)+.5));
       const ny=Math.max(0,Math.min(1,Number.isFinite(light.motionUV?.y)?light.motionUV.y:(light.target.y/scene.layout.depth-.1)/.65));
+      motionUV={x:nx,y:ny};
       target={x:(range.x+range.width*nx-.5)*plan.width,y:(range.y+range.depth*ny)*plan.depth};
       if(!insideRoom([target.x,target.y],plan.boundary)){
         // Retain the nearest valid destination for concave floor plans.
@@ -127,22 +147,82 @@ export function applyRoomPlan(scene, plan, ar=false) {
       }
     }
 
-    return {...light,...(light.type==='moving'&&p.motionArea?{motionBounds:{left:(p.motionArea.x-.5)*plan.width,right:(p.motionArea.x+p.motionArea.width-.5)*plan.width,bottom:p.motionArea.y*plan.depth,top:(p.motionArea.y+p.motionArea.depth)*plan.depth}}:{}),aimed:light.type==='moving'||!!p.target,target,aimRotation:light.type==='moving'||p.target?roomFixtureRotation(p,target):p.rotation,position:{...p,x:p.x+dx*Math.cos(a)-dy*Math.sin(a),y:p.y+dx*Math.sin(a)+dy*Math.cos(a)},modelSize:p.size,rotation:p.rotation};
+    return {...light,...(motionUV?{motionUV}:{}),...(light.type==='moving'&&p.motionArea?{motionBounds:{left:(p.motionArea.x-.5)*plan.width,right:(p.motionArea.x+p.motionArea.width-.5)*plan.width,bottom:p.motionArea.y*plan.depth,top:(p.motionArea.y+p.motionArea.depth)*plan.depth}}:{}),aimed:light.type==='moving'||!!p.target,target,aimRotation:light.type==='moving'||p.target?roomFixtureRotation(p,target):p.rotation,position:{...p,x:p.x+dx*Math.cos(a)-dy*Math.sin(a),y:p.y+dx*Math.sin(a)+dy*Math.cos(a)},modelSize:p.size,rotation:p.rotation};
   });
   for(const [id,p] of Object.entries(plan.positions))if(!centers.has(id))lights.push({id,type:p.type||'spot',aimed:!!p.target,position:p,target:roomFixtureTarget(plan,id),color:'#7595a4',power:0,modelSize:p.size,rotation:p.rotation});
-  return {...scene,layout:{...roomPlanLayout(plan),ar},lights,crowd:ar?[]:scene.crowd};
+  // Virtual room fixtures may clone source roles or reorder the rig. Resolve
+  // the unpaired center again from the final physical room placement.
+  const moving=lights.filter(l=>l.type==='moving').sort((a,b)=>a.position.x-b.position.x||a.id.localeCompare(b.id));
+  moving.forEach((light,i)=>{if(moving.length%2&&i===Math.floor(moving.length/2))light.motionRole='center';else if(light.motionRole==='center')delete light.motionRole;});
+  if(scene.lights.some(l=>l.motionAhead)){
+    const ahead=applyRoomPlan({...scene,lights:scene.lights.map(l=>{const {motionAhead,...current}=l;return motionAhead?{...current,target:motionAhead.target,motionUV:motionAhead.motionUV,motionFocus:motionAhead.motionFocus}:current;})},plan,ar);
+    lights.forEach((light,i)=>{if(light.motionAhead)light.motionAhead={...light.motionAhead,target:ahead.lights[i].target,motionUV:ahead.lights[i].motionUV,motionFocus:ahead.lights[i].motionFocus};});
+  }
+  return {...scene,layout:{...roomPlanLayout(plan),ar},lights:applyMovingPresence(lights),crowd:ar?[]:scene.crowd};
+}
+
+// A symmetric obstacle can have two equally short detours. Solving both heads
+// independently may pick the same side (or different sides due to rounding).
+// Use one physical route for a genuinely reflected pair, including motor state.
+function mirrorRoomDetours(lights,authored,layout,onMirror){
+ const zones=layout.roomPlan?.zones||[];if(!zones.length)return lights;
+ const near=(a,b)=>Math.abs(a-b)<1e-6,point=(a,b)=>near(a[0],b[0])&&near(a[1],b[1]);
+ const boundary=beamBoundary(layout);
+ if(!boundary.every((a,i)=>{const b=boundary[(i+1)%boundary.length];return boundary.some((c,j)=>{const d=boundary[(j+1)%boundary.length];return point([-a[0],a[1]],d)&&point([-b[0],b[1]],c);});}))return lights;
+ if(!zones.every(a=>zones.some(b=>near(1-a.x-a.width,b.x)&&near(a.y,b.y)&&near(a.width,b.width)&&near(a.depth,b.depth))))return lights;
+ const heads=authored.filter(l=>l.type==='moving').sort((a,b)=>a.position.x-b.position.x||String(a.id).localeCompare(String(b.id)));
+ const output=new Map(lights.map(l=>[l.id,l]));
+ for(let i=0;i<Math.floor(heads.length/2);i++){
+  const a=heads[i],b=heads[heads.length-1-i],pa=layout.roomPlan.positions[a.id],pb=layout.roomPlan.positions[b.id];
+  if(a.power<=0||b.power<=0)continue;
+  if(pa?.motionArea||pb?.motionArea||pa?.wallTarget||pb?.wallTarget||a.motionBounds||b.motionBounds)continue;
+  if(!near(a.position.x,-b.position.x)||!near(a.position.y,b.position.y)||!near(lightFootprint(a).height,lightFootprint(b).height))continue;
+  if(!near(a.target.x,-b.target.x)||!near(a.target.y,b.target.y)||!near(a.motionUV?.y??0,b.motionUV?.y??0))continue;
+  if(['width','depth','height'].some(k=>!near(a.modelSize?.[k]??0,b.modelSize?.[k]??0)))continue;
+  const left=output.get(a.id),right=output.get(b.id),origin=[right.position.x,right.position.y,lightFootprint(right).height];
+  const target={...left.target,x:-left.target.x},direction=[target.x-origin[0],target.y-origin[1],(target.z??.012)-origin[2]];
+  const hit=roomBeamHit(layout,origin,direction);if(!hit)continue;
+  // A deliberately dark source must not black out its independently lit partner.
+  const power=a.power>0?b.power*Math.max(0,Math.min(1,left.power/a.power)):(left.zoneTransit?0:right.power);
+  const reflected=respectRoomVolumes({...right,target:hit.target,targetSurface:hit.targetSurface,wallIndex:hit.wallIndex,power,aimRotation:roomFixtureRotation(right.position,hit.target)},layout);
+  output.set(b.id,reflected);onMirror(a.id,b.id,reflected);
+ }
+ return lights.map(l=>output.get(l.id));
 }
 
 // Apply exclusion zones after room placement, so both geometry and targets use room coordinates.
 export function createRoomPreview(){
-  const motion=createZoneMotion();let room='';
-  return (scene,plan,ar=false,now=performance.now()/1000)=>{
+  const motors=createRoomMotors(),motion=createZoneMotion(),wallAims=new Map();let room='';
+  const render=(scene,plan,ar=false,now=performance.now()/1000)=>{
     if(!scene||!plan)return scene;
-    if(room!==plan.id){motion.reset();room=plan.id;}
+    if(room!==plan.id){motion.reset();motors.reset();wallAims.clear();room=plan.id;}
     const result=applyRoomPlan(scene,plan,ar),settings={zones:plan.zones||[],aims:{}};
-    result.lights=motion.update(zoneLights(result.lights,result.layout,settings),result.layout,settings,now).map(light=>wallChoreography(light,plan)).map(light=>({...light,aimRotation:roomFixtureRotation(light.position,light.target)}));
+    const authored=result.lights;
+    const seen=new Set();
+    result.lights=motion.update(zoneLights(result.lights,result.layout,settings),result.layout,settings,now).map(light=>{
+      let value=light.zoneTransit?light:roomMusicalAim(light,result.layout,plan);
+      if(light.type==='moving'&&settings.zones.length){
+        seen.add(light.id);const previous=wallAims.get(light.id);
+        // Wall excursions happen after floor routing. Check the final displayed
+        // movement as well. Only a transfer authorized by the floor router may
+        // cross a zone, with both the previous and current frame fully dark.
+        const margin=Math.max(motionClearance(light,result.layout),footprintClearance(value),previous?footprintClearance({...value,...previous}):0);
+        const boxes=zoneObstacles(result.layout,settings.zones,margin);
+        if(previous&&blockedSegment(previous.target,value.target,boxes)&&!(light.zoneTransit&&previous.power===0&&value.power===0))value={...value,...previous,power:Math.min(value.power,previous.power)};
+        if(blockedSegment(value.target,value.target,boxes))value={...value,power:0};
+        wallAims.set(light.id,{target:{...value.target},wallIndex:value.wallIndex,targetSurface:value.targetSurface,emissionHeight:value.emissionHeight,power:value.power});
+      }
+      return value;
+    });
+    result.lights=alignRoomFormation(result.lights,result.layout).map(light=>{
+      const value=motors(light,result.layout,now);
+      return {...respectRoomVolumes(value,result.layout),aimRotation:roomFixtureRotation(value.position,value.target)};
+    });
+    result.lights=mirrorRoomDetours(result.lights,authored,result.layout,(a,b,reflected)=>motors.mirror(a,b,reflected));
+    for(const id of wallAims.keys())if(!seen.has(id))wallAims.delete(id);
     return result;
   };
+  render.active=motors.active;return render;
 }
 
 export function xrToRoom(point,origin) {
@@ -279,9 +359,198 @@ export function wallChoreography(light,plan){
   if(target.z>config.maxHeight+1e-6)level=0;
  }
  // Ruhezonen apply to the projected path as well, including wall approaches.
- const boxes=zoneObstacles({width:plan.width,depth:plan.depth},plan.zones||[],.25);
- if(blockedSegment(light.target,target,boxes)||boxes.some(b=>target.x>b.left&&target.x<b.right&&target.y>b.bottom&&target.y<b.top))level=0;
+ const boxes=zoneObstacles({width:plan.width,depth:plan.depth},plan.zones||[],Math.max(motionClearance(light,plan),footprintClearance({...light,target,wallIndex})));
+ if(blockedSegment(light.target,target,boxes))return light;
  const bounds=light.motionBounds;
  if(wallIndex<0&&bounds&&(target.x<bounds.left||target.x>bounds.right||target.y<bounds.bottom||target.y>bounds.top))level=0;
  return {...light,target,wallIndex,power:light.power*level};
+}
+
+
+// The unpaired fixture fills the actual spatial gap between its neighbours.
+// Averaging normalized pan/tilt before room projection is not equivalent: each
+// emitter has a different position and may land on a different receiving plane.
+export function alignRoomFormation(lights,layout){
+ const heads=lights.filter(l=>l.type==='moving').sort((a,b)=>a.position.x-b.position.x||String(a.id).localeCompare(String(b.id)));
+ // Moving-head target points are editor placement anchors, not aim locks:
+ // applyRoomPlan already replaces them with the musical target. Only explicit
+ // wall/motion areas and exclusion routing restrict formation coordination.
+ // Keep the authored trajectories. Room projection must not turn a musical
+ // arc/focus label into a new all-head parallel or convergence instruction.
+ if(heads.length<3||heads.length%2===0||heads.some(l=>l.motionFormation==='designed'))return lights;
+ const index=Math.floor(heads.length/2),center=heads[index],left=heads[index-1],right=heads[index+1];
+ const config=layout.roomPlan?.positions?.[center.id]||layout.positions?.[center.id];
+ if(config?.wallTarget||config?.motionArea||center.motionBounds||[center,left,right].some(l=>l.zoneTransit))return lights;
+ const boundary=beamBoundary(layout),height=layout.height||3,origin=[center.position.x,center.position.y,lightFootprint(center).height];
+ const resolve=(a,b,fallback)=>{
+  const target={x:(a.x+b.x)/2,y:(a.y+b.y)/2,z:((a.z??.012)+(b.z??.012))/2};
+  const wallAt=p=>boundary.findIndex((v,i)=>{const w=boundary[(i+1)%boundary.length],dx=w[0]-v[0],dy=w[1]-v[1],length=Math.hypot(dx,dy),u=((p.x-v[0])*dx+(p.y-v[1])*dy)/(length*length);return u>=-1e-6&&u<=1+1e-6&&Math.abs(dx*(p.y-v[1])-dy*(p.x-v[0]))<length*.025;});
+  let surface=target.z<.025?'floor':target.z>height-.025?'ceiling':'wall',wallIndex=wallAt(target);
+  if(surface==='wall'&&wallIndex<0){
+   // Neighbours on opposite walls define a shared height, not an imaginary
+   // receiving plane inside the room. Fill that gap on the center's wall.
+   let dx=target.x-origin[0],dy=target.y-origin[1];
+   if(Math.hypot(dx,dy)<.1){dx=fallback.x-origin[0];dy=fallback.y-origin[1];}
+   if(Math.hypot(dx,dy)<.1)dy=origin[1]>=layout.depth/2?-1:1;
+   const hit=roomBeamHit(layout,origin,[dx,dy,0]);
+   if(!hit)return null;
+   target.x=hit.target.x;target.y=hit.target.y;wallIndex=hit.wallIndex;
+  }
+  if(!insideRoom([target.x,target.y],boundary))return null;
+  const direction=[target.x-origin[0],target.y-origin[1],target.z-origin[2]],length=Math.hypot(...direction);
+  const hit=roomBeamHit(layout,origin,direction.map(v=>v/(length||1)));
+  if(!hit||hit.distance<length-.03)return null;
+  return {target,targetSurface:surface,wallIndex:surface==='wall'?wallIndex:-1};
+ };
+ const aim=resolve(left.target,right.target,center.target);if(!aim)return lights;
+ let value={...center,...aim,aimed:true,aimRotation:roomFixtureRotation(center.position,aim.target)};
+ const zones=layout.roomPlan?.zones||layout.zones||[];
+ if(zones.length&&(respectRoomVolumes({...value,power:1},layout).power===0||blockedSegment(center.target,value.target,zoneObstacles(layout,zones,footprintClearance(value)))))return lights;
+ // Keep anticipation on the same spatial path; do not steer toward the old
+ // independently generated center sample after correcting its current target.
+ delete value.motionAhead;
+ if(left.motionAhead&&right.motionAhead&&Math.abs(left.motionAhead.seconds-right.motionAhead.seconds)<.001){
+  const ahead=resolve(left.motionAhead.target,right.motionAhead.target,value.target);
+  if(ahead)value.motionAhead={seconds:left.motionAhead.seconds,target:ahead.target};
+ }
+ return lights.map(light=>light===center?value:light);
+}
+
+// Transform the known future sample through the SAME room geometry. Exclusion
+// routing takes priority; a detour must not inherit the direct path's velocity.
+export function roomMusicalAim(light,layout,plan=null){
+ const {motionAhead,...current}=light;
+ const map=value=>{const mapped=roomSurfaceChoreography(value,layout);return plan?wallChoreography(mapped,plan):mapped;};
+ const value=map(current);
+ if(!motionAhead||light.zoneTransit||(plan?.zones||layout.zones||[]).length)return value;
+ const ahead=map({...current,target:motionAhead.target,motionUV:motionAhead.motionUV,motionFocus:motionAhead.motionFocus});
+ return {...value,motionAhead:{seconds:motionAhead.seconds,target:ahead.target}};
+}
+
+// Map the shared musical gesture onto the room envelope. Walls and ceiling
+// are the default; explicit floor/wall areas and exclusion routing take priority.
+export function roomSurfaceChoreography(light,layout){
+ const plan=layout.roomPlan,position=plan?.positions?.[light.id]||layout.positions?.[light.id];
+ if(light.type!=='moving'||!light.motionUV||position?.wallTarget||position?.motionArea||light.motionBounds)return respectRoomVolumes(light,layout);
+ const front=layout.room?(layout.lightMin||0):-Math.max(4,layout.depth);
+ const boundary=plan?.boundary||[[-layout.width/2,front],[layout.width/2,front],[layout.width/2,layout.depth],[-layout.width/2,layout.depth]];
+ const height=layout.height||3;
+ const clamp=v=>Math.max(0,Math.min(1,v)),smooth=v=>{v=clamp(v);return v*v*(3-2*v);};
+ const origin={x:light.position.x,y:light.position.y,z:light.position.height+(light.aimed?light.modelSize?.height||0:0)*.71};
+ if(!insideRoom([origin.x,origin.y],boundary))return light;
+ if(origin.z<=0||origin.z>=height)return {...light,power:0};
+ if(light.motionPresentation==='show'&&light.motionFocus>0){
+  // All participating mounts aim through one world-space point. This remains
+  // a true convergence with irregular spacing and several mounting heights.
+  const front=Math.min(...boundary.map(p=>p[1])),back=Math.max(...boundary.map(p=>p[1]));
+  const positions=Object.values(plan?.positions||layout.positions||{}).filter(p=>p.type==='moving'||p.type===undefined);
+  const center=positions.length?positions.reduce((s,p)=>s+p.x,0)/positions.length:0;
+  const focus=[center,front+(back-front)*.45,height*.6],f=clamp(light.motionFocus);
+  const regular=roomSurfaceChoreography({...light,motionFocus:0},layout);
+  const a=[regular.target.x-origin.x,regular.target.y-origin.y,(regular.target.z??0)-origin.z],b=[focus[0]-origin.x,focus[1]-origin.y,focus[2]-origin.z];
+  const al=Math.hypot(...a)||1,bl=Math.hypot(...b)||1;
+  const ray=a.map((v,i)=>v/al*(1-f)+b[i]/bl*f),hit=roomBeamHit(layout,[origin.x,origin.y,origin.z],ray);
+  if(hit){const {distance,...surface}=hit;return respectRoomVolumes({...light,...surface,aimed:true,emissionHeight:origin.z,aimRotation:roomFixtureRotation(light.position,hit.target)},layout);}
+  return regular;
+ }
+
+ // Coordinated automatic poses describe motor angles, not a tour of the
+ // room perimeter. The former floor/wall/ceiling remapping amplified small
+ // musical changes into long sweeps and made each mounting position differ.
+ // Explicit regions and obstacle routing retain their dedicated mapping.
+ if(['coherent','designed'].includes(light.motionFormation)&&light.motionPresentation!=='show'){
+  const front=Math.min(...boundary.map(p=>p[1])),back=Math.max(...boundary.map(p=>p[1]));
+  const forward=origin.y>=(front+back)/2?-1:1;
+  const pan=(clamp(light.motionUV.x)-.5)*200*Math.PI/180;
+  const tilt=(-30+100*clamp(light.motionUV.y))*Math.PI/180;
+  const ray=[Math.sin(pan)*Math.cos(tilt),forward*Math.cos(pan)*Math.cos(tilt),Math.sin(tilt)];
+  const hit=roomBeamHit(layout,[origin.x,origin.y,origin.z],ray);
+  if(!hit)return {...light,power:0};
+  const {distance,...surface}=hit;
+  const candidate={...light,...surface,aimed:true,emissionHeight:origin.z,aimRotation:roomFixtureRotation(light.position,hit.target)};
+  const zones=plan?.zones||layout.zones||[];
+  // An unrelated quiet zone must not switch the entire room to a different
+  // coordinate system. Keep the authored ray whenever its full cone is clear.
+  if(!zones.length||respectRoomVolumes({...candidate,power:1},layout).power>0)return candidate;
+ }
+ let dx=light.target.x-origin.x,dy=light.target.y-origin.y;
+ if(light.motionPresentation==='show'&&!(plan?.zones||layout.zones||[]).length){
+  const front=Math.min(...boundary.map(p=>p[1])),back=Math.max(...boundary.map(p=>p[1]));
+  const angle=(clamp(light.motionUV.x)-.5)*200*Math.PI/180;
+  dx=Math.sin(angle);dy=(origin.y>=(front+back)/2?-1:1)*Math.cos(angle);
+ }
+
+ // Coordinated heads and the unpaired center keep a stable forward bearing.
+ // The depth coordinate is
+ // also the musical height control; crossing its own mounting line must not
+ // switch the receiving wall by 180 degrees (or drop out at exact overlap).
+ if(light.motionPresentation!=='show'&&(light.motionFormation==='coherent'||light.motionRole==='center'||Math.abs(origin.x)<1e-7&&Math.abs(light.target.x)<1e-7)){
+  const front=Math.min(...boundary.map(p=>p[1])),back=Math.max(...boundary.map(p=>p[1]));
+  const direction=origin.y>=(front+back)/2?-1:1;
+  dy=direction*Math.max(Math.abs(dy),(back-front)*.25);
+ }
+ if(Math.hypot(dx,dy)<1e-6)return light;
+ let distance=Infinity,wallIndex=-1;
+ for(let i=0;i<boundary.length;i++){
+  const a=boundary[i],b=boundary[(i+1)%boundary.length],ex=b[0]-a[0],ey=b[1]-a[1],den=dx*ey-dy*ex;
+  if(Math.abs(den)<1e-9)continue;
+  const ax=a[0]-origin.x,ay=a[1]-origin.y,t=(ax*ey-ay*ex)/den,u=(ax*dy-ay*dx)/den;
+  if(t>1e-7&&t<distance&&u>=0&&u<=1){distance=t;wallIndex=i;}
+ }
+ if(wallIndex<0)return light;
+ const zones=plan?.zones||layout.zones||[];
+ const y=clamp(light.motionUV.y),floor=y<.25,ceiling=y>.7;
+ let wall={x:origin.x+dx*distance,y:origin.y+dy*distance},ceilingAnchor=origin;
+ if(zones.length){
+  // Keep a free corridor from the routed horizontal aim to a room wall.
+  // A zone constrains the route, not the vertical musical gesture.
+  const candidates=[{...wall,index:wallIndex},...boundary.map((a,index)=>{
+   const b=boundary[(index+1)%boundary.length],ex=b[0]-a[0],ey=b[1]-a[1];
+   const u=clamp(((light.target.x-a[0])*ex+(light.target.y-a[1])*ey)/(ex*ex+ey*ey));
+   return {x:a[0]+u*ex,y:a[1]+u*ey,index};
+  }).sort((a,b)=>Math.hypot(a.x-light.target.x,a.y-light.target.y)-Math.hypot(b.x-light.target.x,b.y-light.target.y))];
+  // Check the whole corridor in concave rooms, not just its endpoints.
+  const within=(a,b)=>{
+   const cuts=[0,1],dx=b.x-a.x,dy=b.y-a.y;
+   for(let i=0;i<boundary.length;i++){
+    const p=boundary[i],q=boundary[(i+1)%boundary.length],ex=q[0]-p[0],ey=q[1]-p[1],den=dx*ey-dy*ex;
+    if(Math.abs(den)<1e-9)continue;
+    const ax=p[0]-a.x,ay=p[1]-a.y,t=(ax*ey-ay*ex)/den,u=(ax*dy-ay*dx)/den;
+    if(t>0&&t<1&&u>=0&&u<=1)cuts.push(t);
+   }
+   cuts.sort((a,b)=>a-b);
+   return cuts.slice(1).every((t,i)=>{const m=(t+cuts[i])/2;return insideRoom([a.x+dx*m,a.y+dy*m],boundary);});
+  };
+  const free=candidates.find(candidate=>{
+   const margin=Math.max(motionClearance(light,layout),footprintClearance({...light,target:{...candidate,z:height},wallIndex:candidate.index}));
+   const boxes=zoneObstacles(layout,zones,margin);
+   return !blockedSegment(light.target,candidate,boxes)&&!blockedSegment(origin,candidate,zoneObstacles(layout,zones,lightFootprint({...light,target:{...candidate,z:height}}).radius*1.4+.05))&&within(light.target,candidate)&&within(origin,candidate);
+  });
+  if(!free){
+   // No free wall corridor: keep the routed floor target rather than
+   // inventing an elevated target through a protected volume.
+   return respectRoomVolumes({...light,target:{...light.target,z:.012},targetSurface:'floor',wallIndex:-1},layout);
+  }
+  wall=free;wallIndex=free.index;ceilingAnchor=light.target;
+ }
+ // Traverse floor -> wall -> ceiling and retrace the same route when the
+ // musical height falls. Smooth joins do not jump between separate surfaces.
+ const inward=floor?1-smooth(y/.25):ceiling?.65*smooth((y-.7)/.3):0;
+ const anchor=floor?light.target:ceilingAnchor;
+ const target={x:wall.x+(anchor.x-wall.x)*inward,y:wall.y+(anchor.y-wall.y)*inward,
+  z:floor?.012:ceiling?height:.012+(height-.012)*smooth((y-.25)/.45)};
+ return respectRoomVolumes({...light,target,emissionHeight:origin.z,wallIndex:floor||ceiling?-1:wallIndex,
+  targetSurface:floor?'floor':ceiling?'ceiling':'wall',aimed:true,aimRotation:roomFixtureRotation(light.position,target)},layout);
+}
+
+
+// Existing zones have no vertical bounds, so they exclude the entire column
+// from floor to ceiling. Projecting the beam onto XY is therefore an exact
+// column intersection; increasing Z cannot bypass a zone. Include beam/halo width.
+export function respectRoomVolumes(light,layout){
+ const zones=layout.roomPlan?.zones||layout.zones||[];
+ if(!zones.length||!light.position||!light.target)return light;
+ const halo=zoneObstacles(layout,zones,footprintClearance(light));
+ const beam=zoneObstacles(layout,zones,lightFootprint(light).radius*1.4+.05);
+ return blockedSegment(light.target,light.target,halo)||blockedSegment(light.position,light.target,beam)?{...light,power:0}:light;
 }

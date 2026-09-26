@@ -20,14 +20,16 @@ export function fixturePosition(layout,id,index=0,count=4){
 // Choreography describes shared floor targets. Device placement determines
 // the real azimuth, downward tilt, and beam length required to reach them.
 export function projectMovingHeads(layout,poses,devices=null){
+  const count=poses.length,order=poses.map((_,i)=>({i,x:fixturePosition(layout,devices?.[i]?.id??`moving-${i}`,i,count).x})).sort((a,b)=>a.x-b.x||a.i-b.i);
+  const center=count%2?order[Math.floor(count/2)].i:-1;
   return poses.map((pose,i)=>{
-    const id=devices?.[i]?.id??`moving-${i}`,range=devices?.[i]?.motionRange??1;
-    const position=fixturePosition(layout,id,i,devices?.length??4);
+    const id=devices?.[i]?.id??`moving-${i}`,range=devices?.[i]?.motionRange??1,motionFormation=pose.motionFormation;
+    const position=fixturePosition(layout,id,i,devices?.length??4),motionFocus=pose.focus===undefined?undefined:pose.focus*clamp(range,0,1);
     pose={pan:pose.pan*range,tilt:.8+(pose.tilt-.8)*range};
     const motionUV={x:.5+.5*clamp(pose.pan/42,-1,1),y:clamp((pose.tilt-.55)/.6,0,1)};
     const target={x:(motionUV.x-.5)*layout.width*.9,y:layout.depth*(.1+.65*motionUV.y)};
     const dx=target.x-position.x,dy=position.y-target.y,horizontal=Math.hypot(dx,dy);
-    return {id,position,target,motionUV,motionCenter:{x:0,y:layout.depth*(.1+.65*(.8-.55)/.6)},pan:Math.atan2(dx,dy)*180/Math.PI,tilt:Math.atan2(position.height,horizontal)*180/Math.PI,
+    return {id,position,target,motionUV,...(motionFocus!==undefined?{motionFocus}:{}),...(motionFormation?{motionFormation}:{}),...(i===center?{motionRole:'center'}:{}),motionCenter:{x:0,y:layout.depth*(.1+.65*(.8-.55)/.6)},pan:Math.atan2(dx,dy)*180/Math.PI,tilt:Math.atan2(position.height,horizontal)*180/Math.PI,
       frontPan:Math.atan2(dx,position.height)*180/Math.PI,distance:Math.hypot(horizontal,position.height)};
   });
 }
@@ -50,7 +52,34 @@ export function rotateAssembly(layout,id,degrees){
 
 // Assign complete musical roles. Interpolating opposing heads cancels their
 // travel and used to pin background/odd-sized rigs to the middle.
-export function movingDevicePoses(poses,devices){
+export function movingDevicePoses(poses,devices,{formation=null,layout=null}={}){
+ if(formation==='designed'){
+  const order=devices.map((d,i)=>({i,x:layout?fixturePosition(layout,d.id,i,devices.length).x:i})).sort((a,b)=>a.x-b.x||a.i-b.i),result=[];
+  order.forEach(({i},rank)=>{
+   const at=(devices.length===1?.5:rank/(devices.length-1))*(poses.length-1),lo=Math.floor(at),hi=Math.min(poses.length-1,lo+1),t=at-lo;
+   result[i]={pan:poses[lo].pan+(poses[hi].pan-poses[lo].pan)*t,tilt:poses[lo].tilt+(poses[hi].tilt-poses[lo].tilt)*t,motionFormation:'designed',...(poses.some(p=>p.focus!==undefined)?{focus:(poses[lo].focus??0)+((poses[hi].focus??0)-(poses[lo].focus??0))*t}:{})};
+  });return result;
+ }
+ if(formation==='mirror'||formation==='coherent'){
+  // Spread one formation across the physical rig; repeating four role indices
+  // breaks reflection symmetry for odd counts and rigs with extra heads.
+  const sorted=devices.map((d,i)=>({i,x:layout?fixturePosition(layout,d.id,i,devices.length).x:i})).sort((a,b)=>a.x-b.x||a.i-b.i);
+  const result=[],height=poses.reduce((sum,p)=>sum+p.tilt,0)/poses.length;
+  // Fit one signed aperture to the musical pose. Inner/outer role changes
+  // must not create alternating crossings between neighbouring fixtures.
+  const roles=poses.map((_,i)=>2*i/Math.max(1,poses.length-1)-1);
+  const center=clamp(poses.reduce((sum,p)=>sum+p.pan,0)/poses.length,-42,42);
+  const aperture=clamp(poses.reduce((sum,p,i)=>sum+p.pan*roles[i],0)/roles.reduce((sum,r)=>sum+r*r,0),-42+Math.abs(center),42-Math.abs(center));
+  const paired=poses.map((p,i)=>({pan:(p.pan-poses[3-i].pan)/2,tilt:(p.tilt+poses[3-i].tilt)/2}));
+  sorted.forEach(({i},rank)=>{
+   const index=devices.length===1?1.5:rank*3/(devices.length-1),lo=Math.floor(index),hi=Math.min(3,lo+1),t=index-lo;
+   result[i]=formation==='coherent'
+    ?{pan:center+(devices.length===1?0:2*rank/(devices.length-1)-1)*aperture,tilt:height,motionFormation:'coherent'}
+    :{pan:paired[lo].pan+(paired[hi].pan-paired[lo].pan)*t,tilt:paired[lo].tilt+(paired[hi].tilt-paired[lo].tilt)*t};
+  });
+  return result;
+ }
+
  const counts=new Map();
  return devices.map(device=>{
   const group=device.group,member=counts.get(group)||0;counts.set(group,member+1);

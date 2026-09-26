@@ -1,0 +1,54 @@
+{
+  "description": "Two broad static fixtures: floor coverage and faint aerial cones, not pencil beams.",
+  "layout": {
+    "width": 10,
+    "depth": 8,
+    "height": 4,
+    "room": true,
+    "positions": {},
+    "environmentBrightness": 8
+  },
+  "camera": {
+    "mode": "dancer",
+    "x": 0,
+    "y": -2,
+    "eyeHeight": 3,
+    "yaw": 0,
+    "pitch": 0.22,
+    "zoom": 1
+  },
+  "lights": [
+    {
+      "id": "wash0",
+      "type": "spot",
+      "power": 0.8,
+      "color": "#268aff",
+      "position": {
+        "x": -2,
+        "y": 6,
+        "height": 3
+      },
+      "target": {
+        "x": -2,
+        "y": 3,
+        "z": 0
+      }
+    },
+    {
+      "id": "wash1",
+      "type": "spot",
+      "power": 0.8,
+      "color": "#ff8030",
+      "position": {
+        "x": 2,
+        "y": 6,
+        "height": 3
+      },
+      "target": {
+        "x": 2,
+        "y": 3,
+        "z": 0
+      }
+    }
+  ]
+}

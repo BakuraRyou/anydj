@@ -64,3 +64,29 @@ export function selectAccentEvents(events){
  }
  return selected.sort((a,b)=>a.time-b.time);
 }
+
+// Measured low-frequency rises, independent of the beat grid. The short lookback
+// preserves syncopation; a refractory interval prevents one attack becoming a chase.
+export function bassAttackEvents(levels,step){
+ if(!(step>0)||!levels?.length)return [];
+ const sorted=Array.from(levels).filter(Number.isFinite).sort((a,b)=>a-b);
+ const reference=Math.max(.008,sorted[Math.floor((sorted.length-1)*.95)]||0);
+ const events=[],lookback=Math.max(1,Math.round(.12/step));
+ for(let i=1;i<levels.length;i++){
+  const value=levels[i];if(!Number.isFinite(value)||value<reference*.3)continue;
+  let low=value;for(let j=Math.max(0,i-lookback);j<i;j++)low=Math.min(low,levels[j]);
+  const rise=(value-low)/reference;
+  if(rise<.24||value<=levels[i-1])continue;
+  const previous=events.at(-1);
+  if(previous&&i*step-previous.time<.18)continue;
+  events.push({time:i*step,strength:Math.min(1,rise*2),baseline:low});
+ }
+ return events.map((event,index)=>{
+  const start=Math.round(event.time/step),end=Math.min(levels.length,Math.round((events[index+1]?.time??event.time+1)/step));
+  let peak=levels[start],peakIndex=start;
+  for(let i=start+1;i<Math.min(end,start+Math.ceil(.12/step));i++)if(levels[i]>peak){peak=levels[i];peakIndex=i;}
+  let release=peakIndex+1;
+  while(release<end&&levels[release]>event.baseline+(peak-event.baseline)*.35)release++;
+  return {time:event.time,strength:Math.min(1,(peak-event.baseline)/reference*2),duration:Math.max(step,(release-start)*step)};
+ });
+}

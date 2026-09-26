@@ -16,8 +16,8 @@ test('new timbre opens a new color family and a returning motif recalls its iden
  assert.deepEqual(directionAt(p,7),directionAt(p,23));
  assert.notDeepEqual(directionAt(p,3),directionAt(p,11));
  assert.equal(p.phrases[2].reason,'motif-return');
- assert.ok(p.events.some(e=>e.role===2));
- assert.ok(p.events.every((e,i)=>!i||e.time-p.events[i-1].time>=1));
+ assert.ok(p.events.every(e=>e.role===0));
+ assert.ok(p.events.every((e,i)=>!i||e.time-p.events[i-1].time>=4));
  const expected=directionAt(p,9.3);directionAt(p,22);assert.deepEqual(directionAt(p,9.3),expected);
 });
 test('quiet unchanged material stays richly colored without a free-running clock',()=>{
@@ -54,4 +54,37 @@ test('A/B color comparison preserves every dimmer value, rhythm, movement and ov
  const held=applySectionLighting(plan,edits);
  for(const section of held.sectionLighting){const a=showFrameAt(held,section.start),b=showFrameAt(held,section.end-.001);assert.deepEqual([a.r,a.g,a.b],[b.r,b.g,b.b]);}
  assert.deepEqual(plan,snapshot);
+});
+
+
+test('short accents retain the scene palette and transitions stay inside endpoint RGB bounds',()=>{
+ const f=fixture(),w=audio([dark,bright,dark]),p=planColorDirection(w,f);
+ assert.equal(p.events.length,3);
+ for(const event of p.events){
+  if(!event.transition)continue;
+  const start=directionAt(p,event.time),end=directionAt(p,event.time+event.transition);
+  for(let t=0;t<=event.transition;t+=.025){
+   const colors=directionAt(p,event.time+t);
+   colors.forEach((rgb,i)=>rgb.forEach((v,c)=>assert.ok(v>=Math.min(start[i][c],end[i][c])&&v<=Math.max(start[i][c],end[i][c]))));
+  }
+ }
+ assert.deepEqual(directionAt(p,9.1),directionAt(p,15.9));
+ f.arrangement.accents=f.arrangement.accents.map((_,i)=>i%3===0?.95:.1);
+ assert.deepEqual(planColorDirection(w,f),p,'brightness attacks do not recolor the scene');
+});
+
+test('short phrase changes defer the palette without losing a sustained new timbre',()=>{
+ const f=fixture();f.arrangement.patterns.phrases=Array.from({length:12},(_,i)=>({start:i*2,end:i*2+2,section:i<1?0:1}));
+ const w=audio([dark,bright,bright]);w.splice(100,300,...Array.from({length:300},()=>({...bright})));
+ const p=planColorDirection(w,f);
+ assert.equal(p.events[1].time,4);
+ assert.equal(p.phrases[1].reason,'minimum-hold');
+ assert.equal(p.phrases[1].eventTime,0);
+ assert.notDeepEqual(directionAt(p,1),directionAt(p,5));
+ assert.ok(p.events.every((e,i)=>!i||e.time-p.events[i-1].time>=4));
+});
+
+test('saved LCH color directions remain readable',()=>{
+ const color=[.54,.28,30];
+ assert.deepEqual(directionAt({version:1,events:[{time:0,transition:0,from:[color],to:[color]}]},1),[directionRGB(color)]);
 });

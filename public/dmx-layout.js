@@ -1,3 +1,11 @@
+/**
+ * @deprecated LEGACY DEVICE MANAGER — DO NOT EXTEND OR USE AS THE DEVICE UI.
+ * The current Gerätemanager is the room planner in dmx-ar-planner.js,
+ * compacted by dmx-device-manager.js inside the 3D workspace's Geräte tab.
+ * This module is retained for legacy stage-layout data and preview adapters.
+ * Do not restore its standalone dialog or mount its UI in the workspace.
+ * See /AGENTS.md before making device-manager changes.
+ */
 import {fixtureKey} from './dmx-model.js';
 import {stageLayout,fixturePosition,rotateAssembly} from './dmx-layout-model.js';
 const NS='http://www.w3.org/2000/svg',KEY='anydj-stage-layout-v1';
@@ -18,7 +26,7 @@ export function createStageLayout({getFixtures=()=>[],onProperties=()=>{},onChan
   <p data-layout-status role="status">Änderungen werden automatisch gespeichert.</p><p class="small">Geometrische Vorschau mit generischen Geräten. Gehäuse, Optik und mechanische Grenzen sind nicht herstellerspezifisch nachgebildet.</p>`;
   const content=document.createElement('div');content.className='stage-layout-content';content.append(...dialog.childNodes);dialog.append(content);
   let mounted=false,zones=null,zoneLayer=null,zoneSignature='';
-  document.body.append(dialog);
+  // Legacy UI stays detached; only its layout/preview adapters are retained.
   const controls=new Map(),q=name=>{if(!controls.has(name))controls.set(name,content.querySelector(`[data-layout-${name}]`));return controls.get(name);},svg=q('map');
   let drawFrame=0,mapWidth=600,mapVisible=true,disposed=false;
   const attributes=new WeakMap();

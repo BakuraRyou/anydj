@@ -1,0 +1,76 @@
+/* Current device manager: step 2 of the room planner. Not the legacy stage layout. */
+.stage-ar-planner[data-planner-step="2"]{display:flex;flex-direction:column;gap:8px;box-sizing:border-box;height:100%;min-height:0;margin:0;padding:10px}
+.stage-ar-planner[data-planner-step="2"]>summary,.stage-ar-planner[data-planner-step="2"]>.ar-guidance,.stage-ar-planner[data-planner-step="2"]>.ar-library{display:none}
+.stage-ar-planner[data-planner-step="2"]>.ar-steps{margin:0;flex:none}
+.stage-ar-planner[data-planner-step="2"] [data-ar-status]{position:static;padding:0;margin:0;min-height:0;font-size:11px;line-height:1.3}
+.stage-ar-planner[data-planner-step="2"] .ar-device-workspace{display:grid;grid-template-columns:minmax(0,1fr) 310px;gap:12px;flex:1;min-height:0}
+.stage-ar-planner[data-planner-step="2"] [data-ar-map-section]{display:flex;flex-direction:column;gap:6px;min-width:0;min-height:0}
+.stage-ar-planner[data-planner-step="2"] .ar-map-heading{margin:0;flex:none}
+.stage-ar-planner[data-planner-step="2"] .ar-map-hint{padding:0;background:none;min-height:0;margin:0;font-size:11px;line-height:1.4}
+.stage-ar-planner[data-planner-step="2"] .ar-map-tools{margin:0;flex:none;gap:4px}
+.stage-ar-planner[data-planner-step="2"] [data-ar-map]{flex:1;min-height:0;height:0;width:100%}
+.stage-ar-planner[data-planner-step="2"] [data-ar-page="2"]{min-width:0;min-height:0;display:flex;flex-direction:column;gap:8px}
+.stage-ar-planner[data-planner-step="2"] .ar-device-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;flex:none}
+.stage-ar-planner[data-planner-step="2"] .ar-device-tabs [aria-selected=true]{background:#28534f;border-color:#a0e7ce;color:#bbf4df}
+.stage-ar-planner[data-planner-step="2"] button{min-height:30px;padding:5px 8px;font-size:11px}
+.stage-ar-planner[data-planner-step="2"] label{margin:0;gap:4px;font-size:11px;min-width:0}
+.stage-ar-planner[data-planner-step="2"] :is(input:not([type=checkbox]),select){min-height:30px;padding:5px 7px;font-size:12px}
+.stage-ar-planner[data-planner-step="2"] .ar-device-tab-panel{min-height:0;overflow:auto;display:grid;gap:8px;align-content:start}
+.stage-ar-planner[data-planner-step="2"] .ar-device-tab-panel p{margin:0;font-size:11px;line-height:1.4}
+.stage-ar-planner[data-planner-step="2"] .ar-device-chooser{flex:none}
+.stage-ar-planner[data-planner-step="2"] .ar-compact-add{display:flex;gap:6px}
+.stage-ar-planner[data-planner-step="2"] .ar-compact-add select{flex:1}
+.stage-ar-planner[data-planner-step="2"] .ar-compact-add button{flex:none}
+.stage-ar-planner[data-planner-step="2"] .ar-device-list{margin:0;gap:4px;max-height:none;overflow:visible}
+.stage-ar-planner[data-planner-step="2"] .ar-device{min-height:44px;padding:5px}
+.stage-ar-planner[data-planner-step="2"] .ar-device small{font-size:10px}
+.stage-ar-planner[data-planner-step="2"] .ar-device-pager{display:flex;align-items:center;gap:6px}
+.stage-ar-planner[data-planner-step="2"] .ar-device-pager output{flex:1;text-align:center;font-size:11px}
+.stage-ar-planner[data-planner-step="2"] .ar-actions{margin:0;gap:5px}
+.stage-ar-planner[data-planner-step="2"] .ar-fields{gap:8px}
+.stage-ar-planner[data-planner-step="2"] [data-ar-motion-area]{border:0;padding:0;margin:0;min-width:0;display:grid;gap:8px}
+.stage-ar-planner[data-planner-step="2"] [data-ar-motion-area]>p,.stage-ar-planner[data-planner-step="2"] [data-ar-rotation-help],.stage-ar-planner[data-planner-step="2"] [data-ar-motion-area] details>p{display:none}
+.stage-ar-planner[data-planner-step="2"] [data-ar-motion-area] legend{font-size:12px;padding:0;margin-bottom:8px}
+.stage-ar-planner[data-planner-step="2"] [data-ar-motion-area] details{display:grid;gap:8px}
+.stage-ar-planner[data-planner-step="2"] [data-ar-motion-area] details>summary{display:none}
+.stage-ar-planner[data-planner-step="2"] .ar-room-zones{margin:0;padding:0;border:0}
+.stage-ar-planner[data-planner-step="2"] .ar-room-zones h3{display:none}
+.stage-ar-planner[data-planner-step="2"] .ar-room-zones>p{margin:0 0 8px}
+.stage-ar-planner[data-planner-step="2"] [data-zone-fields]{display:grid;gap:8px}
+.stage-ar-planner[data-planner-step="2"] [data-zone-fields] .stage-3d-room-fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stage-ar-planner[data-planner-step="2"] [data-ar-show-devices]{display:grid;gap:8px}
+.stage-ar-planner[data-planner-step="2"] [data-ar-show-devices]>summary{display:none}
+.stage-ar-planner[data-planner-step="2"] .ar-navigation{position:static;padding:6px 0 0;margin:0;flex:none}
+.stage-ar-planner[data-planner-step="2"]>[data-ar-undo]{align-self:flex-start}
+.stage-ar-planner .ar-device-mobile{display:none;flex:none}
+.ar-device-help[popover]{box-sizing:border-box;max-width:min(450px,calc(100vw - 32px));padding:18px;background:#17232d;color:#dce9f1;border:1px solid #496272;border-radius:10px;font:13px/1.6 system-ui}
+.stage-3d-workspace.editing-devices:has(.stage-ar-planner){grid-template-columns:minmax(0,1fr)!important}
+.stage-3d-workspace.editing-devices:has(.stage-ar-planner)>.stage-3d-viewport{display:none}
+.stage-3d-workspace.editing-devices:has(.stage-ar-planner) .stage-3d-inspector{position:static;min-height:0}
+.stage-3d-workspace.editing-devices:has(.stage-ar-planner) .stage-3d-inspector-body{display:flex;flex:1;min-height:0;overflow:auto;padding:10px}
+.stage-3d-workspace.editing-devices:has(.stage-ar-planner[data-planner-step="2"]) .stage-3d-inspector-body{overflow:hidden}
+.stage-3d-workspace.editing-devices [data-workspace-page=fixtures]{flex:1;min-width:0;min-height:0}
+.stage-3d-dialog>.stage-3d:has(.editing-devices .stage-ar-planner)>.stage-3d-transport{display:none}
+@media(max-width:760px){
+ .stage-ar-planner[data-planner-step="2"] .ar-device-workspace{grid-template-columns:minmax(0,1fr)}
+ .stage-ar-planner[data-planner-step="2"] .ar-device-mobile{display:flex;gap:6px}
+ .stage-ar-planner .ar-device-mobile button{flex:1}
+ .stage-ar-planner[data-planner-step="2"][data-device-area=plan] [data-ar-page="2"],
+ .stage-ar-planner[data-planner-step="2"][data-device-area=tools] [data-ar-map-section]{display:none}
+ .stage-ar-planner[data-planner-step="2"]{padding:8px}
+ .stage-ar-planner[data-planner-step="2"] button{min-height:34px}
+}
+.stage-ar-planner[data-planner-step="2"]::details-content{display:contents}
+.stage-ar-planner[data-planner-step="2"]>.ar-steps{height:auto;display:grid;margin-right:0}
+.ar-device-help:not(:popover-open){display:none!important}
+.stage-ar-planner[data-planner-step="2"] [data-zone-fields]{grid-template-columns:1fr 1fr}
+.stage-ar-planner[data-planner-step="2"] [data-zone-fields]>.stage-3d-room-fields,
+.stage-ar-planner[data-planner-step="2"] [data-zone-fields]>button{grid-column:1/-1}
+.stage-ar-planner[data-planner-step="2"] [data-zone-fields] .stage-3d-room-fields label:last-child{grid-column:auto}
+.stage-ar-planner[data-planner-step="2"] .stage-3d-zone-actions{margin:0 0 8px}
+.stage-ar-planner[data-planner-step="2"] [data-zone-status]:empty{display:none}
+.stage-ar-planner[data-planner-step="2"] .ar-motion-tabs{display:flex;gap:6px}
+.stage-ar-planner[data-planner-step="2"] .ar-motion-tabs button{flex:1}
+.stage-ar-planner[data-planner-step="2"] .ar-motion-tabs [aria-pressed=true]{border-color:#a0e7ce;background:#28534f}
+.stage-ar-planner[data-planner-step="2"] .ar-motion-floor{display:grid;gap:8px}
+.stage-ar-planner[data-planner-step="2"] [data-ar-motion-area] legend{display:none}

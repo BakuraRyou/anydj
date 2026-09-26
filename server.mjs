@@ -55,11 +55,14 @@ const STATIC = new Map([
   ['/dmx-moving-direction.js', ['dmx-moving-direction.js', 'text/javascript; charset=utf-8']],
   ['/dmx-moving-cues.js', ['dmx-moving-cues.js', 'text/javascript; charset=utf-8']],
   ['/dmx-moving-moods.js', ['dmx-moving-moods.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-device-manager.js', ['dmx-device-manager.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-device-manager.css', ['dmx-device-manager.css', 'text/css; charset=utf-8']],
   ['/dmx-layout.js', ['dmx-layout.js', 'text/javascript; charset=utf-8']],
   ['/dmx-layout-model.js', ['dmx-layout-model.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage.css', ['dmx-stage.css', 'text/css; charset=utf-8']],
   ['/dj-waveform.js', ['dj-waveform.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-transport.js', ['dmx-stage-transport.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-stage-full.js', ['dmx-stage-full.js', 'text/javascript; charset=utf-8']],
   ['/dmx-ar-model.js', ['dmx-ar-model.js', 'text/javascript; charset=utf-8']],
   ['/dmx-ar-planner.js', ['dmx-ar-planner.js', 'text/javascript; charset=utf-8']],
   ['/dmx-ar-controls.js', ['dmx-ar-controls.js', 'text/javascript; charset=utf-8']],
@@ -69,6 +72,7 @@ const STATIC = new Map([
   ['/dmx-room.js', ['dmx-room.js', 'text/javascript; charset=utf-8']],
   ['/dmx-zone-plan.js', ['dmx-zone-plan.js', 'text/javascript; charset=utf-8']],
   ['/dmx-zone-motion.js', ['dmx-zone-motion.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-light-geometry.js', ['dmx-light-geometry.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-workspace.js', ['dmx-stage-workspace.js', 'text/javascript; charset=utf-8']],
   ['/dmx-vr-setup.js', ['dmx-vr-setup.js', 'text/javascript; charset=utf-8']],
   ['/dmx-vr-playback.js', ['dmx-vr-playback.js', 'text/javascript; charset=utf-8']],
@@ -77,6 +81,10 @@ const STATIC = new Map([
   ['/dmx-vr-console.js', ['dmx-vr-console.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-3d.js', ['dmx-stage-3d.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-3d-renderer.js', ['dmx-stage-3d-renderer.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-stage-desktop.js', ['dmx-stage-desktop.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-stage-gpu-scene.js', ['dmx-stage-gpu-scene.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-stage-webgpu.js', ['dmx-stage-webgpu.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-stage-webgl.js', ['dmx-stage-webgl.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-3d.css', ['dmx-stage-3d.css', 'text/css; charset=utf-8']],
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
@@ -121,10 +129,14 @@ const STATIC = new Map([
   ['/section-lighting.js', ['section-lighting.js', 'text/javascript; charset=utf-8']],
   ['/section-editor.js', ['section-editor.js', 'text/javascript; charset=utf-8']],
   ['/light-editor.js', ['light-editor.js', 'text/javascript; charset=utf-8']],
+  ['/light-review.js', ['light-review.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-light-scenes.js', ['dmx-light-scenes.js', 'text/javascript; charset=utf-8']],
   ['/light-editor-model.js', ['light-editor-model.js', 'text/javascript; charset=utf-8']],
   ['/light-editor-timeline.js', ['light-editor-timeline.js', 'text/javascript; charset=utf-8']],
   ['/light-editor.css', ['light-editor.css', 'text/css; charset=utf-8']],
   ['/dj-show-profile.js', ['dj-show-profile.js', 'text/javascript; charset=utf-8']],
+  ['/show-score.js', ['show-score.js', 'text/javascript; charset=utf-8']],
+  ['/show-action.js', ['show-action.js', 'text/javascript; charset=utf-8']],
   ['/dj-status.js', ['dj-status.js', 'text/javascript; charset=utf-8']],
   ['/dj-folder.js', ['dj-folder.js', 'text/javascript; charset=utf-8']],
   ['/dj-library.js', ['dj-library.js', 'text/javascript; charset=utf-8']],
@@ -612,7 +624,7 @@ export async function createApp({
   });
   async function previewAddresses(){
     if(!bridgeTask)bridgeTask=(async()=>{
-      const allowed=new Set(['/vr-test','/vr-test/','/api/vr-preview/test-connect','/vr-view','/vr-view-boot.js','/vr-view.js','/vr-view.css','/dmx-stage-vr.js','/dmx-vr-console.js','/dmx-vr-playback.js','/dmx-surface-light.js','/dmx-zone-plan.js','/dmx-zone-motion.js','/dmx-ar-model.js','/dmx-room-style.js','/dmx-room-mesh.js','/dmx-ar-planner.js','/dmx-ar-controls.js','/dmx-ar.css','/dmx-stage-3d-renderer.js','/api/vr-preview/stream','/api/vr-preview/pair']);
+      const allowed=new Set(['/dmx-device-manager.js','/dmx-device-manager.css','/dmx-activity.js','/dmx-light-scenes.js','/instrument-activity.js','/musical-attention.js','/show-action.js','/show-score.js','/vr-test','/vr-test/','/api/vr-preview/test-connect','/vr-view','/vr-view-boot.js','/vr-view.js','/vr-view.css','/dmx-stage-vr.js','/dmx-vr-console.js','/dmx-vr-playback.js','/dmx-surface-light.js','/dmx-light-geometry.js','/dmx-zone-plan.js','/dmx-zone-motion.js','/dmx-ar-model.js','/dmx-room-style.js','/dmx-room-mesh.js','/dmx-ar-planner.js','/dmx-ar-controls.js','/dmx-ar.css','/dmx-stage-3d-renderer.js','/api/vr-preview/stream','/api/vr-preview/pair']);
       previewBridge=(previewTls?https.createServer.bind(https,previewTls):http.createServer)((req,res)=>{let path=(req.url||'').split('?')[0];if(req.method==='GET'&&(path==='/'||path==='/vr-view/')){req.url='/vr-view'+(req.url.includes('?')?req.url.slice(req.url.indexOf('?')):'');path='/vr-view';}if(req.method==='GET'&&path==='/favicon.ico'){res.writeHead(204);res.end();return;}if(!(req.method==='POST'&&['/api/vr-preview/command','/api/vr-preview/resume'].includes(path))&&(req.method!=='GET'||!allowed.has(path))){res.writeHead(403);res.end('Dieser Zugang ist nur für die VR-Vorschau.');return;}server.emit('request',req,res);});
       await new Promise((resolve,reject)=>{previewBridge.once('error',reject);previewBridge.listen(previewPort,'0.0.0.0',resolve);});
       return previewBridge.address().port;

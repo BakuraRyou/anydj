@@ -3,7 +3,7 @@ import {movingMood} from './dmx-moving-moods.js';
 import {beatPosition} from './dmx-show.js';
 import {stageAccentStrength} from './stage-motifs.js';
 import {movingHeadTargets,advanceMovingHeads,restingHeads,motionTangent,motionHermite} from './dmx-moving-model.js';
-import {movingCues,movingCueAt} from './dmx-moving-cues.js';
+import {movingCues,movingCueAt,movingCueExposure} from './dmx-moving-cues.js';
 
 export const MOVING_STEP=.05;
 const modes=mode=>['wash','follow','alternate'].includes(mode)?mode:'auto';
@@ -26,12 +26,17 @@ export function movingPlanJob(plan,mode='auto',mood='balanced'){
       accentStrength:stageAccentStrength(plan,time)};
     const result=movingHeadTargets([source],modes(mode))||restingHeads();
     if(beat===null)return result;
+    if(modes(mode)==='auto'&&(source.motionCharacter==='atmospheric'||['held','quiet','break','outro'].includes(section?.look))){
+      // Older plans without arrangement cues still keep a quiet, shared height.
+      const height=result.reduce((sum,p)=>sum+p.tilt,0)/result.length;
+      return result.map((p,i)=>({pan:i<2?result[i].pan:-result[3-i].pan,tilt:height}));
+    }
     // Outside pair covers the room; inside pair stays near the stage centre.
     // Their different depths and mirrored axes make each head serve a role.
     return result.map((p,i)=>({pan:p.pan*(i===0||i===3?1:.55),tilt:Math.max(.55,Math.min(1.15,p.tilt+((i===0||i===3) ? .04 : -.08)))}));
   }
   return {
-    result:{version:16,duration:plan.duration,step,values,mode:modes(mode),mood},
+    result:{version:34,duration:plan.duration,step,values,mode:modes(mode),mood},
     get done(){return index===count;},
     advance(samples=128){
       if(cues===undefined){cues=movingCues(plan,modes(mode),mood);this.result.cues=cues;}
@@ -104,6 +109,7 @@ export function createMovingPreparation({schedule=fn=>setTimeout(fn,0),cancel=cl
       notify();start();
     },
     read(plan,time,mode='auto',mood='balanced'){return movingPlanAt(cache.get(plan)?.get(modes(mode)+':'+movingMood(mood))?.result,time);},
+    exposure(plan,time,mode='auto',mood='balanced'){return movingCueExposure(cache.get(plan)?.get(modes(mode)+':'+movingMood(mood))?.result?.cues,time);},
     stats,
     destroy(){destroyed=true;enabled=false;if(pending!==null)cancel(pending);pending=null;queue=[];cache=new WeakMap();},
   };

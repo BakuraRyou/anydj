@@ -1,0 +1,1967 @@
+{
+  "date": "2026-09-26",
+  "method": "Same full-song beat/style analysis settings as evaluation; no stems or saved user room; current score on eight heads in test render.",
+  "before": {
+    "movementCues": 210,
+    "formations": {
+      "entry": 1,
+      "parallel": 180,
+      "fan": 25,
+      "cross": 4
+    },
+    "showCues": {
+      "hit": 24,
+      "answer": 159
+    }
+  },
+  "after": {
+    "pictures": 28,
+    "movementCues": 33,
+    "formations": {
+      "tiers": 5,
+      "cross": 5,
+      "parallel": 8,
+      "fan": 5,
+      "converge": 4,
+      "wings": 6
+    },
+    "showCues": {
+      "hit": 27,
+      "answer": 29
+    },
+    "unreachablePreparedMoves": 0,
+    "darkTransfers": 2
+  },
+  "score": [
+    {
+      "start": 0,
+      "end": 4,
+      "index": 0,
+      "sectionIndex": 0,
+      "kind": "sculpture",
+      "reason": "Gehaltenes Klangbild",
+      "energy": 0.003175654017751207,
+      "drive": 0,
+      "vocals": 0,
+      "tone": 0.5690320523622362,
+      "texture": 1,
+      "evidence": true,
+      "direction": 1,
+      "motif": 0,
+      "recalled": false,
+      "climax": false,
+      "scale": 0.82,
+      "variant": "gates",
+      "presentation": "inside",
+      "selection": "Musikalische Eignung, bisherige Verwendung und Songhöhepunkt",
+      "role": "held",
+      "rhythmic": false,
+      "form": "tiers",
+      "key": "0:held",
+      "featured": false,
+      "occupancy": 0.3,
+      "color": 0,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 4,
+      "end": 6,
+      "index": 1,
+      "sectionIndex": 1,
+      "kind": "impact",
+      "reason": "Kontrastreicher Einsatz",
+      "energy": 0.8342337000542865,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.23195915177148904,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 1,
+      "recalled": false,
+      "climax": false,
+      "scale": 0.9450037793545778,
+      "variant": "wall",
+      "presentation": "inside",
+      "selection": "Musikalische Eignung, bisherige Verwendung und Songhöhepunkt",
+      "role": "arrival",
+      "rhythmic": true,
+      "form": "cross",
+      "key": "1:arrival",
+      "featured": true,
+      "occupancy": 1,
+      "color": 1,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 6,
+      "end": 10,
+      "index": 2,
+      "sectionIndex": 2,
+      "kind": "sweep",
+      "reason": "Gehaltenes Klangbild",
+      "energy": 0.6889311042423366,
+      "drive": 0,
+      "vocals": 0,
+      "tone": 0.2733209128813136,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 2,
+      "recalled": false,
+      "climax": false,
+      "scale": 0.9014130006109928,
+      "variant": "fan",
+      "presentation": "inside",
+      "selection": "Musikalische Eignung, bisherige Verwendung und Songhöhepunkt",
+      "role": "flow",
+      "rhythmic": false,
+      "form": "parallel",
+      "key": "2:flow",
+      "featured": false,
+      "occupancy": 0.5,
+      "color": 0,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 10,
+      "end": 14,
+      "index": 3,
+      "sectionIndex": 3,
+      "kind": "impact",
+      "reason": "Phrasenbild mit rhythmischen Akzenten",
+      "energy": 0.8324547961795198,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.2324736297927547,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 1,
+      "recalled": true,
+      "climax": false,
+      "scale": 0.9444701081921477,
+      "variant": "wall",
+      "presentation": "inside",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "fan",
+      "key": "1:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 1,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 14,
+      "end": 16,
+      "index": 4,
+      "sectionIndex": 4,
+      "kind": "sweep",
+      "reason": "Gehaltenes Klangbild",
+      "energy": 0.7663403160562453,
+      "drive": 0,
+      "vocals": 0,
+      "tone": 0.41394091596892124,
+      "texture": 1,
+      "evidence": true,
+      "direction": -1,
+      "motif": 3,
+      "recalled": false,
+      "climax": false,
+      "scale": 0.9246357641551654,
+      "variant": "ribbon",
+      "presentation": "inside",
+      "selection": "Musikalische Eignung, bisherige Verwendung und Songhöhepunkt",
+      "role": "flow",
+      "rhythmic": false,
+      "form": "parallel",
+      "key": "3:flow",
+      "featured": false,
+      "occupancy": 0.5,
+      "color": 0,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 16,
+      "end": 18,
+      "index": 5,
+      "sectionIndex": 5,
+      "kind": "impact",
+      "reason": "Kontrastreicher Einsatz",
+      "energy": 1,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.19688866101876162,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 4,
+      "recalled": false,
+      "climax": true,
+      "scale": 0.9947336693382918,
+      "variant": "tiers",
+      "presentation": "inside",
+      "selection": "Musikalische Eignung, bisherige Verwendung und Songhöhepunkt",
+      "role": "arrival",
+      "rhythmic": true,
+      "form": "cross",
+      "key": "4:arrival",
+      "featured": true,
+      "occupancy": 1,
+      "color": 1,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 18,
+      "end": 20,
+      "index": 6,
+      "sectionIndex": 6,
+      "kind": "impact",
+      "reason": "Phrasenbild mit rhythmischen Akzenten",
+      "energy": 0.8333425837703087,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.3996843592417539,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 5,
+      "recalled": false,
+      "climax": false,
+      "scale": 0.9447364444693844,
+      "variant": "wall",
+      "presentation": "inside",
+      "selection": "Musikalische Eignung, bisherige Verwendung und Songhöhepunkt",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "converge",
+      "key": "5:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 0,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 20,
+      "end": 22,
+      "index": 7,
+      "sectionIndex": 7,
+      "kind": "groove",
+      "reason": "Phrasenbild mit rhythmischen Akzenten",
+      "energy": 0.44098003051045076,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.4436981171689273,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 6,
+      "recalled": false,
+      "climax": false,
+      "scale": 0.827027678491427,
+      "variant": "steps",
+      "presentation": "answer",
+      "selection": "Musikalische Eignung, bisherige Verwendung und Songhöhepunkt",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "tiers",
+      "key": "6:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 1,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 22,
+      "end": 26,
+      "index": 8,
+      "sectionIndex": 8,
+      "kind": "impact",
+      "reason": "Musikalisches Motiv wiederaufgenommen",
+      "energy": 0.7733901981123824,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.09804048956510902,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 1,
+      "recalled": true,
+      "climax": false,
+      "scale": 0.9267507287720065,
+      "variant": "wall",
+      "presentation": "inside",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "arrival",
+      "rhythmic": true,
+      "form": "cross",
+      "key": "1:arrival",
+      "featured": true,
+      "occupancy": 1,
+      "color": 1,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 26,
+      "end": 29.5,
+      "index": 9,
+      "sectionIndex": 8,
+      "kind": "impact",
+      "reason": "Musikalisches Motiv wiederaufgenommen",
+      "energy": 0.7733901981123824,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.09804048956510902,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 1,
+      "recalled": true,
+      "climax": false,
+      "scale": 0.9267507287720065,
+      "variant": "wall",
+      "presentation": "inside",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "fan",
+      "key": "1:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 1,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 29.5,
+      "end": 36,
+      "index": 10,
+      "sectionIndex": 8,
+      "kind": "impact",
+      "reason": "Phrasenbild mit rhythmischen Akzenten",
+      "energy": 0.7897101283980352,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.17136858050620993,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 1,
+      "recalled": true,
+      "climax": false,
+      "scale": 0.9316467078577023,
+      "variant": "wall",
+      "presentation": "inside",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "wings",
+      "key": "1:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 0,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 36,
+      "end": 40,
+      "index": 11,
+      "sectionIndex": 9,
+      "kind": "groove",
+      "reason": "Phrasenbild mit rhythmischen Akzenten",
+      "energy": 0.702218902282692,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.3314811355088321,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 2,
+      "recalled": false,
+      "climax": false,
+      "scale": 0.9053993400230994,
+      "variant": "steps",
+      "presentation": "answer",
+      "selection": "Musikalische Eignung, bisherige Verwendung und Songhöhepunkt",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "parallel",
+      "key": "2:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 1,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 40,
+      "end": 42,
+      "index": 12,
+      "sectionIndex": 10,
+      "kind": "groove",
+      "reason": "Phrasenbild mit rhythmischen Akzenten",
+      "energy": 0.7918677409089254,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.20378535545377657,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 7,
+      "recalled": false,
+      "climax": false,
+      "scale": 0.9322939916109694,
+      "variant": "roof",
+      "presentation": "answer",
+      "selection": "Musikalische Eignung, bisherige Verwendung und Songhöhepunkt",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "converge",
+      "key": "7:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 0,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 42,
+      "end": 44,
+      "index": 13,
+      "sectionIndex": 11,
+      "kind": "groove",
+      "reason": "Phrasenbild mit rhythmischen Akzenten",
+      "energy": 0.6781501696340172,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.4021717807237565,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 8,
+      "recalled": false,
+      "climax": false,
+      "scale": 0.898178720228497,
+      "variant": "steps",
+      "presentation": "answer",
+      "selection": "Musikalische Eignung, bisherige Verwendung und Songhöhepunkt",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "wings",
+      "key": "8:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 1,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 44,
+      "end": 52,
+      "index": 14,
+      "sectionIndex": 12,
+      "kind": "impact",
+      "reason": "Musikalisches Motiv wiederaufgenommen",
+      "energy": 0.7912503253446536,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.2933188395375194,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 1,
+      "recalled": true,
+      "climax": false,
+      "scale": 0.9321087669416879,
+      "variant": "wall",
+      "presentation": "inside",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "fan",
+      "key": "1:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 1,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 52,
+      "end": 56,
+      "index": 15,
+      "sectionIndex": 12,
+      "kind": "impact",
+      "reason": "Phrasenbild mit rhythmischen Akzenten",
+      "energy": 0.8070981623223596,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.39122272318550394,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 1,
+      "recalled": true,
+      "climax": false,
+      "scale": 0.9368631180349997,
+      "variant": "wall",
+      "presentation": "inside",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "parallel",
+      "key": "1:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 1,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 56,
+      "end": 58,
+      "index": 16,
+      "sectionIndex": 13,
+      "kind": "impact",
+      "reason": "Phrasenbild mit rhythmischen Akzenten",
+      "energy": 0.7607727603249994,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.48215522209026157,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 9,
+      "recalled": false,
+      "climax": false,
+      "scale": 0.9229654974357916,
+      "variant": "tiers",
+      "presentation": "inside",
+      "selection": "Musikalische Eignung, bisherige Verwendung und Songhöhepunkt",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "converge",
+      "key": "9:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 0,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 58,
+      "end": 60,
+      "index": 17,
+      "sectionIndex": 14,
+      "kind": "groove",
+      "reason": "Musikalisches Motiv wiederaufgenommen",
+      "energy": 0.30351971388994464,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.5056649444903972,
+      "texture": 1,
+      "evidence": true,
+      "direction": -1,
+      "motif": 6,
+      "recalled": true,
+      "climax": false,
+      "scale": 0.82,
+      "variant": "steps",
+      "presentation": "answer",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "tiers",
+      "key": "6:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 1,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 60,
+      "end": 68.02,
+      "index": 18,
+      "sectionIndex": 15,
+      "kind": "impact",
+      "reason": "Kontrastreicher Einsatz",
+      "energy": 0.78726855500826,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.4486527613383414,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 9,
+      "recalled": true,
+      "climax": false,
+      "scale": 0.9309142358407698,
+      "variant": "tiers",
+      "presentation": "inside",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "arrival",
+      "rhythmic": true,
+      "form": "cross",
+      "key": "9:arrival",
+      "featured": true,
+      "occupancy": 1,
+      "color": 0,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 68.02,
+      "end": 76.02,
+      "index": 19,
+      "sectionIndex": 15,
+      "kind": "impact",
+      "reason": "Musikalisches Motiv wiederaufgenommen",
+      "energy": 0.7909780165532264,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.4497966333040521,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 9,
+      "recalled": true,
+      "climax": false,
+      "scale": 0.9320270743042597,
+      "variant": "tiers",
+      "presentation": "inside",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "converge",
+      "key": "9:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 0,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 76.02,
+      "end": 84.04,
+      "index": 20,
+      "sectionIndex": 15,
+      "kind": "impact",
+      "reason": "Phrasenbild mit rhythmischen Akzenten",
+      "energy": 0.780276145178185,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.468259574933353,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 9,
+      "recalled": true,
+      "motion": [
+        {
+          "time": 76.02,
+          "energy": 0.7675030238624088,
+          "tone": 0.5037025823501966,
+          "sustain": 1,
+          "pitch": null
+        },
+        {
+          "time": 79.5,
+          "energy": 0.8346349210155285,
+          "tone": 0.4402552572800992,
+          "sustain": 1,
+          "pitch": 48
+        },
+        {
+          "time": 80.5,
+          "energy": 0.7385611682758411,
+          "tone": 0.4810362406193202,
+          "sustain": 1,
+          "pitch": null
+        },
+        {
+          "time": 83.25,
+          "energy": 0.8202814806069825,
+          "tone": 0.4451584553236486,
+          "sustain": 1,
+          "pitch": 50.8
+        }
+      ],
+      "cinematic": true,
+      "climax": false,
+      "scale": 0.9288165128917473,
+      "variant": "tiers",
+      "presentation": "inside",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "wings",
+      "key": "9:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 0,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 84.04,
+      "end": 92.04,
+      "index": 21,
+      "sectionIndex": 15,
+      "kind": "impact",
+      "reason": "Phrasenbild mit rhythmischen Akzenten",
+      "energy": 0.7819569835112332,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.48146268828589234,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 9,
+      "recalled": true,
+      "climax": false,
+      "scale": 0.9293207643916618,
+      "variant": "tiers",
+      "presentation": "inside",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "parallel",
+      "key": "9:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 1,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 92.04,
+      "end": 96,
+      "index": 22,
+      "sectionIndex": 15,
+      "kind": "impact",
+      "reason": "Phrasenbild mit rhythmischen Akzenten",
+      "energy": 0.7970161411981108,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.49399491431780534,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 9,
+      "recalled": true,
+      "climax": false,
+      "scale": 0.933838511697725,
+      "variant": "tiers",
+      "presentation": "inside",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "fan",
+      "key": "9:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 0,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 96,
+      "end": 98,
+      "index": 23,
+      "sectionIndex": 16,
+      "kind": "impact",
+      "reason": "Musikalisches Motiv wiederaufgenommen",
+      "energy": 0.7618157185329252,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.19362261611159753,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 1,
+      "recalled": true,
+      "climax": false,
+      "scale": 0.9232783848981694,
+      "variant": "wall",
+      "presentation": "inside",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "wings",
+      "key": "1:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 1,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 98,
+      "end": 100,
+      "index": 24,
+      "sectionIndex": 17,
+      "kind": "groove",
+      "reason": "Phrasenbild mit rhythmischen Akzenten",
+      "energy": 0.38828523078600957,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.23858689593902982,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 10,
+      "recalled": false,
+      "climax": false,
+      "scale": 0.82,
+      "variant": "wide",
+      "presentation": "answer",
+      "selection": "Musikalische Eignung, bisherige Verwendung und Songhöhepunkt",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "tiers",
+      "key": "10:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 0,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 100,
+      "end": 108,
+      "index": 25,
+      "sectionIndex": 18,
+      "kind": "impact",
+      "reason": "Musikalisches Motiv wiederaufgenommen",
+      "energy": 0.8004086902462855,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.32274006583251624,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 1,
+      "recalled": true,
+      "climax": false,
+      "scale": 0.9348562764121774,
+      "variant": "wall",
+      "presentation": "inside",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "arrival",
+      "rhythmic": true,
+      "form": "cross",
+      "key": "1:arrival",
+      "featured": true,
+      "occupancy": 1,
+      "color": 1,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 108,
+      "end": 110,
+      "index": 26,
+      "sectionIndex": 19,
+      "kind": "groove",
+      "reason": "Phrasenbild mit rhythmischen Akzenten",
+      "energy": 0.5192768810681757,
+      "drive": 1,
+      "vocals": 0,
+      "tone": 0.06934847103882218,
+      "texture": 0,
+      "evidence": true,
+      "direction": -1,
+      "motif": 11,
+      "recalled": false,
+      "climax": false,
+      "scale": 0.8505167336587445,
+      "variant": "roof",
+      "presentation": "answer",
+      "selection": "Musikalische Eignung, bisherige Verwendung und Songhöhepunkt",
+      "role": "groove",
+      "rhythmic": true,
+      "form": "parallel",
+      "key": "11:groove",
+      "featured": false,
+      "occupancy": 0.7,
+      "color": 0,
+      "accentThreshold": 0.55
+    },
+    {
+      "start": 110,
+      "end": 111.9434375,
+      "index": 27,
+      "sectionIndex": 20,
+      "kind": "sculpture",
+      "reason": "Musikalisches Motiv wiederaufgenommen",
+      "energy": 0.028114657685953795,
+      "drive": 0,
+      "vocals": 0,
+      "tone": 0.012635480965903516,
+      "texture": 1,
+      "evidence": true,
+      "direction": 1,
+      "motif": 0,
+      "recalled": true,
+      "climax": false,
+      "scale": 0.82,
+      "variant": "gates",
+      "presentation": "inside",
+      "selection": "Motiv wiederaufgenommen",
+      "role": "held",
+      "rhythmic": false,
+      "form": "tiers",
+      "key": "0:held",
+      "featured": false,
+      "occupancy": 0.3,
+      "color": 0,
+      "accentThreshold": 0.55
+    }
+  ],
+  "cues": [
+    {
+      "time": 0,
+      "travel": 0,
+      "pose": [
+        {
+          "pan": -8,
+          "tilt": 0.65,
+          "focus": 0
+        },
+        {
+          "pan": -2.6666666666666665,
+          "tilt": 0.76,
+          "focus": 0
+        },
+        {
+          "pan": 2.6666666666666665,
+          "tilt": 0.76,
+          "focus": 0
+        },
+        {
+          "pan": 8,
+          "tilt": 0.65,
+          "focus": 0
+        }
+      ],
+      "formation": "tiers",
+      "surface": "floor",
+      "role": "held",
+      "picture": 0,
+      "reason": "show-entry"
+    },
+    {
+      "time": 4,
+      "travel": 1.1,
+      "pose": [
+        {
+          "pan": 23,
+          "tilt": 0.96,
+          "focus": 0
+        },
+        {
+          "pan": 13,
+          "tilt": 0.66,
+          "focus": 0
+        },
+        {
+          "pan": -13,
+          "tilt": 0.66,
+          "focus": 0
+        },
+        {
+          "pan": -23,
+          "tilt": 0.96,
+          "focus": 0
+        }
+      ],
+      "surface": "ceiling",
+      "role": "arrival",
+      "formation": "cross",
+      "picture": 1,
+      "coordinated": true,
+      "reason": "show-picture",
+      "darkTravel": true
+    },
+    {
+      "time": 6,
+      "travel": 1.1497856905154034,
+      "pose": [
+        {
+          "pan": 11.34026595672672,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 11.34026595672672,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 11.340265956726718,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 11.340265956726718,
+          "tilt": 0.73,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "flow",
+      "formation": "parallel",
+      "picture": 2,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 9,
+      "travel": 1.1,
+      "pose": [
+        {
+          "pan": -11.34026595672672,
+          "tilt": 0.9299999999999999,
+          "focus": 0
+        },
+        {
+          "pan": -11.34026595672672,
+          "tilt": 0.9299999999999999,
+          "focus": 0
+        },
+        {
+          "pan": -11.340265956726718,
+          "tilt": 0.9299999999999999,
+          "focus": 0
+        },
+        {
+          "pan": -11.340265956726718,
+          "tilt": 0.9299999999999999,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "flow",
+      "formation": "parallel",
+      "picture": 2,
+      "coordinated": true,
+      "reason": "show-motion"
+    },
+    {
+      "time": 10.48,
+      "travel": 1.2306968945933678,
+      "pose": [
+        {
+          "pan": -23.2325479617952,
+          "tilt": 0.7,
+          "focus": 0
+        },
+        {
+          "pan": -7.0161826539317325,
+          "tilt": 0.86,
+          "focus": 0
+        },
+        {
+          "pan": 9.20018265393173,
+          "tilt": 0.86,
+          "focus": 0
+        },
+        {
+          "pan": 25.416547961795196,
+          "tilt": 0.7,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "fan",
+      "picture": 3,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 14,
+      "travel": 1.1739004002103643,
+      "pose": [
+        {
+          "pan": 11.82794399115435,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 11.827943991154346,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 11.827943991154346,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 11.827943991154346,
+          "tilt": 0.73,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "flow",
+      "formation": "parallel",
+      "picture": 4,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 16,
+      "travel": 1.1661141961323997,
+      "pose": [
+        {
+          "pan": 23,
+          "tilt": 0.96,
+          "focus": 0
+        },
+        {
+          "pan": 13,
+          "tilt": 0.66,
+          "focus": 0
+        },
+        {
+          "pan": -13,
+          "tilt": 0.66,
+          "focus": 0
+        },
+        {
+          "pan": -22.999999999999996,
+          "tilt": 0.96,
+          "focus": 0
+        }
+      ],
+      "surface": "ceiling",
+      "role": "arrival",
+      "formation": "cross",
+      "picture": 5,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 18,
+      "travel": 1.8,
+      "pose": [
+        {
+          "pan": 18.166712918851545,
+          "tilt": 0.79,
+          "focus": 1
+        },
+        {
+          "pan": 6.055570972950514,
+          "tilt": 0.79,
+          "focus": 1
+        },
+        {
+          "pan": -6.055570972950514,
+          "tilt": 0.79,
+          "focus": 1
+        },
+        {
+          "pan": -18.166712918851545,
+          "tilt": 0.79,
+          "focus": 1
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "converge",
+      "picture": 6,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 20,
+      "travel": 1.8,
+      "pose": [
+        {
+          "pan": -9.2,
+          "tilt": 0.69,
+          "focus": 0
+        },
+        {
+          "pan": -1.1999999999999993,
+          "tilt": 0.96,
+          "focus": 0
+        },
+        {
+          "pan": 6.800000000000001,
+          "tilt": 0.96,
+          "focus": 0
+        },
+        {
+          "pan": 14.799999999999997,
+          "tilt": 0.69,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "tiers",
+      "picture": 7,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 22,
+      "travel": 1.265625,
+      "pose": [
+        {
+          "pan": 23.000000000000004,
+          "tilt": 0.96,
+          "focus": 0
+        },
+        {
+          "pan": 13,
+          "tilt": 0.66,
+          "focus": 0
+        },
+        {
+          "pan": -13,
+          "tilt": 0.66,
+          "focus": 0
+        },
+        {
+          "pan": -23,
+          "tilt": 0.96,
+          "focus": 0
+        }
+      ],
+      "surface": "ceiling",
+      "role": "arrival",
+      "formation": "cross",
+      "picture": 8,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 26,
+      "travel": 1.6350636824036997,
+      "pose": [
+        {
+          "pan": -21.633901981123824,
+          "tilt": 0.7,
+          "focus": 0
+        },
+        {
+          "pan": -5.811300660374606,
+          "tilt": 0.86,
+          "focus": 0
+        },
+        {
+          "pan": 10.011300660374609,
+          "tilt": 0.86,
+          "focus": 0
+        },
+        {
+          "pan": 25.83390198112383,
+          "tilt": 0.7,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "fan",
+      "picture": 9,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 29.5,
+      "travel": 1.1,
+      "pose": [
+        {
+          "pan": -17,
+          "tilt": 0.68,
+          "focus": 0
+        },
+        {
+          "pan": -17,
+          "tilt": 0.98,
+          "focus": 0
+        },
+        {
+          "pan": 17,
+          "tilt": 0.98,
+          "focus": 0
+        },
+        {
+          "pan": 17,
+          "tilt": 0.68,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "wings",
+      "picture": 10,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 32,
+      "travel": 1.1,
+      "pose": [
+        {
+          "pan": -26.230769230769234,
+          "tilt": 0.68,
+          "focus": 0
+        },
+        {
+          "pan": -26.230769230769234,
+          "tilt": 0.98,
+          "focus": 0
+        },
+        {
+          "pan": 26.230769230769234,
+          "tilt": 0.98,
+          "focus": 0
+        },
+        {
+          "pan": 26.230769230769234,
+          "tilt": 0.68,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "wings",
+      "picture": 10,
+      "coordinated": true,
+      "reason": "show-motion"
+    },
+    {
+      "time": 36,
+      "travel": 1.260761662337618,
+      "pose": [
+        {
+          "pan": 11.42397908438096,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 11.42397908438096,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 11.42397908438096,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 11.42397908438096,
+          "tilt": 0.73,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "parallel",
+      "picture": 11,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 40,
+      "travel": 1.8,
+      "pose": [
+        {
+          "pan": 17.959338704544628,
+          "tilt": 0.79,
+          "focus": 1
+        },
+        {
+          "pan": 5.986446234848209,
+          "tilt": 0.79,
+          "focus": 1
+        },
+        {
+          "pan": -5.986446234848209,
+          "tilt": 0.79,
+          "focus": 1
+        },
+        {
+          "pan": -17.959338704544628,
+          "tilt": 0.79,
+          "focus": 1
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "converge",
+      "picture": 12,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 42,
+      "travel": 1.8,
+      "pose": [
+        {
+          "pan": -17,
+          "tilt": 0.68,
+          "focus": 0
+        },
+        {
+          "pan": -17,
+          "tilt": 0.98,
+          "focus": 0
+        },
+        {
+          "pan": 17,
+          "tilt": 0.98,
+          "focus": 0
+        },
+        {
+          "pan": 17,
+          "tilt": 0.68,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "wings",
+      "picture": 13,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 44,
+      "travel": 1.1,
+      "pose": [
+        {
+          "pan": -21.812503253446536,
+          "tilt": 0.7,
+          "focus": 0
+        },
+        {
+          "pan": -5.870834417815512,
+          "tilt": 0.86,
+          "focus": 0
+        },
+        {
+          "pan": 10.070834417815512,
+          "tilt": 0.86,
+          "focus": 0
+        },
+        {
+          "pan": 26.01250325344654,
+          "tilt": 0.7,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "fan",
+      "picture": 14,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 48.02,
+      "travel": 1.1,
+      "pose": [
+        {
+          "pan": -26.01250325344654,
+          "tilt": 0.7,
+          "focus": 0
+        },
+        {
+          "pan": -10.070834417815512,
+          "tilt": 0.86,
+          "focus": 0
+        },
+        {
+          "pan": 5.870834417815512,
+          "tilt": 0.86,
+          "focus": 0
+        },
+        {
+          "pan": 21.812503253446536,
+          "tilt": 0.7,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "fan",
+      "picture": 14,
+      "coordinated": true,
+      "reason": "show-motion"
+    },
+    {
+      "time": 52,
+      "travel": 1.275576618618663,
+      "pose": [
+        {
+          "pan": 12.084718422630864,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 12.084718422630864,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 12.084718422630866,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 12.084718422630866,
+          "tilt": 0.73,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "parallel",
+      "picture": 15,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 56,
+      "travel": 1.8,
+      "pose": [
+        {
+          "pan": 17.803863801625,
+          "tilt": 0.79,
+          "focus": 1
+        },
+        {
+          "pan": 5.934621267208333,
+          "tilt": 0.79,
+          "focus": 1
+        },
+        {
+          "pan": -5.934621267208334,
+          "tilt": 0.79,
+          "focus": 1
+        },
+        {
+          "pan": -17.803863801625,
+          "tilt": 0.79,
+          "focus": 1
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "converge",
+      "picture": 16,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 58,
+      "travel": 1.8,
+      "pose": [
+        {
+          "pan": -9.2,
+          "tilt": 0.69,
+          "focus": 0
+        },
+        {
+          "pan": -1.2000000000000002,
+          "tilt": 0.96,
+          "focus": 0
+        },
+        {
+          "pan": 6.800000000000001,
+          "tilt": 0.96,
+          "focus": 0
+        },
+        {
+          "pan": 14.799999999999997,
+          "tilt": 0.69,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "tiers",
+      "picture": 17,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 60,
+      "travel": 1.265625,
+      "pose": [
+        {
+          "pan": 23.000000000000004,
+          "tilt": 0.96,
+          "focus": 0
+        },
+        {
+          "pan": 13,
+          "tilt": 0.66,
+          "focus": 0
+        },
+        {
+          "pan": -13,
+          "tilt": 0.66,
+          "focus": 0
+        },
+        {
+          "pan": -23,
+          "tilt": 0.96,
+          "focus": 0
+        }
+      ],
+      "surface": "ceiling",
+      "role": "arrival",
+      "formation": "cross",
+      "picture": 18,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 68.02,
+      "travel": 1.8,
+      "pose": [
+        {
+          "pan": 17.95489008276613,
+          "tilt": 0.79,
+          "focus": 1
+        },
+        {
+          "pan": 5.984963360922043,
+          "tilt": 0.79,
+          "focus": 1
+        },
+        {
+          "pan": -5.984963360922043,
+          "tilt": 0.79,
+          "focus": 1
+        },
+        {
+          "pan": -17.95489008276613,
+          "tilt": 0.79,
+          "focus": 1
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "converge",
+      "picture": 19,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 76.02,
+      "travel": 1.8,
+      "pose": [
+        {
+          "pan": -16.999999999999996,
+          "tilt": 0.68,
+          "focus": 0
+        },
+        {
+          "pan": -17,
+          "tilt": 0.98,
+          "focus": 0
+        },
+        {
+          "pan": 17,
+          "tilt": 0.98,
+          "focus": 0
+        },
+        {
+          "pan": 16.999999999999996,
+          "tilt": 0.68,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "wings",
+      "picture": 20,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 80.02,
+      "travel": 1.1,
+      "pose": [
+        {
+          "pan": -28.970074812967567,
+          "tilt": 0.68,
+          "focus": 0
+        },
+        {
+          "pan": -28.970074812967567,
+          "tilt": 0.98,
+          "focus": 0
+        },
+        {
+          "pan": 28.970074812967567,
+          "tilt": 0.98,
+          "focus": 0
+        },
+        {
+          "pan": 28.970074812967567,
+          "tilt": 0.68,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "wings",
+      "picture": 20,
+      "coordinated": true,
+      "reason": "show-motion"
+    },
+    {
+      "time": 84.04,
+      "travel": 1.369299234679297,
+      "pose": [
+        {
+          "pan": 11.926328996120773,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 11.926328996120773,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 11.92632899612077,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 11.92632899612077,
+          "tilt": 0.73,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "parallel",
+      "picture": 21,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 88.04,
+      "travel": 1.1,
+      "pose": [
+        {
+          "pan": -11.92632899612077,
+          "tilt": 0.9299999999999999,
+          "focus": 0
+        },
+        {
+          "pan": -11.92632899612077,
+          "tilt": 0.9299999999999999,
+          "focus": 0
+        },
+        {
+          "pan": -11.92632899612077,
+          "tilt": 0.9299999999999999,
+          "focus": 0
+        },
+        {
+          "pan": -11.92632899612077,
+          "tilt": 0.9299999999999999,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "parallel",
+      "picture": 21,
+      "coordinated": true,
+      "reason": "show-motion"
+    },
+    {
+      "time": 92.04,
+      "travel": 1.2722039199141253,
+      "pose": [
+        {
+          "pan": -21.87016141198111,
+          "tilt": 0.7,
+          "focus": 0
+        },
+        {
+          "pan": -5.890053803993704,
+          "tilt": 0.86,
+          "focus": 0
+        },
+        {
+          "pan": 10.090053803993701,
+          "tilt": 0.86,
+          "focus": 0
+        },
+        {
+          "pan": 26.070161411981108,
+          "tilt": 0.7,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "fan",
+      "picture": 22,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 96,
+      "travel": 1.1,
+      "pose": [
+        {
+          "pan": -17,
+          "tilt": 0.68,
+          "focus": 0
+        },
+        {
+          "pan": -17,
+          "tilt": 0.98,
+          "focus": 0
+        },
+        {
+          "pan": 17,
+          "tilt": 0.98,
+          "focus": 0
+        },
+        {
+          "pan": 17,
+          "tilt": 0.68,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "wings",
+      "picture": 23,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 98,
+      "travel": 1.1,
+      "pose": [
+        {
+          "pan": -9.2,
+          "tilt": 0.69,
+          "focus": 0
+        },
+        {
+          "pan": -1.1999999999999993,
+          "tilt": 0.96,
+          "focus": 0
+        },
+        {
+          "pan": 6.800000000000001,
+          "tilt": 0.96,
+          "focus": 0
+        },
+        {
+          "pan": 14.8,
+          "tilt": 0.69,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "tiers",
+      "picture": 24,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 100,
+      "travel": 1.265625,
+      "pose": [
+        {
+          "pan": 23.000000000000004,
+          "tilt": 0.96,
+          "focus": 0
+        },
+        {
+          "pan": 13,
+          "tilt": 0.66,
+          "focus": 0
+        },
+        {
+          "pan": -13,
+          "tilt": 0.66,
+          "focus": 0
+        },
+        {
+          "pan": -22.999999999999996,
+          "tilt": 0.96,
+          "focus": 0
+        }
+      ],
+      "surface": "ceiling",
+      "role": "arrival",
+      "formation": "cross",
+      "picture": 25,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 108,
+      "travel": 1.1139992528146039,
+      "pose": [
+        {
+          "pan": 10.271444350729507,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 10.271444350729507,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 10.271444350729507,
+          "tilt": 0.73,
+          "focus": 0
+        },
+        {
+          "pan": 10.271444350729507,
+          "tilt": 0.73,
+          "focus": 0
+        }
+      ],
+      "surface": "wall",
+      "role": "groove",
+      "formation": "parallel",
+      "picture": 26,
+      "coordinated": true,
+      "reason": "show-picture"
+    },
+    {
+      "time": 110,
+      "travel": 1.4,
+      "pose": [
+        {
+          "pan": -8,
+          "tilt": 0.65,
+          "focus": 0
+        },
+        {
+          "pan": -2.666666666666666,
+          "tilt": 0.76,
+          "focus": 0
+        },
+        {
+          "pan": 2.666666666666666,
+          "tilt": 0.76,
+          "focus": 0
+        },
+        {
+          "pan": 8,
+          "tilt": 0.65,
+          "focus": 0
+        }
+      ],
+      "surface": "floor",
+      "role": "held",
+      "formation": "tiers",
+      "picture": 27,
+      "coordinated": true,
+      "reason": "show-picture",
+      "darkTravel": true
+    }
+  ]
+}

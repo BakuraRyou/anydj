@@ -26,7 +26,7 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
  const grid=d=>d.track?.plan?.beatGrid?.beats||d.track?.plan?.beatTiming?.times;
  const clampTime=(d,t)=>Math.max(0,Math.min((Number.isFinite(d.audio.duration)?d.audio.duration:d.track?.plan?.duration||0)-.01,t));
  const host=document.createElement('div');host.className='dj-master';
- host.innerHTML='<label>Master <input data-master type="range" min="0" max="1" step="0.01" value="0.8"><output data-master-value>80 %</output></label><div class="dj-level"><meter data-master-meter min="0" max="1" low="0.1" high="0.9" optimum="0.5" value="0" aria-label="Masterpegel"></meter><span data-peak>−∞ dBFS</span></div><details class="dj-routing"><summary>Audioausgänge & Vorhören</summary><p>Master und Kopfhörer müssen unterschiedliche physische Ausgänge sein. Beim Ausfall eines Ausgangs wird Vorhören ausgeschaltet.</p><button type="button" data-output="master" class="button secondary">Master-Ausgang wählen</button><button type="button" data-output="cue" class="button secondary">Kopfhörer wählen</button><p data-routing role="status">Master: Systemausgang · Vorhören aus</p><label>Kopfhörerlautstärke <input data-cue-level type="range" min="0" max="1" step="0.01" value="0.5"></label></details><details class="dj-shortcuts"><summary>Tastenkürzel</summary><p>Leertaste / K: Play/Pause. ← / →: 5 Sekunden springen (Shift: 1 Sekunde). ↑ / ↓: Master ±5 %. Gilt für das fokussierte Deck, sonst das laufende bzw. am Crossfader gewählte Deck.<br>Deck A: Q Play/Pause, W Cue, 1–4 Hotcues.<br>Deck B: O Play/Pause, P Cue, 7–0 Hotcues.<br>Shift + Hotcue löscht die Marke. Leere Marke: setzen; belegte Marke: anspringen. In Eingabefeldern sind Kürzel aus.</p></details>';
+ host.innerHTML='<label>Master <input data-master type="range" min="0" max="1" step="0.01" value="0.8"><output data-master-value>80 %</output></label><div class="dj-level"><meter data-master-meter min="0" max="1" low="0.1" high="0.9" optimum="0.5" value="0" aria-label="Masterpegel"></meter><span data-peak>−∞ dBFS</span></div><details class="dj-routing"><summary>Audioausgänge & Vorhören</summary><p>Master und Kopfhörer können nach Bestätigung denselben Ausgang nutzen. Beim Ausfall eines Ausgangs wird Vorhören ausgeschaltet.</p><button type="button" data-output="master" class="button secondary">Master-Ausgang wählen</button><button type="button" data-output="cue" class="button secondary">Kopfhörer wählen</button><p data-routing role="status">Master: Systemausgang · Vorhören aus</p><label>Kopfhörerlautstärke <input data-cue-level type="range" min="0" max="1" step="0.01" value="0.5"></label></details><details class="dj-shortcuts"><summary>Tastenkürzel</summary><p>Leertaste / K: Play/Pause. ← / →: 5 Sekunden springen (Shift: 1 Sekunde). ↑ / ↓: Master ±5 %. Gilt für das fokussierte Deck, sonst das laufende bzw. am Crossfader gewählte Deck.<br>Deck A: Q Play/Pause, W Cue, 1–4 Hotcues.<br>Deck B: O Play/Pause, P Cue, 7–0 Hotcues.<br>Shift + Hotcue löscht die Marke. Leere Marke: setzen; belegte Marke: anspringen. In Eingabefeldern sind Kürzel aus.</p></details>';
  mixer.append(host);const routingHost=host.querySelector('.dj-routing');
  const q=s=>host.querySelector(s)||(routingHost.matches(s)?routingHost:routingHost.querySelector(s));
  if(Number.isFinite(savedRouting.level))q('[data-cue-level]').value=String(Math.max(0,Math.min(1,savedRouting.level)));
@@ -61,8 +61,8 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
  const outputFields=document.createElement('div');outputFields.className='audio-output-fields';
  const outputSelects={};
  routingHost.querySelector('summary').textContent='Audioausgabe';
- routingHost.querySelector('p').textContent='Wähle zuerst die Lautsprecher für dein Publikum, dann einen separaten Ausgang für die Vorschau.';
- for(const [kind,title,hint] of [['master','Master / Publikum','Hier läuft dein Live-Mix.'],['cue','Kopfhörer / Vorschau','Hier hörst nur du den Übergang.']]){
+ routingHost.querySelector('p').textContent='Wähle zuerst den Master-Ausgang, dann den Ausgang für die Vorschau. Zum Testen kannst du nach Bestätigung denselben Ausgang verwenden. Dann ist die Vorschau auch auf dem Master-Ausgang hörbar.';
+ for(const [kind,title,hint] of [['master','Master / Publikum','Hier läuft dein Live-Mix.'],['cue','Kopfhörer / Vorschau','Separater Ausgang zum Vorhören oder gemeinsamer Ausgang zum Testen.']]){
   const field=document.createElement('label');field.className='audio-output-field';
   const heading=document.createElement('strong');heading.textContent=title;
   const description=document.createElement('span');description.textContent=hint;
@@ -84,7 +84,7 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
   for(const kind of ['master','cue']){
    const select=outputSelects[kind];select.replaceChildren(new Option(kind==='master'?'Lautsprecher auswählen':outputs.master?'Kopfhörer auswählen':'Zuerst Master auswählen',''));
    const devices=[...available];if(outputs[kind]&&!devices.some(d=>d.deviceId===outputs[kind].deviceId))devices.push(outputs[kind]);
-   devices.forEach((device,i)=>{const option=new Option(device.label||`Audioausgang ${i+1}`,device.deviceId);option.disabled=kind==='cue'&&Boolean(outputs.master&&(device.deviceId===outputs.master.deviceId||(device.groupId&&device.groupId===outputs.master.groupId)));select.add(option);});
+   devices.forEach((device,i)=>{const option=new Option(device.label||`Audioausgang ${i+1}`,device.deviceId);select.add(option);});
    select.value=outputs[kind]?.deviceId||(restorePending&&devices.some(d=>d.deviceId===savedRouting[kind])?savedRouting[kind]:'');select.disabled=!outputSupport||outputBusy||!devices.length||(kind==='cue'&&!outputs.master);
   }
  }
@@ -119,19 +119,20 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
   if(outputBusy)return;outputBusy=true;const epoch=outputEpoch;
   routingHost.querySelectorAll('[data-output]').forEach(b=>b.disabled=true);syncOutputFields();
   try{
-   muteCue();
    const device=deviceId?available.find(d=>d.deviceId===deviceId):nativePicker?await navigator.mediaDevices.selectAudioOutput():null;
    if(!device){await refreshOutputs({requestAccess:true});throw Error('Bitte oben einen Ausgang auswählen.');}
    if(!device.deviceId||['default','communications'].includes(device.deviceId))throw Error('Bitte einen ausdrücklich benannten physischen Ausgang wählen.');
    if(kind==='cue'&&!outputs.master)throw Error('Zuerst einen eigenen Master-Ausgang wählen.');
-   if(kind==='cue'&&(device.deviceId===outputs.master.deviceId||(device.groupId&&device.groupId===outputs.master.groupId)))throw Error('Kopfhörer benötigen einen anderen Ausgang als der Master.');
+   const shared=kind==='cue'&&(device.deviceId===outputs.master.deviceId||Boolean(device.groupId&&device.groupId===outputs.master.groupId));
+   if(shared&&!window.confirm('Master und Kopfhörer auf denselben Ausgang legen?\n\nDie Vorschau ist dann zusammen mit dem Live-Mix auf diesem Ausgang hörbar – auch für dein Publikum. Das eignet sich zum Testen.\n\nGemeinsamen Ausgang verwenden?'))return;
+   muteCue();
    await ready();
    if(kind==='master')await ctx.setSinkId(device.deviceId);
    else {await cueAudio.setSinkId(device.deviceId);await cueAudio.play();}
    if(epoch!==outputEpoch||dead){muteCue();return;}
    outputs[kind]=device;
    if(!restored){savedRouting[kind]=device.deviceId;if(kind==='master')delete savedRouting.cue;}
-   q('[data-routing]').textContent=`Master: ${outputs.master?.label||'Systemausgang'} · Kopfhörer: ${outputs.cue?.label||'aus'}`;
+   q('[data-routing]').textContent=`Master: ${outputs.master?.label||'Systemausgang'} · Kopfhörer: ${outputs.cue?.label||'aus'}${shared?' · Gemeinsamer Ausgang (Testbetrieb)':''}`;
    if(!restored)persistRouting();
   }catch(e){muteCue();q('[data-routing]').textContent='Vorhören aus · '+e.message;}
   finally{outputBusy=false;notifyOutput();routingHost.querySelectorAll('[data-output]').forEach(b=>b.disabled=!outputSupport);syncOutputFields();}

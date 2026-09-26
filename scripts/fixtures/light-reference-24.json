@@ -1,0 +1,575 @@
+{
+  "reference": "https://www.youtube.com/watch?v=Q3aCtuhyVaQ",
+  "timeSeconds": 24,
+  "description": "Approximate 2D reconstruction: 8 upper magenta, 6 lower magenta, 8 interleaved blue sources. Positions, depth and fixture type inferred, not calibrated. Prism/gobo sub-rays omitted. Beam angles are visual estimates (upper 10 degrees, lower 8, blue 18); no fixture specifications available.",
+  "layout": {
+    "width": 16,
+    "depth": 10,
+    "height": 9,
+    "room": true,
+    "positions": {},
+    "environmentBrightness": 1,
+    "hazeDensity": 0.85
+  },
+  "camera": {
+    "mode": "dancer",
+    "x": 0,
+    "y": -7,
+    "eyeHeight": 5,
+    "yaw": 0,
+    "pitch": 0.14,
+    "zoom": 1
+  },
+  "lights": [
+    {
+      "id": "upper-0",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#e025ee",
+      "position": {
+        "x": -4.1,
+        "y": 6,
+        "height": 4.2
+      },
+      "target": {
+        "x": -3.4849999999999994,
+        "y": 1,
+        "z": 0.03
+      },
+      "aimed": true,
+      "aimRotation": -20.254060817447726,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.2,
+      "beamAngle": 10
+    },
+    {
+      "id": "upper-1",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#e025ee",
+      "position": {
+        "x": -2.9,
+        "y": 6,
+        "height": 4.2
+      },
+      "target": {
+        "x": -2.465,
+        "y": 1,
+        "z": 0.03
+      },
+      "aimed": true,
+      "aimRotation": -14.627870949377598,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.2,
+      "beamAngle": 10
+    },
+    {
+      "id": "upper-2",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#e025ee",
+      "position": {
+        "x": -1.6,
+        "y": 6,
+        "height": 4.2
+      },
+      "target": {
+        "x": -1.36,
+        "y": 1,
+        "z": 0.03
+      },
+      "aimed": true,
+      "aimRotation": -8.19426333463021,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.2,
+      "beamAngle": 10
+    },
+    {
+      "id": "upper-3",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#e025ee",
+      "position": {
+        "x": -0.45,
+        "y": 6,
+        "height": 4.2
+      },
+      "target": {
+        "x": -0.3825,
+        "y": 1,
+        "z": 0.03
+      },
+      "aimed": true,
+      "aimRotation": -2.3192115954998274,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.2,
+      "beamAngle": 10
+    },
+    {
+      "id": "upper-4",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#e025ee",
+      "position": {
+        "x": 0.2,
+        "y": 6,
+        "height": 4.2
+      },
+      "target": {
+        "x": 0.17,
+        "y": 1,
+        "z": 0.03
+      },
+      "aimed": true,
+      "aimRotation": 1.0312126698879525,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.2,
+      "beamAngle": 10
+    },
+    {
+      "id": "upper-5",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#e025ee",
+      "position": {
+        "x": 1.35,
+        "y": 6,
+        "height": 4.2
+      },
+      "target": {
+        "x": 1.1475,
+        "y": 1,
+        "z": 0.03
+      },
+      "aimed": true,
+      "aimRotation": 6.927481968537049,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.2,
+      "beamAngle": 10
+    },
+    {
+      "id": "upper-6",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#e025ee",
+      "position": {
+        "x": 2.6,
+        "y": 6,
+        "height": 4.2
+      },
+      "target": {
+        "x": 2.21,
+        "y": 1,
+        "z": 0.03
+      },
+      "aimed": true,
+      "aimRotation": 13.170241897951412,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.2,
+      "beamAngle": 10
+    },
+    {
+      "id": "upper-7",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#e025ee",
+      "position": {
+        "x": 3.9,
+        "y": 6,
+        "height": 4.2
+      },
+      "target": {
+        "x": 3.315,
+        "y": 1,
+        "z": 0.03
+      },
+      "aimed": true,
+      "aimRotation": 19.341073305945642,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.2,
+      "beamAngle": 10
+    },
+    {
+      "id": "lower-0",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#dd20ed",
+      "position": {
+        "x": -5.2,
+        "y": 6,
+        "height": 0.4
+      },
+      "target": {
+        "x": -2.8600000000000003,
+        "y": 2,
+        "z": 4.3
+      },
+      "aimed": true,
+      "aimRotation": 30.327634119133858,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 0.4,
+      "beamAngle": 8
+    },
+    {
+      "id": "lower-1",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#dd20ed",
+      "position": {
+        "x": -3.4,
+        "y": 6,
+        "height": 0.4
+      },
+      "target": {
+        "x": -1.87,
+        "y": 2,
+        "z": 4.3
+      },
+      "aimed": true,
+      "aimRotation": 20.93185254089252,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 0.4,
+      "beamAngle": 8
+    },
+    {
+      "id": "lower-2",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#dd20ed",
+      "position": {
+        "x": -1.65,
+        "y": 6,
+        "height": 0.4
+      },
+      "target": {
+        "x": -0.9075,
+        "y": 2,
+        "z": 4.3
+      },
+      "aimed": true,
+      "aimRotation": 10.515839096815055,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 0.4,
+      "beamAngle": 8
+    },
+    {
+      "id": "lower-3",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#dd20ed",
+      "position": {
+        "x": 1.65,
+        "y": 6,
+        "height": 0.4
+      },
+      "target": {
+        "x": 0.9075,
+        "y": 2,
+        "z": 4.3
+      },
+      "aimed": true,
+      "aimRotation": -10.515839096815055,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 0.4,
+      "beamAngle": 8
+    },
+    {
+      "id": "lower-4",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#dd20ed",
+      "position": {
+        "x": 3.4,
+        "y": 6,
+        "height": 0.4
+      },
+      "target": {
+        "x": 1.87,
+        "y": 2,
+        "z": 4.3
+      },
+      "aimed": true,
+      "aimRotation": -20.93185254089252,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 0.4,
+      "beamAngle": 8
+    },
+    {
+      "id": "lower-5",
+      "type": "moving",
+      "power": 0.9,
+      "color": "#dd20ed",
+      "position": {
+        "x": 5.2,
+        "y": 6,
+        "height": 0.4
+      },
+      "target": {
+        "x": 2.8600000000000003,
+        "y": 2,
+        "z": 4.3
+      },
+      "aimed": true,
+      "aimRotation": -30.327634119133858,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 0.4,
+      "beamAngle": 8
+    },
+    {
+      "id": "rear-0",
+      "type": "moving",
+      "power": 0.8,
+      "color": "#168fff",
+      "position": {
+        "x": -4.65,
+        "y": 6.3,
+        "height": 4.25
+      },
+      "target": {
+        "x": -9.3,
+        "y": 4,
+        "z": 9
+      },
+      "aimed": true,
+      "aimRotation": -63.681911860348265,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.25,
+      "beamAngle": 18
+    },
+    {
+      "id": "rear-1",
+      "type": "moving",
+      "power": 0.8,
+      "color": "#168fff",
+      "position": {
+        "x": -3.45,
+        "y": 6.3,
+        "height": 4.25
+      },
+      "target": {
+        "x": -6.9,
+        "y": 4,
+        "z": 9
+      },
+      "aimed": true,
+      "aimRotation": -56.30993247402022,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.25,
+      "beamAngle": 18
+    },
+    {
+      "id": "rear-2",
+      "type": "moving",
+      "power": 0.8,
+      "color": "#168fff",
+      "position": {
+        "x": -2.2,
+        "y": 6.3,
+        "height": 4.25
+      },
+      "target": {
+        "x": -4.4,
+        "y": 4,
+        "z": 9
+      },
+      "aimed": true,
+      "aimRotation": -43.72696997994329,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.25,
+      "beamAngle": 18
+    },
+    {
+      "id": "rear-3",
+      "type": "moving",
+      "power": 0.8,
+      "color": "#168fff",
+      "position": {
+        "x": -0.95,
+        "y": 6.3,
+        "height": 4.25
+      },
+      "target": {
+        "x": -1.9,
+        "y": 4,
+        "z": 9
+      },
+      "aimed": true,
+      "aimRotation": -22.44275336529435,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.25,
+      "beamAngle": 18
+    },
+    {
+      "id": "rear-4",
+      "type": "moving",
+      "power": 0.8,
+      "color": "#168fff",
+      "position": {
+        "x": 0.95,
+        "y": 6.3,
+        "height": 4.25
+      },
+      "target": {
+        "x": 1.9,
+        "y": 4,
+        "z": 9
+      },
+      "aimed": true,
+      "aimRotation": 22.44275336529435,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.25,
+      "beamAngle": 18
+    },
+    {
+      "id": "rear-5",
+      "type": "moving",
+      "power": 0.8,
+      "color": "#168fff",
+      "position": {
+        "x": 2.2,
+        "y": 6.3,
+        "height": 4.25
+      },
+      "target": {
+        "x": 4.4,
+        "y": 4,
+        "z": 9
+      },
+      "aimed": true,
+      "aimRotation": 43.72696997994329,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.25,
+      "beamAngle": 18
+    },
+    {
+      "id": "rear-6",
+      "type": "moving",
+      "power": 0.8,
+      "color": "#168fff",
+      "position": {
+        "x": 3.45,
+        "y": 6.3,
+        "height": 4.25
+      },
+      "target": {
+        "x": 6.9,
+        "y": 4,
+        "z": 9
+      },
+      "aimed": true,
+      "aimRotation": 56.30993247402022,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.25,
+      "beamAngle": 18
+    },
+    {
+      "id": "rear-7",
+      "type": "moving",
+      "power": 0.8,
+      "color": "#168fff",
+      "position": {
+        "x": 4.65,
+        "y": 6.3,
+        "height": 4.25
+      },
+      "target": {
+        "x": 9.3,
+        "y": 4,
+        "z": 9
+      },
+      "aimed": true,
+      "aimRotation": 63.681911860348265,
+      "modelSize": {
+        "width": 0.24,
+        "depth": 0.28,
+        "height": 0.3
+      },
+      "emissionHeight": 4.25,
+      "beamAngle": 18
+    }
+  ]
+}

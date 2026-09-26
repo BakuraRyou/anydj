@@ -332,7 +332,7 @@ test('room zones survive validation and apply after placement, without changing 
   assert.throws(()=>validateRoomPlan({...plan,zones:[plan.zones[0],plan.zones[0]]}));
   const source={layout:{width:8,depth:6,positions:{}},lights:[{id:'other',type:'spot',position:{x:3,y:4,height:2},target:{x:3,y:1},power:.8,color:'#ffffff'}]},saved=structuredClone(source);
   const render=createRoomPreview(),result=render(source,valid,false,0);
-  assert.deepEqual(result.lights[0].target,{x:0,y:3});assert.ok(Math.abs(result.lights[0].power-.08)<1e-9);assert.deepEqual(result.layout.zones,plan.zones);assert.deepEqual(source,saved);
+  assert.deepEqual(result.lights[0].target,{x:0,y:3});assert.equal(result.lights[0].power,0);assert.deepEqual(result.layout.zones,plan.zones);assert.deepEqual(source,saved);
   assert.equal(render({...source,lights:source.lights.map(l=>({...l,power:0}))},valid,false,.1).lights[0].power,0);
   assert.equal(render(source,{...valid,zones:[]},false,.2).lights[0].power,.8);
 });
@@ -400,7 +400,7 @@ test('wall journeys intersect the real floor and wall continuously and respect e
  }
  assert.ok(floor&&wall);
  p.zones=[{id:'table',x:.4,y:.8,width:.2,depth:.2}];
- assert.equal(wallChoreography(light,p).power,0,'excluded wall approach is dark');
+ assert.deepEqual(wallChoreography(light,p),light,'an excluded wall approach retains the routed floor aim instead of crossing while dark');
  delete p.positions.lamp.wallTarget;assert.equal(wallChoreography(light,p),light,'existing floor choreography is unchanged without opt-in');
 });
 test('wall lighting renders a vertical clipped footprint and elevated beam in the shared XR geometry',()=>{
@@ -418,4 +418,71 @@ test('wall rays stop at a nearer wall in a concave room rather than passing thro
  p.positions.lamp={...fixture,x:3,y:1,height:3,type:'moving',wallTarget:{wall:4,start:0,end:1,minHeight:1,maxHeight:3}};
  const l={...scene().lights[0],position:{x:3,y:1,height:3},target:{x:3,y:1.5},motionUV:{x:.5,y:1}};
  const value=wallChoreography(l,p);assert.equal(value.wallIndex,2);assert.equal(value.power,0);assert.ok(Math.abs(value.target.y-2)<1e-8);
+});
+
+test('wall excursions cannot override exclusion routing or sweep across a zone between frames',async()=>{
+ const {blockedSegment,zoneObstacles}=await import('../public/dmx-zone-motion.js');
+ const {motionClearance}=await import('../public/dmx-light-geometry.js');
+ const plan=newRoomPlan(10,10,4);plan.positions.lamp={...fixture,type:'moving',x:0,y:8,height:3,wallTarget:{wall:2,start:.1,end:.9,minHeight:1,maxHeight:3}};
+ plan.zones=[{id:'table',name:'Tisch',x:.4,y:.4,width:.2,depth:.2}];
+ const render=createRoomPreview(),source=scene();let previous=null,lit=0;
+ for(let i=0;i<800;i++){
+  source.lights[0].motionUV={x:.5+.45*Math.sin(i/90),y:.5+.5*Math.cos(i/110)};
+  const result=render(source,plan,false,i*.02),head=result.lights[0],boxes=zoneObstacles(result.layout,plan.zones,motionClearance(head,result.layout));
+  if(previous)assert.equal(blockedSegment(previous,head.target,boxes),false,'final floor/wall motion never crosses a zone, even when dark');
+  if(head.power>0){lit++;assert.equal(blockedSegment(head.target,head.target,boxes),false);}
+  previous=head.target;
+ }
+ assert.ok(lit>100,'the room still has an active show outside its quiet zone');
+});
+
+test('rendered floor footprints stay outside quiet zones throughout a moving show',async()=>{
+ const {blockedSegment,zoneObstacles}=await import('../public/dmx-zone-motion.js');
+ const plan=newRoomPlan(10,10,4);plan.positions.lamp={...fixture,type:'moving',x:0,y:8,height:3,motionArea:{x:0,y:0,width:1,depth:1}};
+ plan.zones=[{id:'seating',name:'Sitzbereich',x:.4,y:.4,width:.2,depth:.2}];
+ const render=createRoomPreview(),source=scene(),boxes=zoneObstacles(plan,plan.zones,0);let litFrames=0,patches=0;
+ for(let i=0;i<600;i++){
+  source.lights[0].motionUV={x:i<300?.9:.1,y:.5};
+  const result=render(source,plan,false,i*.04);if(result.lights[0].power>0)litFrames++;
+  if(i%10)continue;
+  drawStageGeometry(result.layout,result.lights,[],0,{polygon:(points,color,alpha,stroke,width,emissive)=>{
+   if(!emissive||!points.every(p=>Math.abs(p[2]-.006)<1e-8))return;patches++;
+   points.forEach((p,j)=>{const q=points[(j+1)%points.length];assert.equal(blockedSegment({x:p[0],y:p[1]},{x:q[0],y:q[1]},boxes),false,'the visible halo never reaches the seating area');});
+   for(const b of boxes)for(const x of [b.left,b.right])for(const y of [b.bottom,b.top])assert.equal(insideRoom([x,y],points),false,'no light polygon covers a quiet-zone corner');
+  }});
+ }
+ assert.ok(litFrames>300&&patches>100,'free floor corridors remain lit; beams through the protected column are dark');
+});
+
+test('a dark transfer cannot resume when the fixture itself lies inside a protected column',()=>{
+ const plan=newRoomPlan(10,10,4);plan.positions.lamp={...fixture,type:'moving',x:0,y:8,height:3};
+ plan.zones=[{id:'divider',name:'Sitzreihe',x:.45,y:0,width:.1,depth:1}];
+ const preview=createRoomPreview(),source=scene();source.lights[0].motionUV={x:.1,y:.5};
+ let previous=preview(source,plan,false,0).lights[0],crossed=false,resumed=false;
+ for(let i=1;i<=1000;i++){
+  source.lights[0].motionUV={x:.9,y:.5};const out=preview(source,plan,false,i*.02).lights[0];
+  if(Math.abs(out.target.x)<.5){crossed=true;assert.equal(previous.power,0);assert.equal(out.power,0);}
+  if(out.target.x>3.5&&out.power===1)resumed=true;
+  previous=out;
+ }
+ assert.ok(crossed,'the authorized dark transfer still runs');
+ assert.equal(resumed,false,'a free endpoint cannot authorize a beam through the column around the fixture');
+});
+test('the real multi-head choreography explores three dimensions while avoiding a protected volume',async()=>{
+ const {movingHeadTargets}=await import('../public/dmx-moving-model.js'),{projectMovingHeads}=await import('../public/dmx-layout-model.js');
+ const plan=newRoomPlan(10,10,4),layout={width:8,depth:6,positions:{}},preview=createRoomPreview(),tracks=new Map();
+ plan.zones=[{id:'seating',name:'Sitzbereich',x:.35,y:.35,width:.25,depth:.2}];
+ for(let i=0;i<1800;i++){
+  const poses=movingHeadTargets([{frame:{state:true,dimming:80},weight:1,beat:i*.04,look:'peak'}]);
+  const lights=projectMovingHeads(layout,poses).map((l,j)=>({...l,type:'moving',power:1,color:'#ffffff'}));
+  if(!i)lights.forEach((l,j)=>{plan.positions[l.id]={...fixture,type:'moving',x:-3+j*2,y:8,height:3};tracks.set(l.id,[]);});
+  const result=preview({layout,lights,crowd:[]},plan,false,i*.02);
+  if(i>300)for(const l of result.lights)if(l.power>0)tracks.get(l.id).push(l.target);
+ }
+ for(const points of tracks.values()){
+  assert.ok(points.length>300,'each head contributes along free beam paths');
+  const width=Math.max(...points.map(p=>p.x))-Math.min(...points.map(p=>p.x)),depth=Math.max(...points.map(p=>p.y))-Math.min(...points.map(p=>p.y));
+  const height=Math.max(...points.map(p=>p.z||0))-Math.min(...points.map(p=>p.z||0));
+  assert.ok(Math.hypot(width,depth,height)>1,`head must travel visibly in the room: ${width}, ${depth}, ${height}`);
+ }
 });

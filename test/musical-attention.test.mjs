@@ -49,7 +49,7 @@ test('ambiguous, missing and silent stems preserve neutral controls; voice focus
  assert.ok(voice.accentScale>=.82&&voice.accentScale<1);
  assert.equal(musicalAttention(stems([.3,.03,.02,.02]),0,8).motionScale,1);
 });
-test('shared vocal focus reduces movement and strong color interruptions, leaving ambiguous plans unchanged',()=>{
+test('shared vocal focus reduces movement while all short accents retain the palette',()=>{
  const attention=musicalAttention(stems([.03,.02,.3,.02]),0,8);
  const plan={sections:[{look:'peak',motif:0,role:'feature'}],arrangement:{patterns:{phrases:[{start:0,end:4,section:0,energy:.7,tone:.7,movement:{character:'rhythmic',driving:1}},{start:4,end:8,section:0,energy:.7,tone:.7,movement:{character:'rhythmic',driving:1}}]},times:[0,2,4,6],accents:[.5,.5,.5,.5]}};
  const original=movingDirections(plan);
@@ -61,7 +61,7 @@ test('shared vocal focus reduces movement and strong color interruptions, leavin
  const focused=movingDirections(plan),focusedColors=planColorDirection(w,plan);
  assert.ok(focused[0].travel>original[0].travel);assert.ok(focused[0].spacing>original[0].spacing);
  assert.equal(focused[0].shape,'focus');
- assert.ok(focusedColors.events.filter(e=>e.reason==='musical-accent').length<colors.events.filter(e=>e.reason==='musical-accent').length);
+ assert.ok([...focusedColors.events,...colors.events].every(e=>e.reason!=='musical-accent'));
  assert.ok(focusedColors.events.some(e=>e.reason==='sound-change'));
 });
 

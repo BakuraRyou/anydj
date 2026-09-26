@@ -42,7 +42,7 @@ try {
   await writeFile('web/product-preview.webp',Buffer.from(shot.data,'base64'));
   console.log('Actual DJ product screenshot captured with generated demo audio.');
  }else{
-  for(const page of ['index.html','downloads.html']){
+  for(const page of ['index.html','downloads.html','impressum.html','datenschutz.html']){
    await c('Page.navigate',{url:base+page});await wait("document.querySelector('h1')&&document.readyState==='complete'");
    for(const width of [1440,768,390,320]){
     await c('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width<500});
@@ -53,7 +53,7 @@ try {
    const links=await evaluate("[...document.querySelectorAll('a[href]')].map(a=>a.getAttribute('href'))");
    for(const href of new Set(links)){
     if(href.startsWith('#')){if(!await evaluate(`Boolean(document.getElementById(${JSON.stringify(href.slice(1))}))`))throw Error('Missing anchor '+href);continue;}
-    if(href.includes('/downloads/'))continue;
+    if(!href.startsWith('./')||href.includes('/downloads/'))continue;
     const response=await fetch(new URL(href,base+page));if(!response.ok)throw Error('Broken page link: '+href);
    }
    if(page==='downloads.html'){

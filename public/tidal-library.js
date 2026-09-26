@@ -115,7 +115,9 @@ export function createTidalLibrary({getTracks,enqueueTracks,loadLocal}){
    }catch(e){error.textContent=e.message;}
   });
   const disconnect=button('Verbindung trennen',()=>{cancelAuth();client.disconnect();reset();links={};sessionStorage.removeItem('anydj-tidal-links');status.textContent='';render();d.box.close();});disconnect.disabled=!client.connected;
-  d.append(config,error);d.footer.prepend(login,disconnect);
+  d.append(config,error);
+  if(document.documentElement.dataset.edition==='web')d.append(node('p','Mit der Anmeldung forderst du die Verbindung zu TIDAL an. TIDAL erhält dabei Verbindungs-, Konto- und Suchdaten; Anmeldetoken bleiben im Sitzungsspeicher dieses Browsers.','small muted'),link('Datenschutz zur TIDAL-Verbindung','./datenschutz.html#streaming'));
+  d.footer.prepend(login,disconnect);
  }
  window.addEventListener('pagehide',()=>{controller.abort();cancelAuth();},{once:true});controls();
  return {refresh(){if(active&&!panel.contains(document.activeElement))render();}};

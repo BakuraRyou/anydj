@@ -1,7 +1,9 @@
+// Pattern-engine regression coverage for the retained alternative modes.
+// Default scene choreography is covered in dmx-light-scenes and dmx-moving-bars.
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {movingDirections,directedPose} from '../public/dmx-moving-direction.js';
-import {movingCues,movingCueAt} from '../public/dmx-moving-cues.js';
+import {patternMovingCues as movingCues,movingCueAt} from '../public/dmx-moving-cues.js';
 import {movingPlanJob,movingPlanAt} from '../public/dmx-moving-plan.js';
 const song=(characters=['atmospheric','rhythmic','rhythmic','atmospheric'])=>({
  duration:64,
@@ -293,4 +295,16 @@ test('local musical energy develops the same section figure instead of being los
  let difference=0;
  for(let t=3;t<30;t+=.1){const x=movingCueAt(a,t),y=movingCueAt(b,t);difference=Math.max(difference,...x.map((v,i)=>Math.abs(v.pan-y[i].pan)));}
  assert.ok(difference>3,'local energy must still visibly affect motion');
+});
+
+test('quiet spatial arcs share one height and preserve holds without a separate oscillator',async()=>{
+ const {spatialPose,groovePose}=await import('../public/dmx-moving-direction.js');
+ let min=Infinity,max=-Infinity;
+ for(let beat=0;beat<64;beat+=.25){
+  const pose=groovePose(beat,{energy:.35,strength:.5,percussion:.2,vocals:.5,formation:'mirror',shape:'arc',period:32});
+  const mapped=spatialPose(pose,beat,{asymmetry:0,coherent:true});
+  for(const p of mapped){assert.equal(p.tilt,mapped[0].tilt);min=Math.min(min,p.tilt);max=Math.max(max,p.tilt);}
+  assert.deepEqual(spatialPose(pose,beat+100,{asymmetry:0,coherent:true}),mapped);
+ }
+ assert.ok(min<.97&&max>.97,'one shared musical arc includes walls and ceiling');
 });

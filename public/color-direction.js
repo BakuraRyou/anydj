@@ -66,40 +66,40 @@ export function planColorDirection(windows,plan){
    if(roleChange)reason='section-contrast';
    motifs.push({motif:section.motif,mood:moodKey,values:v,design});
   }
+  const entry=plan.arrangement.times.find(t=>t>=phrase.start&&t<phrase.end)??phrase.start;
+  if(held&&entry-events.at(-1).time<4){design=held;reason='minimum-hold';}
   const quiet=/held|quiet|break|outro/.test(section.look||'');
   const add=(time,role,why)=>{
    const to=[design[role],...design.filter((_,i)=>i!==role)];
-   const prev=events.at(-1);if(prev&&time-prev.time<1)return;
+   const prev=events.at(-1);if(prev&&time-prev.time<4)return;
    if(prev&&prev.to.every((c,i)=>c.every((v,k)=>v===to[i][k])))return;
-   const direct=role===2&&section.look==='peak'&&(phrase.attention?.colorScale??1)>.8;
-   events.push({time,transition:!prev?0:direct?.18:quiet?2:1,from:prev?sampleLCH(prev,time):to,to,role,reason:why});
+   // Crossfade only the emitted endpoint colors. A hue-wheel interpolation
+   // passes through unrelated green/yellow families on a red/cyan transition.
+   events.push({time,transition:!prev?0:quiet?2:1,fromRGB:prev?sampleRGB(prev,time):to.map(directionRGB),to,role,reason:why});
   };
-  const entry=plan.arrangement.times.find(t=>t>=phrase.start&&t<phrase.end)??phrase.start;
   if(!previous||reason!=='hold')add(entry,0,reason);
-  // Accents are sparse, musically selected events, followed by a return to
-  // the phrase's identity, not a perpetual A/B oscillator.
-  if(!quiet&&(change>=.18||roleChange)&&previous){
-   const eligible=plan.arrangement.times.map((time,i)=>({time,i})).filter(e=>e.time>entry+1&&e.time<phrase.end-1&&plan.arrangement.accents[e.i]>=.45/(phrase.attention?.colorScale??1));
-   if(eligible.length){
-    const strong=eligible.reduce((a,b)=>plan.arrangement.accents[a.i]>=plan.arrangement.accents[b.i]?a:b);
-    add(strong.time,section.look==='peak'?2:1,'musical-accent');
-    const back=eligible.find(e=>e.time>strong.time+2);if(back)add(back.time,0,'return');
-   }
-  }
-  decisions.push({start:phrase.start,end:phrase.end,motif:section.motif,mood:moodKey,change,reason});
+  // Short attacks belong to the existing dimmer/activity envelopes. They
+  // never replace the whole scene palette or schedule a color-return flash.
+  decisions.push({start:phrase.start,end:phrase.end,motif:section.motif,mood:moodKey,change,reason,eventTime:events.at(-1)?.time});
   if(design!==held)heldEvidence=v;
   previous={values:v,mood:moodKey,role:section.role};held=design;
  }
- return events.length?{version:1,events,phrases:decisions}:null;
+ return events.length?{version:2,events,phrases:decisions}:null;
 }
 function sampleLCH(event,time){
  const t=event.transition?clamp((time-event.time)/event.transition):1,s=t*t*(3-2*t);
  return event.to.map((c,i)=>blend(event.from[i],c,s));
 }
+function sampleRGB(event,time){
+ // Saved version-1 plans keep their original interpretation.
+ if(!event.fromRGB)return sampleLCH(event,time).map(directionRGB);
+ const t=event.transition?clamp((time-event.time)/event.transition):1,s=t*t*(3-2*t);
+ return event.to.map((color,i)=>directionRGB(color).map((v,c)=>Math.round(event.fromRGB[i][c]*(1-s)+v*s)));
+}
 export function directionAt(direction,time){
  const events=direction?.events;if(!events?.length)return null;
  let lo=0,hi=events.length;while(lo<hi){const mid=(lo+hi)>>>1;if(events[mid].time<=time)lo=mid+1;else hi=mid;}
- return sampleLCH(events[Math.max(0,lo-1)],time).map(directionRGB);
+ return sampleRGB(events[Math.max(0,lo-1)],time);
 }
 export function applyColorDirection(plan){
  if(!plan.colorDirection||plan.effectiveOptions?.palette==='custom')return plan;

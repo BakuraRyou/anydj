@@ -45,3 +45,16 @@ test('local 20 Hz updates produce intermediate motion frames without delaying bl
  assert.equal(playback.sample(1000)[0].target.x,100,'never extrapolate beyond a received destination');
  playback.push([],scene(0).layout,1050);assert.deepEqual(playback.sample(1050),[],'removed lights disappear immediately');
 });
+
+test('prepared local motion follows the audible time and expires prediction on a stalled source',async()=>{
+ const {createMovingPreview}=await import('../public/dmx-vr-playback.js');
+ const playback=createMovingPreview(),layout={width:8,depth:6};
+ const light={id:'a',type:'moving',power:1,target:{x:0,y:1},motionUV:{x:.5,y:.5},motionAhead:{seconds:.12,target:{x:1.2,y:1},motionUV:{x:.62,y:.5}}};
+ playback.push([light],layout,1000);
+ assert.equal(playback.sample(1000)[0].target.x,0);
+ assert.ok(Math.abs(playback.sample(1030)[0].target.x-.3)<1e-9,'30ms of known future motion, not the 60ms delayed past');
+ assert.equal(playback.sample(1200)[0].motionAhead,undefined);
+ assert.ok(playback.sample(1200)[0].target.x<=.5,'stalled input cannot keep extrapolating');
+ playback.push([{...light,power:0,motionAhead:undefined}],layout,1250);
+ assert.equal(playback.sample(1250)[0].power,0,'blackout remains immediate');
+});

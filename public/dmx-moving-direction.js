@@ -39,11 +39,12 @@ export function movingDirections(plan,disco=false){
    const shape=quiet?'arc':build?'fan':orbit?'orbit':phrase.attention?.leader==='vocals'||vocals>.5?'focus':percussion>.65?'pulse':tone>.6?'cross':'sweep';
    // Width, travel speed and cue density are independent controls. An ambient
    // arc can cover a wide area while taking several seconds to get there.
-   design={shape,energy,formation:quiet?'mirror':disco?(shape==='focus'?'mirror':percussion>.65?'diagonal':'ribbon'):shape==='focus'?'relay':build?'ribbon':percussion>.65?'pairs':'ribbon',width:quiet?16+10*tone:build?28:peak?25+9*energy:12+10*energy,
+   design={shape,energy,formation:quiet?'mirror':disco?(shape==='focus'?'mirror':percussion>.65?'diagonal':'ribbon'):shape==='focus'?'mirror':build?'mirror':percussion>.65?'pairs':'mirror',width:quiet?16+10*tone:build?28:peak?25+9*energy:12+10*energy,
     speed:quiet?.22:build?.5:peak?.8:percussion>.65?.65:.4,
     spacing:quiet?4:build?1:peak?.5:percussion>.65?.6:1.5,
     travel:quiet?3:build?1.1:peak?.3:percussion>.65?.45:1.2,
-    asymmetry:quiet?.08:shape==='focus'?.12:build?.18:peak?.3+.25*percussion:shape==='cross'?.35:.2+.15*percussion,
+    asymmetry:disco?(quiet?.08:shape==='focus'?.12:build?.18:peak?.3+.25*percussion:shape==='cross'?.35:.2+.15*percussion)
+      :quiet?0:shape==='focus'?.04:build?.06:peak?.12+.08*percussion:.08,
     period:quiet?32:16,inner: .6-.25*vocals,depth:.06+.09*tone};
    design.speed*=motionScale;design.spacing/=motionScale;design.travel/=motionScale;
    if(section.motif!==undefined)memory.push({motif:section.motif,category,evidence,design});
@@ -91,7 +92,7 @@ export function groovePose(beat,{energy,strength,percussion,vocals,span=1,format
  const depth=.045+.07*clamp(strength);
  return Array.from({length:4},(_,i)=>{
   const side=i<2?-1:1,outer=i===0||i===3;
-  const role=formation==='pairs'?i%2:formation==='diagonal'?[0,2,1,3][i]:i;
+  const role=formation==='pairs'?(outer?0:1):formation==='diagonal'?[0,2,1,3][i]:i;
   const offset=formation==='mirror'?0:formation==='pairs'?role*Math.PI*.35:formation==='ribbon'?role*.55:role*Math.PI/2;
   const wave=Math.cos(phase-offset),opening=(wave+1)/2;
   const scale=formation==='mirror'?(outer?.75+.25*clamp(percussion):.55-.25*clamp(vocals)):formation==='pairs'||formation==='relay'?.65+.35*(.5+.5*Math.sin(phase*.5-offset)):1;
@@ -114,7 +115,7 @@ export function groovePose(beat,{energy,strength,percussion,vocals,span=1,format
 // Place the musical gesture on the floor. No independent room clock: if the
 // musical pose holds, its destination holds too. Roles shape the same gesture
 // into broad lateral arcs and depth sweeps rather than an unrelated search path.
-export function spatialPose(poses,beat,{energy=.5,span=1,asymmetry=0}={}){
+export function spatialPose(poses,beat,{energy=.5,span=1,asymmetry=0,coherent=false}={}){
  const freedom=clamp(asymmetry),spread=clamp(span,0,1);
  const independent=poses.map((pose,i)=>{
   const x=Math.tanh(pose.pan/42*2),depth=(pose.tilt-.85)/.3;
@@ -122,8 +123,13 @@ export function spatialPose(poses,beat,{energy=.5,span=1,asymmetry=0}={}){
   const curve=outer?1.05*Math.cos(Math.PI*x)-.3:.65*Math.sin(Math.PI*x)*(i<2?1:-1)+.35*Math.cos(2*Math.PI*x);
   return {pan:42*x,tilt:.85+.285*Math.tanh(depth*.8+curve*spread)};
  });
+ // Quiet formations share one vertical arc across the whole rig. The arc is
+ // derived from the authored pose, so holds and musical phase remain intact.
+ const sharedDepth=poses.reduce((sum,p)=>sum+(p.tilt-.85)/.3,0)/poses.length;
+ const opening=independent.reduce((sum,p)=>sum+Math.abs(p.pan/42),0)/independent.length;
+ const sharedTilt=.85+.285*Math.tanh(sharedDepth*.8+Math.cos(Math.PI*opening)*spread);
  return independent.map((pose,i)=>{
   const partner=i<2?i:3-i,lead=independent[partner],pan=i<2?lead.pan:-lead.pan;
-  return {pan:pan+(pose.pan-pan)*freedom,tilt:lead.tilt+(pose.tilt-lead.tilt)*freedom};
+  return {pan:pan+(pose.pan-pan)*freedom,tilt:coherent?sharedTilt:lead.tilt+(pose.tilt-lead.tilt)*freedom};
  });
 }

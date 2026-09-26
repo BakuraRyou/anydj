@@ -36,9 +36,9 @@ export function movingHeadTargets(streams=[],mode='auto'){
   const total=weights.reduce((a,b)=>a+b,0);
   if(!total)return null;
   return Array.from({length:4},(_,i)=>{
-    let pan=0,tilt=0;
-    active.forEach((s,k)=>{const pose=sourcePose(s,i,mode);pan+=pose.pan*(weights[k]/total);tilt+=pose.tilt*(weights[k]/total);});
-    return {pan,tilt};
+    let pan=0,tilt=0,focus=0;
+    active.forEach((s,k)=>{const pose=sourcePose(s,i,mode);pan+=pose.pan*(weights[k]/total);tilt+=pose.tilt*(weights[k]/total);focus+=(pose.focus??0)*(weights[k]/total);});
+    return {pan,tilt,...(active.some(s=>s.movingPose?.some(p=>p.focus!==undefined))?{focus}:{})};
   });
 }
 // Limit motor speed and ease direction changes, including seeks and section cuts.
@@ -46,14 +46,14 @@ export function advanceMovingHeads(current,target,seconds){
   const dt=clamp(finite(seconds),0,.1),ease=1-Math.exp(-dt/ .18);
   return current.map((pose,i)=>({
     pan:pose.pan+clamp((target[i].pan-pose.pan)*ease,-70*dt,70*dt),
-    tilt:pose.tilt+clamp((target[i].tilt-pose.tilt)*ease,-.8*dt,.8*dt),
+    tilt:pose.tilt+clamp((target[i].tilt-pose.tilt)*ease,-.8*dt,.8*dt),...(target[i].focus!==undefined?{focus:(pose.focus??0)+(target[i].focus-(pose.focus??0))*ease}:{}),
   }));
 }
 // Prepared tracks already contain eased motion. Only constrain discontinuities
 // (seeks, switching tracks or crossfades), without adding a second time lag.
 export function followMovingHeads(current,target,seconds){
   const dt=clamp(finite(seconds),0,.1);
-  return current.map((pose,i)=>({pan:pose.pan+clamp(target[i].pan-pose.pan,-70*dt,70*dt),tilt:pose.tilt+clamp(target[i].tilt-pose.tilt,-.8*dt,.8*dt)}));
+  return current.map((pose,i)=>({pan:pose.pan+clamp(target[i].pan-pose.pan,-70*dt,70*dt),tilt:pose.tilt+clamp(target[i].tilt-pose.tilt,-.8*dt,.8*dt),...(target[i].focus!==undefined?{focus:target[i].focus}:{})}));
 }
 
 // A shared tangent keeps velocity continuous without overshooting either

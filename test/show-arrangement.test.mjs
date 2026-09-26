@@ -109,3 +109,13 @@ test('Ein leiser Anfang verdeckt keinen anhaltenden Aufbau; Flächen und einzeln
   assert.equal(rise.times.length,0,'a sustained rise must not invent rhythmic attacks');
   for(const kind of ['steady','hit','oscillating'])assert.equal(make(kind).passages[0].look,'held',kind);
 });
+
+
+test('automatic analysis retains measured offbeat bass attacks for moving-head switching',()=>{
+ const input=windows.map((w,i)=>({...w,rms:.2,bass:i%25>=7&&i%25<10?.15:.02}));
+ const plan=compileShow(input,duration,settings({arrangement:'auto'}),grid);
+ assert.ok(plan.arrangement.bassAttacks.length>=70);
+ assert.ok(plan.arrangement.bassAttacks.every(e=>Math.abs((e.time-.14)/.5-Math.round((e.time-.14)/.5))<1e-6));
+ const steady=compileShow(input.map(w=>({...w,bass:.1})),duration,settings({arrangement:'auto'}),grid);
+ assert.deepEqual(steady.arrangement.bassAttacks,[]);
+});

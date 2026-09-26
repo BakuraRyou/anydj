@@ -111,7 +111,7 @@ test('LAN preview serves the full recursive module graph, including room and zon
   const response=await fetch(url.origin+path);assert.equal(response.status,200,`Preview dependency blocked: ${path}`);
   const source=await response.text();for(const match of source.matchAll(/(?:from\s*|import\s*\(\s*)['"](\.\.?\/[^'"]+)['"]/g))pending.push(new URL(match[1],url.origin+path).pathname);
  }
- assert.ok(visited.has('/dmx-zone-plan.js'));assert.ok(visited.has('/dmx-zone-motion.js'));
+ assert.ok(visited.has('/dmx-zone-plan.js'));assert.ok(visited.has('/dmx-zone-motion.js'));assert.ok(visited.has('/dmx-light-geometry.js'));
  await post('stop',session);
 });
 

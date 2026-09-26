@@ -1,14 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {movingPlanJob,movingPlanAt,createMovingPreparation} from '../public/dmx-moving-plan.js';
-import {restingHeads} from '../public/dmx-moving-model.js';
 const song=(duration=24)=>({duration,beatGrid:{beats:Array.from({length:duration*2+1},(_,i)=>i/2)},sections:[{start:0,end:8,look:'held',motif:0},{start:8,end:16,look:'lift',motif:1},{start:16,end:duration,look:'peak',motif:2}]});
 const compile=(plan,mode)=>{const job=movingPlanJob(plan,mode);while(!job.done)job.advance();return job.result;};
-test('four independent tracks are deterministic, interpolated and seek stable',()=>{
+test('prepared scene tracks are deterministic, interpolated and seek stable',()=>{
   const plan=song(),before=JSON.stringify(plan),a=compile(plan),b=compile(plan);
   assert.deepEqual(a.values,b.values);assert.equal(JSON.stringify(plan),before);
   const first=movingPlanAt(a,18.125);movingPlanAt(a,1);assert.deepEqual(movingPlanAt(a,18.125),first);
-  assert.equal(new Set(first.map(p=>p.pan)).size,4);
+  assert.equal(first.length,4);assert.ok(first.every(p=>Number.isFinite(p.pan)&&Number.isFinite(p.tilt)));
   const left=movingPlanAt(a,18.1),right=movingPlanAt(a,18.15);
   first.forEach((p,i)=>assert.ok(p.pan>=Math.min(left[i].pan,right[i].pan)-1e-5&&p.pan<=Math.max(left[i].pan,right[i].pan)+1e-5));
   assert.deepEqual(movingPlanAt(a,-3),movingPlanAt(a,0));
@@ -23,7 +22,7 @@ test('prepared section transitions respect speed limits; wash and missing beats 
   }
   assert.notDeepEqual(a.values,compile(song(),'wash').values);
   const still=compile({...song(),beatGrid:null});
-  for(const t of [0,8,16,24])movingPlanAt(still,t).forEach((p,i)=>assert.ok(Math.abs(p.pan-restingHeads()[i].pan)<1e-5));
+  for(const [a,b] of [[1,4],[9,12],[17,22]])assert.deepEqual(movingPlanAt(still,a),movingPlanAt(still,b),'without a grid hold the established image');
   const long=movingPlanJob(song(10000));assert.ok(long.result.values.byteLength<=2097184);
 });
 test('preparation is opt-in, chunked, cancellable, cached and invalidated by show replacement',()=>{

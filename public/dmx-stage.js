@@ -21,7 +21,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   document.body.append(panel);
   const colorPreview=button.closest('.dj-mixer')?.querySelector('.dj-color-preview');
   const inline=colorPreview?document.createElement('section'):null;
-  let active=false,editorPreview=null;
+  let active=false,editorPreview=null,previewMode='2d';
   const settingsButton=document.createElement('button');
   settingsButton.type='button';settingsButton.id='stageSettings';settingsButton.className='button secondary';settingsButton.textContent='Bühne einstellen';settingsButton.hidden=true;
   if(inline){
@@ -36,12 +36,31 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   const scene=(inline||panel).querySelector('.stage-scene'),spots=scene.querySelector('.stage-spots'),bars=scene.querySelector('.stage-bars');
   const layout=createStageLayout({getFixtures:()=>stagePatch(editor.equipment).map((f,i)=>({...f,group:editor.config.members[i]})),onProperties:(ids,changes)=>editor.setProperties(ids,changes),onChange:()=>render()});
   let movingPreview=[];
-  const stage3d=createStage3d(inline||panel.querySelector('.stage-preview'),inline||panel.querySelector('.stage-controls'),{getLayout:()=>layout.value,onFixturePosition:(id,p)=>layout.setFixturePosition(id,p),onZonePlan:zones=>layout.attachZones(zones),getFixtureAims:()=>layout.getAims(),setFixtureAim:(id,p)=>layout.setAim(id,p),mountLayout:(host,zones)=>layout.mount(host,zones),mountLighting:(host,view)=>mountLighting(host,view),onToggle:()=>{movingHeads.refresh();render();},onShareChange:()=>{movingHeads.refresh();render();if(stage3d.sharing)startTimer();else if(!active&&!panel.open&&!hardware.enabled&&!editorPreview){clearInterval(timer);timer=null;}}});
+  const stage3d=createStage3d(inline||panel.querySelector('.stage-preview'),inline||panel.querySelector('.stage-controls'),{getLayout:()=>layout.value,onFixturePosition:(id,p)=>layout.setFixturePosition(id,p),onZonePlan:zones=>layout.attachZones(zones),getFixtureAims:()=>layout.getAims(),setFixtureAim:(id,p)=>layout.setAim(id,p),mountLighting:(host,view)=>mountLighting(host,view),onToggle:()=>{movingHeads.refresh();render();},onShareChange:()=>{movingHeads.refresh();render();if(stage3d.sharing)startTimer();else if(!active&&!panel.open&&!hardware.enabled&&!editorPreview){clearInterval(timer);timer=null;}}});
   const movingHeads=createMovingHeads(scene,inline||panel.querySelector('.stage-controls'),{getDevices:()=>stagePatch(editor.equipment).map((f,i)=>({...f,group:editor.config.members[i]})).filter(f=>f.type==='moving'),getPlans:()=>[...getMovingPlans(),...(editorPreview?.streams??[]).map(s=>s.movingPlan).filter(Boolean)],getLayout:()=>layout.value,getPreviewEnabled:()=>stage3d.needsScene,onPreview:value=>{movingPreview=value;layout.update(value);},showMoodControl:false,adjustFrame});
   const previewControls=inline||panel.querySelector('.stage-controls');
   previewControls.querySelector('[data-moving-heads]').after(previewControls.querySelector('[data-stage3d-toggle]'));
-  const layoutButton=document.createElement('button');layoutButton.type='button';layoutButton.className='button secondary';layoutButton.dataset.layoutOpen='';layoutButton.textContent='Gerätemanager';layoutButton.setAttribute('aria-controls','stageLayoutDialog');layoutButton.onclick=()=>layout.open(layoutButton);
+  const layoutButton=document.createElement('button');layoutButton.type='button';layoutButton.className='button secondary';layoutButton.dataset.layoutOpen='';layoutButton.textContent='Gerätemanager';layoutButton.setAttribute('aria-haspopup','dialog');layoutButton.onclick=()=>{if(panel.open)close();tabs?.children[1].click();stage3d.openDevices(layoutButton);};
   (inline||panel.querySelector('.stage-controls')).append(layoutButton);
+  const statusNode=(inline||panel).querySelector('.stage-status');
+  const sceneHome=document.createComment('stage-scene-home');scene.before(sceneHome);
+  let tabs=null;
+  if(inline){
+    tabs=document.createElement('div');tabs.className='stage-view-tabs';tabs.setAttribute('role','tablist');tabs.setAttribute('aria-label','Lichtshow-Ansicht');
+    const two=document.createElement('div');two.id='stage-view-2d';two.setAttribute('role','tabpanel');two.setAttribute('aria-labelledby','stage-tab-2d');sceneHome.before(two);two.append(sceneHome,scene);
+    const three=inline.querySelector('.stage-3d');three.id='stage-view-3d';three.setAttribute('role','tabpanel');three.setAttribute('aria-labelledby','stage-tab-3d');
+    for(const mode of ['2d','3d']){
+      const tab=document.createElement('button');tab.type='button';tab.id='stage-tab-'+mode;tab.className='button secondary';tab.textContent=mode.toUpperCase();tab.setAttribute('role','tab');tab.setAttribute('aria-controls','stage-view-'+mode);
+      tab.onclick=()=>{previewMode=mode;two.hidden=mode!=='2d';void stage3d.setEnabled(mode==='3d');for(const b of tabs.children){const selected=b===tab;b.setAttribute('aria-selected',String(selected));b.tabIndex=selected?0:-1;}};
+      tab.setAttribute('aria-selected',String(mode==='2d'));tab.tabIndex=mode==='2d'?0:-1;tabs.append(tab);
+    }
+    tabs.onkeydown=event=>{if(!['ArrowLeft','ArrowRight','Home','End'].includes(event.key))return;event.preventDefault();const index=event.key==='Home'?0:event.key==='End'?1:previewMode==='2d'?1:0;tabs.children[index].click();tabs.children[index].focus();};
+    button.hidden=true;
+    settingsButton.hidden=false;settingsButton.classList.add('stage-expand-icon');settingsButton.title='Große Lichtshow-Ansicht öffnen';settingsButton.setAttribute('aria-label',settingsButton.title);settingsButton.setAttribute('aria-haspopup','dialog');
+    settingsButton.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M3 3l6 6m12-6-6 6M3 21l6-6m12 6-6-6"/></svg>';
+    inline.querySelector('.stage-inline-title').remove();
+    inline.querySelector('[data-stage3d-toggle]').hidden=true;
+  }
   const nodes=[],fixtureNodes=[];
   let demo=false,blackout=false,current=null,playing=false,timer,streams=[];
   const editor=createStageEditor(panel.querySelector('.stage-editor'),()=>render());
@@ -91,8 +110,9 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   panel.querySelector('.stage-hardware button').before(connectionStatus);
   equipmentSection.open=true;layout.attachEquipment(equipmentSection);
   const equipmentIntro=document.createElement('p');equipmentIntro.textContent='Geräte hinzufügen, konfigurieren und im selben Plan positionieren.';views.equipment.page.append(equipmentIntro);
-  const equipmentLayoutButton=layoutButton.cloneNode(true);equipmentLayoutButton.onclick=()=>stage3d.isOpen?stage3d.openTools('fixtures'):layout.open(equipmentLayoutButton);views.equipment.page.prepend(equipmentLayoutButton);
+  const equipmentLayoutButton=layoutButton.cloneNode(true);equipmentLayoutButton.onclick=()=>{if(panel.open)close();tabs?.children[1].click();stage3d.openDevices(equipmentLayoutButton);};views.equipment.page.prepend(equipmentLayoutButton);
   hardwareSection.open=true;views.connection.page.append(hardwareSection,panel.querySelector('.stage-technical'));
+  if(inline)live.append(previewControls.querySelector('[data-moving-heads]'),layoutButton);
   selectView('look');
   const demoButton=panel.querySelector('[data-demo]'),blackoutButton=panel.querySelector('[data-blackout]');
   function mountLighting(host,view='look'){
@@ -160,7 +180,6 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
       if(f.type==='bar')target.setAttribute('role','img');target.setAttribute('aria-label',`${f.name}${f.type==='bar'?` Segment ${j+1}`:' gestalten'}: RGB ${rgb.join(', ')}`);
     }));
     const status=blackout?'Vorschau abgedunkelt · Musik und echte Lampen bleiben unverändert.':demo?'Demo läuft · Beispiellicht ohne Musik.':current?'Live-Vorschau · folgt deinem DJ-Lichtmix.':playing?'Kein hörbares Deck im Lichtmix · Crossfader und Lautstärke prüfen.':'Bereit · Starte die Demo oder spiele einen Track im DJ-Pult ab.';
-    const statusNode=inline?.querySelector('.stage-status')||panel.querySelector('.stage-status');
     const displayStatus=inline?(blackout?'Vorschau abgedunkelt':demo?'Demo läuft · ohne Musik':current?'Live · folgt der Musik':playing?'Kein Deck im Lichtmix':'Bereit · Track oder Demo starten'):status;
     statusNode.title=status;if(statusNode.textContent!==displayStatus)statusNode.textContent=displayStatus;
     demoButton.disabled=playing;demoButton.textContent=demo?'Demo beenden':'Demo ohne Musik starten';demoButton.setAttribute('aria-pressed',String(demo));
@@ -169,8 +188,8 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
 
   }
   function startTimer(){if(!timer)timer=setInterval(render,50);}
-  function close(){panel.close();if(!active&&!hardware.enabled&&!stage3d.sharing){demo=false;blackout=false;clearInterval(timer);timer=null;}button.setAttribute('aria-expanded',String(active));settingsButton.setAttribute('aria-expanded','false');}
-  function openSettings(){selectView('look');if(!panel.open)panel.show();settingsButton.setAttribute('aria-expanded','true');if(!inline)button.setAttribute('aria-expanded','true');render();startTimer();}
+  function close(){panel.close();if(inline)sceneHome.after(scene);if(!active&&!hardware.enabled&&!stage3d.sharing){demo=false;blackout=false;clearInterval(timer);timer=null;}button.setAttribute('aria-expanded',String(active));settingsButton.setAttribute('aria-expanded','false');}
+  function openSettings(){if(stage3d.isOpen){stage3d.openTools('lighting');return;}selectView('look');if(inline)panel.querySelector('.stage-heading').after(scene);if(!panel.open)panel.showModal();settingsButton.setAttribute('aria-expanded','true');if(!inline)button.setAttribute('aria-expanded','true');render();startTimer();}
   function activate(value){
     active=value;button.closest('.dj-mixer').classList.toggle('has-inline-stage',active);inline.hidden=!active;colorPreview.hidden=active;settingsButton.hidden=!active;
     button.textContent=active?'Bühne deaktivieren':'Lichtbühne aktivieren';button.setAttribute('aria-pressed',String(active));button.setAttribute('aria-expanded',String(active));
@@ -178,13 +197,15 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
     try{localStorage.setItem('anydj-stage-visible',String(active));}catch{}
   }
   button.addEventListener('click',()=>{if(inline){activate(!active);return;}if(panel.open)close();else openSettings();});
-  settingsButton.onclick=openSettings;
+  settingsButton.onclick=()=>{if(previewMode==='3d')stage3d.open(settingsButton);else openSettings();};
   panel.querySelector('[data-close]').onclick=()=>{close();(active?settingsButton:button).focus();};
   panel.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();close();(active?settingsButton:button).focus();}});
   demoButton.onclick=()=>{demo=!demo;blackout=false;render();};
   blackoutButton.onclick=()=>{blackout=!blackout;render();};
-  if(inline){try{if(localStorage.getItem('anydj-stage-visible')==='true')activate(true);}catch{}}
+  if(inline)activate(true);
   return {
+    tabs,
+    mountOptions(node,fullButton){live.prepend(node);node.open=true;live.append(fullButton);},
     mountEditor(host){
       if(editorPreview)throw Error('Ein Lichteditor ist bereits geöffnet.');
       const marker=document.createComment('stage-editor-mount');scene.before(marker);host.append(scene);

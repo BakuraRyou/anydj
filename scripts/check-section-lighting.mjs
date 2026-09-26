@@ -62,6 +62,22 @@ try {
   await wait("document.querySelector('dialog.section-editor')?.open");
   assert.equal(await evaluate("Boolean(document.querySelector('.light-editor [data-set-preview] .stage-scene'))"),true);
   await evaluate("document.querySelector('dialog.section-editor [data-preset=calm]').click()");
+  const reviewExport=await evaluate(`(async()=>{
+    const create=URL.createObjectURL,click=HTMLAnchorElement.prototype.click;
+    let blob,filename;
+    try{
+      URL.createObjectURL=value=>{blob=value;return create(value);};
+      HTMLAnchorElement.prototype.click=function(){filename=this.download;};
+      document.querySelector('.light-editor [data-review-export]').click();
+      const review=JSON.parse(await blob.text());
+      return {filename,format:review.format,colors:review.plan.sectionLighting[0].palette,
+        songTime:review.reference.songTime,scope:review.reference.movementMode};
+    }finally{URL.createObjectURL=create;HTMLAnchorElement.prototype.click=click;}
+  })()`);
+  assert.equal(reviewExport.filename,'anydj-light-review.json');
+  assert.equal(reviewExport.format,'anydj-light-review');
+  assert.ok(reviewExport.colors.length===1&&Number.isFinite(reviewExport.songTime));
+  assert.equal(reviewExport.scope,'auto');
   const beforeLive=await evaluate("document.querySelector('.light-editor .stage-spots').innerHTML");
   await evaluate("(()=>{const input=document.querySelector('.light-editor [name=colorA]');input.value='#00ff00';input.dispatchEvent(new Event('input',{bubbles:true}));})()");
   assert.notEqual(await evaluate("document.querySelector('.light-editor .stage-spots').innerHTML"),beforeLive);

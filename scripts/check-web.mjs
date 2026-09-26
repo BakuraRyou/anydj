@@ -25,29 +25,29 @@ try {
  const {targetId}=await send('Target.createTarget',{url:'about:blank'}),{sessionId}=await send('Target.attachToTarget',{targetId,flatten:true});
  const c=(method,params)=>send(method,params,sessionId);await c('Runtime.enable');await c('Page.enable');
  const evaluate=async expression=>{const r=await c('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true,userGesture:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
- const wait=async(expression)=>{for(let i=0;i<300;i++){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Timeout: '+expression+' '+JSON.stringify(errors));};
+ const wait=async(expression)=>{for(let i=0;i<300;i++){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Timeout: '+expression+' '+JSON.stringify(errors)+' '+JSON.stringify(await evaluate("({status:document.querySelector('#djStatus')?.textContent,library:document.querySelector('#libraryStatus')?.textContent,tracks:[...document.querySelectorAll('#trackList small')].map(n=>({text:n.textContent,kind:n.dataset.analysis})),demo:typeof document.querySelector('#demoTracks')?.onclick})")));};
  await c('Emulation.setDeviceMetricsOverride',{width:1280,height:900,deviceScaleFactor:1,mobile:false});
- await c('Page.navigate',{url:base});await wait("document.querySelector('h1')?.textContent.includes('Dein Mix')");
+ await c('Page.navigate',{url:base});await wait("document.readyState==='complete'&&Boolean(document.querySelector('.home-hero h1'))");
  for(const width of [1280,390]){
    await c('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:width===390});
    if(!await evaluate('document.documentElement.scrollWidth<=innerWidth'))throw Error('Landing overflow');
    const shot=await c('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await writeFile(`/tmp/anydj-web-landing-${width}.png`,Buffer.from(shot.data,'base64'));
  }
  await c('Emulation.setDeviceMetricsOverride',{width:1280,height:900,deviceScaleFactor:1,mobile:false});
- await c('Page.navigate',{url:base+'dj.html'});await wait("document.querySelectorAll('.dj-play').length===2");
+ await c('Page.navigate',{url:base+'dj.html'});await wait("typeof document.querySelector('#demoTracks')?.onclick==='function'&&document.querySelector('#queueSelect')?.dataset.lists&&document.querySelector('#queueSelect').disabled===false");
  await evaluate("document.querySelector('#demoTracks').click()");
- await wait("document.querySelectorAll('#trackList small').length===2&&[...document.querySelectorAll('#trackList small')].every(s=>s.textContent==='✓ Browseranalyse fertig')");
+ await wait("document.querySelectorAll('#trackList small').length===2&&[...document.querySelectorAll('#trackList small')].every(s=>s.dataset.analysis==='complete')");
  await evaluate("document.querySelectorAll('#trackList button[aria-label=\"Auf Deck A laden\"]')[0].click();document.querySelectorAll('#trackList button[aria-label=\"Auf Deck B laden\"]')[1].click();document.querySelector('#enqueueAll').click()");
  await wait("[...document.querySelectorAll('.dj-play')].every(b=>!b.disabled)&&document.querySelector('#queueCount').textContent==='2'");
  await evaluate("document.querySelector('.dj-play').click()");await wait("document.querySelector('audio').currentTime>.3");
  await wait("document.querySelector('#previewMix').style.getPropertyValue('--light-color').startsWith('rgb(')");
- if(!await evaluate("document.querySelector('#autoBeat').disabled&&!document.querySelector('#djStructure').checked"))throw Error('Unavailable features still active');
+ if(!await evaluate("document.querySelector('#djStructure').disabled&&!document.querySelector('#djStructure').checked"))throw Error('Unavailable features still active');
  const shot=await c('Page.captureScreenshot',{format:'png'});await writeFile('/tmp/anydj-web-dj.png',Buffer.from(shot.data,'base64'));
  await evaluate("document.querySelector('#djStop').click()");
  await wait("[...document.querySelectorAll('audio')].every(a=>a.paused)");
  await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:1,mobile:true});
  if(!await evaluate('document.documentElement.scrollWidth<=innerWidth'))throw Error('DJ mobile overflow');
- await c('Page.reload');await wait("document.querySelectorAll('#trackList small').length===2&&[...document.querySelectorAll('#trackList small')].every(s=>s.textContent==='✓ Browseranalyse fertig')");
+ await c('Page.reload');await wait("document.querySelectorAll('#trackList small').length===2&&[...document.querySelectorAll('#trackList small')].every(s=>s.dataset.analysis==='complete')");
  await new Promise(r=>setTimeout(r,7500));
  const unwanted=requests.filter(r=>r.url.includes('/api/')||r.method!=='GET');if(unwanted.length)throw Error('Backend request/upload: '+JSON.stringify(unwanted));
  if(errors.length)throw Error(JSON.stringify(errors));
