@@ -12,7 +12,7 @@ import { validateBeatGrid } from './beat-grid.js';
 import { automaticSettings } from './automatic-settings.js';
 import { validateStructure, structureTheme, STRUCTURE_LABELS } from './song-structure.js';
 // Bump whenever generated show data or its interpretation changes.
-export const SHOW_PLAN_VERSION = 32;
+export const SHOW_PLAN_VERSION = 40;
 const clamp = v => Math.max(0, Math.min(1, v));
 const quantile = (sorted, p) => sorted[Math.floor((sorted.length - 1) * p)] || 0;
 const colors = {
@@ -242,7 +242,7 @@ export function compileShow(windows, duration, options, beatGrid = null, structu
     if(sectionPalettes)soundPalettes.push(blendedPalette.map(color=>{const peak=Math.max(1,...color);return color.map(v=>Math.round(v/peak*255*saturation+255*(1-saturation)));}));
     frames.push({state:true,dimming:Math.round(options.minimum+strength*(options.maximum-options.minimum)),r,g,b});
   }
-  const songMovement=planSongMovement({duration,sections,arrangement,beatGrid,structure,musicStyle,score});
+  const songMovement=planSongMovement({duration,sections,arrangement,beatGrid,structure,musicStyle,score},windows);
   const legacy=choreographColors({songMovement,version: SHOW_PLAN_VERSION,colorPalette:palette,soundPalettes,colorCues,arrangement,beatTiming,moods,score,colorDrivers,duration,step:0.125,frames,sections,beats:beats.length,beatGrid,automatic,effectiveOptions:options,structure,musicStyle});
   if(!automatic||options.palette==='custom')return legacy;
   const colorDirection=planColorDirection(windows,legacy);

@@ -325,6 +325,9 @@ export function showMovingCues(plan){
   const picture=score.find(s=>time>=s.start&&time<s.end);if(!picture||picture.role==='silence')continue;
   const previous=cues.at(-1),entry=previous.picture!==picture.index;
   if(picture.role==='held'&&!entry)continue;
+  // Analysis boundaries may lie between beats. A rhythmic picture arrives
+  // on its next measured beat; do not turn the analysis grid into an accent.
+  if(entry&&!['held','silence'].includes(previous.role)&&picture.rhythmic&&beats.some(t=>t>=time&&t<picture.end)&&!beats.some(t=>Math.abs(t-time)<1e-9))continue;
   // Motor arrivals are phrase/bar events. Other beats are available only to
   // establish a picture whose full target could not be reached at its entrance.
   if(!entry&&!bars.some(t=>Math.abs(t-time)<.001)&&!(['flow','build'].includes(picture.role)&&expressionTimes.has(time)))continue;
@@ -341,7 +344,9 @@ export function showMovingCues(plan){
   const available=time-earliest;
   if(available+1e-8<required)continue;
   const surface=picture.role==='held'?'floor':picture.featured?'ceiling':'wall';
-  const travel=Math.min(available,Math.max(required,picture.role==='held'?1.4:picture.role==='build'?2.2:1.1));
+  // Sustained, unmetered flow develops over the available interval, rather
+  // than waiting and then squeezing the whole change into a short motor burst.
+  const travel=picture.role==='flow'&&!picture.rhythmic?available:Math.min(available,Math.max(required,picture.role==='held'?1.4:picture.role==='build'?2.2:1.1));
   cues.push({time,travel,pose,surface,role:picture.role,formation:picture.form,picture:picture.index,coordinated:true,
    reason:entry?'show-picture':'show-motion',...(surface!==previous.surface&&(picture.role==='held'||previous.role==='held')?{darkTravel:true}:{})});
  }

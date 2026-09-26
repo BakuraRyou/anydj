@@ -135,6 +135,9 @@ export function applyRoomPlan(scene, plan, ar=false) {
   const motionGroupCount=Math.max(1,...[...groupRoles.values()].map(g=>g.row+1));
   const motionById=new Map();
   const uv=light=>({x:Math.max(0,Math.min(1,light.motionUV?.x??(light.target.x/(scene.layout.width*.9)+.5))),y:Math.max(0,Math.min(1,light.motionUV?.y??((light.target.y/scene.layout.depth-.1)/.65)))});
+  // A group may borrow the source's shared travel, but not each source head's
+  // independent cue. Mixing those per head produces strays inside one figure.
+  const sourceCenter=sourceHeads.reduce((sum,l)=>{const v=uv(l);return {x:sum.x+v.x/sourceHeads.length,y:sum.y+v.y/sourceHeads.length};},{x:0,y:0});
   if(sourceHeads.length)for(const sampling of distributed?rows.map(row=>row.heads):[roomHeads])sampling.forEach(([id],rank)=>{
     const at=(sampling.length===1?.5:rank/(sampling.length-1))*(sourceHeads.length-1),lo=Math.floor(at),hi=Math.min(sourceHeads.length-1,lo+1),fraction=at-lo;
     const a=sourceHeads[lo],b=sourceHeads[hi],mix=(a,b)=>({x:a.x+(b.x-a.x)*fraction,y:a.y+(b.y-a.y)*fraction});
@@ -150,7 +153,7 @@ export function applyRoomPlan(scene, plan, ar=false) {
   const lights = frames.filter(l=>plan.positions[l.id]).map(light=>{
     const p=plan.positions[light.id],center=centers.get(light.id),source=scene.layout.positions?.[light.id]||{x:center.x/center.count,y:center.y/center.count};
     const dx=light.position.x-source.x,dy=light.position.y-source.y,a=p.rotation*Math.PI/180;
-    let target=p.target?{...p.target}:{...light.target},motionUV=light.motionUV;
+    let target=p.target?{...p.target}:{...light.target},motionUV=light.motionUV,motionSymmetry=light.motionSymmetry;
     if(light.type==='moving'){
       const range=p.motionArea||{x:0,y:0,width:1,depth:1};
       let nx=Math.max(0,Math.min(1,Number.isFinite(light.motionUV?.x)?light.motionUV.x:light.target.x/(scene.layout.width*.9)+.5));
@@ -169,14 +172,18 @@ export function applyRoomPlan(scene, plan, ar=false) {
       }
       // Wall-enabled heads use the same group gesture before surface routing.
       // Skipping them made the entire stage half ignore automatic choreography.
-      if(light.motionPresentation==='auto'){
+      if(light.motionPresentation==='auto'||light.motionPresentation==='show'){
         const role=groupRoles.get(light.id);
         if(role){
           const rangeScale=Math.max(0,Math.min(1,light.motionRange??1));
           const composition=presenceComposition(light.movingPresence,role.rank,role.count,role.row,motionGroupCount);
-          if(composition){// Keep the music-driven source trajectory inside the group formation.
-          // Replacing it completely froze forms such as question/answer.
-          const blend=composition.weight*rangeScale*(1-composition.articulation);nx+=(composition.x-nx)*blend;ny+=(composition.y-ny)*blend;}
+          if(composition){
+            const drift=composition.articulation*.5;
+            motionSymmetry=composition.paired>.999?'paired':undefined;
+            const x=Math.max(0,Math.min(1,motionSymmetry==='paired'?.5+(composition.x-.5)*(1+(sourceCenter.x-.5)*drift):composition.x+(sourceCenter.x-.5)*drift));
+            const y=Math.max(0,Math.min(1,composition.y+(sourceCenter.y-.5)*drift));
+            const blend=composition.weight*rangeScale;nx+=(x-nx)*blend;ny+=(y-ny)*blend;
+          }
           else {const offset=presenceGroupOffset(light.movingPresence,role.rank,role.count,role.row);
             nx=Math.max(0,Math.min(1,nx+offset.x*rangeScale));ny=Math.max(0,Math.min(1,ny+offset.y*rangeScale));}
         }
@@ -191,7 +198,7 @@ export function applyRoomPlan(scene, plan, ar=false) {
       }
     }
 
-    return {...light,...(light.type==='moving'?{motionGroup:p.group??groups.get(light.id)?.[0].motionGroup}:{}),...(motionUV?{motionUV}:{}),...(light.type==='moving'&&p.motionArea?{motionBounds:{left:(p.motionArea.x-.5)*plan.width,right:(p.motionArea.x+p.motionArea.width-.5)*plan.width,bottom:p.motionArea.y*plan.depth,top:(p.motionArea.y+p.motionArea.depth)*plan.depth}}:{}),aimed:light.type==='moving'||!!p.target,target,aimRotation:light.type==='moving'||p.target?roomFixtureRotation(p,target):p.rotation,position:{...p,x:p.x+dx*Math.cos(a)-dy*Math.sin(a),y:p.y+dx*Math.sin(a)+dy*Math.cos(a)},modelSize:p.size,rotation:p.rotation};
+    return {...light,motionSymmetry,...(light.type==='moving'?{motionGroup:p.group??groups.get(light.id)?.[0].motionGroup}:{}),...(motionUV?{motionUV}:{}),...(light.type==='moving'&&p.motionArea?{motionBounds:{left:(p.motionArea.x-.5)*plan.width,right:(p.motionArea.x+p.motionArea.width-.5)*plan.width,bottom:p.motionArea.y*plan.depth,top:(p.motionArea.y+p.motionArea.depth)*plan.depth}}:{}),aimed:light.type==='moving'||!!p.target,target,aimRotation:light.type==='moving'||p.target?roomFixtureRotation(p,target):p.rotation,position:{...p,x:p.x+dx*Math.cos(a)-dy*Math.sin(a),y:p.y+dx*Math.sin(a)+dy*Math.cos(a)},modelSize:p.size,rotation:p.rotation};
   });
   for(const [id,p] of Object.entries(plan.positions))if(!centers.has(id))lights.push({id,type:p.type||'spot',aimed:!!p.target,position:p,target:roomFixtureTarget(plan,id),color:'#7595a4',power:0,modelSize:p.size,rotation:p.rotation});
   // Virtual room fixtures may clone source roles or reorder the rig. Resolve
@@ -403,7 +410,7 @@ export function wallChoreography(light,plan){
  if(blend<=0)return light;
  const a=plan.boundary[config.wall],b=plan.boundary[(config.wall+1)%plan.boundary.length];
  const u=config.start+(config.end-config.start)*(.1+.8*clamp(light.motionUV.x));
- const wall={x:a[0]+(b[0]-a[0])*u,y:a[1]+(b[1]-a[1])*u,z:config.minHeight+(config.maxHeight-config.minHeight)*(.2+.8*clamp(light.motionUV.x))};
+ const wall={x:a[0]+(b[0]-a[0])*u,y:a[1]+(b[1]-a[1])*u,z:config.minHeight+(config.maxHeight-config.minHeight)*(.2+.8*(light.motionSymmetry==='paired'?Math.abs(clamp(light.motionUV.x)-.5)*2:clamp(light.motionUV.x)))};
  const origin={x:light.position.x,y:light.position.y,z:light.position.height+(light.modelSize?.height||0)*.71};
  const direction={x:light.target.x+(wall.x-light.target.x)*blend-origin.x,y:light.target.y+(wall.y-light.target.y)*blend-origin.y,z:wall.z*blend-origin.z};
  let hit=direction.z<0?-origin.z/direction.z:Infinity,wallIndex=-1,wallU=0;

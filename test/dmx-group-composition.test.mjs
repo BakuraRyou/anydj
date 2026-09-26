@@ -48,7 +48,8 @@ test('intense compositions retain support without changing their lead or exceedi
  for(const composition of GROUP_COMPOSITIONS){
   const levels=energy=>Array.from({length:12},(_,rank)=>groupComposition({composition,progress:.4,energy,amount:1},rank,12).level);
   const calm=levels(.6),strong=levels(.95);
-  assert.ok(strong.reduce((a,b)=>a+b,0)>calm.reduce((a,b)=>a+b,0),composition);
+  assert.ok(strong.reduce((a,b)=>a+b,0)>=calm.reduce((a,b)=>a+b,0),composition);
+  if(calm.some(v=>v<1))assert.ok(strong.some((v,i)=>v>calm[i]),composition);
   strong.forEach((v,i)=>{assert.ok(v>=calm[i]&&v<=1);if(calm[i]===1)assert.equal(v,1);});
  }
 });
@@ -116,6 +117,60 @@ test('automatic wall-enabled stage heads follow group choreography before wall r
   if(mapped.wallIndex>=0&&mapped.power>0){
    assert.equal(mapped.wallIndex,bounds.wall);
    assert.ok(mapped.target.z>=bounds.minHeight&&mapped.target.z<=bounds.maxHeight);
+  }
+ }
+});
+
+test('one source cue cannot pull individual heads out of an active group figure',async()=>{
+ const {createRoomPreview}=await import('../public/dmx-ar-model.js');
+ for(const mode of ['auto','show'])for(const withZones of [false,true]){
+  const room=newRoomPlan(8,6,4),base=scene('crossed-banks',.4,8);
+  base.lights.forEach(l=>{l.motionPresentation=mode;room.positions[l.id]={...l.position,type:'moving',rotation:0,motionArea:{x:.2,y:.25,width:.6,depth:.5}};});
+  if(withZones)room.zones=[{id:'foh',name:'Regie',x:.4,y:.05,width:.2,depth:.1}];
+  const changed=structuredClone(base);changed.lights[0].motionUV={x:.9,y:.7};
+  const a=createRoomPreview()(base,room,false,0).lights,b=createRoomPreview()(changed,room,false,0).lights;
+  const delta=a.map((l,i)=>({x:b[i].motionUV.x-l.motionUV.x,y:b[i].motionUV.y-l.motionUV.y}));
+  assert.ok(Math.abs(delta[0].x)>0,'shared source travel is still expressed');
+  assert.ok(delta.every(d=>Math.abs(d.x-delta[0].x)<1e-9&&Math.abs(d.y-delta[0].y)<1e-9),'source change must move the figure together, including after room processing');
+  assert.deepEqual(a.map(l=>l.color),b.map(l=>l.color));
+ }
+});
+
+test('new coordinated forms move as readable lines and remain bounded across a full cycle',()=>{
+ for(const composition of ['parallel-sweep','breathing-arch','hinged-lines'])for(const count of [2,8,12]){
+  const at=phase=>Array.from({length:count},(_,rank)=>groupComposition({composition,phase,progress:.4,amount:1,energy:.8},rank,count,0,3));
+  const a=at(0),b=at(Math.PI/2);
+  assert.ok(a.some((v,i)=>Math.hypot(v.x-b[i].x,v.y-b[i].y)>.08));
+  for(let phase=0;phase<Math.PI*4;phase+=.05){
+   const values=at(phase),next=at(phase+.0001);
+   assert.ok(values.every((v,i)=>v.x>=0&&v.x<=1&&v.y>=0&&v.y<=1&&Math.hypot(v.x-next[i].x,v.y-next[i].y)<.001));
+   if(composition==='parallel-sweep')assert.ok(values.every(v=>Math.abs(v.y-values[0].y)<1e-10));
+   if(composition==='breathing-arch')assert.ok(values.every((v,i)=>Math.abs(v.x+values[count-1-i].x-1)<1e-10));
+  }
+ }
+});
+
+test('sustained driving passages exclude sparse and centre-heavy automatic pictures',()=>{
+ const plan={duration:320,sections:[{start:0,end:320,look:'peak'}],arrangement:{patterns:{phrases:Array.from({length:40},(_,i)=>({start:i*8,end:(i+1)*8,energy:.8,tone:.2+(i%4)*.2,movement:{driving:.85}}))}}};
+ const score=automaticGroupScore(plan);
+ assert.ok(score.every(p=>!['curtain','frame-center','traveling-group','gather'].includes(p.composition)));
+ assert.ok(score.some(p=>['parallel-sweep','breathing-arch','hinged-lines'].includes(p.composition)));
+});
+
+test('all group forms pass through stage-room motors with and without quiet zones',async()=>{
+ const {clubStageRoom}=await import('../public/dmx-room-presets.js');
+ const {createRoomPreview}=await import('../public/dmx-ar-model.js');
+ for(const mode of ['auto','show'])for(const zones of [false,true]){
+  const room=clubStageRoom();if(!zones)room.zones=[];
+  for(const composition of GROUP_COMPOSITIONS){
+   const preview=createRoomPreview();
+   for(let i=0;i<=30;i++){
+    const input=scene(composition,.4,8);
+    input.lights.forEach(l=>{l.motionPresentation=mode;l.movingPresence.groupMotion.phase=i/30*Math.PI*2;});
+    const output=preview(input,room,false,i/15).lights.filter(l=>l.type==='moving');
+    assert.equal(output.length,48);
+    assert.ok(output.every(l=>Number.isFinite(l.target.x)&&Number.isFinite(l.target.y)&&Number.isFinite(l.target.z??0)&&l.power>=0&&l.power<=1),composition);
+   }
   }
  }
 });

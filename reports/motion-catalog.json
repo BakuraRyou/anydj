@@ -1,0 +1,128 @@
+[
+  {
+    "name": "curtain",
+    "kind": "group",
+    "meanNormalizedTravel": 0.6399999999999956,
+    "maximumNormalizedStep": 0.0041868764994355545
+  },
+  {
+    "name": "mirror-pairs",
+    "kind": "group",
+    "meanNormalizedTravel": 0.894857142857139,
+    "maximumNormalizedStep": 0.007065354092797516
+  },
+  {
+    "name": "traveling-group",
+    "kind": "group",
+    "meanNormalizedTravel": 0.7199392935568389,
+    "maximumNormalizedStep": 0.004711720729545954
+  },
+  {
+    "name": "frame-center",
+    "kind": "group",
+    "meanNormalizedTravel": 0.4092166768351458,
+    "maximumNormalizedStep": 0.002878771198441657
+  },
+  {
+    "name": "question-answer",
+    "kind": "group",
+    "meanNormalizedTravel": 1.1343371281285521,
+    "maximumNormalizedStep": 0.005234743878984234
+  },
+  {
+    "name": "gather",
+    "kind": "group",
+    "meanNormalizedTravel": 1.43324514867001,
+    "maximumNormalizedStep": 0.010253622949740701
+  },
+  {
+    "name": "diagonal-sweep",
+    "kind": "group",
+    "meanNormalizedTravel": 1.6000000000000023,
+    "maximumNormalizedStep": 0.010467191248588904
+  },
+  {
+    "name": "depth-wave",
+    "kind": "group",
+    "meanNormalizedTravel": 2.5597493515609826,
+    "maximumNormalizedStep": 0.016753129748865114
+  },
+  {
+    "name": "rotating-fan",
+    "kind": "group",
+    "meanNormalizedTravel": 1.6170624242821292,
+    "maximumNormalizedStep": 0.01572631876110759
+  },
+  {
+    "name": "crossed-banks",
+    "kind": "group",
+    "meanNormalizedTravel": 2.256033418093253,
+    "maximumNormalizedStep": 0.013084570415526482
+  },
+  {
+    "name": "parallel-sweep",
+    "kind": "group",
+    "meanNormalizedTravel": 2.5416455529673616,
+    "maximumNormalizedStep": 0.014131665137070005
+  },
+  {
+    "name": "breathing-arch",
+    "kind": "group",
+    "meanNormalizedTravel": 0.8319339336032667,
+    "maximumNormalizedStep": 0.004710953745098071
+  },
+  {
+    "name": "hinged-lines",
+    "kind": "group",
+    "meanNormalizedTravel": 0.7468531639496254,
+    "maximumNormalizedStep": 0.008478237104634408
+  },
+  {
+    "name": "parallel",
+    "kind": "show",
+    "meanNormalizedTravel": 0.5903742679252254,
+    "maximumNormalizedStep": 0.007906276306475278
+  },
+  {
+    "name": "fan",
+    "kind": "show",
+    "meanNormalizedTravel": 0.0602729592762219,
+    "maximumNormalizedStep": 0.0008071738484156099
+  },
+  {
+    "name": "converge",
+    "kind": "show",
+    "meanNormalizedTravel": 0,
+    "maximumNormalizedStep": 0
+  },
+  {
+    "name": "cross",
+    "kind": "show",
+    "meanNormalizedTravel": 0,
+    "maximumNormalizedStep": 0
+  },
+  {
+    "name": "wings",
+    "kind": "show",
+    "meanNormalizedTravel": 0.1722084550749196,
+    "maximumNormalizedStep": 0.0023062109954732346
+  },
+  {
+    "name": "tiers",
+    "kind": "show",
+    "meanNormalizedTravel": 0.08036394570162925,
+    "maximumNormalizedStep": 0.0010762317978874614
+  },
+  {
+    "name": "arc",
+    "kind": "show",
+    "meanNormalizedTravel": 0.1143518215024391,
+    "maximumNormalizedStep": 0.0017243434654896567
+  },
+  {
+    "name": "ribbon",
+    "kind": "show",
+    "meanNormalizedTravel": 0.2722059203728618,
+    "maximumNormalizedStep": 0.0028847552170855047
+  }
+]

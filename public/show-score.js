@@ -1,8 +1,9 @@
+import {songMovementAt,movementAccentEnvelope} from './song-movement-plan.js';
 import {lightingScenes} from './dmx-light-scenes.js';
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,Number.isFinite(v)?v:0));
 const cache=new WeakMap();
-export const SHOW_SCORE_VERSION=3;
-export const SHOW_FORMS=['parallel','fan','converge','cross','wings','tiers'];
+export const SHOW_SCORE_VERSION=8;
+export const SHOW_FORMS=['parallel','fan','converge','cross','wings','tiers','arc','ribbon'];
 // Compare every passage with the whole song before assigning visual scale.
 // Uniform loud material has no artificial climax; a peak needs real contrast.
 function songDirection(spans){
@@ -33,7 +34,8 @@ export function planShowScore(plan){
  const attacks=plan.arrangement?.times||[];
  const spans=[];
  for(const scene of scenes){
-  const rhythmic=scene.drive>=.45&&attacks.some(t=>t>=scene.start&&t<scene.end);
+  const movementIntent=songMovementAt(plan,scene.start);
+  const rhythmic=scene.drive>=.45&&attacks.some(t=>t>=scene.start&&t<scene.end)||!!(movementIntent?.motionDrive>=.45&&movementIntent.rhythm.confidence>=.5);
   const envelope=(plan.arrangement?.motionEnvelope||[]).filter(p=>p.time>=scene.start&&p.time<scene.end),first=envelope[0];
   const expressive=scene.motion?.length>1||envelope.some(p=>Math.abs(p.energy-first.energy)>=.08||Math.abs(p.tone-first.tone)>=.12||Number.isFinite(p.pitch)&&Number.isFinite(first.pitch)&&Math.abs(p.pitch-first.pitch)>=2);
   const role=scene.kind==='silence'?'silence':scene.kind==='build'?'build':rhythmic?'groove':expressive&&(scene.kind==='sweep'||scene.cinematic)?'flow':'held';
@@ -44,7 +46,7 @@ export function planShowScore(plan){
   if(prior&&prior.sectionIndex===scene.sectionIndex&&prior.role===role&&prior.end===scene.start&&!phraseBoundary&&Math.abs(prior.energy-scene.energy)<.18&&Math.abs(prior.tone-scene.tone)<.18){
    prior.end=scene.end;continue;
   }
-  spans.push({...scene,role,rhythmic});
+  spans.push({...scene,role,rhythmic,movementIntent});
  }
  const directionPlan=songDirection(spans);
  const uses=new Map(),motifs=new Map();let previous=null;
@@ -60,13 +62,15 @@ export function planShowScore(plan){
   if(role==='silence'||role==='held')form=previous?.role===role?previous.form:'tiers';
   // A phrase boundary alone is not a reason to replace a working picture.
   // Keep its form when the musical role and measured character continue.
+  else if(role==='flow'&&previous?.role==='flow'&&span.drive<.3&&span.energy<.4&&
+    ['arc','fan','tiers'].includes(previous.form)&&Math.abs(span.energy-previous.energy)<.25&&Math.abs(span.tone-previous.tone)<.25)form=previous.form;
   else if(previous&&previous.role===role&&previous.key===key&&previous.chapter===direction.chapter&&
     ['energy','drive','vocals','tone','texture'].every(k=>Math.abs((span[k]??0)-(previous[k]??0))<.08))form=previous.form;
   else if(recalled)form=recalled.form;
   else{
-   const preferred=role==='build'?'fan':featured?'cross':span.vocals>.5?'converge':span.tone>.65?'wings':span.energy<.5?'tiers':'parallel';
+   const preferred=role==='build'?'fan':featured?'cross':span.vocals>.5?'arc':span.tone>.65?'wings':span.energy<.5?'arc':span.drive>.65?'ribbon':'parallel';
    form=SHOW_FORMS.map((form,i)=>({form,cost:(form===preferred?-.65:0)+(form===previous?.form?2.5:0)+(uses.get(form)||0)*.45+
-    (form==='cross'&&!featured ? .35 : 0)+(form==='parallel'&&span.texture>.5?-.3:0)+i*.001})).sort((a,b)=>a.cost-b.cost)[0].form;
+    (form==='cross'&&!featured ? .35 : 0)+(form==='parallel'&&span.texture>.5?-.3:0)+i*.001})).filter(({form})=>(form!=='converge'||['arrival','build'].includes(role))&&(role!=='flow'||span.drive>=.3||span.energy>=.4||['arc','fan','tiers'].includes(form))).sort((a,b)=>a.cost-b.cost)[0].form;
   }
   const side=recalled?.direction??(span.tone>=.5?1:-1);
   const picture={...span,index,role,form,key,...direction,direction:side,featured,
@@ -78,6 +82,16 @@ export function planShowScore(plan){
   if(key&&!motifs.has(key))motifs.set(key,picture);
   uses.set(form,(uses.get(form)||0)+1);previous=picture;return picture;
  });
+ // Adjacent sustained pictures may have different analysis labels but belong
+ // to one continuing gesture. Do not restart its opening at each boundary.
+ let run=[];
+ const finish=()=>{if(run.length>1)for(const p of run){p.motionStart=run[0].start;p.motionEnd=run.at(-1).end;}run=[];};
+ for(const p of score){
+  const prior=run.at(-1),gentle=p.role==='flow'&&p.drive<.3&&p.energy<.4;
+  if(!gentle||prior&&(prior.end!==p.start||prior.form!==p.form||prior.direction!==p.direction))finish();
+  if(gentle)run.push(p);
+ }
+ finish();
  cache.set(plan,score);return score;
 }
 export function showScoreAt(plan,time){
@@ -87,22 +101,30 @@ export function showScoreAt(plan,time){
  const picture=score[lo-1];return picture&&time<picture.end?picture:null;
 }
 export function showScorePose(picture,time){
- const p=clamp((time-picture.start)/Math.max(.001,picture.end-picture.start));
+ const start=picture.motionStart??picture.start,end=picture.motionEnd??picture.end;
+ const p=clamp((time-start)/Math.max(.001,end-start));
  const energy=clamp(picture.energy),side=picture.direction,held=picture.role==='held'||picture.role==='silence';
- const develop=held?0:picture.role==='build'?p:p<.5?p*2:1;
+ const intent=picture.movementIntent;
+ const phase=p*Math.PI*2*(intent?.pace??1);
+ const gentle=p*p*p*(p*(p*6-15)+10);
+ const develop=held?0:picture.role==='flow'&&picture.drive<.3?gentle:picture.role==='build'?p:intent?.motionDrive>0?.5-.5*Math.cos(phase):p<.5?p*2:1;
  const scale=picture.scale??1;
- const spread=(held?9:16+10*energy)*(picture.role==='build'?.35+.65*p:1);
+ const spread=(held?9:16+10*energy)*(1+(held?0:.04*movementAccentEnvelope(intent,time)))*(picture.role==='build'?.35+.65*p:1);
  const drift=held?side*4:side*(-7+14*develop);
  return [-1,-1/3,1/3,1].map((r,i)=>{
+  const mirrored=intent?.symmetry==='paired'&&r>0;
+  if(mirrored){const left=showScorePose({...picture,movementIntent:{...intent,symmetry:'evaluating'}},time)[3-i];return {...left,pan:-left.pan};}
   const outer=i===0||i===3,sign=r<0?-1:1;
   let pan,tilt;
   switch(picture.form){
+   case 'arc':pan=r*(16+6*develop);tilt=.7+.22*(1-r*r)+.04*develop;break;
+   case 'ribbon':pan=r*21+drift*.55;tilt=.81+r*.12+Math.sin(phase)*.045;break;
    case 'fan':pan=r*spread+drift*.3;tilt=.7+(1-Math.abs(r))*.24;break;
    case 'converge':pan=-r*(14+energy*5);tilt=.79;break;
    case 'cross':pan=-sign*(outer?23:13);tilt=outer?.96:.66;break;
    case 'wings':pan=sign*(17+develop*12);tilt=outer?.68:.98;break;
    case 'tiers':pan=held?r*8:r*12+drift*.4;tilt=held?(outer?.65:.76):(outer?.69:.96);break;
-   default:pan=drift*(1+energy*.9);tilt=.73+(held?0:.2*develop);
+   default:pan=intent?.symmetry?sign*(10+6*develop):drift*(1+energy*.9);tilt=.73+(held?0:.2*develop);
   }
   return {pan:clamp(pan*(.65+.35*scale),-38,38),tilt:clamp(tilt,.57,1.06),focus:picture.form==='converge'?1:0};
  });

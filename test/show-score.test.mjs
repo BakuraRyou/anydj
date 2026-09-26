@@ -168,3 +168,28 @@ test('unchanged musical phrases may retain a form; measured character changes st
  assert.ok(new Set(developed.map(p=>p.form)).size>1,'spectral development remains visible');
  assert.deepEqual(planShowScore(structuredClone(changing)),developed);
 });
+
+test('quiet orchestral flow continues across analysis boundaries instead of restarting or crossing the centre',async()=>{
+ const {planSongMovement}=await import('../public/song-movement-plan.js');
+ const p=music({energy:.04,drive:0,duration:16});
+ p.sections=[{start:0,end:7.7,look:'flow',motif:0},{start:7.7,end:16,look:'flow',motif:1}];
+ p.arrangement.patterns.phrases=p.sections.map((s,i)=>({...s,energy:.04+i*.015,tone:.45-i*.1,movement:{driving:0,character:'atmospheric'}}));
+ p.arrangement.motionEnvelope=Array.from({length:64},(_,i)=>({time:i*.25,energy:.1+i*.002,tone:.4,sustain:1}));
+ p.musicStyle={segments:[{start:0,end:8,scores:{orchestral:.8}},{start:8,end:16,scores:{orchestral:.8}}]};
+ p.songMovement=planSongMovement(p);
+ const show=applyShowProfile(p,'show'),score=show.showScore;
+ assert.ok(score.length>=2);assert.ok(score.every(s=>s.role==='flow'));
+ assert.equal(new Set(score.map(s=>s.form)).size,1);
+ assert.ok(score.every(s=>s.motionStart===0&&s.motionEnd===16));
+ const at=time=>showScorePose(score.find(s=>time>=s.start&&time<s.end),time);
+ assert.ok(Math.abs(at(8)[0].pan)>Math.abs(at(7)[0].pan),'opening must not restart at 7.7s');
+ const before=at(7.7-.00001),after=at(7.7+.00001);
+ assert.ok(before.every((v,i)=>Math.abs(v.pan-after[i].pan)<.1&&Math.abs(v.tilt-after[i].tilt)<.001));
+ const cues=movingCues(show,'auto','show');
+ for(let i=1;i<cues.length;i++)assert.ok(Math.abs(cues[i].travel-(cues[i].time-cues[i-1].time))<1e-9,'flow uses the available interval');
+});
+
+test('paired parallel pictures open without an unintended change of sides',()=>{
+ const picture={form:'parallel',start:6,end:10,role:'flow',drive:0,direction:-1,energy:.27,movementIntent:{symmetry:'paired',motionDrive:0}};
+ for(let time=6;time<=10;time+=.025){const pose=showScorePose(picture,time);assert.ok(pose[0].pan<0&&pose[1].pan<0&&pose[2].pan>0&&pose[3].pan>0);}
+});

@@ -1,4 +1,4 @@
-import {automaticGroupMotionAt,automaticFixtureGroups,groupComposition} from './dmx-group-motion.js';
+import {automaticGroupMotionAt,showGroupMotionAt,automaticFixtureGroups,groupComposition} from './dmx-group-motion.js';
 import {showScoreAt} from './show-score.js';
 import {showActionAt} from './show-action.js';
 import {lightingScenes,lightingSceneAt,scenePresence,bassPresence} from './dmx-light-scenes.js';
@@ -205,10 +205,12 @@ export function movingPresenceAt(source){
  if(scene){
   if(source.movingMood==='show'){
    const level=activityAt(source,1)[0],action=showActionAt(plan,time),picture=showScoreAt(plan,time);
-   const selection=picture?{occupancy:picture.occupancy,selection:picture.index%2,rowFraction:picture.rowFraction,rowSelection:picture.rowSelection}:{};
+   // A dark head still follows an active picture, ready for its next exposure.
+   const selection=picture?{trackMotion:!['held','silence'].includes(picture.role),occupancy:picture.occupancy,selection:picture.index%2,rowFraction:picture.rowFraction,rowSelection:picture.rowSelection}:{};
    const rhythm=plan.sectionLighting?.find(s=>time>=s.start&&time<s.end)?.rhythm;
-   if(action&&(!rhythm||rhythm==='auto')&&action.cue.action!=='hit')return {level,spread:1,...selection,mask:'show-action',action:action.cue.action,phase:action.cue.phase,progress:action.progress,amount:Math.max(0,Math.min(1,source.flicker??1))};
-   return rhythm&&rhythm!=='auto'?{level,spread:1,mask:'all'}:{level,spread:1,...selection,mask:'show-score'};
+   const groupMotion=(!rhythm||rhythm==='auto')?showGroupMotionAt(plan,time,picture):null;
+   if(action&&(!rhythm||rhythm==='auto')&&action.cue.action!=='hit')return {level,spread:1,...selection,groupMotion,mask:'show-action',action:action.cue.action,phase:action.cue.phase,progress:action.progress,amount:Math.max(0,Math.min(1,source.flicker??1))};
+   return rhythm&&rhythm!=='auto'?{level,spread:1,mask:'all'}:{level,spread:1,...selection,groupMotion,mask:'show-score'};
   }
   const scenes=lightingScenes(plan),previous=scenes[scene.index-1];
   const t=smooth((time-scene.start)/(scene.kind==='impact'?.2:.8));
@@ -323,12 +325,12 @@ export function applyMovingPresence(lights){
    if((row.index-offset+groupCount)%groupCount>=budget)return 0;
    const composition=groupComposition(presence.groupMotion,row.rank,row.count,row.index,groupCount);
    const base=movingPresenceLevel(presence,row.rank,row.count);
-   // One composition owns membership. Multiplying two unrelated pair masks
-   // could accidentally black out the entire figure on odd-sized rigs.
-   return composition?base+(presence.level*composition.level-base)*composition.weight:base;
+   // Show owns occupancy and action shutters; group motion only supplies poses.
+   // Automatic compositions instead own membership to avoid conflicting masks.
+   return composition&&!['show-score','show-action'].includes(presence.mask)?base+(presence.level*composition.level-base)*composition.weight:base;
   }
   return movingPresenceLevel(presence,ranks.get(light.id),ordered.length);
  }
  return lights.map(l=>l.type==='moving'&&l.movingPresence&&Number.isFinite(l.movingPresenceBasePower)
-  ?{...l,movingGroupActive:l.movingPresenceBasePower>0&&(l.movingPresence.layers||[l.movingPresence]).some(p=>(p.weight??1)>0&&p.level>0&&(p.mask==='bass-chase'||p.mask==='show-action'||!!p.groupMotion)),power:l.movingPresenceBasePower*level(l.movingPresence,l)*(l.movingShutter??1)}:l);
+  ?{...l,movingGroupActive:(l.movingPresence.layers||[l.movingPresence]).some(p=>(p.weight??1)>0&&(p.trackMotion||l.movingPresenceBasePower>0&&p.level>0&&(p.mask==='bass-chase'||p.mask==='show-action'||!!p.groupMotion))),power:l.movingPresenceBasePower*level(l.movingPresence,l)*(l.movingShutter??1)}:l);
 }

@@ -1,4 +1,4 @@
-import {selectGroupScore,SONG_MOVEMENT_VERSION} from './song-movement-plan.js';
+import {selectGroupScore,SONG_MOVEMENT_VERSION,movementAccentEnvelope} from './song-movement-plan.js';
 export {GROUP_COMPOSITIONS,GROUP_MOTIONS} from './song-movement-plan.js';
 const clamp=v=>Math.max(0,Math.min(1,v));
 const cache=new WeakMap();
@@ -33,10 +33,12 @@ export function automaticGroupMotionAt(plan,time){
  const ease=v=>{v=clamp(v);return v*v*v*(v*(v*6-15)+10);};
  const duration=p.end-p.start;
  const describe=(passage,progress)=>{
-  const rhythmic=clamp(passage.drive??0)*ease((passage.energy-.45)/.35);
+  const rhythmic=passage.intent?.motionDrive??clamp(passage.drive??0)*ease((passage.energy-.45)/.35);
   const bars=plan.beatGrid?.downbeats;
   const phase=progress*Math.PI*2+(barPosition(bars,sample)-barPosition(bars,passage.start))*Math.PI*.5*rhythmic*(passage.intent?.pace??1);
-  return {motion:passage.motion,composition:passage.composition,progress,phase,intent:passage.intent,energy:passage.energy,drive:passage.drive,direction:passage.direction,duration:passage.end-passage.start};
+  const preparation=passage.intent?.anticipation;
+  const anticipation=preparation?preparation.strength*ease((sample-preparation.start)/(preparation.end-preparation.start)):0;
+  return {motion:passage.motion,composition:passage.composition,progress,phase,accent:movementAccentEnvelope(passage.intent,sample),anticipation,intent:passage.intent,energy:passage.energy,drive:passage.drive,direction:passage.direction,duration:passage.end-passage.start};
  };
  // Adjacent active passages share a moving handover. Continue the outgoing
  // trajectory while the incoming one gains weight, rather than returning both
@@ -45,14 +47,26 @@ export function automaticGroupMotionAt(plan,time){
  const current=describe(p,start+(end-start)*clamp((sample-p.start)/duration));
  current.amount=edit?.movement===0?1:Math.max(0,Math.min(1,edit?.movement??1));
  if(connected){
-  const overlap=Math.min(1.4,duration*.25,(previous.end-previous.start)*.25);
+  const overlap=Math.min(p.intent?.transition?.overlap??1.4,duration*.25,(previous.end-previous.start)*.25);
   if(sample-p.start<overlap){
    const before=score[lo-3],previousStart=before?.motion&&before.end===previous.start ? .12 : 0;
    current.from=describe(previous,clamp(.88+(.88-previousStart)*(sample-p.start)/(previous.end-previous.start)));
+   // Keep the outgoing group intact while the incoming picture gains weight.
+   current.from.envelopeProgress=.88;
    current.blend=ease((sample-p.start)/overlap);
   }
  }
  return current;
+}
+// Show keeps its authored large-scale pose and occupancy. The song's group
+// gesture supplies development within that picture, with more of the source
+// formation retained than in Automatic. Both share the same continuous timing.
+export function showGroupMotionAt(plan,time,picture){
+ if(!picture||['held','silence'].includes(picture.role))return null;
+ const motion=automaticGroupMotionAt(plan,time);
+ if(!motion?.intent)return null;
+ const adapt=m=>({...m,composition:m.composition==='traveling-group'?'parallel-sweep':m.composition,presentation:'show',intent:{...m.intent,articulation:Math.max(.55,m.intent?.articulation??0)},...(m.from?{from:adapt(m.from)}:{})});
+ return adapt(motion);
 }
 // Evaluate each physical member AFTER expanding the four source roles. Rows
 // lead, answer, and support with different trajectories rather than copies.
@@ -72,6 +86,9 @@ export function groupMotionOffset(motion,rank,count,row=0){
  const side=(motion.direction||1)*(row%2?-1:1),offset=member*Math.PI*.7;
  let x=0,y=0;
  switch(motion.motion){
+  case 'unison-sweep':x=Math.sin(phase)*side;y=Math.cos(phase)*.7;break;
+  case 'breathing-arch':x=member*Math.sin(phase)*.7;y=(1-member*member)*Math.cos(phase)*.6;break;
+  case 'hinged-lines':x=member*Math.cos(phase)*.6;y=sign*Math.abs(member)*Math.sin(phase)*.7;break;
   case 'counter-fans':x=member*Math.cos(phase*.5)*side;y=(1-Math.abs(member))*.65*Math.sin(phase);break;
   case 'traveling-wave':x=Math.sin(phase-offset)*.7;y=Math.cos(phase-offset)*.65*side;break;
   case 'opening-arch':x=member*(.3+.7*Math.sin(Math.PI*p));y=(1-member*member)*Math.cos(Math.PI*p)*side;break;
@@ -103,9 +120,18 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
   const {from,blend,...current}=motion;
   const a=groupComposition({...from,amount:motion.amount},rank,count,row,groups),b=groupComposition(current,rank,count,row,groups);
   if(!a||!b)return b||a;
-  return Object.fromEntries(['x','y','level','weight','articulation'].map(k=>[k,a[k]+(b[k]-a[k])*blend]));
+  return Object.fromEntries(['x','y','level','weight','articulation','paired'].map(k=>[k,a[k]+(b[k]-a[k])*blend]));
+ }
+ // Evaluate one member per mirrored pair: identical depth and cycle, opposite
+ // lateral displacement. Travelling waves become paired waves, not stray heads.
+ if(motion.intent?.symmetry==='paired'&&rank>(count-1)/2){
+  const left=groupComposition(motion,count-1-rank,count,row,groups);
+  return {...left,x:1-left.x};
  }
  const p=clamp(motion.progress),u=rank/(count-1),r=u*2-1;
+ const attention=motion.intent?.attention;
+ // Supporting rows can carry a sustained lead while the others keep rhythm.
+ const leadRow=row%3===2&&['vocals','other'].includes(attention?.leader);
  const phase=motion.phase??p*Math.PI*2,side=motion.direction||1;
  const slots=Math.ceil(count/2),pair=Math.min(rank,count-1-rank);
  const centerPair=pair===slots-1,outerPair=pair===0;
@@ -163,6 +189,18 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
    y=.5-bank*.25*turn+r*.13;
    level=bank<0?.7+.3*Math.cos(phase)**2:.7+.3*Math.sin(phase)**2;break;
   }
+  case 'parallel-sweep':
+   x=.5+r*.29+.12*Math.sin(phase)*side;
+   y=.5+.27*Math.cos(phase);break;
+  case 'breathing-arch':{
+   const opening=.24+.12*(.5+.5*Math.sin(phase));
+   x=.5+r*opening;y=.32+.27*(1-r*r)+.09*Math.cos(phase);break;
+  }
+  case 'hinged-lines':{
+   const bank=r<0?-1:1,member=Math.abs(r),angle=.6*Math.sin(phase)*side;
+   x=.5+bank*(.1+member*.29*Math.cos(angle));
+   y=.5+bank*member*.27*Math.sin(angle);break;
+  }
   case 'gather':{
    const width=.08+.32*(.5+.5*Math.cos(phase));
    x=.5+r*width;y=depth+(1-r*r)*depthSpan*Math.sin(phase);
@@ -175,23 +213,26 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
  // This changes occupancy, never the source dimmer or an authored blackout.
  const intensity=ease(((motion.energy??0)-.65)/.25);
  level=level+(1-level)*.45*intensity;
- const weight=ease(p/.12)*ease((1-p)/.12)*clamp(motion.amount??1);
+ const envelope=motion.envelopeProgress??p;
+ const weight=ease(envelope/.12)*ease((1-envelope)/.12)*clamp(motion.amount??1);
  // Expand about the room centre, without clipping targets into edge piles.
- const extent=motion.intent?.extent??1;
+ const extent=(motion.intent?.extent??1)*(1-.12*(motion.anticipation??0))*(1+.04*(motion.accent??0));
  const spread=v=>.5+.5*Math.tanh((v-.5)*2*extent)/Math.tanh(extent);
  if(extent!==1){x=spread(x);y=spread(y);}
- return {x:clamp(x),y:clamp(y),level:1+(clamp(level)-1)*weight,weight,articulation:motion.intent?.articulation??(.15+.3*clamp(motion.energy??0)*clamp(motion.drive??0))};
+ // Lead rows have a smaller excursion, not a different cycle speed.
+ if(leadRow){const reach=1-.2*attention.confidence;x=.5+(x-.5)*reach;y=depth+(y-depth)*reach;}
+ return {paired:motion.intent?.symmetry==='paired'?1:0,x:motion.intent?.symmetry==='paired'&&rank===(count-1)/2?.5:clamp(x),y:clamp(y),level:motion.presentation==='show'?1:1+(clamp(level)-1)*weight,weight,articulation:motion.intent?.articulation??(.15+.3*clamp(motion.energy??0)*clamp(motion.drive??0))};
 }
 export function presenceComposition(presence,rank,count,row=0,groups=1){
  if(!presence)return null;
  if(!presence.layers)return groupComposition(presence.groupMotion,rank,count,row,groups);
- let sum=0,x=0,y=0,level=0,weight=0,articulation=0;
+ let sum=0,x=0,y=0,level=0,weight=0,articulation=0,paired=0;
  for(const layer of presence.layers){
   const w=layer.weight??1,c=presenceComposition(layer,rank,count,row,groups);sum+=w;
   level+=(c?.level??1)*w;
-  if(c){const amount=c.weight*w;weight+=amount;articulation+=c.articulation*amount;x+=c.x*amount;y+=c.y*amount;}
+  if(c){const amount=c.weight*w;weight+=amount;paired+=(c.paired??0)*amount;articulation+=c.articulation*amount;x+=c.x*amount;y+=c.y*amount;}
  }
- return weight>0?{x:x/weight,y:y/weight,level:level/Math.max(.0001,sum),weight:weight/Math.max(.0001,sum),articulation:articulation/weight}:null;
+ return weight>0?{paired:paired/weight,x:x/weight,y:y/weight,level:level/Math.max(.0001,sum),weight:weight/Math.max(.0001,sum),articulation:articulation/weight}:null;
 }
 
 // Stable groups from actual mounts, not device enumeration or repeated source IDs.
