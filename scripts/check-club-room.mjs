@@ -62,16 +62,16 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-ar-room]').value"),club.id);
   assert.equal(await evaluate("document.querySelector('[data-ar-name]').value"),'Mein Testclub');
   await evaluate("window.confirm=()=>true;document.querySelector('[data-ar-delete]').click()");
-  await mount();assert.equal((await stored()).plans.length,2);
+  await mount();assert.equal((await stored()).plans.length,4);
   assert.ok((await stored()).plans.some(p=>p.id===original.id));
   // Upgrade an existing library while preserving its active room and enable flag.
   await evaluate(`localStorage.setItem('anydj-ar-rooms-v1',JSON.stringify({plans:[${JSON.stringify(original)}],selected:${JSON.stringify(original.id)},enabled:true}))`);
   await mount();saved=await stored();
-  assert.equal(saved.plans.length,3);assert.deepEqual(saved.plans[0],original);
+  assert.equal(saved.plans.length,5);assert.deepEqual(saved.plans[0],original);
   assert.equal(saved.selected,original.id);assert.equal(saved.enabled,true);
   // A renamed club from the former button must not be duplicated.
   await evaluate(`localStorage.setItem('anydj-ar-rooms-v1',JSON.stringify({plans:[${JSON.stringify({...club,name:'Alter Club'})}],selected:${JSON.stringify(club.id)},enabled:false}))`);
-  await mount();assert.equal((await stored()).plans.length,2);assert.equal((await stored()).enabled,false);
+  await mount();assert.equal((await stored()).plans.length,4);assert.equal((await stored()).enabled,false);
   const stage=(await stored()).plans.find(p=>p.name==='Club-Bühne · Publikum & Hintergrund');
   assert.ok(stage);assert.equal(Object.keys(stage.positions).length,168);
   await change('room',stage.id);await change('name','Meine Club-Bühne');
@@ -79,6 +79,24 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-ar-name]').value"),'Meine Club-Bühne');
   await evaluate("window.confirm=()=>true;document.querySelector('[data-ar-delete]').click()");
   await mount();assert.equal((await stored()).plans.some(p=>p.id===stage.id),false);
+  const openStage=(await stored()).plans.find(p=>p.name==='Club-Bühne · ohne Ruhezonen');
+  assert.ok(openStage);assert.deepEqual(openStage.zones,[]);
+  assert.equal(Object.keys(openStage.positions).length,168);
+  await change('room',openStage.id);
+  await c('Page.reload');await wait("document.readyState==='complete'&&!document.querySelector('#host')");await mount();
+  assert.equal((await stored()).selected,openStage.id);
+  assert.deepEqual((await stored()).plans.find(p=>p.id===openStage.id),openStage);
+  await evaluate("window.confirm=()=>true;document.querySelector('[data-ar-delete]').click()");
+  await mount();assert.equal((await stored()).plans.some(p=>p.id===openStage.id),false);
+  const hall=(await stored()).plans.find(p=>p.name==='Große Halle · 192 Lichter · nur DJ-Ruhezone');
+  assert.ok(hall);assert.equal(hall.zones.length,1);assert.equal(hall.zones[0].name,'DJ-Pult');
+  assert.equal(Object.values(hall.positions).filter(p=>p.type!=='truss').length,192);
+  await change('room',hall.id);
+  await c('Page.reload');await wait("document.readyState==='complete'&&!document.querySelector('#host')");await mount();
+  assert.equal((await stored()).selected,hall.id);
+  assert.deepEqual((await stored()).plans.find(p=>p.id===hall.id),hall);
+  await evaluate("window.confirm=()=>true;document.querySelector('[data-ar-delete]').click()");
+  await mount();assert.equal((await stored()).plans.some(p=>p.id===hall.id),false);
   for(const width of [1280,390]){
     await c('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:false});
     assert.equal(await evaluate("[...document.querySelectorAll('[data-ar-room],[data-ar-new-room],[data-ar-copy]')].every(n=>{const r=n.getBoundingClientRect();return n.checkVisibility()&&r.left>=0&&r.right<=innerWidth;})"),true);

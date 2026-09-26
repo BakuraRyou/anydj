@@ -36,7 +36,7 @@ export function movingPlanJob(plan,mode='auto',mood='balanced'){
     return result.map((p,i)=>({pan:p.pan*(i===0||i===3?1:.55),tilt:Math.max(.55,Math.min(1.15,p.tilt+((i===0||i===3) ? .04 : -.08)))}));
   }
   return {
-    result:{version:35,duration:plan.duration,step,values,mode:modes(mode),mood},
+    result:{version:38,duration:plan.duration,step,values,mode:modes(mode),mood},
     get done(){return index===count;},
     advance(samples=128){
       if(cues===undefined){cues=movingCues(plan,modes(mode),mood);this.result.cues=cues;}

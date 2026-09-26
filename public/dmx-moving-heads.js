@@ -137,7 +137,7 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
         const power=basePower*movingPresenceLevel(movingPresence,ranks[i],heads.length)*movingShutter;
         const color=basePower?rgb.map(v=>Math.round(v/basePower)):rgb;
         const {pan,tilt}=projected?{pan:projected[i].frontPan,tilt:.55+.6*projected[i].tilt/90}:devicePoses[i];
-        if(projected)preview.push({...projected[i],motionPresentation:mood==='show'?'show':undefined,movingShutter,cueTransit,...(movingPresence?{movingPresence,movingPresenceBasePower:basePower}:{}),...(projectedAhead?{motionAhead:{seconds:predictionSeconds,target:projectedAhead[i].target,motionUV:projectedAhead[i].motionUV,motionFocus:projectedAhead[i].motionFocus}}:{}),color:`rgb(${color.join(',')})`,power});
+        if(projected)preview.push({...projected[i],motionPresentation:mood==='show'?'show':mood==='balanced'&&mode==='auto'?'auto':undefined,movingShutter,cueTransit,...(movingPresence?{movingPresence,movingPresenceBasePower:basePower}:{}),...(projectedAhead?{motionAhead:{seconds:predictionSeconds,target:projectedAhead[i].target,motionUV:projectedAhead[i].motionUV,motionFocus:projectedAhead[i].motionFocus}}:{}),color:`rgb(${color.join(',')})`,power});
         if(projected)setStyle(i,'--head-position',String((projected[i].position.x/getLayout().width+.5)*100));
         setStyle(i,'--head-pan',`${pan.toFixed(2)}deg`);
         setStyle(i,'--head-tilt',tilt.toFixed(3));

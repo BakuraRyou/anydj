@@ -185,7 +185,34 @@ export function applyRoomPlan(scene, plan, ar=false) {
     const ahead=applyRoomPlan({...scene,lights:scene.lights.map(l=>{const {motionAhead,...current}=l;return motionAhead?{...current,target:motionAhead.target,motionUV:motionAhead.motionUV,motionFocus:motionAhead.motionFocus}:current;})},plan,ar);
     lights.forEach((light,i)=>{if(light.motionAhead)light.motionAhead={...light.motionAhead,target:ahead.lights[i].target,motionUV:ahead.lights[i].motionUV,motionFocus:ahead.lights[i].motionFocus};});
   }
-  return {...scene,layout:{...roomPlanLayout(plan),ar},lights:applyMovingPresence(lights),crowd:ar?[]:scene.crowd};
+  // The virtual room duplicates a few source fixtures into a much larger rig.
+  // Keep a stable power budget per fixture type: instantaneous active counts
+  // would pump brightness on every beat and brighten survivors during blackouts.
+  const automatic=scene.lights.some(l=>l.motionPresentation==='auto')&&!scene.lights.some(l=>l.motionPresentation==='show');
+  const support=scene.lights.find(l=>l.motionPresentation==='auto'&&l.movingPresence)?.movingPresence;
+  const supportLayers=support?.layers||[support];
+  const counts=new Map();
+  for(const p of Object.values(plan.positions))if(['moving','spot','bar'].includes(p.type))counts.set(p.type,(counts.get(p.type)||0)+1);
+  const balanced=applyMovingPresence(lights).map(light=>{
+    if(!automatic)return light;
+    const count=counts.get(light.type)||0;
+    if(count<=24)return light;
+    // Broad washes add over large parts of the floor; narrow moving beams
+    // have a larger allowance. RGB stays untouched.
+    const allowance=light.type==='moving'?24:12;
+    let accompaniment=1;
+    if(light.type!=='moving'&&supportLayers.some(p=>Number.isFinite(p?.supportSelection))){
+      const band=Math.min(5,Math.max(0,Math.floor(light.position.y/plan.depth*6)));
+      accompaniment=supportLayers.reduce((sum,p)=>{
+        if(!p)return sum;
+        const role=Number.isFinite(p.supportSelection)?((band-p.supportSelection-3)%6+6)%6:null;
+        return sum+(p.weight??1)*(role===null?1:(p.supportLevel??.5)*(role<2?1:.35));
+      },0);
+    }
+    const gain=accompaniment*Math.sqrt(24/count)*(1-(1-allowance/24)*Math.min(1,(count-24)/24));
+    return {...light,power:light.power*gain,...(Number.isFinite(light.movingPresenceBasePower)?{movingPresenceBasePower:light.movingPresenceBasePower*gain}:{})};
+  });
+  return {...scene,layout:{...roomPlanLayout(plan),ar},lights:balanced,crowd:ar?[]:scene.crowd};
 }
 
 // A symmetric obstacle can have two equally short detours. Solving both heads

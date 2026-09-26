@@ -18,6 +18,7 @@ test('preview sends complete snapshots, reconnects with latest state, and isolat
  assert.equal((await fetch(bridge.origin+'/api/vr-preview/pair?code=abc')).status,400);
  assert.equal((await fetch(bridge.origin+'/vr-view/')).status,200);
  assert.equal((await fetch(bridge.origin+'/vr-view')).status,200);
+ for(const asset of ['dmx-vr-renderer.js','dmx-vr-scene.js','dmx-vr-quality.js']){const response=await fetch(bridge.origin+'/'+asset);assert.equal(response.status,200,asset);assert.match(response.headers.get('content-type'),/javascript/);}
  assert.equal((await fetch(bridge.origin+'/api/dmx/status')).status,403);
  assert.equal((await fetch(bridge.origin+'/api/vr-preview/start',{method:'POST'})).status,403);
  assert.equal((await fetch(base+'/api/dmx/status')).status,401);

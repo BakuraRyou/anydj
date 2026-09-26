@@ -204,7 +204,7 @@ export function movingPresenceAt(source){
  if(scene){
   if(source.movingMood==='show'){
    const level=activityAt(source,1)[0],action=showActionAt(plan,time),picture=showScoreAt(plan,time);
-   const selection=picture?{occupancy:picture.occupancy,selection:picture.index%2}:{};
+   const selection=picture?{occupancy:picture.occupancy,selection:picture.index%2,rowFraction:picture.rowFraction,rowSelection:picture.rowSelection}:{};
    const rhythm=plan.sectionLighting?.find(s=>time>=s.start&&time<s.end)?.rhythm;
    if(action&&(!rhythm||rhythm==='auto')&&action.cue.action!=='hit')return {level,spread:1,...selection,mask:'show-action',action:action.cue.action,phase:action.cue.phase,progress:action.progress,amount:Math.max(0,Math.min(1,source.flicker??1))};
    return rhythm&&rhythm!=='auto'?{level,spread:1,mask:'all'}:{level,spread:1,...selection,mask:'show-score'};
@@ -213,7 +213,11 @@ export function movingPresenceAt(source){
   const t=smooth((time-scene.start)/(scene.kind==='impact'?.2:.8));
   const presence=mixMovingPresence([{presence:previous?scenePresence(previous,plan,previous.end-.001):{level:0,spread:0},weight:1-t},{presence:scenePresence(scene,plan,time),weight:t}]);
   const darkness=activityAt(source,1)[0];
-  return {...presence,level:presence.level*darkness,layers:presence.layers.map(p=>({...p,level:p.level*darkness}))};
+  const manual=plan.sectionLighting?.some(s=>time>=s.start&&time<s.end&&s.rhythm&&s.rhythm!=='auto');
+  return {...presence,level:presence.level*darkness,layers:presence.layers.map((p,i)=>{
+   const section=i===0?previous:scene;
+   return {...p,level:p.level*darkness,...(!manual?{rowFraction:section?.kind==='impact'?.67:.34,rowSelection:section?.groupIndex??0,supportSelection:section?.groupIndex??0,supportLevel:section?.kind==='silence'?0:section?.kind==='impact'?.85:section?.kind==='build'?.65:.5}:{})};
+  })};
  }
  const profiles=plan?presenceSections(plan):[];
  const sections=plan?.sections||[];
@@ -286,6 +290,30 @@ export function movingPresenceLevel(presence,rank,count){
 export function applyMovingPresence(lights){
  const ordered=lights.filter(l=>l.type==='moving').sort((a,b)=>a.position.x-b.position.x||String(a.id).localeCompare(String(b.id)));
  const ranks=new Map(ordered.map((l,i)=>[l.id,i]));
+ // Select complete spatial rows, then articulate mirrored pairs within each row.
+ // Four source heads cannot represent these group identities before expansion.
+ const rows=[];
+ if(ordered.length>=16&&ordered.some(l=>(l.movingPresence?.layers||[l.movingPresence]).some(p=>Number.isFinite(p?.rowFraction))))for(const light of [...ordered].sort((a,b)=>(a.position.y??0)-(b.position.y??0))){
+  let row=rows.at(-1);
+  if(!row||Math.abs(row.y-(light.position.y??0))>.3)rows.push(row={y:light.position.y??0,lights:[]});
+  row.lights.push(light);
+ }
+ const rowById=new Map();
+ if(rows.length>=2&&rows.every(r=>r.lights.length>=4))rows.forEach((row,index)=>{
+  row.lights.sort((a,b)=>a.position.x-b.position.x||String(a.id).localeCompare(String(b.id)));
+  row.lights.forEach((light,rank)=>rowById.set(light.id,{index,rank,count:row.lights.length}));
+ });
+ function level(presence,light){
+  if(presence.layers)return presence.layers.reduce((sum,p)=>sum+level(p,light)*(p.weight??1),0);
+  const row=rowById.get(light.id);
+  if(row&&Number.isFinite(presence.rowFraction)){
+   const budget=Math.max(1,Math.ceil(rows.length*presence.rowFraction));
+   const offset=(presence.rowSelection??0)%rows.length;
+   if((row.index-offset+rows.length)%rows.length>=budget)return 0;
+   return movingPresenceLevel(presence,row.rank,row.count);
+  }
+  return movingPresenceLevel(presence,ranks.get(light.id),ordered.length);
+ }
  return lights.map(l=>l.type==='moving'&&l.movingPresence&&Number.isFinite(l.movingPresenceBasePower)
-  ?{...l,movingGroupActive:l.movingPresenceBasePower>0&&(l.movingPresence.layers||[l.movingPresence]).some(p=>(p.weight??1)>0&&p.level>0&&(p.mask==='bass-chase'||p.mask==='show-action')),power:l.movingPresenceBasePower*movingPresenceLevel(l.movingPresence,ranks.get(l.id),ordered.length)*(l.movingShutter??1)}:l);
+  ?{...l,movingGroupActive:l.movingPresenceBasePower>0&&(l.movingPresence.layers||[l.movingPresence]).some(p=>(p.weight??1)>0&&p.level>0&&(p.mask==='bass-chase'||p.mask==='show-action')),power:l.movingPresenceBasePower*level(l.movingPresence,l)*(l.movingShutter??1)}:l);
 }

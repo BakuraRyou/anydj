@@ -67,12 +67,11 @@ try {
  const key=async(key,code=key)=>{await c('Input.dispatchKeyEvent',{type:'keyDown',key,code});await c('Input.dispatchKeyEvent',{type:'keyUp',key,code});};
  const point=selector=>evaluate(`(()=>{const r=document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};})()`);
  const click=async selector=>{const p=await point(selector);await c('Input.dispatchMouseEvent',{type:'mouseMoved',...p});await c('Input.dispatchMouseEvent',{type:'mousePressed',...p,button:'left',clickCount:1});await c('Input.dispatchMouseEvent',{type:'mouseReleased',...p,button:'left',clickCount:1});};
- assert.equal(await evaluate("document.querySelector('.stage-3d-full-transport').hidden"),false,'windowed preview already uses both decks');
+ assert.equal(await evaluate("document.querySelector('.stage-3d-full-transport').hidden"),false,'shared show screen uses both decks');
  await click('[data-full-deck=B] [data-full-deck-tools]');
  assert.equal(await evaluate("document.querySelector('[data-song-deck]').value"),'B');
  assert.equal(await evaluate("document.querySelector('[data-workspace-page=music]').hidden"),false);
  await click('[data-tools-close]');
- await click('[data-stage3d-full]');
  for(const tab of ['room','fixtures','lighting','position','music']){
   await click('[data-workspace-tab='+tab+']');
   assert.equal(await evaluate("document.querySelector('[data-workspace-page="+tab+"]').hidden"),false);
@@ -165,12 +164,11 @@ try {
  assert.equal(await evaluate("document.querySelector('.stage-3d-dialog').classList.contains('stage-3d-full-idle')"),false);
  await key('Escape');
  await wait("!document.querySelector('.stage-3d-dialog').classList.contains('stage-3d-full')");
- assert.equal(await evaluate("!document.querySelector('.stage-3d-full-transport').hidden&&document.querySelector('.stage-3d-dialog').open"),true);
- assert.equal(await evaluate("document.activeElement===document.querySelector('[data-stage3d-full]')"),true);
- await evaluate("document.querySelector('[data-stage3d-full]').click()");
+ assert.equal(await evaluate("document.querySelector('.stage-show-shell').hidden&&document.querySelector('.stage-3d-full-transport').hidden"),true);
+ await evaluate("document.querySelector('#stage-tab-3d').click();document.querySelector('#stageSettings').click()");
  await wait("!document.querySelector('.stage-3d-full-transport').hidden");
- await click('[data-stage3d-full]');
- assert.equal(await evaluate("document.querySelector('.stage-3d-full-transport').hidden"),false);
+ await click('[data-stage3d-expand]');
+ assert.equal(await evaluate("document.querySelector('.stage-show-shell').hidden"),true);
  await new Promise(r=>setTimeout(r,3200));
  assert.equal(await evaluate("document.querySelector('.stage-3d-dialog').classList.contains('stage-3d-full-idle')"),false,'closing stops idle timer');
  assert.deepEqual(errors,[]);

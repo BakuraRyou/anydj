@@ -197,7 +197,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
     try{localStorage.setItem('anydj-stage-visible',String(active));}catch{}
   }
   button.addEventListener('click',()=>{if(inline){activate(!active);return;}if(panel.open)close();else openSettings();});
-  settingsButton.onclick=()=>{if(previewMode==='3d')stage3d.open(settingsButton);else openSettings();};
+  settingsButton.onclick=()=>{if(previewMode==='3d'){if(panel.open)close();stage3d.open(settingsButton);}else openSettings();};
   panel.querySelector('[data-close]').onclick=()=>{close();(active?settingsButton:button).focus();};
   panel.addEventListener('keydown',event=>{if(event.key==='Escape'){event.preventDefault();close();(active?settingsButton:button).focus();}});
   demoButton.onclick=()=>{demo=!demo;blackout=false;render();};

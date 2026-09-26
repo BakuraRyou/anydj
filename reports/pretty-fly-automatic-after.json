@@ -1,0 +1,1000 @@
+{
+  "method": "Fresh local full audio analysis; automatic/balanced profile, minimum 5 maximum 100; actual 192 fixture preset. Eight virtual moving sources, shared RGB static source, no saved user overrides, deck mix, routing or motor smoothing.",
+  "duration": 192.7024375,
+  "sections": [
+    {
+      "start": 0,
+      "end": 30.92,
+      "look": "lift"
+    },
+    {
+      "start": 30.92,
+      "end": 47.69,
+      "look": "peak"
+    },
+    {
+      "start": 47.69,
+      "end": 84.53,
+      "look": "peak"
+    },
+    {
+      "start": 84.53,
+      "end": 101.3,
+      "look": "flow"
+    },
+    {
+      "start": 101.3,
+      "end": 126.43,
+      "look": "peak"
+    },
+    {
+      "start": 126.43,
+      "end": 154.9,
+      "look": "lift"
+    },
+    {
+      "start": 154.9,
+      "end": 168.32,
+      "look": "peak"
+    },
+    {
+      "start": 168.32,
+      "end": 186.74,
+      "look": "peak"
+    },
+    {
+      "start": 186.74,
+      "end": 192.7024375,
+      "look": "held"
+    }
+  ],
+  "sceneTimeline": [
+    {
+      "start": 0,
+      "end": 9.14,
+      "kind": "sculpture",
+      "energy": 0.078,
+      "drive": 0.261,
+      "vocals": 0.297,
+      "sectionIndex": 0
+    },
+    {
+      "start": 9.14,
+      "end": 15.84,
+      "kind": "groove",
+      "energy": 0.16,
+      "drive": 0.75,
+      "vocals": 0.283,
+      "sectionIndex": 0
+    },
+    {
+      "start": 15.84,
+      "end": 22.54,
+      "kind": "build",
+      "energy": 0.274,
+      "drive": 0.75,
+      "vocals": 0.279,
+      "sectionIndex": 0
+    },
+    {
+      "start": 22.54,
+      "end": 30.92,
+      "kind": "groove",
+      "energy": 0.599,
+      "drive": 0.75,
+      "vocals": 0.011,
+      "sectionIndex": 0
+    },
+    {
+      "start": 30.92,
+      "end": 37.62,
+      "kind": "groove",
+      "energy": 0.596,
+      "drive": 0.75,
+      "vocals": 0.261,
+      "sectionIndex": 1
+    },
+    {
+      "start": 37.62,
+      "end": 44.32,
+      "kind": "groove",
+      "energy": 0.587,
+      "drive": 0.75,
+      "vocals": 0.245,
+      "sectionIndex": 1
+    },
+    {
+      "start": 44.32,
+      "end": 47.69,
+      "kind": "build",
+      "energy": 0.667,
+      "drive": 0.75,
+      "vocals": 0.27,
+      "sectionIndex": 1
+    },
+    {
+      "start": 47.69,
+      "end": 54.4,
+      "kind": "groove",
+      "energy": 0.685,
+      "drive": 0.75,
+      "vocals": 0.252,
+      "sectionIndex": 2
+    },
+    {
+      "start": 54.4,
+      "end": 61.1,
+      "kind": "groove",
+      "energy": 0.645,
+      "drive": 0.75,
+      "vocals": 0.254,
+      "sectionIndex": 2
+    },
+    {
+      "start": 61.1,
+      "end": 67.76,
+      "kind": "sweep",
+      "energy": 0.652,
+      "drive": 0.348,
+      "vocals": 0.277,
+      "sectionIndex": 2
+    },
+    {
+      "start": 67.76,
+      "end": 74.48,
+      "kind": "sweep",
+      "energy": 0.563,
+      "drive": 0.37,
+      "vocals": 0.247,
+      "sectionIndex": 2
+    },
+    {
+      "start": 74.48,
+      "end": 81.18,
+      "kind": "groove",
+      "energy": 0.615,
+      "drive": 0.75,
+      "vocals": 0.246,
+      "sectionIndex": 2
+    },
+    {
+      "start": 81.18,
+      "end": 84.53,
+      "kind": "sweep",
+      "energy": 0.656,
+      "drive": 0.342,
+      "vocals": 0.262,
+      "sectionIndex": 2
+    },
+    {
+      "start": 84.53,
+      "end": 91.24,
+      "kind": "groove",
+      "energy": 0.584,
+      "drive": 0.75,
+      "vocals": 0.311,
+      "sectionIndex": 3
+    },
+    {
+      "start": 91.24,
+      "end": 97.94,
+      "kind": "sweep",
+      "energy": 0.576,
+      "drive": 0.432,
+      "vocals": 0.278,
+      "sectionIndex": 3
+    },
+    {
+      "start": 97.94,
+      "end": 101.3,
+      "kind": "build",
+      "energy": 0.632,
+      "drive": 0.456,
+      "vocals": 0.311,
+      "sectionIndex": 3
+    },
+    {
+      "start": 101.3,
+      "end": 108,
+      "kind": "sweep",
+      "energy": 0.665,
+      "drive": 0.391,
+      "vocals": 0.251,
+      "sectionIndex": 4
+    },
+    {
+      "start": 108,
+      "end": 114.72,
+      "kind": "groove",
+      "energy": 0.608,
+      "drive": 0.75,
+      "vocals": 0.228,
+      "sectionIndex": 4
+    },
+    {
+      "start": 114.72,
+      "end": 121.4,
+      "kind": "groove",
+      "energy": 0.61,
+      "drive": 0.75,
+      "vocals": 0.248,
+      "sectionIndex": 4
+    },
+    {
+      "start": 121.4,
+      "end": 126.43,
+      "kind": "sweep",
+      "energy": 0.65,
+      "drive": 0.324,
+      "vocals": 0.267,
+      "sectionIndex": 4
+    },
+    {
+      "start": 126.43,
+      "end": 134.76,
+      "kind": "sculpture",
+      "energy": 0.249,
+      "drive": 0.189,
+      "vocals": 0.422,
+      "sectionIndex": 5
+    },
+    {
+      "start": 134.76,
+      "end": 141.44,
+      "kind": "sweep",
+      "energy": 0.518,
+      "drive": 0.253,
+      "vocals": 0.317,
+      "sectionIndex": 5
+    },
+    {
+      "start": 141.44,
+      "end": 148.22,
+      "kind": "sweep",
+      "energy": 0.736,
+      "drive": 0.426,
+      "vocals": 0.247,
+      "sectionIndex": 5
+    },
+    {
+      "start": 148.22,
+      "end": 154.9,
+      "kind": "groove",
+      "energy": 0.694,
+      "drive": 0.75,
+      "vocals": 0.301,
+      "sectionIndex": 5
+    },
+    {
+      "start": 154.9,
+      "end": 161.62,
+      "kind": "impact",
+      "energy": 0.78,
+      "drive": 0.75,
+      "vocals": 0.275,
+      "sectionIndex": 6
+    },
+    {
+      "start": 161.62,
+      "end": 168.32,
+      "kind": "impact",
+      "energy": 0.765,
+      "drive": 0.75,
+      "vocals": 0.259,
+      "sectionIndex": 6
+    },
+    {
+      "start": 168.32,
+      "end": 175.02,
+      "kind": "sweep",
+      "energy": 0.753,
+      "drive": 0.441,
+      "vocals": 0.267,
+      "sectionIndex": 7
+    },
+    {
+      "start": 175.02,
+      "end": 181.74,
+      "kind": "sweep",
+      "energy": 0.773,
+      "drive": 0.418,
+      "vocals": 0.261,
+      "sectionIndex": 7
+    },
+    {
+      "start": 181.74,
+      "end": 186.74,
+      "kind": "impact",
+      "energy": 0.764,
+      "drive": 0.75,
+      "vocals": 0.28,
+      "sectionIndex": 7
+    },
+    {
+      "start": 186.74,
+      "end": 188.3,
+      "kind": "sculpture",
+      "energy": 0.15,
+      "drive": 0.302,
+      "vocals": 0.169,
+      "sectionIndex": 8
+    },
+    {
+      "start": 188.3,
+      "end": 189.60000000000002,
+      "kind": "silence",
+      "energy": 0.033,
+      "drive": 0.066,
+      "vocals": 0.433,
+      "sectionIndex": 8
+    },
+    {
+      "start": 189.60000000000002,
+      "end": 190.70000000000002,
+      "kind": "sculpture",
+      "energy": 0.087,
+      "drive": 0.002,
+      "vocals": 0.907,
+      "sectionIndex": 8
+    },
+    {
+      "start": 190.70000000000002,
+      "end": 192.7024375,
+      "kind": "silence",
+      "energy": 0,
+      "drive": 0.001,
+      "vocals": 0.615,
+      "sectionIndex": 8
+    }
+  ],
+  "movementCues": 115,
+  "gestures": 67,
+  "accents": 6,
+  "changes": [
+    {
+      "time": 9.14,
+      "formation": "fan"
+    },
+    {
+      "time": 10.82,
+      "formation": "parallel"
+    },
+    {
+      "time": 13.84,
+      "formation": "fan"
+    },
+    {
+      "time": 22.54,
+      "formation": "cross"
+    },
+    {
+      "time": 24.22,
+      "formation": "fan"
+    },
+    {
+      "time": 47.69,
+      "formation": "wings"
+    },
+    {
+      "time": 50.84,
+      "formation": "fan"
+    },
+    {
+      "time": 53.36,
+      "formation": "cross"
+    },
+    {
+      "time": 56.06,
+      "formation": "fan"
+    },
+    {
+      "time": 86.8,
+      "formation": "tiers"
+    },
+    {
+      "time": 90.18,
+      "formation": "cross"
+    },
+    {
+      "time": 108.8,
+      "formation": "fan"
+    },
+    {
+      "time": 114.72,
+      "formation": "wings"
+    },
+    {
+      "time": 118.04,
+      "formation": "fan"
+    },
+    {
+      "time": 148.22,
+      "formation": "wings"
+    },
+    {
+      "time": 153.24,
+      "formation": "parallel"
+    },
+    {
+      "time": 154.9,
+      "formation": "fan"
+    },
+    {
+      "time": 183.4,
+      "formation": "wings"
+    },
+    {
+      "time": 185.08,
+      "formation": "cross"
+    }
+  ],
+  "windows": [
+    {
+      "start": 0,
+      "end": 8,
+      "panSpan": 0,
+      "tiltSpan": 0,
+      "moves": 1,
+      "forms": [],
+      "active": [
+        0,
+        6
+      ],
+      "rowSets": [
+        "",
+        "6,11.5,17"
+      ],
+      "power": [
+        0.568,
+        6.63
+      ]
+    },
+    {
+      "start": 8,
+      "end": 16,
+      "panSpan": 25.742,
+      "tiltSpan": 0.349,
+      "moves": 5,
+      "forms": [
+        "fan",
+        "parallel"
+      ],
+      "active": [
+        6,
+        38
+      ],
+      "rowSets": [
+        "6,11.5,17",
+        "6,11.5,17,22.5",
+        "11.5,17,22.5"
+      ],
+      "power": [
+        3.442,
+        14.007
+      ]
+    },
+    {
+      "start": 16,
+      "end": 24,
+      "panSpan": 4.46,
+      "tiltSpan": 0.372,
+      "moves": 4,
+      "forms": [
+        "cross"
+      ],
+      "active": [
+        12,
+        48
+      ],
+      "rowSets": [
+        "11.5,17,22.5",
+        "11.5,17,22.5,28",
+        "17,22.5,28",
+        "17,22.5,28,33.5",
+        "22.5,28,33.5"
+      ],
+      "power": [
+        5.348,
+        25.802
+      ]
+    },
+    {
+      "start": 24,
+      "end": 32,
+      "panSpan": 5.155,
+      "tiltSpan": 0.094,
+      "moves": 6,
+      "forms": [
+        "fan"
+      ],
+      "active": [
+        36,
+        48
+      ],
+      "rowSets": [
+        "22.5,28,33.5",
+        "6,22.5,28,33.5",
+        "6,28,33.5"
+      ],
+      "power": [
+        8.636,
+        24.968
+      ]
+    },
+    {
+      "start": 32,
+      "end": 40,
+      "panSpan": 6.667,
+      "tiltSpan": 0.109,
+      "moves": 6,
+      "forms": [
+        "fan"
+      ],
+      "active": [
+        36,
+        36
+      ],
+      "rowSets": [
+        "6,28,33.5"
+      ],
+      "power": [
+        5.832,
+        17.812
+      ]
+    },
+    {
+      "start": 40,
+      "end": 48,
+      "panSpan": 23.545,
+      "tiltSpan": 0.102,
+      "moves": 8,
+      "forms": [
+        "fan",
+        "wings"
+      ],
+      "active": [
+        12,
+        40
+      ],
+      "rowSets": [
+        "6,28,33.5",
+        "6,11.5,28,33.5",
+        "6,11.5,33.5"
+      ],
+      "power": [
+        4.944,
+        23.08
+      ]
+    },
+    {
+      "start": 48,
+      "end": 56,
+      "panSpan": 22.695,
+      "tiltSpan": 0.132,
+      "moves": 5,
+      "forms": [
+        "wings",
+        "fan",
+        "cross"
+      ],
+      "active": [
+        36,
+        48
+      ],
+      "rowSets": [
+        "6,11.5,17,33.5",
+        "6,11.5,17"
+      ],
+      "power": [
+        9.733,
+        22.029
+      ]
+    },
+    {
+      "start": 56,
+      "end": 64,
+      "panSpan": 11.986,
+      "tiltSpan": 0.124,
+      "moves": 4,
+      "forms": [
+        "fan"
+      ],
+      "active": [
+        36,
+        48
+      ],
+      "rowSets": [
+        "6,11.5,17",
+        "6,11.5,17,22.5",
+        "11.5,17,22.5"
+      ],
+      "power": [
+        8.767,
+        24.18
+      ]
+    },
+    {
+      "start": 64,
+      "end": 72,
+      "panSpan": 13.477,
+      "tiltSpan": 0.106,
+      "moves": 3,
+      "forms": [],
+      "active": [
+        36,
+        48
+      ],
+      "rowSets": [
+        "11.5,17,22.5",
+        "11.5,17,22.5,28",
+        "17,22.5,28"
+      ],
+      "power": [
+        7.97,
+        22.401
+      ]
+    },
+    {
+      "start": 72,
+      "end": 80,
+      "panSpan": 18.159,
+      "tiltSpan": 0.111,
+      "moves": 5,
+      "forms": [
+        "fan"
+      ],
+      "active": [
+        36,
+        48
+      ],
+      "rowSets": [
+        "17,22.5,28",
+        "17,22.5,28,33.5",
+        "22.5,28,33.5"
+      ],
+      "power": [
+        4.841,
+        21.126
+      ]
+    },
+    {
+      "start": 80,
+      "end": 88,
+      "panSpan": 21.711,
+      "tiltSpan": 0.21,
+      "moves": 5,
+      "forms": [
+        "fan",
+        "tiers"
+      ],
+      "active": [
+        36,
+        48
+      ],
+      "rowSets": [
+        "22.5,28,33.5",
+        "6,22.5,28,33.5",
+        "6,28,33.5",
+        "6,11.5,28,33.5",
+        "6,11.5,33.5"
+      ],
+      "power": [
+        5.907,
+        17.481
+      ]
+    },
+    {
+      "start": 88,
+      "end": 96,
+      "panSpan": 24.039,
+      "tiltSpan": 0.14,
+      "moves": 5,
+      "forms": [
+        "cross"
+      ],
+      "active": [
+        36,
+        48
+      ],
+      "rowSets": [
+        "6,11.5,33.5",
+        "6,11.5,17,33.5",
+        "6,11.5,17"
+      ],
+      "power": [
+        5.653,
+        13.067
+      ]
+    },
+    {
+      "start": 96,
+      "end": 104,
+      "panSpan": 25.906,
+      "tiltSpan": 0.11,
+      "moves": 6,
+      "forms": [],
+      "active": [
+        12,
+        48
+      ],
+      "rowSets": [
+        "6,11.5,17",
+        "6,11.5,17,22.5",
+        "11.5,17,22.5",
+        "11.5,17,22.5,28",
+        "17,22.5,28"
+      ],
+      "power": [
+        5.111,
+        22.655
+      ]
+    },
+    {
+      "start": 104,
+      "end": 112,
+      "panSpan": 16.835,
+      "tiltSpan": 0.075,
+      "moves": 4,
+      "forms": [
+        "cross",
+        "fan"
+      ],
+      "active": [
+        36,
+        48
+      ],
+      "rowSets": [
+        "17,22.5,28",
+        "17,22.5,28,33.5",
+        "22.5,28,33.5"
+      ],
+      "power": [
+        7.922,
+        23.346
+      ]
+    },
+    {
+      "start": 112,
+      "end": 120,
+      "panSpan": 6.802,
+      "tiltSpan": 0.162,
+      "moves": 6,
+      "forms": [
+        "fan",
+        "wings"
+      ],
+      "active": [
+        36,
+        36
+      ],
+      "rowSets": [
+        "22.5,28,33.5"
+      ],
+      "power": [
+        8.404,
+        20.783
+      ]
+    },
+    {
+      "start": 120,
+      "end": 128,
+      "panSpan": 20.358,
+      "tiltSpan": 0.125,
+      "moves": 6,
+      "forms": [
+        "fan"
+      ],
+      "active": [
+        6,
+        48
+      ],
+      "rowSets": [
+        "22.5,28,33.5",
+        "6,22.5,28,33.5",
+        "6,28,33.5",
+        "6,11.5,28,33.5",
+        "6,11.5,33.5"
+      ],
+      "power": [
+        3.231,
+        22.358
+      ]
+    },
+    {
+      "start": 128,
+      "end": 136,
+      "panSpan": 39.068,
+      "tiltSpan": 0.117,
+      "moves": 2,
+      "forms": [],
+      "active": [
+        6,
+        38
+      ],
+      "rowSets": [
+        "6,11.5,33.5",
+        "6,11.5,17,33.5",
+        "6,11.5,17"
+      ],
+      "power": [
+        3.116,
+        10.486
+      ]
+    },
+    {
+      "start": 136,
+      "end": 144,
+      "panSpan": 22.474,
+      "tiltSpan": 0.075,
+      "moves": 3,
+      "forms": [],
+      "active": [
+        36,
+        48
+      ],
+      "rowSets": [
+        "6,11.5,17",
+        "6,11.5,17,22.5",
+        "11.5,17,22.5"
+      ],
+      "power": [
+        7.522,
+        17.921
+      ]
+    },
+    {
+      "start": 144,
+      "end": 152,
+      "panSpan": 35.508,
+      "tiltSpan": 0.172,
+      "moves": 6,
+      "forms": [
+        "wings"
+      ],
+      "active": [
+        36,
+        48
+      ],
+      "rowSets": [
+        "11.5,17,22.5",
+        "11.5,17,22.5,28",
+        "17,22.5,28"
+      ],
+      "power": [
+        12.096,
+        22.41
+      ]
+    },
+    {
+      "start": 152,
+      "end": 160,
+      "panSpan": 26.964,
+      "tiltSpan": 0.061,
+      "moves": 6,
+      "forms": [
+        "parallel",
+        "fan"
+      ],
+      "active": [
+        30,
+        72
+      ],
+      "rowSets": [
+        "17,22.5,28",
+        "6,11.5,17,22.5,28,33.5",
+        "6,11.5,22.5,28,33.5"
+      ],
+      "power": [
+        12.865,
+        36.89
+      ]
+    },
+    {
+      "start": 160,
+      "end": 168,
+      "panSpan": 5.657,
+      "tiltSpan": 0.069,
+      "moves": 5,
+      "forms": [
+        "fan"
+      ],
+      "active": [
+        60,
+        60
+      ],
+      "rowSets": [
+        "6,11.5,22.5,28,33.5"
+      ],
+      "power": [
+        17.794,
+        39.494
+      ]
+    },
+    {
+      "start": 168,
+      "end": 176,
+      "panSpan": 12.6,
+      "tiltSpan": 0.092,
+      "moves": 6,
+      "forms": [],
+      "active": [
+        36,
+        60
+      ],
+      "rowSets": [
+        "6,11.5,22.5,28,33.5",
+        "6,28,33.5"
+      ],
+      "power": [
+        8.634,
+        28.21
+      ]
+    },
+    {
+      "start": 176,
+      "end": 184,
+      "panSpan": 12.979,
+      "tiltSpan": 0.1,
+      "moves": 6,
+      "forms": [
+        "fan",
+        "wings"
+      ],
+      "active": [
+        36,
+        60
+      ],
+      "rowSets": [
+        "6,28,33.5",
+        "6,11.5,17,22.5,33.5"
+      ],
+      "power": [
+        9.281,
+        40.333
+      ]
+    },
+    {
+      "start": 184,
+      "end": 192,
+      "panSpan": 14.251,
+      "tiltSpan": 0.161,
+      "moves": 2,
+      "forms": [
+        "cross"
+      ],
+      "active": [
+        0,
+        60
+      ],
+      "rowSets": [
+        "6,11.5,17,22.5,33.5",
+        "6,11.5,17",
+        "",
+        "17,22.5,28"
+      ],
+      "power": [
+        0,
+        42.013
+      ]
+    },
+    {
+      "start": 192,
+      "end": 192.7024375,
+      "panSpan": 0,
+      "tiltSpan": 0,
+      "moves": 0,
+      "forms": [],
+      "active": [
+        0,
+        0
+      ],
+      "rowSets": [
+        ""
+      ],
+      "power": [
+        0,
+        0
+      ]
+    }
+  ]
+}

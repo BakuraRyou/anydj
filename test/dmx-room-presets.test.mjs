@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {largeClubRoom,clubStageRoom} from '../public/dmx-room-presets.js';
+import {largeHallRoomWithDJQuietZone,largeClubRoom,clubStageRoom,clubStageRoomWithoutQuietZones} from '../public/dmx-room-presets.js';
 import {applyRoomPlan,validateRoomPlan} from '../public/dmx-ar-model.js';
 
 test('large club is a portable, independent room with 192 supported lights',()=>{
@@ -47,4 +47,33 @@ test('club stage keeps its geometry and all three lighting sections when exporte
     assert.ok((p.motionArea.y+p.motionArea.depth)*plan.depth<=32.00001);
   }
   assert.notEqual(plan.id,clubStageRoom().id);
+});
+
+
+test('additional stage room has no quiet zones and preserves the full stage setup',()=>{
+  const original=clubStageRoom(),plan=clubStageRoomWithoutQuietZones();
+  assert.notEqual(plan.id,original.id);
+  assert.equal(plan.name,'Club-Bühne · ohne Ruhezonen');
+  assert.deepEqual(plan.zones,[]);
+  assert.equal(original.zones.length,3);
+  assert.deepEqual(plan.positions,original.positions);
+  assert.deepEqual(plan.mesh,original.mesh);
+  assert.deepEqual(validateRoomPlan(JSON.parse(JSON.stringify(plan))),plan);
+});
+
+
+test('large hall preserves 192 lights and protects only the central DJ booth',()=>{
+  const original=largeClubRoom(),plan=largeHallRoomWithDJQuietZone();
+  assert.notEqual(plan.id,original.id);
+  assert.deepEqual(plan.positions,original.positions);
+  assert.equal(Object.values(plan.positions).filter(p=>p.type!=='truss').length,192);
+  assert.equal(original.zones.length,4);
+  assert.equal(plan.zones.length,1);
+  const zone=plan.zones[0];
+  assert.equal(zone.name,'DJ-Pult');
+  assert.ok(Math.abs((zone.x-.5)*plan.width+3)<1e-9);
+  assert.equal(zone.width*plan.width,6);
+  assert.equal(zone.depth*plan.depth,3);
+  assert.equal(zone.y,0);
+  assert.deepEqual(validateRoomPlan(JSON.parse(JSON.stringify(plan))),plan);
 });

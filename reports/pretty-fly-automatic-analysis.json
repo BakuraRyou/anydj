@@ -1,0 +1,925 @@
+{
+  "method": "Fresh local full audio analysis; automatic/balanced profile, minimum 5 maximum 100; actual 192 fixture preset. Eight virtual moving sources, shared RGB static source, no saved user overrides, deck mix, routing or motor smoothing.",
+  "duration": 192.7024375,
+  "sections": [
+    {
+      "start": 0,
+      "end": 30.92,
+      "look": "lift"
+    },
+    {
+      "start": 30.92,
+      "end": 47.69,
+      "look": "peak"
+    },
+    {
+      "start": 47.69,
+      "end": 84.53,
+      "look": "peak"
+    },
+    {
+      "start": 84.53,
+      "end": 101.3,
+      "look": "flow"
+    },
+    {
+      "start": 101.3,
+      "end": 126.43,
+      "look": "peak"
+    },
+    {
+      "start": 126.43,
+      "end": 154.9,
+      "look": "lift"
+    },
+    {
+      "start": 154.9,
+      "end": 168.32,
+      "look": "peak"
+    },
+    {
+      "start": 168.32,
+      "end": 186.74,
+      "look": "peak"
+    },
+    {
+      "start": 186.74,
+      "end": 192.7024375,
+      "look": "held"
+    }
+  ],
+  "sceneTimeline": [
+    {
+      "start": 0,
+      "end": 9.14,
+      "kind": "sculpture",
+      "energy": 0.078,
+      "drive": 0.261,
+      "vocals": 0.297,
+      "sectionIndex": 0
+    },
+    {
+      "start": 9.14,
+      "end": 15.84,
+      "kind": "groove",
+      "energy": 0.16,
+      "drive": 0.533,
+      "vocals": 0.283,
+      "sectionIndex": 0
+    },
+    {
+      "start": 15.84,
+      "end": 22.54,
+      "kind": "build",
+      "energy": 0.274,
+      "drive": 0.445,
+      "vocals": 0.279,
+      "sectionIndex": 0
+    },
+    {
+      "start": 22.54,
+      "end": 30.92,
+      "kind": "groove",
+      "energy": 0.599,
+      "drive": 0.501,
+      "vocals": 0.011,
+      "sectionIndex": 0
+    },
+    {
+      "start": 30.92,
+      "end": 37.62,
+      "kind": "sweep",
+      "energy": 0.596,
+      "drive": 0.422,
+      "vocals": 0.261,
+      "sectionIndex": 1
+    },
+    {
+      "start": 37.62,
+      "end": 44.32,
+      "kind": "groove",
+      "energy": 0.587,
+      "drive": 0.487,
+      "vocals": 0.245,
+      "sectionIndex": 1
+    },
+    {
+      "start": 44.32,
+      "end": 47.69,
+      "kind": "build",
+      "energy": 0.667,
+      "drive": 0.54,
+      "vocals": 0.27,
+      "sectionIndex": 1
+    },
+    {
+      "start": 47.69,
+      "end": 54.4,
+      "kind": "sweep",
+      "energy": 0.685,
+      "drive": 0.398,
+      "vocals": 0.252,
+      "sectionIndex": 2
+    },
+    {
+      "start": 54.4,
+      "end": 61.1,
+      "kind": "sweep",
+      "energy": 0.645,
+      "drive": 0.399,
+      "vocals": 0.254,
+      "sectionIndex": 2
+    },
+    {
+      "start": 61.1,
+      "end": 67.76,
+      "kind": "sweep",
+      "energy": 0.652,
+      "drive": 0.348,
+      "vocals": 0.277,
+      "sectionIndex": 2
+    },
+    {
+      "start": 67.76,
+      "end": 74.48,
+      "kind": "sweep",
+      "energy": 0.563,
+      "drive": 0.37,
+      "vocals": 0.247,
+      "sectionIndex": 2
+    },
+    {
+      "start": 74.48,
+      "end": 81.18,
+      "kind": "sweep",
+      "energy": 0.615,
+      "drive": 0.341,
+      "vocals": 0.246,
+      "sectionIndex": 2
+    },
+    {
+      "start": 81.18,
+      "end": 84.53,
+      "kind": "sweep",
+      "energy": 0.656,
+      "drive": 0.342,
+      "vocals": 0.262,
+      "sectionIndex": 2
+    },
+    {
+      "start": 84.53,
+      "end": 91.24,
+      "kind": "sweep",
+      "energy": 0.584,
+      "drive": 0.323,
+      "vocals": 0.311,
+      "sectionIndex": 3
+    },
+    {
+      "start": 91.24,
+      "end": 97.94,
+      "kind": "sweep",
+      "energy": 0.576,
+      "drive": 0.432,
+      "vocals": 0.278,
+      "sectionIndex": 3
+    },
+    {
+      "start": 97.94,
+      "end": 101.3,
+      "kind": "build",
+      "energy": 0.632,
+      "drive": 0.456,
+      "vocals": 0.311,
+      "sectionIndex": 3
+    },
+    {
+      "start": 101.3,
+      "end": 108,
+      "kind": "sweep",
+      "energy": 0.665,
+      "drive": 0.391,
+      "vocals": 0.251,
+      "sectionIndex": 4
+    },
+    {
+      "start": 108,
+      "end": 114.72,
+      "kind": "sweep",
+      "energy": 0.608,
+      "drive": 0.388,
+      "vocals": 0.228,
+      "sectionIndex": 4
+    },
+    {
+      "start": 114.72,
+      "end": 121.4,
+      "kind": "sweep",
+      "energy": 0.61,
+      "drive": 0.326,
+      "vocals": 0.248,
+      "sectionIndex": 4
+    },
+    {
+      "start": 121.4,
+      "end": 126.43,
+      "kind": "sweep",
+      "energy": 0.65,
+      "drive": 0.324,
+      "vocals": 0.267,
+      "sectionIndex": 4
+    },
+    {
+      "start": 126.43,
+      "end": 134.76,
+      "kind": "sculpture",
+      "energy": 0.249,
+      "drive": 0.189,
+      "vocals": 0.422,
+      "sectionIndex": 5
+    },
+    {
+      "start": 134.76,
+      "end": 141.44,
+      "kind": "sweep",
+      "energy": 0.518,
+      "drive": 0.253,
+      "vocals": 0.317,
+      "sectionIndex": 5
+    },
+    {
+      "start": 141.44,
+      "end": 148.22,
+      "kind": "sweep",
+      "energy": 0.736,
+      "drive": 0.426,
+      "vocals": 0.247,
+      "sectionIndex": 5
+    },
+    {
+      "start": 148.22,
+      "end": 154.9,
+      "kind": "groove",
+      "energy": 0.694,
+      "drive": 0.535,
+      "vocals": 0.301,
+      "sectionIndex": 5
+    },
+    {
+      "start": 154.9,
+      "end": 161.62,
+      "kind": "impact",
+      "energy": 0.78,
+      "drive": 0.451,
+      "vocals": 0.275,
+      "sectionIndex": 6
+    },
+    {
+      "start": 161.62,
+      "end": 168.32,
+      "kind": "impact",
+      "energy": 0.765,
+      "drive": 0.495,
+      "vocals": 0.259,
+      "sectionIndex": 6
+    },
+    {
+      "start": 168.32,
+      "end": 175.02,
+      "kind": "sweep",
+      "energy": 0.753,
+      "drive": 0.441,
+      "vocals": 0.267,
+      "sectionIndex": 7
+    },
+    {
+      "start": 175.02,
+      "end": 181.74,
+      "kind": "sweep",
+      "energy": 0.773,
+      "drive": 0.418,
+      "vocals": 0.261,
+      "sectionIndex": 7
+    },
+    {
+      "start": 181.74,
+      "end": 186.74,
+      "kind": "impact",
+      "energy": 0.764,
+      "drive": 0.451,
+      "vocals": 0.28,
+      "sectionIndex": 7
+    },
+    {
+      "start": 186.74,
+      "end": 188.3,
+      "kind": "sculpture",
+      "energy": 0.15,
+      "drive": 0.302,
+      "vocals": 0.169,
+      "sectionIndex": 8
+    },
+    {
+      "start": 188.3,
+      "end": 189.60000000000002,
+      "kind": "silence",
+      "energy": 0.033,
+      "drive": 0.066,
+      "vocals": 0.433,
+      "sectionIndex": 8
+    },
+    {
+      "start": 189.60000000000002,
+      "end": 190.70000000000002,
+      "kind": "sculpture",
+      "energy": 0.087,
+      "drive": 0.002,
+      "vocals": 0.907,
+      "sectionIndex": 8
+    },
+    {
+      "start": 190.70000000000002,
+      "end": 192.7024375,
+      "kind": "silence",
+      "energy": 0,
+      "drive": 0.001,
+      "vocals": 0.615,
+      "sectionIndex": 8
+    }
+  ],
+  "movementCues": 108,
+  "gestures": 34,
+  "accents": 2,
+  "changes": [
+    {
+      "time": 9.14,
+      "formation": "fan"
+    },
+    {
+      "time": 10.82,
+      "formation": "parallel"
+    },
+    {
+      "time": 13.84,
+      "formation": "tiers"
+    },
+    {
+      "time": 22.54,
+      "formation": "fan"
+    },
+    {
+      "time": 24.22,
+      "formation": "parallel"
+    },
+    {
+      "time": 25.88,
+      "formation": "fan"
+    },
+    {
+      "time": 37.62,
+      "formation": "parallel"
+    },
+    {
+      "time": 40.16,
+      "formation": "fan"
+    },
+    {
+      "time": 148.22,
+      "formation": "wings"
+    },
+    {
+      "time": 153.24,
+      "formation": "parallel"
+    },
+    {
+      "time": 154.9,
+      "formation": "fan"
+    },
+    {
+      "time": 183.4,
+      "formation": "wings"
+    },
+    {
+      "time": 185.08,
+      "formation": "cross"
+    }
+  ],
+  "windows": [
+    {
+      "start": 0,
+      "end": 8,
+      "panSpan": 0,
+      "tiltSpan": 0,
+      "moves": 1,
+      "forms": [],
+      "active": [
+        0,
+        6
+      ],
+      "rowSets": [
+        "",
+        "6,11.5,17"
+      ],
+      "power": [
+        1.888,
+        20.353
+      ]
+    },
+    {
+      "start": 8,
+      "end": 16,
+      "panSpan": 25.053,
+      "tiltSpan": 0.45,
+      "moves": 5,
+      "forms": [
+        "fan",
+        "parallel",
+        "tiers"
+      ],
+      "active": [
+        6,
+        36
+      ],
+      "rowSets": [
+        "6,11.5,17"
+      ],
+      "power": [
+        10.568,
+        30.079
+      ]
+    },
+    {
+      "start": 16,
+      "end": 24,
+      "panSpan": 17.134,
+      "tiltSpan": 0.373,
+      "moves": 4,
+      "forms": [
+        "fan"
+      ],
+      "active": [
+        12,
+        36
+      ],
+      "rowSets": [
+        "6,11.5,17"
+      ],
+      "power": [
+        12.55,
+        48.129
+      ]
+    },
+    {
+      "start": 24,
+      "end": 32,
+      "panSpan": 34.536,
+      "tiltSpan": 0.133,
+      "moves": 6,
+      "forms": [
+        "parallel",
+        "fan"
+      ],
+      "active": [
+        36,
+        48
+      ],
+      "rowSets": [
+        "6,11.5,17",
+        "6,11.5,17,22.5",
+        "11.5,17,22.5"
+      ],
+      "power": [
+        18.757,
+        51.754
+      ]
+    },
+    {
+      "start": 32,
+      "end": 40,
+      "panSpan": 30.711,
+      "tiltSpan": 0.09,
+      "moves": 4,
+      "forms": [
+        "parallel"
+      ],
+      "active": [
+        36,
+        36
+      ],
+      "rowSets": [
+        "11.5,17,22.5"
+      ],
+      "power": [
+        12.297,
+        36.398
+      ]
+    },
+    {
+      "start": 40,
+      "end": 48,
+      "panSpan": 23.527,
+      "tiltSpan": 0.1,
+      "moves": 9,
+      "forms": [
+        "fan"
+      ],
+      "active": [
+        12,
+        36
+      ],
+      "rowSets": [
+        "11.5,17,22.5"
+      ],
+      "power": [
+        11.328,
+        41.49
+      ]
+    },
+    {
+      "start": 48,
+      "end": 56,
+      "panSpan": 10.531,
+      "tiltSpan": 0.083,
+      "moves": 3,
+      "forms": [],
+      "active": [
+        36,
+        48
+      ],
+      "rowSets": [
+        "11.5,17,22.5,28",
+        "17,22.5,28"
+      ],
+      "power": [
+        20.167,
+        44.76
+      ]
+    },
+    {
+      "start": 56,
+      "end": 64,
+      "panSpan": 10.307,
+      "tiltSpan": 0.083,
+      "moves": 3,
+      "forms": [],
+      "active": [
+        36,
+        36
+      ],
+      "rowSets": [
+        "17,22.5,28"
+      ],
+      "power": [
+        18.691,
+        49.187
+      ]
+    },
+    {
+      "start": 64,
+      "end": 72,
+      "panSpan": 13.477,
+      "tiltSpan": 0.106,
+      "moves": 3,
+      "forms": [],
+      "active": [
+        36,
+        36
+      ],
+      "rowSets": [
+        "17,22.5,28"
+      ],
+      "power": [
+        17.707,
+        49.187
+      ]
+    },
+    {
+      "start": 72,
+      "end": 80,
+      "panSpan": 11.056,
+      "tiltSpan": 0.093,
+      "moves": 5,
+      "forms": [],
+      "active": [
+        36,
+        36
+      ],
+      "rowSets": [
+        "17,22.5,28"
+      ],
+      "power": [
+        10.821,
+        47.219
+      ]
+    },
+    {
+      "start": 80,
+      "end": 88,
+      "panSpan": 24.509,
+      "tiltSpan": 0.084,
+      "moves": 5,
+      "forms": [],
+      "active": [
+        36,
+        48
+      ],
+      "rowSets": [
+        "17,22.5,28",
+        "17,22.5,28,33.5",
+        "22.5,28,33.5"
+      ],
+      "power": [
+        12.297,
+        38.857
+      ]
+    },
+    {
+      "start": 88,
+      "end": 96,
+      "panSpan": 14.994,
+      "tiltSpan": 0,
+      "moves": 4,
+      "forms": [],
+      "active": [
+        36,
+        36
+      ],
+      "rowSets": [
+        "22.5,28,33.5"
+      ],
+      "power": [
+        12.297,
+        28.528
+      ]
+    },
+    {
+      "start": 96,
+      "end": 104,
+      "panSpan": 25.906,
+      "tiltSpan": 0.11,
+      "moves": 6,
+      "forms": [],
+      "active": [
+        12,
+        48
+      ],
+      "rowSets": [
+        "22.5,28,33.5",
+        "6,22.5,28,33.5",
+        "6,28,33.5"
+      ],
+      "power": [
+        11.689,
+        45.744
+      ]
+    },
+    {
+      "start": 104,
+      "end": 112,
+      "panSpan": 16.419,
+      "tiltSpan": 0.134,
+      "moves": 3,
+      "forms": [],
+      "active": [
+        36,
+        36
+      ],
+      "rowSets": [
+        "6,28,33.5"
+      ],
+      "power": [
+        17.707,
+        49.187
+      ]
+    },
+    {
+      "start": 112,
+      "end": 120,
+      "panSpan": 10.38,
+      "tiltSpan": 0.084,
+      "moves": 5,
+      "forms": [],
+      "active": [
+        36,
+        36
+      ],
+      "rowSets": [
+        "6,28,33.5"
+      ],
+      "power": [
+        17.707,
+        43.776
+      ]
+    },
+    {
+      "start": 120,
+      "end": 128,
+      "panSpan": 14.062,
+      "tiltSpan": 0.114,
+      "moves": 6,
+      "forms": [],
+      "active": [
+        6,
+        38
+      ],
+      "rowSets": [
+        "6,28,33.5",
+        "6,11.5,28,33.5",
+        "6,11.5,33.5"
+      ],
+      "power": [
+        10.959,
+        46.236
+      ]
+    },
+    {
+      "start": 128,
+      "end": 136,
+      "panSpan": 39.068,
+      "tiltSpan": 0.117,
+      "moves": 2,
+      "forms": [],
+      "active": [
+        6,
+        36
+      ],
+      "rowSets": [
+        "6,11.5,33.5"
+      ],
+      "power": [
+        10.568,
+        25.2
+      ]
+    },
+    {
+      "start": 136,
+      "end": 144,
+      "panSpan": 22.474,
+      "tiltSpan": 0.075,
+      "moves": 3,
+      "forms": [],
+      "active": [
+        36,
+        36
+      ],
+      "rowSets": [
+        "6,11.5,33.5"
+      ],
+      "power": [
+        16.232,
+        39.349
+      ]
+    },
+    {
+      "start": 144,
+      "end": 152,
+      "panSpan": 34.888,
+      "tiltSpan": 0.172,
+      "moves": 6,
+      "forms": [
+        "wings"
+      ],
+      "active": [
+        36,
+        36
+      ],
+      "rowSets": [
+        "6,11.5,33.5"
+      ],
+      "power": [
+        26.561,
+        49.197
+      ]
+    },
+    {
+      "start": 152,
+      "end": 160,
+      "panSpan": 26.024,
+      "tiltSpan": 0.061,
+      "moves": 6,
+      "forms": [
+        "parallel",
+        "fan"
+      ],
+      "active": [
+        36,
+        72
+      ],
+      "rowSets": [
+        "6,11.5,33.5",
+        "6,11.5,17,22.5,28,33.5",
+        "6,11.5,17,22.5,28"
+      ],
+      "power": [
+        26.878,
+        55.632
+      ]
+    },
+    {
+      "start": 160,
+      "end": 168,
+      "panSpan": 5.578,
+      "tiltSpan": 0.072,
+      "moves": 5,
+      "forms": [
+        "fan"
+      ],
+      "active": [
+        60,
+        60
+      ],
+      "rowSets": [
+        "6,11.5,17,22.5,28"
+      ],
+      "power": [
+        25.628,
+        56.882
+      ]
+    },
+    {
+      "start": 168,
+      "end": 176,
+      "panSpan": 12.801,
+      "tiltSpan": 0.093,
+      "moves": 6,
+      "forms": [],
+      "active": [
+        36,
+        60
+      ],
+      "rowSets": [
+        "6,11.5,17,22.5,28",
+        "11.5,17,22.5"
+      ],
+      "power": [
+        19.675,
+        49.187
+      ]
+    },
+    {
+      "start": 176,
+      "end": 184,
+      "panSpan": 12.979,
+      "tiltSpan": 0.1,
+      "moves": 6,
+      "forms": [
+        "fan",
+        "wings"
+      ],
+      "active": [
+        36,
+        60
+      ],
+      "rowSets": [
+        "11.5,17,22.5",
+        "11.5,17,22.5,28,33.5"
+      ],
+      "power": [
+        21.15,
+        60.007
+      ]
+    },
+    {
+      "start": 184,
+      "end": 192,
+      "panSpan": 13.538,
+      "tiltSpan": 0.161,
+      "moves": 2,
+      "forms": [
+        "cross"
+      ],
+      "active": [
+        0,
+        60
+      ],
+      "rowSets": [
+        "11.5,17,22.5,28,33.5",
+        "17,22.5,28",
+        ""
+      ],
+      "power": [
+        5.286,
+        62.508
+      ]
+    },
+    {
+      "start": 192,
+      "end": 192.7024375,
+      "panSpan": 0,
+      "tiltSpan": 0,
+      "moves": 0,
+      "forms": [],
+      "active": [
+        0,
+        0
+      ],
+      "rowSets": [
+        ""
+      ],
+      "power": [
+        5.286,
+        5.286
+      ]
+    }
+  ]
+}

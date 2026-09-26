@@ -1,0 +1,190 @@
+{
+  "eyeSize": [
+    1024,
+    1024
+  ],
+  "warmupFrames": 15,
+  "measuredFrames": 30,
+  "results": [
+    {
+      "renderer": "before",
+      "phase": "quiet",
+      "fixtures": 192,
+      "totalMs": {
+        "median": 28.4,
+        "p95": 76.7
+      },
+      "pixels": {
+        "left": 352197,
+        "right": 351111,
+        "parallax": 232396
+      }
+    },
+    {
+      "renderer": "before",
+      "phase": "intense",
+      "fixtures": 192,
+      "totalMs": {
+        "median": 128.2,
+        "p95": 8082
+      },
+      "pixels": {
+        "left": 796625,
+        "right": 797073,
+        "parallax": 503871
+      }
+    },
+    {
+      "renderer": "before",
+      "phase": "blackout",
+      "fixtures": 192,
+      "totalMs": {
+        "median": 10.9,
+        "p95": 16.9
+      },
+      "pixels": {
+        "left": 4613,
+        "right": 4627,
+        "parallax": 25181
+      }
+    },
+    {
+      "renderer": "before",
+      "phase": "recover",
+      "fixtures": 192,
+      "totalMs": {
+        "median": 73.8,
+        "p95": 7689.9
+      },
+      "pixels": {
+        "left": 796625,
+        "right": 797073,
+        "parallax": 503871
+      }
+    },
+    {
+      "renderer": "after",
+      "phase": "quiet",
+      "fixtures": 192,
+      "totalMs": {
+        "median": 9.8,
+        "p95": 706.2
+      },
+      "instancedBeams": true,
+      "frames": 45,
+      "buildMs": {
+        "median": 7.3,
+        "p95": 12
+      },
+      "submitMs": 0.8000000007450581,
+      "uploadedBytes": {
+        "median": 1288452,
+        "p95": 1288716
+      },
+      "vertices": 29333,
+      "beams": 72,
+      "visibleBeams": 144,
+      "volumeScale": 0.3333333333333333,
+      "framebufferWidth": 2048,
+      "framebufferHeight": 1024,
+      "pixels": {
+        "left": 255835,
+        "right": 255766,
+        "parallax": 181303
+      }
+    },
+    {
+      "renderer": "after",
+      "phase": "intense",
+      "fixtures": 192,
+      "totalMs": {
+        "median": 14.5,
+        "p95": 25
+      },
+      "instancedBeams": true,
+      "frames": 90,
+      "buildMs": {
+        "median": 10,
+        "p95": 19.6
+      },
+      "submitMs": 1.5,
+      "uploadedBytes": {
+        "median": 1689864,
+        "p95": 1690128
+      },
+      "vertices": 38456,
+      "beams": 192,
+      "visibleBeams": 384,
+      "volumeScale": 0.3333333333333333,
+      "framebufferWidth": 2048,
+      "framebufferHeight": 1024,
+      "pixels": {
+        "left": 981090,
+        "right": 981224,
+        "parallax": 639895
+      }
+    },
+    {
+      "renderer": "after",
+      "phase": "blackout",
+      "fixtures": 192,
+      "totalMs": {
+        "median": 4.5,
+        "p95": 8.9
+      },
+      "instancedBeams": true,
+      "frames": 135,
+      "buildMs": {
+        "median": 2.6,
+        "p95": 5.5
+      },
+      "submitMs": 0.30000000074505806,
+      "uploadedBytes": {
+        "median": 1077516,
+        "p95": 1077516
+      },
+      "vertices": 24545,
+      "beams": 0,
+      "visibleBeams": 0,
+      "volumeScale": 0.3333333333333333,
+      "framebufferWidth": 2048,
+      "framebufferHeight": 1024,
+      "pixels": {
+        "left": 2675,
+        "right": 2660,
+        "parallax": 21653
+      }
+    },
+    {
+      "renderer": "after",
+      "phase": "recover",
+      "fixtures": 192,
+      "totalMs": {
+        "median": 32.3,
+        "p95": 188.9
+      },
+      "instancedBeams": true,
+      "frames": 180,
+      "buildMs": {
+        "median": 10.1,
+        "p95": 22.3
+      },
+      "submitMs": 3.599999999627471,
+      "uploadedBytes": {
+        "median": 1689864,
+        "p95": 1690128
+      },
+      "vertices": 38456,
+      "beams": 192,
+      "visibleBeams": 384,
+      "volumeScale": 0.3333333333333333,
+      "framebufferWidth": 2048,
+      "framebufferHeight": 1024,
+      "pixels": {
+        "left": 981090,
+        "right": 981224,
+        "parallax": 639895
+      }
+    }
+  ]
+}

@@ -106,3 +106,19 @@ export function clubStageRoom() {
   plan.zones=[zone('stage-bar-left','Bar links',-18,12,3,16),zone('stage-bar-right','Bar rechts',15,12,3,16),zone('stage-foh','Regie / FOH',-4,2,8,4)];
   return validateRoomPlan(plan);
 }
+
+export function clubStageRoomWithoutQuietZones() {
+  const plan=clubStageRoom();
+  plan.name='Club-Bühne · ohne Ruhezonen';
+  plan.zones=[];
+  return plan;
+}
+
+export function largeHallRoomWithDJQuietZone() {
+  const plan=largeClubRoom();
+  plan.name='Große Halle · 192 Lichter · nur DJ-Ruhezone';
+  plan.style='industrial';
+  // Only the central DJ booth at the front is protected (6 × 3 metres).
+  plan.zones=[{id:'hall-dj',name:'DJ-Pult',x:12/30,y:0,width:6/30,depth:3/42}];
+  return validateRoomPlan(plan);
+}

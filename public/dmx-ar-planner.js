@@ -1,4 +1,4 @@
-import {largeClubRoom,clubStageRoom} from './dmx-room-presets.js';
+import {largeHallRoomWithDJQuietZone,largeClubRoom,clubStageRoomWithoutQuietZones,clubStageRoom} from './dmx-room-presets.js';
 import {compactDeviceManager} from './dmx-device-manager.js';
 import {importRoomModel,modelFileLimit} from './dmx-room-mesh.js';
 import {createZonePlan} from './dmx-zone-plan.js';
@@ -10,8 +10,8 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   let plans=[],selected='',enabled=false,disposed=false,step=1,fixture='',mode='select',draft=[],pointer=null,drag=null,preview=null,arReady=false;
   const renderRoom=createRoomPreview();let roomZones=null,zoneDrag=null,compact=null;
   let mapView={key:'',zoom:1,x:0,y:0},pan=null;
-  let undo=null,storageError='',lastMessage='',clubRoomAdded=false,clubStageRoomAdded=false;
-  try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved){plans=(saved.plans||[]).slice(0,20).flatMap(p=>{try{return [validateRoomPlan(p)];}catch{return [];}});selected=saved.selected;enabled=saved.enabled===true;clubRoomAdded=saved.clubRoomAdded===true;clubStageRoomAdded=saved.clubStageRoomAdded===true;}}catch{storageError='Deine Räume konnten nicht geladen werden. Du kannst eine Sicherung importieren.';}
+  let undo=null,storageError='',lastMessage='',clubRoomAdded=false,clubStageRoomAdded=false,clubStageOpenRoomAdded=false,hallDJRoomAdded=false;
+  try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved){plans=(saved.plans||[]).slice(0,20).flatMap(p=>{try{return [validateRoomPlan(p)];}catch{return [];}});selected=saved.selected;enabled=saved.enabled===true;clubRoomAdded=saved.clubRoomAdded===true;clubStageRoomAdded=saved.clubStageRoomAdded===true;clubStageOpenRoomAdded=saved.clubStageOpenRoomAdded===true;hallDJRoomAdded=saved.hallDJRoomAdded===true;}}catch{storageError='Deine Räume konnten nicht geladen werden. Du kannst eine Sicherung importieren.';}
   let libraryUpdated=false;
   if(!clubRoomAdded){
     // Recognize rooms created by the former button, including renamed rooms.
@@ -22,8 +22,10 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
     }
   }
   if(!clubStageRoomAdded&&plans.length<20){plans.push(clubStageRoom());clubStageRoomAdded=true;libraryUpdated=true;}
+  if(!clubStageOpenRoomAdded&&plans.length<20){plans.push(clubStageRoomWithoutQuietZones());clubStageOpenRoomAdded=true;libraryUpdated=true;}
+  if(!hallDJRoomAdded&&plans.length<20){plans.push(largeHallRoomWithDJQuietZone());hallDJRoomAdded=true;libraryUpdated=true;}
   if(!plans.some(p=>p.id===selected)){selected=plans[0]?.id||'';enabled=false;}
-  if(libraryUpdated)try{localStorage.setItem(storageKey,JSON.stringify({plans,selected,enabled,clubRoomAdded,clubStageRoomAdded}));}catch{storageError='Speichern auf diesem Gerät fehlgeschlagen. Bitte exportiere deinen Raum.';}
+  if(libraryUpdated)try{localStorage.setItem(storageKey,JSON.stringify({plans,selected,enabled,clubRoomAdded,clubStageRoomAdded,clubStageOpenRoomAdded,hallDJRoomAdded}));}catch{storageError='Speichern auf diesem Gerät fehlgeschlagen. Bitte exportiere deinen Raum.';}
 
   const current=()=>plans.find(p=>p.id===selected)||null;
   const root=document.createElement('details');root.className='stage-ar-planner';root.open=true;
@@ -75,7 +77,7 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   host.prepend(root);
   const q=name=>root.querySelector(`[data-ar-${name}]`);
   function notify(text,error=false){lastMessage=text;q('status').textContent=text;q('status').dataset.error=String(error);}
-  function persist(){try{localStorage.setItem(storageKey,JSON.stringify({plans,selected,enabled,clubRoomAdded,clubStageRoomAdded}));storageError='';}catch{storageError='Speichern auf diesem Gerät fehlgeschlagen. Bitte exportiere deinen Raum.';notify(storageError,true);}onChange();}
+  function persist(){try{localStorage.setItem(storageKey,JSON.stringify({plans,selected,enabled,clubRoomAdded,clubStageRoomAdded,clubStageOpenRoomAdded,hallDJRoomAdded}));storageError='';}catch{storageError='Speichern auf diesem Gerät fehlgeschlagen. Bitte exportiere deinen Raum.';notify(storageError,true);}onChange();}
   function commit(value,{message='Änderung gespeichert.',history=true}={}){
     const plan=validateRoomPlan(value),i=plans.findIndex(p=>p.id===plan.id);
     if(i<0&&plans.length>=20)throw Error('Du hast bereits 20 Räume. Exportiere und entferne zuerst einen alten Raum.');

@@ -57,7 +57,7 @@ try {
   const initial=await stored(),original=initial.plans.find(p=>p.id===initial.selected);
   assert.equal(original.name,'Wohnzimmer');assert.equal(Object.keys(original.positions).length,1);assert.equal(original.zones.length,1);
   await evaluate("document.querySelector('[data-ar-copy]').click()");
-  let saved=await stored();assert.equal(saved.plans.length,4);const copied=saved.selected;
+  let saved=await stored();assert.equal(saved.plans.length,6);const copied=saved.selected;
   const copy=saved.plans.find(p=>p.id===copied);
   assert.deepEqual(copy.positions,original.positions);assert.deepEqual(copy.zones,original.zones);
   await change('name','Partyraum');await change('height','5');
@@ -66,7 +66,7 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-ar-height]').value"),String(original.height));
   assert.equal((await stored()).enabled,true);
   await evaluate("document.querySelector('[data-ar-new-room]').click()");
-  saved=await stored();assert.equal(saved.plans.length,5);assert.equal(Object.keys(saved.plans.find(p=>p.id===saved.selected).positions).length,0);
+  saved=await stored();assert.equal(saved.plans.length,7);assert.equal(Object.keys(saved.plans.find(p=>p.id===saved.selected).positions).length,0);
   await change('room',copied);
   await evaluate('window.__beforeRoomReload=true');await c('Page.reload');await wait("!window.__beforeRoomReload&&document.querySelector('#stage-tab-3d')&&document.querySelector('[data-ar-room]')");await openRoom();
   assert.equal(await evaluate("document.querySelector('[data-ar-room]').value"),copied);
@@ -75,7 +75,7 @@ try {
   assert.deepEqual((await stored()).plans.find(p=>p.id===original.id),original);
   await change('room',initialClub.id);
   saved=await stored();const club=saved.plans.find(p=>p.id===saved.selected);
-  assert.equal(saved.plans.length,5);assert.equal(saved.enabled,true);
+  assert.equal(saved.plans.length,7);assert.equal(saved.enabled,true);
   assert.equal(club.name,'Großclub · 192 Lichter');
   assert.equal(Object.values(club.positions).filter(p=>p.type!=='truss').length,192);
   assert.deepEqual(saved.plans.find(p=>p.id===original.id),original);

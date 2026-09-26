@@ -131,3 +131,31 @@ test('unmetered changing sustained music develops from measured expression witho
  assert.equal(plan.showCues.length,0);assert.ok(plan.showScore.every(p=>p.role==='flow'));
  assert.ok(cues.length>2);assert.ok(cues.slice(1).every(c=>base.arrangement.motionEnvelope.some(p=>p.time===c.time)));
 });
+test('whole-song context reserves the full ensemble for the strongest contrasting passage',()=>{
+ function arranged(levels){
+  const base=music({duration:levels.length*8});
+  base.sections=levels.map((energy,i)=>({start:i*8,end:(i+1)*8,look:'peak',motif:i%2}));
+  base.arrangement.drama.intensity=base.arrangement.drama.intensity.map((_,i)=>levels[Math.floor(i/64)]);
+  return base;
+ }
+ const base=arranged([.25,.72,.3,.5,.7,.95,.35]);
+ const snapshot=structuredClone(base),plan=applyShowProfile(base,'show'),score=plan.showScore;
+ assert.deepEqual(base,snapshot);
+ assert.ok(score.filter(s=>s.climax).every(s=>s.start>=40&&s.end<=48));
+ assert.ok(score.some(s=>s.climax&&s.occupancy===1&&s.rowFraction===1));
+ assert.ok(score.filter(s=>s.start<40).every(s=>s.occupancy<1&&s.rowFraction<1));
+ assert.equal(score.find(s=>s.start===24).chapter,'build','a rise across phrases forms a build');
+ assert.equal(score.find(s=>s.start===48).chapter,'release');
+ const early=score.find(s=>s.start===8);
+ const shorter=planShowScore(arranged([.25,.72,.3])).find(s=>s.start===8);
+ assert.ok(shorter.climax&&!early.climax,'the same local passage changes when a stronger future peak exists');
+ assert.ok(shorter.scale>early.scale);
+ assert.deepEqual(score,applyShowProfile(structuredClone(base),'show').showScore);
+ const uniform=planShowScore(music());
+ assert.ok(uniform.every(s=>!s.climax&&s.occupancy<1));
+});
+test('bar counting alone does not invent new show pictures',()=>{
+ const base=music({duration:48});
+ base.arrangement.patterns.phrases=[{...base.arrangement.patterns.phrases[0],start:0,end:48}];
+ assert.equal(planShowScore(base).length,1);
+});

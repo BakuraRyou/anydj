@@ -62,19 +62,18 @@
 .stage-3d-song-bottom>label{margin-left:auto}.stage-3d-song-bottom input{width:100px;max-width:100px}.stage-3d-song-bottom output{white-space:nowrap}.stage-3d-transport p[data-song-note]{margin:4px 0 0;font-size:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .stage-3d-song-picker{padding:10px 0;display:flex;gap:8px;flex-wrap:wrap}.stage-3d-song-picker select{flex:1;min-width:120px}.stage-3d-song-picker p{flex-basis:100%;margin:0}
 /* Window and focused show mode. */
-dialog.stage-3d-dialog{box-sizing:border-box;position:fixed;inset:16px;width:calc(100vw - 32px);height:calc(100dvh - 32px);max-width:1600px;max-height:none;margin:auto;padding:0;border:1px solid #40525f;border-radius:14px;background:#111b24;color:#e5edf3;overflow:hidden}
+.stage-show-shell{box-sizing:border-box;position:fixed;inset:16px;width:calc(100vw - 32px);height:calc(100dvh - 32px);max-width:1600px;max-height:none;margin:auto;padding:0;border:1px solid #40525f;border-radius:14px;background:#111b24;color:#e5edf3;overflow:hidden}
 .stage-3d-dialog::backdrop{background:#020810b8;backdrop-filter:blur(5px)}
 .stage-3d-dialog>.stage-3d{display:grid;grid-template-rows:auto auto minmax(0,1fr) auto;height:100%;margin:0;border:0;border-radius:0}
 .stage-3d-dialog .stage-3d-workspace{height:auto}
 .stage-3d-full-controls{position:absolute;inset:0 0 auto;display:flex;align-items:center;justify-content:space-between;padding:16px;background:linear-gradient(#080e1980,transparent);pointer-events:none;font-size:11px;z-index:3}.stage-3d-full-controls button{pointer-events:auto;background:#101c29cc}
-dialog.stage-3d-dialog.stage-3d-full{inset:0;width:100vw;height:100dvh;max-width:none;margin:0;border:0;border-radius:0}
+.stage-show-shell.stage-3d-full{inset:0;width:100vw;height:100dvh;max-width:none;margin:0;border:0;border-radius:0}
 .stage-3d-dialog.stage-3d-full>.stage-3d{display:block;position:relative}
 .stage-3d-full .stage-3d-workspace{display:block;height:100%}.stage-3d-full .stage-3d-viewport{display:block;height:100%}
 .stage-3d-full .stage-3d-viewport>canvas{height:100%;width:100%;outline:none}
-.stage-3d-full :is(.stage-3d-heading,.stage-3d-tool-tabs,.stage-3d-inspector,.stage-3d-tools,.stage-3d-viewport>p,.stage-3d-transport){display:none!important}
 html:has(.stage-3d-dialog[open]){overflow:hidden}body:has(.stage-3d-dialog[open]) .animatus-tutorial-launcher{display:none!important}
 @media(max-width:760px){
- dialog.stage-3d-dialog{inset:0;width:100vw;height:100dvh;border:0;border-radius:0}
+ .stage-show-shell{inset:0;width:100vw;height:100dvh;border:0;border-radius:0}
  .stage-3d-heading{padding:8px 10px;gap:5px}.stage-3d-heading small{display:none}.stage-3d-heading strong{font-size:13px}
  .stage-3d-tool-tabs{padding:6px 10px;gap:4px}.stage-3d-tool-tabs .button{flex:1;padding:5px 7px}
  .stage-3d-workspace.has-tools{grid-template-columns:minmax(0,1fr)}.stage-3d-inspector{position:absolute;inset:0;z-index:2;border-left:0}
@@ -272,3 +271,10 @@ html:has(.stage-3d-dialog[open]){overflow:hidden}body:has(.stage-3d-dialog[open]
 @media(max-height:600px){.stage-3d-dialog .stage-3d-inspector{top:6px;bottom:6px;z-index:10}}
 .stage-3d-dialog .editing-devices .stage-ar-planner[data-planner-step="2"]{min-height:460px}
 .stage-3d-dialog .editing-devices .ar-device-workspace{min-height:300px}
+
+/* The show is its own screen, not a second modal dialog. */
+.stage-show-shell{position:fixed!important;inset:0!important;width:100vw!important;height:100dvh!important;max-width:none!important;margin:0!important;border:0!important;border-radius:0!important;z-index:10000;isolation:isolate}
+.stage-show-shell[hidden]{display:none!important}
+.stage-show-shell>.stage-3d>.stage-3d-heading,.stage-show-shell>.stage-3d>.stage-3d-tool-tabs{position:relative;z-index:20;pointer-events:auto}
+.stage-show-shell .stage-3d-tool-tabs button{pointer-events:auto;touch-action:manipulation}
+.stage-show-shell .stage-3d-inspector:not([hidden]){visibility:visible;opacity:1;pointer-events:auto}

@@ -125,7 +125,14 @@ export function lightingScenes(plan){
   const mean=(xs,fallback)=>xs.length?xs.reduce((a,b)=>a+b,0)/xs.length:fallback;
   const energies=samples('intensity');
   const energy=clamp(mean(energies,average(p=>p.energy,section.intensity??.4)));
-  const drive=clamp(mean(samples('percussion'),average(p=>p.movement?.driving,0)));
+  const percussion=clamp(mean(samples('percussion'),average(p=>p.movement?.driving,0)));
+  const rhythmic=average(p=>p.movement?.character==='rhythmic'?p.movement.driving:0,0);
+  const onsets=(plan.arrangement?.times||[]).filter((t,i)=>t>=section.start&&t<section.end&&plan.arrangement.eventSources?.[i]==='onset').length;
+  // Drum share is not rhythmic drive: guitar-led passages can have a strong
+  // measured pulse while drums occupy a small part of the mix. Require both
+  // phrase evidence and actual audio attacks before recovering that pulse.
+  const recovered=rhythmic>=.65&&percussion>=.15&&energy>=.15&&onsets>=Math.max(2,(section.end-section.start)*.3);
+  const drive=recovered?Math.max(percussion,.55+.2*rhythmic):percussion;
   const vocals=clamp(mean(samples('vocalShare'),average(p=>p.attention?.leader==='vocals'&&p.attention.confidence>=.5?1:0,0)));
   const texture=average(p=>p.movement?.character==='atmospheric'?1:0,0);
   const tone=clamp(average(p=>p.tone,.5));
@@ -151,7 +158,16 @@ export function lightingScenes(plan){
   if(kind!=='silence'&&cinematicEvidence(plan,scene.start,scene.end)){scene.motion=cinematicFrames(plan,scene.start,scene.end);scene.cinematic=scene.motion.length>0;}
   if(key!==null)memory.set(key,scene);previousEnergy=energy;return scene;
  });
- directSong(scenes);cache.set(plan,scenes);return scenes;
+ directSong(scenes);
+ let anchor=null,group=0;
+ for(const scene of scenes){
+  if(anchor&&(scene.sectionIndex!==anchor.sectionIndex||scene.kind!==anchor.kind||
+    Math.abs(scene.energy-anchor.energy)>=.06||Math.abs(scene.tone-anchor.tone)>=.07||
+    Math.abs(scene.vocals-anchor.vocals)>=.1||Math.abs(scene.drive-anchor.drive)>=.12)){group++;anchor=scene;}
+  if(!anchor)anchor=scene;
+  scene.groupIndex=group;
+ }
+ cache.set(plan,scenes);return scenes;
 }
 export function lightingSceneAt(plan,time){return lightingScenes(plan).find(s=>time>=s.start&&time<s.end)||null;}
 export function scenePose(scene,time){
@@ -333,7 +349,7 @@ export function lightingGestures(plan){
   const drama={intensity:d?.intensity?.[at],percussion:d?.percussion?.[at],vocalShare:d?.vocalShare?.[at]};
   const attention=plan.structure?.instruments?musicalAttention(plan.structure.instruments,Math.max(scene.start,event.time-.35),Math.min(scene.end,event.time+.35)):local?.attention;
   const leader=attention?.confidence>=.5?attention.leader:'mixed';
-  const energy=clamp(drama?.intensity??local?.energy??scene.energy),drive=clamp(drama?.percussion??scene.drive);
+  const energy=clamp(drama?.intensity??local?.energy??scene.energy),drive=Math.max(scene.drive,clamp(drama?.percussion??scene.drive));
   const vocals=clamp(drama?.vocalShare??scene.vocals),tone=clamp(local?.tone??scene.tone);
   const accent=event.kind==='accent'?clamp(event.salience):0;
   const group=leader==='vocals'||leader==='other'?3:2;
@@ -344,10 +360,12 @@ export function lightingGestures(plan){
   const pitched=[];
   for(let i=a;i<points.length&&points[i].time<=event.time+.2;i++)if(points[i].confidence>=.35&&Number.isFinite(points[i].position))pitched.push(points[i]);
   const contour=pitched.length>=2?pitched.reduce((sum,p)=>sum+p.position,0)/pitched.length:null;
+  // Ordinary measured percussion gets only a small breathing motion. Large
+  // strokes need a standout attack, not merely the next number on the grid.
   const phraseStart=local?.start??scene.start;
-  const barTimes=bars.filter(t=>t>=phraseStart&&t<=event.time);
-  const bar=barTimes.length-1;
-  const stroke=accent||event.kind==='entry'?1:bar%2===0?1:.25;
+  const bar=bars.filter(t=>t>=phraseStart&&t<=event.time).length-1;
+  const breathing=.06*clamp((drive-.45)/.4)*(1-vocals*.7);
+  const stroke=accent?1:event.kind==='entry'?.5:.5+(bar%2===0?breathing:-breathing);
   const nextBar=bars.find(t=>t>event.time+.01);
   const previousBar=bars.filter(t=>t<event.time-.01).at(-1);
   const interval=nextBar!==undefined&&previousBar!==undefined?(nextBar-previousBar)/(bars.includes(event.time)?2:1):nextBar!==undefined?nextBar-event.time:2;
