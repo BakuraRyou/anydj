@@ -172,7 +172,9 @@ export function applyRoomPlan(scene, plan, ar=false) {
         if(role){
           const rangeScale=Math.max(0,Math.min(1,light.motionRange??1));
           const composition=presenceComposition(light.movingPresence,role.rank,role.count,role.row,motionGroupCount);
-          if(composition){const blend=composition.weight*rangeScale;nx+=(composition.x-nx)*blend;ny+=(composition.y-ny)*blend;}
+          if(composition){// Keep the music-driven source trajectory inside the group formation.
+          // Replacing it completely froze forms such as question/answer.
+          const blend=composition.weight*rangeScale*(1-composition.articulation);nx+=(composition.x-nx)*blend;ny+=(composition.y-ny)*blend;}
           else {const offset=presenceGroupOffset(light.movingPresence,role.rank,role.count,role.row);
             nx=Math.max(0,Math.min(1,nx+offset.x*rangeScale));ny=Math.max(0,Math.min(1,ny+offset.y*rangeScale));}
         }
@@ -198,45 +200,23 @@ export function applyRoomPlan(scene, plan, ar=false) {
     const ahead=applyRoomPlan({...scene,lights:scene.lights.map(l=>{const {motionAhead,...current}=l;return motionAhead?{...current,target:motionAhead.target,motionUV:motionAhead.motionUV,motionFocus:motionAhead.motionFocus,movingPresence:motionAhead.movingPresence??current.movingPresence}:current;})},plan,ar);
     lights.forEach((light,i)=>{if(light.motionAhead)light.motionAhead={...light.motionAhead,target:ahead.lights[i].target,motionUV:ahead.lights[i].motionUV,motionFocus:ahead.lights[i].motionFocus};});
   }
-  // The virtual room duplicates a few source fixtures into a much larger rig.
-  // Keep a stable power budget per fixture type: instantaneous active counts
-  // would pump brightness on every beat and brighten survivors during blackouts.
+  // Room size must not change the strength of an individual active lamp.
+  // Automatic choreography controls occupancy; a second installation-size
+  // dimmer made the same source much darker here than in Party.
   const automatic=scene.lights.some(l=>l.motionPresentation==='auto')&&!scene.lights.some(l=>l.motionPresentation==='show');
   const support=scene.lights.find(l=>l.motionPresentation==='auto'&&l.movingPresence)?.movingPresence;
   const supportLayers=support?.layers||[support];
-  const counts=new Map();
-  for(const p of Object.values(plan.positions))if(['moving','spot','bar'].includes(p.type))counts.set(p.type,(counts.get(p.type)||0)+1);
   const balanced=applyMovingPresence(lights).map(light=>{
-    if(!automatic)return light;
-    const count=counts.get(light.type)||0;
-    if(count<=24)return light;
-    // Keep wash support visible: avoid multiplying a second type penalty
-    // by a near-black supporting-row mask. RGB stays untouched.
-    let accompaniment=1;
-    if(light.type!=='moving'&&supportLayers.some(p=>Number.isFinite(p?.supportSelection))){
-      const band=Math.min(5,Math.max(0,Math.floor(light.position.y/plan.depth*6)));
-      accompaniment=supportLayers.reduce((sum,p)=>{
-        if(!p)return sum;
-        const role=Number.isFinite(p.supportSelection)?((band-p.supportSelection-3)%6+6)%6:null;
-        return sum+(p.weight??1)*(role===null?1:(p.supportLevel===0?0:(.65+.35*(p.supportLevel??.5))*(role<2?1:.65)));
-      },0);
-    }
-    // Budget the rows scheduled by the passage, not dark installed heads.
-    // Use the authored row allocation, never instantaneous power/beat masks,
-    // so blackouts and pair changes cannot brighten the surviving fixtures.
-    let capacity=count;
-    if(light.type==='moving'&&supportLayers.length){
-      let weight=0,occupancy=0;
-      for(const p of supportLayers){
-        if(!p)continue;
-        const w=p.weight??1;
-        const fraction=Number.isFinite(p.rowFraction)?Math.max(1,Math.min(motionGroupCount,Math.ceil(motionGroupCount*p.rowFraction)))/motionGroupCount:1;
-        weight+=w;occupancy+=w*fraction;
-      }
-      if(weight>0)capacity=count*occupancy/weight;
-    }
-    const gain=accompaniment*Math.min(1,Math.sqrt(24/Math.max(1,capacity)));
-    return {...light,power:light.power*gain,...(Number.isFinite(light.movingPresenceBasePower)?{movingPresenceBasePower:light.movingPresenceBasePower*gain}:{})};
+    if(!automatic||!['spot','bar'].includes(light.type)||!supportLayers.some(p=>Number.isFinite(p?.supportSelection)))return light;
+    const band=Math.min(5,Math.max(0,Math.floor(light.position.y/plan.depth*6)));
+    const gain=supportLayers.reduce((sum,p)=>{
+      if(!p)return sum;
+      const role=Number.isFinite(p.supportSelection)?((band-p.supportSelection-3)%6+6)%6:null;
+      // Lead washes retain source strength; accompaniment stays readable.
+      // A musical blackout still suppresses every supporting band.
+      return sum+(p.weight??1)*(role===null?1:p.supportLevel===0?0:role<2?1:.65);
+    },0);
+    return {...light,power:light.power*gain};
   });
   return {...scene,layout:{...roomPlanLayout(plan),ar},lights:balanced,crowd:ar?[]:scene.crowd};
 }

@@ -24,3 +24,20 @@ test('event selection retains exceptional audio timestamps but rejects ordinary 
  assert.deepEqual(musicalMovementEvents(plan,plan.beatGrid.downbeats).filter(e=>e.kind==='accent').map(e=>e.time),[5.75]);
  plan.arrangement.eventSalience.fill(.8);assert.ok(musicalMovementEvents(plan,plan.beatGrid.downbeats).every(e=>e.kind!=='accent'));
 });
+
+test('ordinary rhythmic arrivals flow through available time without synthetic holds',()=>{
+ const plan=song();plan.arrangement.patterns.phrases[0].movement={character:'rhythmic',driving:.8};
+ const cues=movingCues(plan,'auto'),flow=cues.filter(c=>c.flowing);
+ assert.ok(flow.length>3);
+ for(const c of flow){
+  const i=cues.indexOf(c);assert.ok(Math.abs(c.travel-(c.time-cues[i-1].time))<1e-8);
+  assert.ok(c.headTravel.every(t=>Math.abs(t-c.travel)<1e-8));
+  if(!cues[i+1]?.flowing)continue;
+  const h=.0001,a=movingCueAt(cues,c.time-h),b=movingCueAt(cues,c.time),d=movingCueAt(cues,c.time+h);
+  for(let head=0;head<4;head++)for(const axis of ['pan','tilt']){
+   assert.ok(Math.abs((b[head][axis]-a[head][axis])/h-(d[head][axis]-b[head][axis])/h)<.05,'velocity remains continuous');
+  }
+ }
+ const edited={...plan,sectionLighting:[{start:0,end:plan.duration,rhythm:'strong'}]};
+ assert.ok(movingCues(edited,'auto').every(c=>!c.flowing),'explicit rhythmic movement keeps its articulation');
+});

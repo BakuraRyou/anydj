@@ -268,15 +268,16 @@ export function barMovingCues(plan){
   const distance=Math.max(...target.map((p,i)=>Math.max(Math.abs(p.pan-previous.pose[i].pan),Math.abs(p.tilt-previous.pose[i].tilt)*90)));
   if(distance<.01)continue;
   const frozenUntil=Math.max(0,...(plan.sectionLighting||[]).filter(s=>s.movement===0&&s.end<=time).map(s=>s.end));
-  const available=Math.min(time-frozenUntil,authored?Math.min(gap*.82,authored.seconds):cinematic?Math.min(gap,2.8):entry?Math.min(gap,Math.max(.5,motionDuration(previous.pose,target,.65))):Math.min(gap*.85,3,time-scene.start));
+  const flowing=!!authored&&authored.kind!=='accent'&&!entry&&gap<=3&&(!edit?.rhythm||edit.rhythm==='auto');
+  const available=Math.min(time-frozenUntil,flowing?gap:authored?Math.min(gap*.82,authored.seconds):cinematic?Math.min(gap,2.8):entry?Math.min(gap,Math.max(.5,motionDuration(previous.pose,target,.65))):Math.min(gap*.85,3,time-scene.start));
   if(available<=0)continue;
-  const headTravel=authored?target.map((_,i)=>available*(authored.coordinated||authored.lead.includes(i)?1:.8)):null;
+  const headTravel=authored?target.map((_,i)=>available*(flowing||authored.coordinated||authored.lead.includes(i)?1:.8)):null;
   const sharedReach=authored?.coordinated?motionReach(previous.pose,target,available,.85):null;
   const pose=target.map((p,i)=>{
    const reach=sharedReach??motionReach([previous.pose[i]],[p],headTravel?.[i]??available,authored ? .85 : .65);
    return {pan:previous.pose[i].pan+(p.pan-previous.pose[i].pan)*reach,tilt:previous.pose[i].tilt+(p.tilt-previous.pose[i].tilt)*reach};
   });
-  cues.push({time,travel:available,pose,...(authored?{headTravel,formation:authored.formation,variation:authored.variation,coordinated:authored.coordinated,gesture:authored.name,leader:authored.leader,group:authored.group}:{}),scene:scene.kind,shape:scene.kind,section:scene.sectionIndex,
+  cues.push({time,travel:available,pose,...(flowing?{flowing:true}:{}),...(authored?{headTravel,formation:authored.formation,variation:authored.variation,coordinated:authored.coordinated,gesture:authored.name,leader:authored.leader,group:authored.group}:{}),scene:scene.kind,shape:scene.kind,section:scene.sectionIndex,
    reason:entry?'scene-entry':cinematic?'cinematic-development':event.kind==='development'?'build-development':rhythmic?'scene-rhythm':'scene-development',
    ...(entry&&!cinematic&&distance>18&&scene.drive<.45?{darkTravel:true}:{}),purpose:entry?'establish':scene.kind==='build'?'build':rhythmic?'groove':'sweep'});
  }

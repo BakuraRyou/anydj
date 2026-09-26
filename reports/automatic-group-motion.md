@@ -61,3 +61,9 @@ Prüfung dieser Erweiterung: 13 gezielte Tests bestanden, darunter sechs untersc
 Die Kompositionen behalten bei hoher Passagenenergie zusätzliche Mitglieder als Begleitung (bis 45 % des jeweiligen Hauptlichtpegels). Kräftige, gleichbleibende Grooves dürfen bis zu denselben Reihenanteil wie Impacts nutzen. Damit wirken wenige ausgewählte Paare, Reihenbegrenzung und die feste Leistungsgrenze großer Anlagen nicht mehr unabhängig von der musikalischen Energie gemeinsam abdunkelnd. Quellhelligkeit, Blackouts, Farben und Wash-Begrenzung werden nicht angehoben.
 
 Offline-Vergleich mit dem vorhandenen Atomic-Damage-Analyseplan im 192-Geräte-Preset: beispielsweise steigt die maximale summierte normierte Gerätepower im Fenster 40–48 s von 38,566 auf 42,521, das Minimum von 3,070 auf 3,557. Das sind Steuerwerte, keine photometrische Messung oder visuelle Abnahme. Der Plan enthält keine gespeicherte Nutzersitzung. 15 gezielte Tests prüfen zusätzlich die stärkere Besetzung, unveränderte Hauptlichtobergrenze und weiterhin funktionierende Blackouts.
+
+## Gleiche Quelllichtstärke wie Party
+
+Nach dem direkten Nutzervergleich wird die zusätzliche Skalierung nach installierter Gerätezahl vollständig entfernt. Die automatische Besetzung steuert weiterhin Reihen und Mitglieder; sie wird nicht mehr mit einem zweiten Raum-Dimmer multipliziert. Führende Wash-Flächen behalten 100 % ihrer Quellhelligkeit, Begleitflächen 65 %, ausdrücklich stille Passagen weiterhin 0 %. Das gilt unabhängig von der Raumgröße. Die Shader sind unverändert. Frühere Angaben dieses Berichts zur Leistungsbegrenzung nach Geräteanzahl sind damit überholt. Die Summe der Lichtleistung darf mit mehr aktiven Geräten wachsen; musikalische Masken, Quelldimmer und Nutzerregler begrenzen weiterhin die Ausgabe.
+
+17 gezielte Tests prüfen Quellenobergrenzen, Besetzung, dichte und dünne Gruppen sowie Blackouts. Der subjektive Regen-Eindruck ist durch diese Tests nicht erklärt oder behoben.

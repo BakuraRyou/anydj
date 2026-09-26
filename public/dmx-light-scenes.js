@@ -141,9 +141,11 @@ export function lightingScenes(plan){
   const evidenceStep=section.buildEvidence?.step||(section.sectionEnd-section.sectionStart)/allEvidence.length;
   const evidence=allEvidence.slice(Math.floor((section.start-section.sectionStart)/evidenceStep),Math.ceil((section.end-section.sectionStart)/evidenceStep));
   const rise=energies.length?mean(energies.slice(-third),energy)-mean(energies.slice(0,third),energy):evidence.length?evidence.at(-1)-evidence[0]:local.length>1?(local.at(-1).energy??energy)-(local[0].energy??energy):0;
+  const developments=(plan.arrangement?.developments||[]).filter(e=>e.time>=section.start&&e.time<section.end&&Number.isFinite(e.progress));
+  const measuredBuild=developments.length>=2&&developments.at(-1).progress-developments[0].progress>=.2;
   let kind,reason;
   if(withdrawals.some(p=>p.start<=section.start&&p.end>=section.end)){kind='silence';reason='Gemessener musikalischer Rückzug';}
-  else if(rise>=.18&&energy>=.25){kind='build';reason='Gemessener Energieaufbau';}
+  else if(measuredBuild||rise>=.18&&energy>=.25){kind='build';reason='Gemessener Energieaufbau';}
   else if(energy>=.7&&drive>=.45&&(section.look==='peak'||energy-previousEnergy>=.18)){kind='impact';reason='Kräftiger Einsatz nach Kontrast oder Höhepunkt';}
   else if(drive>=.45){kind='groove';reason='Stabiler rhythmischer Antrieb';}
   else if(quiet(section.look)||vocals>=.55||energy<.35){kind='sculpture';reason=vocals>=.55?'Gesang bekommt Raum':'Reduzierte, stehende Beleuchtung';}
@@ -301,6 +303,15 @@ export function musicalMovementEvents(plan,bars){
    selected.push({...event,kind:'accent'});count++;
   }
  }
+ // Recovered drum attacks already have acoustic evidence. They need not be
+ // exceptional relative to one another to sustain motion when bars are missing.
+ let lastRecovered=-Infinity;
+ for(let i=0;i<(arrangement.times?.length||0);i++){
+  const time=arrangement.times[i];
+  if(arrangement.eventSources?.[i]!=='instrument'||time-lastRecovered<.8||bars.some(t=>Math.abs(t-time)<.8))continue;
+  if(selected.some(e=>Math.abs(e.time-time)<.65)){lastRecovered=time;continue;}
+  selected.push({time,kind:'recovered'});lastRecovered=time;
+ }
  // A sustained, confidently measured pitch change is also a movement arrival.
  // Keep its actual onset, rather than waiting for the next bar or chasing every
  // short pitch estimate. The same events feed cue planning and target sampling.
@@ -363,7 +374,7 @@ export function lightingGestures(plan){
   // Ordinary measured percussion gets only a small breathing motion. Large
   // strokes need a standout attack, not merely the next number on the grid.
   const phraseStart=local?.start??scene.start;
-  const bar=bars.filter(t=>t>=phraseStart&&t<=event.time).length-1;
+  const bar=events.filter(e=>['bar','recovered'].includes(e.kind)&&e.time>=phraseStart&&e.time<=event.time).length-1;
   const breathing=.06*clamp((drive-.45)/.4)*(1-vocals*.7);
   const stroke=accent?1:event.kind==='entry'?.5:.5+(bar%2===0?breathing:-breathing);
   const nextBar=bars.find(t=>t>event.time+.01);

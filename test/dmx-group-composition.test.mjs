@@ -52,3 +52,19 @@ test('intense compositions retain support without changing their lead or exceedi
   strong.forEach((v,i)=>{assert.ok(v>=calm[i]&&v<=1);if(calm[i]===1)assert.equal(v,1);});
  }
 });
+
+test('group formations retain source motion and give driving music more travel without extra brightness',()=>{
+ const room=newRoomPlan(8,6,4),template=scene('question-answer');
+ template.lights.forEach(l=>room.positions[l.id]={...l.position,type:'moving',rotation:0,motionArea:{x:.2,y:.2,width:.6,depth:.6}});
+ const render=(energy,drive,x)=>{
+  const s=scene('question-answer');
+  s.lights=s.lights.map(l=>({...l,motionUV:{x,y:.5},movingPresence:{...l.movingPresence,groupMotion:{...l.movingPresence.groupMotion,energy,drive}}}));
+  return applyRoomPlan(s,room).lights;
+ };
+ const travel=(energy,drive)=>{const a=render(energy,drive,.25),b=render(energy,drive,.75);return a.reduce((sum,l,i)=>sum+Math.abs(l.target.x-b[i].target.x),0);};
+ assert.ok(travel(.4,.1)>0);
+ assert.ok(travel(.9,.95)>travel(.4,.1)*2);
+ const a=render(.9,.95,.25),b=render(.9,.95,.75);
+ assert.deepEqual(a.map(l=>[l.power,l.color]),b.map(l=>[l.power,l.color]));
+ assert.ok([...a,...b].every(l=>l.target.x>=-2.4&&l.target.x<=2.4&&l.target.y>=1.2&&l.target.y<=4.8));
+});

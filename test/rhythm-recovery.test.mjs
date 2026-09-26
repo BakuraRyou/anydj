@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {arrangeShow,arrangementAccentProfile} from '../public/show-arrangement.js';
 import {movingCues} from '../public/dmx-moving-cues.js';
+import {musicalMovementEvents} from '../public/dmx-light-scenes.js';
 import {activityAt} from '../public/dmx-activity.js';
 const duration=24;
 const make=(steady=false,grid=false)=>{
@@ -17,6 +18,10 @@ test('real drum attacks recover an energetic passage without manufacturing a rep
  assert.ok(indices.some(i=>arrangementAccentProfile(a,i).gain>0));
  const p={duration,sections:a.passages,beatGrid:{beats:[0,.5,1,1.5,22,22.5,23]},arrangement:a};
  assert.ok(movingCues(p,'auto').filter(c=>c.time>6&&c.time<20).length>=5);
+ const recovered=musicalMovementEvents(p,[]).filter(e=>e.kind==='recovered');
+ assert.ok(recovered.length>=5);
+ assert.ok(recovered.every(e=>indices.some(i=>a.times[i]===e.time)),'all recovered arrivals keep measured attack timestamps');
+ assert.equal(movingCues({...p,sectionLighting:[{start:0,end:24,movement:0}]},'auto').length,1);
  assert.deepEqual(make(),a);
 });
 test('stable stems and a reliable beat grid do not get extra recovery attacks',()=>{

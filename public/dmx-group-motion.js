@@ -23,7 +23,7 @@ export function automaticGroupScore(plan){
   const motion=active?GROUP_MOTIONS.map((name,i)=>({name,cost:features.reduce((s,v,j)=>s+Math.abs(v-affinities[i][j]),0)+
    (uses.get(name)||0)*.3+(last===name?.7:0)+(p.kind==='build'&&['opening-arch','rising-steps'].includes(name)?-.7:0)})).sort((a,b)=>a.cost-b.cost)[0].name:null;
   if(motion){uses.set(motion,(uses.get(motion)||0)+1);last=motion;}
-  return {start:p.start,end:p.end,motion,composition:compositionFor[motion]??null,energy:p.energy,direction:p.direction??1,groupIndex:p.groupIndex};
+  return {start:p.start,end:p.end,motion,composition:compositionFor[motion]??null,energy:p.energy,drive:p.drive,direction:p.direction??1,groupIndex:p.groupIndex};
  });
  cache.set(plan,score);return score;
 }
@@ -40,7 +40,7 @@ export function automaticGroupMotionAt(plan,time){
  const continuing=next?.motion&&next.start===p.end;
  const ease=v=>{v=clamp(v);return v*v*v*(v*(v*6-15)+10);};
  const duration=p.end-p.start;
- const describe=(passage,progress)=>({motion:passage.motion,composition:passage.composition,progress,energy:passage.energy,direction:passage.direction,duration:passage.end-passage.start});
+ const describe=(passage,progress)=>({motion:passage.motion,composition:passage.composition,progress,energy:passage.energy,drive:passage.drive,direction:passage.direction,duration:passage.end-passage.start});
  // Adjacent active passages share a moving handover. Continue the outgoing
  // trajectory while the incoming one gains weight, rather than returning both
  // groups to the base pose at every phrase boundary.
@@ -106,7 +106,7 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
   const {from,blend,...current}=motion;
   const a=groupComposition({...from,amount:motion.amount},rank,count,row,groups),b=groupComposition(current,rank,count,row,groups);
   if(!a||!b)return b||a;
-  return Object.fromEntries(['x','y','level','weight'].map(k=>[k,a[k]+(b[k]-a[k])*blend]));
+  return Object.fromEntries(['x','y','level','weight','articulation'].map(k=>[k,a[k]+(b[k]-a[k])*blend]));
  }
  const p=clamp(motion.progress),u=rank/(count-1),r=u*2-1;
  const phase=p*Math.PI*2,side=motion.direction||1;
@@ -153,18 +153,18 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
  const intensity=ease(((motion.energy??0)-.65)/.25);
  level=level+(1-level)*.45*intensity;
  const weight=ease(p/.12)*ease((1-p)/.12)*clamp(motion.amount??1);
- return {x:clamp(x),y:clamp(y),level:1+(clamp(level)-1)*weight,weight};
+ return {x:clamp(x),y:clamp(y),level:1+(clamp(level)-1)*weight,weight,articulation:.15+.3*clamp(motion.energy??0)*clamp(motion.drive??0)};
 }
 export function presenceComposition(presence,rank,count,row=0,groups=1){
  if(!presence)return null;
  if(!presence.layers)return groupComposition(presence.groupMotion,rank,count,row,groups);
- let sum=0,x=0,y=0,level=0,weight=0;
+ let sum=0,x=0,y=0,level=0,weight=0,articulation=0;
  for(const layer of presence.layers){
   const w=layer.weight??1,c=presenceComposition(layer,rank,count,row,groups);sum+=w;
   level+=(c?.level??1)*w;
-  if(c){const amount=c.weight*w;weight+=amount;x+=c.x*amount;y+=c.y*amount;}
+  if(c){const amount=c.weight*w;weight+=amount;articulation+=c.articulation*amount;x+=c.x*amount;y+=c.y*amount;}
  }
- return weight>0?{x:x/weight,y:y/weight,level:level/Math.max(.0001,sum),weight:weight/Math.max(.0001,sum)}:null;
+ return weight>0?{x:x/weight,y:y/weight,level:level/Math.max(.0001,sum),weight:weight/Math.max(.0001,sum),articulation:articulation/weight}:null;
 }
 
 // Stable groups from actual mounts, not device enumeration or repeated source IDs.
