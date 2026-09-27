@@ -1,8 +1,8 @@
 // Offline per-head trace, no lamp commands. Uses the preset room and generated
 // colors/exposure; saved UI overrides, render frames and GPU timing are not replayed.
-// node scripts/review-show-visibility.mjs prepared-plan.json trace.json [start=36] [end=45]
+// node scripts/review-show-visibility.mjs prepared-plan.json trace.json [start=36] [end=45] [profile=show]
 import {readFileSync,writeFileSync} from 'node:fs';
-import {applyShowProfile} from '../public/dj-show-profile.js';
+import {applyShowProfile,movingMoodForProfile} from '../public/dj-show-profile.js';
 import {showFrameAt} from '../public/show-plan.js';
 import {showScoreAt} from '../public/show-score.js';
 import {automaticStage} from '../public/dmx-auto.js';
@@ -12,11 +12,11 @@ import {movingPresenceAt} from '../public/dmx-activity.js';
 import {projectMovingHeads,movingDevicePoses} from '../public/dmx-layout-model.js';
 import {applyRoomPlan,createRoomPreview} from '../public/dmx-ar-model.js';
 import {clubStageRoom} from '../public/dmx-room-presets.js';
-const [input,output,startArg='36',endArg='45']=process.argv.slice(2),start=Number(startArg),end=Number(endArg);
+const [input,output,startArg='36',endArg='45',profile='show']=process.argv.slice(2),start=Number(startArg),end=Number(endArg);
 if(!input||!output||!Number.isFinite(start)||!Number.isFinite(end)||start<0||end<=start)throw Error('Expected plan.json trace.json start end');
-const plan=applyShowProfile(JSON.parse(readFileSync(input)),'show');
+const plan=applyShowProfile(JSON.parse(readFileSync(input)),profile),mood=movingMoodForProfile(profile);
 if(end>plan.duration)throw Error('Interval exceeds song duration');
-const room=clubStageRoom(),preview=createRoomPreview(),cues=movingCues(plan,'auto','show');
+const room=clubStageRoom(),preview=createRoomPreview(),cues=movingCues(plan,'auto',mood);
 const layout={width:8,depth:6,positions:{}},devices=Array.from({length:4},(_,i)=>({id:'h'+i}));
 const equipment={devices:devices.map(d=>({...d,type:'spot',cells:1}))};
 const samples=[],previous=new Map(),distance=(a,b)=>Math.hypot(a.x-b.x,a.y-b.y,(a.z??0)-(b.z??0));
@@ -28,11 +28,11 @@ const angle=(a,b,position)=>{
 let relights=0,maxRelightStep=0,maxStep=0,maxAngle=0,maxRelightAngle=0,darkTrackingSamples=0;
 for(let tick=0;tick<=Math.floor(end*30);tick++){
  const time=tick/30,frame=showFrameAt(plan,time),source={movingPlan:plan,songTime:time,frame,weight:1};
- const presence=movingPresenceAt({...source,movingMood:'show'}),exposure=movingCueExposure(cues,time);
+ const presence=movingPresenceAt({...source,movingMood:mood}),exposure=movingCueExposure(cues,time);
  const colors=decodeStage(encodeStage(automaticStage([source],2,equipment,'auto',{movingSource:true}).frames,equipment),equipment).flatMap(f=>f.cells);
  const lights=projectMovingHeads(layout,movingDevicePoses(movingCueAt(cues,time),devices,{formation:'designed',layout}),devices).map((l,i)=>{
   const rgb=colors[i],power=Math.max(...rgb)/255;
-  return {...l,type:'moving',color:`rgb(${rgb.join(',')})`,power,movingPresenceBasePower:power,movingPresence:presence,movingShutter:exposure.level,cueTransit:exposure.transfer,motionPresentation:'show'};
+  return {...l,type:'moving',color:`rgb(${rgb.join(',')})`,power,movingPresenceBasePower:power,movingPresence:presence,movingShutter:exposure.level,cueTransit:exposure.transfer,motionPresentation:mood==='show'?'show':mood==='balanced'?'auto':undefined};
  });
  const scene={layout,crowd:[],lights},result=preview(scene,room,false,time);
  if(time<start)continue;
@@ -50,5 +50,5 @@ for(let tick=0;tick<=Math.floor(end*30);tick++){
  samples.push({time,role:picture?.role,form:picture?.form,mask:presence.mask,action:presence.action,shutter:exposure.level,heads});
 }
 const summary={interval:[start,end],sampleHz:30,heads:samples[0]?.heads.length,relights,maxRelightStep,maxStep,maxAngle,maxRelightAngle,darkTrackingSamples};
-writeFileSync(output,JSON.stringify({room:room.name,method:'Offline preset replay; source colors and shutters, room targets, zones and motors. No saved UI overrides, source follow filter, prediction or GPU rendering.',summary,samples}));
+writeFileSync(output,JSON.stringify({room:room.name,profile,method:'Offline preset replay; source colors and shutters, room targets, zones and motors. No saved UI overrides, source follow filter, prediction or GPU rendering.',summary,samples}));
 console.log(JSON.stringify(summary,null,2));

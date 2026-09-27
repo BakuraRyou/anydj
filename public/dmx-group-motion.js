@@ -35,10 +35,11 @@ export function automaticGroupMotionAt(plan,time){
  const describe=(passage,progress)=>{
   const rhythmic=passage.intent?.motionDrive??clamp(passage.drive??0)*ease((passage.energy-.45)/.35);
   const bars=plan.beatGrid?.downbeats;
-  const phase=progress*Math.PI*2+(barPosition(bars,sample)-barPosition(bars,passage.start))*Math.PI*.5*rhythmic*(passage.intent?.pace??1);
+  const coordinated=passage.coordination==='build'||passage.coordination==='ordered';
+  const phase=progress*Math.PI*2+(barPosition(bars,sample)-barPosition(bars,passage.start))*Math.PI*.5*rhythmic*(coordinated?0:passage.intent?.pace??1);
   const preparation=passage.intent?.anticipation;
   const anticipation=preparation?preparation.strength*ease((sample-preparation.start)/(preparation.end-preparation.start)):0;
-  return {motion:passage.motion,composition:passage.composition,progress,phase,accent:movementAccentEnvelope(passage.intent,sample),anticipation,intent:passage.intent,energy:passage.energy,drive:passage.drive,direction:passage.direction,duration:passage.end-passage.start};
+  return {motion:passage.motion,composition:passage.composition,coordination:passage.coordination,development:passage.development,progress,phase,accent:movementAccentEnvelope(passage.intent,sample),anticipation,intent:passage.intent,energy:passage.energy,drive:passage.drive,direction:passage.direction,duration:passage.end-passage.start};
  };
  // Adjacent active passages share a moving handover. Continue the outgoing
  // trajectory while the incoming one gains weight, rather than returning both
@@ -86,6 +87,8 @@ export function groupMotionOffset(motion,rank,count,row=0){
  const side=(motion.direction||1)*(row%2?-1:1),offset=member*Math.PI*.7;
  let x=0,y=0;
  switch(motion.motion){
+  case 'opening-lines':x=member*(2*p-1);y=.4*Math.sin(Math.PI*p);break;
+  case 'rising-fan':x=member*.5;y=2*p-1;break;
   case 'unison-sweep':x=Math.sin(phase)*side;y=Math.cos(phase)*.7;break;
   case 'breathing-arch':x=member*Math.sin(phase)*.7;y=(1-member*member)*Math.cos(phase)*.6;break;
   case 'hinged-lines':x=member*Math.cos(phase)*.6;y=sign*Math.abs(member)*Math.sin(phase)*.7;break;
@@ -136,10 +139,22 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
  const slots=Math.ceil(count/2),pair=Math.min(rank,count-1-rank);
  const centerPair=pair===slots-1,outerPair=pair===0;
  const depth=.14+.72*(row+.5)/Math.max(1,groups),depthSpan=Math.min(.22,.6/Math.max(1,groups));
+ // A formation's travel must not shrink with the number of trusses. Keep
+ // row spacing for the picture, but develop the whole line on the shared phase.
+ const reach=.08+.08*clamp(motion.energy??0)*clamp(motion.drive??0);
+ const lineDepth=depth+Math.sin(phase)*Math.min(reach,depth-.04,.96-depth);
  let x=.5,y=depth,level=1;
  switch(motion.composition){
+  case 'opening-lines':{
+   // One opening over the build; no periodic closing before its arrival.
+   const opening=.12+.28*ease(p);
+   x=.5+r*opening;y=depth+(ease(p)-.5)*.12;break;
+  }
+  case 'rising-fan':
+   x=.5+r*(.28+.08*ease(p));
+   y=.24+.4*ease(p)+.13*(1-r*r);break;
   case 'curtain':
-   x=.12+.76*u;y=depth+Math.sin(phase)*depthSpan*.4;
+   x=.5+r*(.34+.04*Math.cos(phase));y=lineDepth;
    // A narrow rig gets one readable line; larger rigs leave alternating gaps.
    level=count<=4||pair%2===0?1:.18;break;
   case 'mirror-pairs':{
@@ -151,12 +166,12 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
   case 'traveling-group':{
    const lead=.18+.64*(.5-.5*Math.cos(phase*.5));
    const window=Math.max(.2,1.1/(count-1));
-   x=.14+.72*u;y=depth+Math.sin(phase+r)*depthSpan*.45;
+   x=.5+r*(.32+.04*Math.cos(phase));y=lineDepth;
    level=1-ease((Math.abs(u-lead)-window*.45)/(window*.55));break;
   }
   case 'frame-center':
-   x=outerPair?.1+.8*u:.5+r*.19+.055*Math.sin(phase)*side;
-   y=depth+(outerPair?depthSpan*.75:-depthSpan*.5+.03*Math.cos(phase));
+   x=outerPair?.5+r*(.37+.03*Math.cos(phase)):.5+r*(.19+.04*Math.sin(phase));
+   y=lineDepth+(outerPair?depthSpan*.5:-depthSpan*.35);
    level=outerPair?.42:centerPair?1:0;break;
   case 'question-answer':{
    const answer=ease((p-.32)/.36),left=rank<count/2;
@@ -177,7 +192,7 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
    y=.5+.32*Math.sin(phase-r*Math.PI*.6-row*.45)*side;
    level=.55+.45*(.5+.5*Math.cos(phase-r*Math.PI*.6-row*.45));break;
   case 'rotating-fan':{
-   const angle=Math.sin(phase)*.85*side+(row%2?-.35:.35);
+   const angle=Math.sin(phase)*.85*side+(motion.coordination==='ordered'?0:row%2?-.35:.35);
    x=.5+r*.39*Math.cos(angle);
    y=.5+r*.32*Math.sin(angle)+.09*Math.cos(phase);
    level=outerPair||centerPair?1:.45;break;
@@ -209,12 +224,27 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
    level=centerPair?1:1-ease((order-density)/.18);break;
   }
  }
+ // Ordered passages keep separate depth bands for each row. The whole
+ // picture shares its development; rows do not criss-cross the same centre.
+ if((motion.coordination==='ordered'||motion.coordination==='build')&&!['curtain','traveling-group','frame-center','mirror-pairs','opening-lines'].includes(motion.composition)){
+  const band=.26+.48*(row+.5)/Math.max(1,groups);
+  y=band+(y-.5)*.55;
+ }
+ // During a long passage, rows softly exchange how broadly they carry the
+ // figure. Partners keep the same phase and dimmer; only geometric reach varies.
+ if(motion.development){
+  const turn=ease(p),lead=motion.development.index%3;
+  const before=row%3===lead?1:.78,after=row%3===(lead+1)%3?1:.78;
+  const reach=before+(after-before)*turn;
+  x=.5+(x-.5)*reach;
+  y=depth+(y-depth)*reach;
+ }
  // Sparse lead figures retain supporting members during sustained high energy.
  // This changes occupancy, never the source dimmer or an authored blackout.
  const intensity=ease(((motion.energy??0)-.65)/.25);
  level=level+(1-level)*.45*intensity;
  const envelope=motion.envelopeProgress??p;
- const weight=ease(envelope/.12)*ease((1-envelope)/.12)*clamp(motion.amount??1);
+ const weight=ease(envelope/.12)*(motion.coordination==='build'?1:ease((1-envelope)/.12))*clamp(motion.amount??1);
  // Expand about the room centre, without clipping targets into edge piles.
  const extent=(motion.intent?.extent??1)*(1-.12*(motion.anticipation??0))*(1+.04*(motion.accent??0));
  const spread=v=>.5+.5*Math.tanh((v-.5)*2*extent)/Math.tanh(extent);

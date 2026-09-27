@@ -2,8 +2,8 @@
   {
     "name": "curtain",
     "kind": "group",
-    "meanNormalizedTravel": 0.6399999999999956,
-    "maximumNormalizedStep": 0.0041868764994355545
+    "meanNormalizedTravel": 1.0982251170036466,
+    "maximumNormalizedStep": 0.006866696278120738
   },
   {
     "name": "mirror-pairs",
@@ -14,14 +14,14 @@
   {
     "name": "traveling-group",
     "kind": "group",
-    "meanNormalizedTravel": 0.7199392935568389,
-    "maximumNormalizedStep": 0.004711720729545954
+    "meanNormalizedTravel": 1.0982251170036468,
+    "maximumNormalizedStep": 0.006866696278120738
   },
   {
     "name": "frame-center",
     "kind": "group",
-    "meanNormalizedTravel": 0.4092166768351458,
-    "maximumNormalizedStep": 0.002878771198441657
+    "meanNormalizedTravel": 1.0746455786474027,
+    "maximumNormalizedStep": 0.00702740875217525
   },
   {
     "name": "question-answer",
@@ -78,10 +78,22 @@
     "maximumNormalizedStep": 0.008478237104634408
   },
   {
+    "name": "opening-lines",
+    "kind": "group",
+    "meanNormalizedTravel": 0.2085164334799686,
+    "maximumNormalizedStep": 0.0019038992037049474
+  },
+  {
+    "name": "rising-fan",
+    "kind": "group",
+    "meanNormalizedTravel": 0.22608656655079537,
+    "maximumNormalizedStep": 0.0014630536210740843
+  },
+  {
     "name": "parallel",
     "kind": "show",
-    "meanNormalizedTravel": 0.5903742679252254,
-    "maximumNormalizedStep": 0.007906276306475278
+    "meanNormalizedTravel": 0.4863543647837124,
+    "maximumNormalizedStep": 0.006513244563239224
   },
   {
     "name": "fan",

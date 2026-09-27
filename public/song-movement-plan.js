@@ -1,13 +1,15 @@
 import {musicalAttention,offbeatAttacks,bassAttackEvents} from './musical-attention.js';
 import {lightingScenes} from './dmx-light-scenes.js';
-export const SONG_MOVEMENT_VERSION=5;
-export const GROUP_COMPOSITIONS=['curtain','mirror-pairs','traveling-group','frame-center','question-answer','gather','diagonal-sweep','depth-wave','rotating-fan','crossed-banks','parallel-sweep','breathing-arch','hinged-lines'];
-const compositionFor={'counter-fans':'mirror-pairs','traveling-wave':'traveling-group','opening-arch':'rotating-fan','diagonal-curtain':'curtain','braided-pairs':'crossed-banks',orbit:'frame-center','folding-gates':'diagonal-sweep','rising-steps':'depth-wave',ripple:'gather','crossing-ribbons':'question-answer','unison-sweep':'parallel-sweep','breathing-arch':'breathing-arch','hinged-lines':'hinged-lines'};
-export const GROUP_MOTIONS=['counter-fans','traveling-wave','opening-arch','diagonal-curtain','braided-pairs','orbit','folding-gates','rising-steps','ripple','crossing-ribbons','unison-sweep','breathing-arch','hinged-lines'];
+export const SONG_MOVEMENT_VERSION=8;
+export const GROUP_COMPOSITIONS=['curtain','mirror-pairs','traveling-group','frame-center','question-answer','gather','diagonal-sweep','depth-wave','rotating-fan','crossed-banks','parallel-sweep','breathing-arch','hinged-lines','opening-lines','rising-fan'];
+const compositionFor={'counter-fans':'mirror-pairs','traveling-wave':'traveling-group','opening-arch':'rotating-fan','diagonal-curtain':'curtain','braided-pairs':'crossed-banks',orbit:'frame-center','folding-gates':'diagonal-sweep','rising-steps':'depth-wave',ripple:'gather','crossing-ribbons':'question-answer','unison-sweep':'parallel-sweep','breathing-arch':'breathing-arch','hinged-lines':'hinged-lines','opening-lines':'opening-lines','rising-fan':'rising-fan'};
+export const GROUP_MOTIONS=['counter-fans','traveling-wave','opening-arch','diagonal-curtain','braided-pairs','orbit','folding-gates','rising-steps','ripple','crossing-ribbons','unison-sweep','breathing-arch','hinged-lines','opening-lines','rising-fan'];
 // Affinities: energy, rhythmic drive, vocals, spectral brightness. Selection is
 // made once per musical passage, never per rendered frame or fixture count.
-const affinities=[[.7,.8,.2,.4],[.5,.6,.4,.6],[.5,.3,.6,.5],[.6,.5,.3,.8],[.8,.8,.2,.6],[.5,.3,.4,.7],[.8,.7,.2,.3],[.6,.6,.3,.5],[.4,.4,.6,.7],[.9,.9,.1,.5],[.8,.85,.3,.5],[.5,.4,.6,.5],[.7,.65,.3,.65]];
+const affinities=[[.7,.8,.2,.4],[.5,.6,.4,.6],[.5,.3,.6,.5],[.6,.5,.3,.8],[.8,.8,.2,.6],[.5,.3,.4,.7],[.8,.7,.2,.3],[.6,.6,.3,.5],[.4,.4,.6,.7],[.9,.9,.1,.5],[.8,.85,.3,.5],[.5,.4,.6,.5],[.7,.65,.3,.65],[.55,.4,.4,.5],[.65,.5,.3,.6]];
 
+const coordination=p=>p.kind==='build'?'build':p.developing||p.kind==='sweep'||p.kind==='groove'&&p.energy<.65?'ordered':'layered';
+const family=name=>['opening-arch','counter-fans','opening-lines'].includes(name)?'fan':['diagonal-curtain','traveling-wave','unison-sweep'].includes(name)?'line':['orbit','ripple'].includes(name)?'frame':['breathing-arch','rising-fan'].includes(name)?'arch':'crossing';
 const clamp=v=>Math.max(0,Math.min(1,Number.isFinite(v)?v:0));
 // An immutable, serializable interpretation prepared with the audio analysis.
 // Room dimensions, fixture count and playback time never choose the song style.
@@ -19,7 +21,7 @@ export function planSongMovement(plan,windows=[]){
  const character=drive>=.6&&energy>=.55?'driving':drive>=.45?'rhythmic':energy>=.4?'flowing':'restrained';
  const preferred=character==='driving'?['diagonal-sweep','crossed-banks','depth-wave','rotating-fan','parallel-sweep','hinged-lines']:character==='rhythmic'?['mirror-pairs','traveling-group','question-answer','parallel-sweep']:['frame-center','gather','curtain','breathing-arch'];
  const result={version:SONG_MOVEMENT_VERSION,character,energy,drive,vocals,preferred,passages:scenes.map(s=>{
-  const still=s.kind==='silence'||s.kind==='sculpture';
+  const still=s.kind==='silence'||s.kind==='sculpture'&&!s.developing;
   const intensity=clamp(.3*energy+.7*s.energy),rhythm=clamp(s.drive);
   const local=attacks.filter(e=>e.time>=s.start&&e.time<s.end);
   const seconds=Math.max(.1,s.end-s.start),rate=local.length/seconds;
@@ -31,15 +33,15 @@ export function planSongMovement(plan,windows=[]){
   const attention=musicalAttention(plan.structure?.instruments,s.start,s.end);
   const accents=local.map(e=>({...e}));
   // Attack activity is independent of loudness and dimmer strength.
-  const motionDrive=still?0:Math.max(rhythm*clamp((s.energy-.35)/.4),density*confidence);
+  const motionDrive=still||s.developing?0:Math.max(rhythm*clamp((s.energy-.35)/.4),density*confidence);
   const preferredForms=density>.65&&confidence>.5?['depth-wave','crossed-banks','diagonal-sweep','parallel-sweep','hinged-lines']:preferred;
-  return {start:s.start,end:s.end,symmetry:'paired',role:s.kind,character:still?'restrained':character,
+  return {start:s.start,end:s.end,developing:!!s.developing,coordination:coordination(s),symmetry:'paired',role:s.kind,character:still?'restrained':character,
    extent:still?1:1+.4*intensity*rhythm+.15*density*confidence,
    pace:still?1:1+.25*intensity*rhythm+.15*density*confidence,
-   articulation:still?0:.15+.3*intensity*rhythm,
+   articulation:still||coordination(s)==='build'?0:coordination(s)==='ordered'?.08:.15+.3*intensity*rhythm,
    rhythm:{rate,density,subdivisions,confidence,kind:rhythmKind},motionDrive,
    attention:{leader:attention.leader,confidence:attention.confidence},accents:still?[]:accents,
-   preferred:still?[]:preferredForms};
+   preferred:still?[]:s.developing?['curtain','frame-center','breathing-arch']:preferredForms};
  })};
  // Persist the chosen trajectories as well as the musical intent. Playback
  // only evaluates these gestures and fits them into the installed room.
@@ -51,7 +53,7 @@ export function planSongMovement(plan,windows=[]){
   const contrast=clamp((p.energy-previous.energy)/.35);
   const arrival=attacks.filter(e=>Math.abs(e.time-p.start)<=.3).reduce((m,e)=>Math.max(m,e.strength),0);
   const confidence=Math.min(contrast,arrival),importance=contrast*arrival;
-  p.transition={importance,confidence,overlap:confidence>.65? .7:1.8};
+  p.transition={importance,confidence,overlap:p.development?.index?3:confidence>.65? .7:1.8};
   if(previous.motion&&p.motion&&confidence>.65){
    const lead=Math.min(1.2,(previous.end-previous.start)*.2);
    previous.anticipation={start:p.start-lead,end:p.start,strength:importance};
@@ -70,30 +72,64 @@ export function songMovementAt(plan,time){
 export function selectGroupScore(plan){
  if(!plan)return [];
  const passages=movementPassages(plan);
- const uses=new Map(),motifs=new Map();let last=null;
+ const history=[],motifs=new Map();let last=null;
  const score=passages.map(p=>{
-  const active=p.kind!=='silence'&&p.kind!=='sculpture';
+  const active=p.kind!=='silence'&&(p.kind!=='sculpture'||p.developing);
   const features=[p.energy,p.drive,p.vocals,p.tone],intent=songMovementAt(plan,p.start);
   const motifKey=p.motif==null?null:String(p.motif)+':'+p.kind;
   const recalled=motifs.get(motifKey);
-  const compatible=recalled&&motionFits(p,recalled.motion)&&Math.abs(recalled.energy-p.energy)<.18&&Math.abs(recalled.drive-p.drive)<.18&&Math.abs(recalled.tone-p.tone)<.18&&Math.abs((recalled.density??0)-(intent?.rhythm.density??0))<.2;
+  // Recently exposed geometry should not dominate merely because the motif
+  // repeats. History is computed on the song timeline, never during playback.
+  const exposure=name=>history.reduce((sum,h)=>sum+(h.motion===name?(h.end-h.start)*clamp(1-(p.start-h.end)/72):0),0);
+  const compatible=recalled&&last!==recalled.motion&&exposure(recalled.motion)<24&&motionFits(p,recalled.motion)&&Math.abs(recalled.energy-p.energy)<.18&&Math.abs(recalled.drive-p.drive)<.18&&Math.abs(recalled.tone-p.tone)<.18&&Math.abs((recalled.density??0)-(intent?.rhythm.density??0))<.2;
   const motion=active?compatible?recalled.motion:GROUP_MOTIONS.map((name,i)=>({name,cost:features.reduce((s,v,j)=>s+Math.abs(v-affinities[i][j]),0)+
-   (intent?.preferred.length&&!intent.preferred.includes(compositionFor[name])?.8:0)+(uses.get(name)||0)*.3+(last===name?.7:0)+(p.kind==='build'&&['opening-arch','rising-steps'].includes(name)?-.7:0)})).filter(({name})=>motionFits(p,name)).sort((a,b)=>a.cost-b.cost)[0].name:null;
+   (intent?.preferred.length&&!intent.preferred.includes(compositionFor[name])?.8:0)+exposure(name)/18+history.reduce((sum,h)=>sum+(family(h.motion)===family(name)?(h.end-h.start)*clamp(1-(p.start-h.end)/48)/48:0),0)+(last===name?1.2:0)})).filter(({name})=>motionFits(p,name)&&(!p.development?.index||name!==last)).sort((a,b)=>a.cost-b.cost)[0].name:null;
   if(motion&&motifKey!==null&&!recalled)motifs.set(motifKey,{...p,motion,density:intent?.rhythm.density??0});
-  if(motion){uses.set(motion,(uses.get(motion)||0)+1);last=motion;}
-  return {start:p.start,end:p.end,motion,composition:compositionFor[motion]??null,intent,energy:p.energy,drive:p.drive,direction:p.direction??1,groupIndex:p.groupIndex,motif:p.motif??null,recalled:!!(active&&compatible)};
+  if(motion){history.push({motion,start:p.start,end:p.end});last=motion;}
+  while(history.length&&history[0].end<p.start-72)history.shift();
+  return {start:p.start,end:p.end,...(p.development?{development:p.development}:{}),motion,composition:compositionFor[motion]??null,coordination:coordination(p),intent,energy:p.energy,drive:p.drive,direction:p.direction??1,groupIndex:p.groupIndex,motif:p.motif??null,recalled:!!(active&&compatible)};
  });
  return score;
 }
 
 function movementPassages(plan){
  const passages=[];
- for(const scene of lightingScenes(plan)){
+ for(const original of lightingScenes(plan)){
+  const section=plan.sections?.[original.sectionIndex];
+  // Reduced energy is not a motor hold. Preserve a small shared gesture only
+  // with measured activity and an active authored look; missing analysis and
+  // explicit quiet/held passages still remain stationary.
+  const developing=original.kind==='sculpture'&&original.evidence&&original.energy>=.18&&original.drive>=.15&&['flow','lift','peak'].includes(section?.look);
+  const scene={...original,developing};
   const previous=passages.at(-1);
-  if(previous&&previous.groupIndex===scene.groupIndex&&previous.end===scene.start){previous.end=scene.end;continue;}
+  if(previous&&previous.groupIndex===scene.groupIndex&&previous.developing===developing&&previous.end===scene.start){previous.end=scene.end;continue;}
   passages.push({...scene});
  }
- return passages;
+ return passages.flatMap(p=>developPassage(plan,p));
+}
+
+// Long unchanging material gets an authored arc. Prefer phrase/arrangement
+// events near a useful dwell time; without events a slow handover is still
+// possible. This is not a playback timer or a fixed number of bars.
+function developPassage(plan,passage){
+ const duration=passage.end-passage.start;
+ if(duration<=36||passage.kind==='build'||passage.kind==='silence'||passage.kind==='sculpture'&&!passage.developing)return [passage];
+ const phrases=plan.arrangement?.patterns?.phrases||[];
+ const candidates=phrases.slice(1).map((p,i)=>({time:p.start,kind:'phrase',salience:clamp(Math.abs((p.energy??0)-(phrases[i].energy??0))+Math.abs((p.tone??0)-(phrases[i].tone??0)))}));
+ for(const event of plan.arrangement?.developments||[])candidates.push({time:event.time,kind:'development',salience:clamp(event.progress??0)});
+ const parts=[];let start=passage.start,boundary='passage';
+ while(passage.end-start>30){
+  const progress=(start-passage.start)/duration;
+  const dwell=(18+8*(1-passage.drive)+4*(1-passage.energy))*(.85+.3*Math.sin(progress*Math.PI));
+  const preferred=start+dwell;
+  const available=candidates.filter(c=>Number.isFinite(c.time)&&c.time>=start+12&&c.time<=Math.min(start+30,passage.end-10));
+  available.sort((a,b)=>(Math.abs(a.time-preferred)-a.salience*4)-(Math.abs(b.time-preferred)-b.salience*4)||a.time-b.time);
+  const next=available[0]??{time:Math.min(preferred,passage.end-12),kind:'gradual'};
+  parts.push({...passage,start,end:next.time,development:{index:parts.length,boundary}});
+  start=next.time;boundary=next.kind;
+ }
+ parts.push({...passage,start,development:{index:parts.length,boundary}});
+ return parts;
 }
 
 function measuredAttacks(plan,windows){
@@ -130,6 +166,10 @@ export function movementAccentEnvelope(intent,time){
 }
 
 function motionFits(p,name){
+ if(coordination(p)==='build')return ['opening-lines','rising-fan'].includes(name);
+ if(['opening-lines','rising-fan'].includes(name))return false;
+ if(coordination(p)==='ordered'&&!p.developing)return ['diagonal-curtain','orbit','counter-fans','opening-arch','unison-sweep','breathing-arch','hinged-lines'].includes(name);
+ if(p.developing)return ['diagonal-curtain','orbit','breathing-arch'].includes(name);
  if(['diagonal-curtain','orbit','traveling-wave'].includes(name)&&p.energy>=.65&&p.drive>=.6)return false;
  return name!=='ripple'||p.kind==='build'||p.energy<.65;
 }

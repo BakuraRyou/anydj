@@ -84,7 +84,15 @@ test('new automatic formations move through the permitted area on dense rigs and
 });
 test('musical selection can reach the new formations without a separate effect timer',()=>{
  const plan={duration:320,sections:[{start:0,end:320,look:'flow'}],arrangement:{patterns:{phrases:Array.from({length:40},(_,i)=>({start:i*8,end:(i+1)*8,energy:.5+(i%5)*.1,tone:.2+(i%4)*.2,movement:{character:'rhythmic',driving:.85}}))}}};
- const score=automaticGroupScore(plan),forms=new Set(score.map(s=>s.composition));
+ const score=automaticGroupScore(plan);
+ // Sustained and driving material have different eligible families. Coverage
+ // must not require every family to appear in one fixed synthetic playlist.
+ const sustained=structuredClone(plan);
+ sustained.arrangement.patterns.phrases.forEach(p=>{p.movement.driving=.25;});
+ const forms=new Set([...score,...automaticGroupScore(sustained)].map(s=>s.composition));
+ const moderate=structuredClone(plan);
+ moderate.arrangement.patterns.phrases.forEach(p=>{p.energy=.75;p.movement.driving=.5;});
+ automaticGroupScore(moderate).forEach(s=>forms.add(s.composition));
  for(const name of ['diagonal-sweep','depth-wave','rotating-fan','crossed-banks'])assert.ok(forms.has(name),name);
  assert.deepEqual(automaticGroupScore(structuredClone(plan)),score);
  const quiet={duration:16,sections:[{start:0,end:16,look:'quiet',intensity:.1}]};
@@ -173,4 +181,33 @@ test('all group forms pass through stage-room motors with and without quiet zone
    }
   }
  }
+});
+
+test('restrained figures keep readable travel on dense rigs without losing paired symmetry',()=>{
+ for(const composition of ['curtain','traveling-group','frame-center'])for(const groups of [1,6,12]){
+  const at=phase=>Array.from({length:8},(_,rank)=>groupComposition({composition,progress:.4,phase,energy:.4,drive:.2,amount:1,intent:{symmetry:'paired'}},rank,8,Math.floor(groups/2),groups));
+  const samples=Array.from({length:121},(_,i)=>at(i/120*Math.PI*2));
+  const depths=samples.map(s=>s[0].y),widths=samples.map(s=>s[7].x-s[0].x);
+  assert.ok(Math.max(...depths)-Math.min(...depths)>.15,`${composition}/${groups}: shared travel must survive dense trusses`);
+  assert.ok(Math.max(...widths)-Math.min(...widths)>.1,`${composition}: line opens and closes`);
+  for(const [i,heads] of samples.entries())for(const [rank,h] of heads.entries()){
+   const partner=heads[7-rank];
+   assert.ok(Math.abs(h.x+partner.x-1)<1e-9&&Math.abs(h.y-partner.y)<1e-9);
+   assert.ok(h.x>=0&&h.x<=1&&h.y>=0&&h.y<=1);
+   if(i)assert.ok(Math.hypot(h.x-samples[i-1][rank].x,h.y-samples[i-1][rank].y)<.02);
+  }
+ }
+});
+test('restrained development reaches restricted room targets without changing source brightness',()=>{
+ const room=newRoomPlan(8,6,4),base=scene('curtain',.4,8);
+ base.lights.forEach(l=>room.positions[l.id]={...l.position,type:'moving',rotation:0,motionArea:{x:.4,y:.4,width:.2,depth:.2}});
+ const render=phase=>{
+  const s=structuredClone(base);
+  s.lights.forEach(l=>Object.assign(l.movingPresence.groupMotion,{phase,energy:.4,drive:.2,intent:{symmetry:'paired'}}));
+  return applyRoomPlan(s,room).lights;
+ };
+ const a=render(Math.PI/2),b=render(Math.PI*1.5);
+ assert.ok(a.every((l,i)=>Math.abs(l.target.y-b[i].target.y)>.15),'motion survives fitting to a small permitted area');
+ assert.deepEqual(a.map(l=>[l.power,l.color]),b.map(l=>[l.power,l.color]));
+ for(const l of [...a,...b])assert.ok(l.target.x>=-.8&&l.target.x<=.8&&l.target.y>=2.4&&l.target.y<=3.6+1e-9);
 });

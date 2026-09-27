@@ -11,7 +11,7 @@ for(const [index,form] of forms.entries()){
  const paths=Array.from({length:8},()=>[]);let travel=0,maximumStep=0;
  for(let i=0;i<=240;i++){
   const t=i/240;
-  const points=form.kind==='group'?paths.map((_,rank)=>groupComposition({composition:form.name,progress:.4,phase:t*4*Math.PI,energy:.8,drive:.8,amount:1,intent:{symmetry:'paired'}},rank,8,0,3))
+  const points=form.kind==='group'?paths.map((_,rank)=>groupComposition({composition:form.name,coordination:['opening-lines','rising-fan'].includes(form.name)?'build':undefined,progress:['opening-lines','rising-fan'].includes(form.name)?t:.4,phase:t*4*Math.PI,energy:.8,drive:.8,amount:1,intent:{symmetry:'paired'}},rank,8,0,3))
    :showScorePose({form:form.name,start:0,end:16,role:'groove',direction:1,energy:.8,scale:.8,movementIntent:{symmetry:'paired',pace:1.2,motionDrive:.8}},t*16).map(p=>({x:p.pan/76+.5,y:(p.tilt-.57)/.49}));
   points.forEach((p,k)=>{if(!Number.isFinite(p.x)||!Number.isFinite(p.y)||p.x<0||p.x>1||p.y<0||p.y>1)throw Error(form.name+' invalid target');const last=paths[k].at(-1);if(last){const d=Math.hypot(p.x-last.x,p.y-last.y);travel+=d/8;maximumStep=Math.max(maximumStep,d);}paths[k].push(p);});
  }

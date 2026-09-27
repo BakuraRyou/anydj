@@ -2,7 +2,7 @@
 
 ## Umfang und Grenzen
 
-Geprüft wurden alle 13 aktiven Gruppenformen und alle 8 Show-Grundbilder. Die zehn bisherigen Gruppenformen und sechs bisherigen Show-Bilder sind unten einzeln bewertet. Die drei Show-Aktionen Hit, Answer und Launch bleiben Akzent-/Belegungssteuerung; ihre Motorbewegung kommt aus dem gemeinsamen Bewegungsplan. Alte Offsetpfade bleiben als kompatibler Fallback vorhanden und unterstützen auch die neuen Einträge.
+Geprüft wurden alle 15 aktiven Gruppenformen und alle 8 Show-Grundbilder. Die zehn bisherigen Gruppenformen und sechs bisherigen Show-Bilder sind unten einzeln bewertet. Die drei Show-Aktionen Hit, Answer und Launch bleiben Akzent-/Belegungssteuerung; ihre Motorbewegung kommt aus dem gemeinsamen Bewegungsplan. Alte Offsetpfade bleiben als kompatibler Fallback vorhanden und unterstützen auch die neuen Einträge.
 
 Die Bewertung betrifft Geometrie, musikalische Auswahl, Übergänge und die technische Raum-/Motorpipeline. Sie ist keine visuelle Abnahme sämtlicher Lieder und kein Nachweis photometrischer Realitätsnähe. Die Tests im Preset „Club-Bühne · Publikum & Hintergrund“ prüfen alle Gruppenformen mit 48 Moving Heads, in beiden Modi und mit/ohne Ruhezonen auf gültige Ausgaben. Sie beweisen nicht, dass jeder Umweg ästhetisch überzeugt.
 
@@ -14,10 +14,12 @@ Die Übersicht zeigt normalisierte Zielbahnen. Gruppen werden über zwei Phasenu
 
 | Form | Wirkung und Entscheidung |
 | --- | --- |
-| curtain | Klare Lichtlinie, wenig Bewegung. Aus treibenden, energiereichen Passagen ausgeschlossen. |
+| curtain | Klare Lichtlinie mit gemeinsamem Tiefenschwenk und sanftem Öffnen. Aus treibenden, energiereichen Passagen ausgeschlossen. |
+| opening-lines | Aufbau: Eine gespiegelte Linienformation öffnet sich einmal über die Passage, ohne vor dem Einsatz wieder zu schließen. |
+| rising-fan | Aufbau: Ein Fächer hebt sich gemeinsam an und wird dabei breiter. |
 | mirror-pairs | Symmetrisches Öffnen; als geordnete Paarfigur beibehalten. |
-| traveling-group | Wirkung hauptsächlich durch wandernde Helligkeit. In energiereicher Automatik ausgeschlossen; Show verwendet hier die wandernde Linie, weil Show die Belegung selbst steuert. |
-| frame-center | Ruhiger Rahmen mit wenig bewegtem Zentrum. Aus energiereichen, treibenden Passagen ausgeschlossen. |
+| traveling-group | Wandernde Helligkeit auf einer gemeinsam atmenden und schwenkenden Linie. In energiereicher Automatik ausgeschlossen; Show verwendet hier die wandernde Linie, weil Show die Belegung selbst steuert. |
+| frame-center | Ruhiger Rahmen; Rahmen und Zentrum entwickeln sich gemeinsam in die Tiefe und öffnen sich paarweise. Aus energiereichen, treibenden Passagen ausgeschlossen. |
 | question-answer | Verständliche Übergabe zwischen Hälften. Beibehalten. |
 | gather | Konzentration zur Mitte als Aufbau brauchbar. Bei hoher Energie außerhalb von Aufbauten ausgeschlossen. |
 | diagonal-sweep | Gemeinsame schräge Linie, gegensinnige Reihen bewusst gestaltet. Beibehalten. |
@@ -58,3 +60,26 @@ Gemeinsame Phasen allein ergaben bei mehreren Formen keine spiegelgleichen Bahne
 Zusätzlich hing die Höhe eines Wandziels bisher linear von der Querposition ab. Bei gepaarten Figuren wird nun der Abstand zur Mitte verwendet: Beide Mitglieder erhalten dieselbe Höhe. Asymmetrische Raumbegrenzungen werden dadurch nicht aufgehoben.
 
 Neue Tests prüfen alle Gruppenformen und Show-Bilder auf Paargeometrie. Ein sechssekündiger Verlauf mit 48 Moving Heads im Bühnenraum prüft gespiegelte Auftreffpunkte nach Wandprojektion und Motorsteuerung, in Automatik/Show und mit/ohne Ruhezonen. Das ist ein synthetischer Regressionstest, keine Abnahme jeder Passage einer realen Nutzersitzung. Die Bahnübersicht wurde für die gepaarten Varianten neu erzeugt.
+
+
+## Geordnete Aufbauten und Zwischenpassagen
+
+Aufbauten verwenden gezieltes Öffnen oder Anheben. Ihre Gruppenphase bekommt
+keine zusätzliche Beat-Rotation, ihre Form wird nicht durch die zusätzliche
+Quellbewegung verschoben. Ein zusammenhängender Aufbau wird auch bei großer
+Länge nicht zur Abwechslung unterteilt.
+
+Reduzierte Grooves und getragene Zwischenpassagen wählen aus geordneten Linien,
+Rahmen, Paarfiguren, Bögen und Fächern. Reihen teilen die Bewegungsrichtung;
+bei zentral angelegten Figuren erhalten sie getrennte Tiefenbereiche. Die
+Quellbewegung wird hier nur gering beigemischt. Intensive Passagen behalten
+die größere Auswahl an Wellen, Gegenbewegungen und versetzten Reihen.
+
+Die Auswahl bestraft zusätzlich häufig verwendete Formfamilien (Linie, Fächer,
+Rahmen, Bogen, Kreuzungen). Das bewertet geometrische Ähnlichkeit grob anhand
+der geplanten Formen, nicht anhand von Kamerabildern. Eine eindeutige Ursache
+für das vom Nutzer gezeigte Einzelbild ist damit nicht bewiesen.
+
+860 Tests erfolgreich, darunter neue Prüfungen für gerichtete Aufbauten,
+geordnete Zwischenpassagen, intensive Beatbewegung und gemeinsame Fächerrichtung
+über mehrere Reihen. Show-Cache-Version 43, Bewegungsplan-Version 8.

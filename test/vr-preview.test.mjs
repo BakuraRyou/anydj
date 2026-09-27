@@ -129,3 +129,14 @@ test('remembered preview token survives a new server instance and changed sessio
  assert.equal((await second.post('stop',{id:two.id,owner:pairing.token})).status,403,'preview token is not publisher permission');
  await second.post('stop',two);
 });
+
+
+test('stage branding modules are served as JavaScript by app and VR servers',async t=>{
+ const {base,post}=await setup(t),{data:session}=await post('start',{}),bridge=new URL(session.urls[0]);bridge.hostname='127.0.0.1';
+ for(const origin of [base,bridge.origin])for(const asset of ['dmx-stage-brand.js','dmx-stage-brand-data.js']){
+  const response=await fetch(origin+'/'+asset);
+  assert.equal(response.status,200,origin+'/'+asset);
+  assert.match(response.headers.get('content-type'),/javascript/);
+  assert.match(await response.text(),/export /);
+ }
+});

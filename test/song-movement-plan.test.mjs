@@ -123,3 +123,20 @@ test('accents do not accumulate extra rotation in automatic or show group moveme
   assert.equal(showGroupMotionAt(p,time,{role:'groove'}).phase,showGroupMotionAt(neutral,time,{role:'groove'}).phase);
  }
 });
+
+test('reduced but rhythmically active flow retains gentle development while genuine holds stay still',()=>{
+ const source=music(.28,.26);
+ const p={...source,songMovement:planSongMovement(source)};
+ const score=automaticGroupScore(p);
+ assert.ok(score.every(s=>s.motion&&['curtain','frame-center','breathing-arch'].includes(s.composition)));
+ assert.ok(score.every(s=>s.intent.motionDrive===0),'gentle development has no added beat-rate spin');
+ const a=groupComposition(automaticGroupMotionAt(p,2),0,8,2,6),b=groupComposition(automaticGroupMotionAt(p,5),0,8,2,6);
+ assert.ok(Math.hypot(a.x-b.x,a.y-b.y)>.03);
+ for(const look of ['held','quiet','break','outro']){
+  const held={...source,sections:[{start:0,end:32,look}]};
+  assert.ok(planSongMovement(held).passages.every(s=>!s.motion),look);
+ }
+ for(const input of [music(.05,.26),music(.28,0),{duration:32,sections:[{start:0,end:32,look:'flow',intensity:.28}]}])assert.ok(planSongMovement(input).passages.every(s=>!s.motion));
+ const held={...p,sectionLighting:[{start:1,end:7,movement:0}]};
+ assert.deepEqual(automaticGroupMotionAt(held,2),automaticGroupMotionAt(held,6));
+});

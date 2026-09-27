@@ -1,3 +1,4 @@
+import {drawStageBrand} from './dmx-stage-brand.js';
 import {beamVolume,sampleBeamVolume,volumeCorners} from './dmx-beam-volume.js';
 import {lightProfile,lightFootprint,beamSurfacePatches,previewOpticalRays,clipBeamReceiver} from './dmx-light-geometry.js';
 export {lightProfile} from './dmx-light-geometry.js';
@@ -385,6 +386,7 @@ export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{}
     for(const x of [-w,w])line([x,0,layout.height],[x,d,layout.height],'#365363');
   }else line([-w,0,.01],[w,0,.01],'#9abec8');paint();
   }
+  drawStageBrand(layout,{polygon,eye,wallVisible});paint();
   const ceilingBoundary=layout.roomPlan?.boundary||[[-w,-danceDepth],[w,-danceDepth],[w,d],[-w,d]],ceilingHeight=layout.height||3;
   // The underside is visible from below even when the orbit camera sits
   // outside the floor boundary. Overhead planning views keep the roof open.
