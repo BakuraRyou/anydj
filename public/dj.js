@@ -174,6 +174,15 @@ lightStage.setTransport({
   setAutoCrossfade:value=>{const input=$('autoCrossfade');if(input.disabled)return;input.checked=value;input.dispatchEvent(new Event('change'));},
   setFadeDuration:value=>{const input=$('fadeDuration');if(input.disabled)return;input.value=value;input.dispatchEvent(new Event('change'));},
   fade:()=>($('fadeCancel').hidden?$('fadeNow'):$('fadeCancel')).click(),
+  getPlaylists:()=>({selected:selectedQueueList,ready:queueListsReady,
+    lists:[{id:'',name:'Aktuelle Warteschlange'},...queueLists.map(({id,name})=>({id,name}))],
+    running:queueRunning&&(editingLiveQueue()||activeSetId===selectedQueueList),
+    canStart:!$('queueStart').disabled&&(queueRunning&&(editingLiveQueue()||activeSetId===selectedQueueList)||!(fade||decks.filter(d=>!d.audio.paused).length>1)),
+    status:fade?'Übergang läuft.':decks.filter(d=>!d.audio.paused).length>1?'Zum Start nur ein Deck laufen lassen.':$('queueStatus').textContent,
+    entries:displayedQueue().map(entry=>{const track=entry.provider==='spotify'?entry.remote:tracks.find(t=>t.id===entry.trackId);const deck=decks.find(d=>d.queueEntry===entry.id||d.setEntry?.sourceEntryId===entry.id);
+      return {id:entry.id,title:track?.name||'Track fehlt',status:deck&&!deck.audio.paused?'Spielt · Deck '+deck.name:entry.provider==='spotify'?'Spotify':analysisStatus(track,$('djStructure').checked).text};})}),
+  selectPlaylist:id=>{if(!queueListsReady||id&&!queueLists.some(list=>list.id===id))return;const select=$('queueSelect');select.value=id;select.dispatchEvent(new Event('change'));},
+  startPlaylist:async()=>{if(!$('queueStart').disabled){const error=await $('queueStart').onclick();if(error)throw Error(error);}},
   getTracks:()=>tracks.filter(t=>!t.deleted).map(t=>({id:t.id,title:t.name,ready:Boolean(t.plan&&!t.missing&&!t.pendingChange)})),
   importFiles:files=>addFiles(files),
   mountEditor:async(id,host,options)=>{const d=decks.find(d=>d.name===id);if(!d?.track?.basePlan?.arrangement)return null;return editSections(d.track,()=>d.audio.currentTime,{...options,host,externalAudio:d.audio,edits:stageLightDrafts.get(d.track.id)});},
@@ -183,12 +192,14 @@ lightStage.setTransport({
   getDecks:()=>decks.map(d=>{
     const seek=d.panel.querySelector('.dj-seek'),play=d.panel.querySelector('.dj-play');
     return {id:d.name,trackId:d.track?.id||d.spotify?.id||null,title:d.track?.name||d.spotify?.name||'',waveform:d.track?.waveform,
+      analysis:d.spotify?null:analysisStatus(d.track,$('djStructure').checked),
       duration:d.spotify?Number(seek.max):d.track?.plan?.duration||0,position:d.spotify?Number(seek.value):d.resumeTime??d.audio.currentTime,
-      rate:d.audio.playbackRate,playing:d.spotify?play.textContent==='Pause':!d.audio.paused,
+      volume:Number(d.panel.querySelector('.dj-volume').value),rate:d.audio.playbackRate,playing:d.spotify?play.textContent==='Pause':!d.audio.paused,
       canEdit:Boolean(d.track?.basePlan?.arrangement),canLoad:d.audio.paused&&!(d.spotifyStarted&&!d.spotifyPaused),canSeek:!seek.disabled,canPlay:!play.disabled,canRate:!d.spotify&&Boolean(d.track?.plan)&&d.resumeTime==null,
       note:d.spotify?'Spotify: Positionssprünge bei aktiver Wiedergabe; Tempo wird nicht unterstützt.':''};
   }),
   seek:(id,value)=>{const d=decks.find(d=>d.name===id),input=d?.panel.querySelector('.dj-seek');if(input&&!input.disabled){input.value=value;input.dispatchEvent(new Event('input'));}},
+  setVolume:(id,value)=>{if(!Number.isFinite(value))return;const input=decks.find(d=>d.name===id)?.panel.querySelector('.dj-volume');if(input){input.value=Math.max(0,Math.min(1,value));input.dispatchEvent(new Event('input'));}},
   setRate:(id,value)=>{const d=decks.find(d=>d.name===id);if(!d||d.spotify||!d.track?.plan||d.resumeTime!=null)return;const input=d.panel.querySelector('[data-tempo]');input.value=value;input.dispatchEvent(new Event('input'));},
   toggle:id=>decks.find(d=>d.name===id)?.panel.querySelector('.dj-play').click()
 });
@@ -1251,7 +1262,7 @@ $('queueStart').onclick=async()=>{
     if(queueDeck?.spotify&&queueDeck.spotifyPaused)await spotifyLibrary.playback.toggle();
     queueRunning=true;queueEpoch++;queueMessage='';autoFadePaused=false;
     renderQueue();
-  }catch(error){notice(error.message,true);}
+  }catch(error){notice(error.message,true);return error.message;}
 };
 // Copy library titles into the selected list; queue rows retain their move behavior.
 const queueDropZone=document.querySelector('.dj-queue');

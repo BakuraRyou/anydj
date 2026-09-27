@@ -1,4 +1,4 @@
-import {automaticGroupMotionAt,showGroupMotionAt,automaticFixtureGroups,groupComposition} from './dmx-group-motion.js';
+import {automaticGroupMotionAt,showGroupMotionAt,automaticFixtureGroups,groupComposition,presenceRowFocus} from './dmx-group-motion.js';
 import {showScoreAt} from './show-score.js';
 import {showActionAt} from './show-action.js';
 import {lightingScenes,lightingSceneAt,scenePresence,bassPresence} from './dmx-light-scenes.js';
@@ -213,11 +213,14 @@ export function movingPresenceAt(source){
    return rhythm&&rhythm!=='auto'?{level,spread:1,mask:'all'}:{level,spread:1,...selection,groupMotion,mask:'show-score'};
   }
   const scenes=lightingScenes(plan),previous=scenes[scene.index-1];
-  const t=smooth((time-scene.start)/(scene.kind==='impact'?.2:.8));
+  const groupMotion=automaticGroupMotionAt(plan,time);
+  // Visibility, selected rows and motor choreography share the handover.
+  // Previously a new rig was exposed in .2/.8 s while its pose was still fading.
+  const manual=plan.sectionLighting?.some(s=>time>=s.start&&time<s.end&&s.rhythm&&s.rhythm!=='auto');
+  const shared=!manual&&groupMotion?.from&&Math.abs(groupMotion.start-scene.start)<.001;
+  const t=shared?groupMotion.blend:smooth((time-scene.start)/(scene.kind==='impact'?.2:.8));
   const presence=mixMovingPresence([{presence:previous?scenePresence(previous,plan,previous.end-.001):{level:0,spread:0},weight:1-t},{presence:scenePresence(scene,plan,time),weight:t}]);
   const darkness=activityAt(source,1)[0];
-  const groupMotion=automaticGroupMotionAt(plan,time);
-  const manual=plan.sectionLighting?.some(s=>time>=s.start&&time<s.end&&s.rhythm&&s.rhythm!=='auto');
   return {...presence,level:presence.level*darkness,layers:presence.layers.map((p,i)=>{
    const section=i===0?previous:scene;
    // Sustained energetic grooves need room too, not only contrast-driven impacts.
@@ -327,10 +330,15 @@ export function applyMovingPresence(lights){
    const base=movingPresenceLevel(presence,row.rank,row.count);
    // Show owns occupancy and action shutters; group motion only supplies poses.
    // Automatic compositions instead own membership to avoid conflicting masks.
-   return composition&&!['show-score','show-action'].includes(presence.mask)?base+(presence.level*composition.level-base)*composition.weight:base;
+   const selected=composition&&!['show-score','show-action'].includes(presence.mask)?base+(presence.level*composition.level-base)*composition.weight:base;
+   return selected*presenceRowFocus(presence,row.index,groupCount).gain;
   }
   return movingPresenceLevel(presence,ranks.get(light.id),ordered.length);
  }
- return lights.map(l=>l.type==='moving'&&l.movingPresence&&Number.isFinite(l.movingPresenceBasePower)
-  ?{...l,movingGroupActive:(l.movingPresence.layers||[l.movingPresence]).some(p=>(p.weight??1)>0&&(p.trackMotion||l.movingPresenceBasePower>0&&p.level>0&&(p.mask==='bass-chase'||p.mask==='show-action'||!!p.groupMotion))),power:l.movingPresenceBasePower*level(l.movingPresence,l)*(l.movingShutter??1)}:l);
+ return lights.map(l=>{
+  if(l.type!=='moving'||!l.movingPresence||!Number.isFinite(l.movingPresenceBasePower))return l;
+  const row=rowById.get(l.id),focus=row?presenceRowFocus(l.movingPresence,row.index,groupCount):null;
+  const movingGroupActive=(l.movingPresence.layers||[l.movingPresence]).some(p=>(p.weight??1)>0&&(p.trackMotion||l.movingPresenceBasePower>0&&p.level>0&&(p.mask==='bass-chase'||p.mask==='show-action'||!!p.groupMotion)));
+  return {...l,...(focus?{sceneGain:focus.gain,sceneLead:focus.lead}:{}),movingGroupActive,power:l.movingPresenceBasePower*level(l.movingPresence,l)*(l.movingShutter??1)};
+ });
 }

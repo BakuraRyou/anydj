@@ -84,7 +84,6 @@ html:has(.stage-3d-dialog[open]){overflow:hidden}body:has(.stage-3d-dialog[open]
 }
 .stage-inline .stage-3d-workspace.has-tools{grid-template-columns:minmax(0,1fr)}
 .stage-inline .stage-3d-inspector{position:absolute;inset:0;z-index:2;border-left:0}
-.stage-3d-full .stage-3d-dancer{display:none!important}
 @media(max-width:760px){
  .stage-3d-song-heading{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px}
  .stage-3d-song-heading>label{grid-column:1;grid-row:1}.stage-3d-song-heading strong{grid-column:2;grid-row:1;min-width:0}
@@ -278,3 +277,50 @@ html:has(.stage-3d-dialog[open]){overflow:hidden}body:has(.stage-3d-dialog[open]
 .stage-show-shell>.stage-3d>.stage-3d-heading,.stage-show-shell>.stage-3d>.stage-3d-tool-tabs{position:relative;z-index:20;pointer-events:auto}
 .stage-show-shell .stage-3d-tool-tabs button{pointer-events:auto;touch-action:manipulation}
 .stage-show-shell .stage-3d-inspector:not([hidden]){visibility:visible;opacity:1;pointer-events:auto}
+
+/* Slim deck strip, with independent levels directly below each timeline. */
+.stage-3d-dialog .stage-3d-full-transport{padding:8px 10px;gap:10px;border-radius:12px;grid-template-columns:minmax(0,1fr) 240px minmax(0,1fr)}
+.stage-3d-mini-heading{gap:7px}.stage-3d-mini-heading .button{min-height:28px;padding:4px 9px;min-width:52px}.stage-3d-mini-badge{width:23px;height:23px}
+.stage-3d-mini-timeline{height:26px;margin-top:5px}.stage-3d-mini-timeline input::-moz-range-thumb{height:24px}
+.stage-3d-mini-clock{margin-top:2px;font-size:9px}
+.stage-3d-mini-volume{display:flex;align-items:center;gap:7px;margin:2px 0 0!important;font-size:10px;color:#adbfce;min-width:0}
+.stage-3d-mini-volume input{flex:1;min-width:0;width:100%;height:22px;min-height:22px;margin:0;accent-color:var(--deck-color);cursor:pointer}
+.stage-3d-mini-volume output{min-width:36px;text-align:right;font-variant-numeric:tabular-nums}
+.stage-3d-mini-mixer{padding-inline:10px}.stage-3d-mini-mix-label{font-size:10px}.stage-3d-mini-mix-label input{height:18px}
+.stage-3d-mini-mixer>output{display:none}.stage-3d-mini-fade{gap:5px}.stage-3d-mini-fade select,.stage-3d-mini-fade .button{min-height:26px;padding:4px;font-size:10px}
+.stage-3d-mini-profile{margin-top:4px;gap:6px}.stage-3d-mini-profile select{min-height:26px;padding:3px 6px;font-size:10px}
+.stage-3d-mini-mixer p{min-height:0;line-height:1.2;margin:3px 0 0;font-size:9px}.stage-3d-mini-mixer p:empty{display:none}
+@media(max-width:760px){.stage-3d-dialog .stage-3d-full-transport{grid-template-columns:repeat(2,minmax(0,1fr));padding:7px;gap:7px}.stage-3d-mini-heading{display:grid;grid-template-columns:23px minmax(0,1fr) auto;gap:4px}.stage-3d-mini-heading .button{width:auto;min-width:40px;min-height:28px;padding:4px;font-size:10px}.stage-3d-mini-heading strong{font-size:10px}.stage-3d-mini-volume{gap:4px}.stage-3d-mini-volume>span{display:none}.stage-3d-mini-mixer{padding:5px 0 0;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 8px}.stage-3d-mini-mix-label{grid-column:1;grid-row:1}.stage-3d-mini-fade{grid-column:2;grid-row:1;margin:0}.stage-3d-mini-profile{grid-column:1/-1;grid-row:2;margin:0}.stage-3d-mini-mixer p{grid-column:1/-1;margin:0}}
+
+/* Keep analysis progress beside the title without increasing the deck height. */
+.stage-3d-mini-title{display:flex;align-items:center;gap:6px;flex:1;min-width:0}
+.stage-3d-mini-title strong{flex:0 1 auto}
+.stage-3d-mini-processing{display:inline-flex;flex:none;color:#f6cf58}
+.stage-3d-mini-processing svg{animation:stage-deck-processing 1.4s linear infinite}
+@keyframes stage-deck-processing{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){.stage-3d-mini-processing svg{animation:none}}
+
+/* Music lists are the primary action in the Decks drawer. */
+.stage-3d-tool-page .stage-3d-transport{padding:0;border:0;background:transparent}
+.stage-3d-playlists,.stage-3d-deck-tools{display:grid;gap:12px;min-width:0}
+.stage-3d-playlist-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.stage-3d-playlist-heading h3,.stage-3d-deck-tools h3{margin:0;font-size:13px}
+.stage-3d-playlist-heading span,.stage-3d-playlists p{font-size:11px;color:var(--show-muted)}
+.stage-3d-playlists p{margin:0;line-height:1.5}
+.stage-3d-transport .stage-3d-list-choice{display:grid;gap:6px}
+.stage-3d-list-choice select{width:100%;min-width:0}
+.stage-3d-playlists ol{margin:0;padding:0;list-style:none;max-height:280px;overflow:auto;counter-reset:playlist}
+.stage-3d-playlists li{display:grid;grid-template-columns:24px minmax(0,1fr);gap:3px 8px;padding:10px 0;border-bottom:1px solid var(--show-line);counter-increment:playlist}
+.stage-3d-playlists li:before{content:counter(playlist);grid-row:1/3;color:var(--show-muted);font-size:11px}
+.stage-3d-playlists li strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px}
+.stage-3d-playlists li small{grid-column:2;color:var(--show-muted);font-size:10px}
+.stage-3d-deck-tools{margin-top:20px;padding-top:16px;border-top:1px solid var(--show-line)}
+.stage-3d-tool-page .stage-3d-song-heading{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}
+.stage-3d-tool-page .stage-3d-song-heading>label{grid-column:1;grid-row:1}
+.stage-3d-tool-page .stage-3d-song-heading [data-song-library]{grid-column:2;grid-row:1}
+.stage-3d-tool-page .stage-3d-song-heading strong{grid-column:1;grid-row:2;white-space:normal;overflow-wrap:anywhere}
+.stage-3d-tool-page .stage-3d-song-heading [data-song-play]{grid-column:2;grid-row:2;min-width:58px}
+.stage-3d-tool-page .stage-3d-song-bottom{display:flex;gap:8px;justify-content:space-between}
+.stage-3d-tool-page .stage-3d-song-bottom>label{margin-left:0;flex:1}
+.stage-3d-tool-page .stage-3d-song-bottom input{min-width:40px;width:100%;max-width:110px}
+.stage-3d-tool-page .stage-3d-song-bottom .button{font-size:10px;padding:6px 8px}

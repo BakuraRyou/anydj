@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {largeHallRoomWithDJQuietZone,largeClubRoom,clubStageRoom,clubStageRoomWithoutQuietZones} from '../public/dmx-room-presets.js';
+import {villageBarnRoom,largeHallRoomWithDJQuietZone,largeClubRoom,clubStageRoom,clubStageRoomWithoutQuietZones} from '../public/dmx-room-presets.js';
 import {applyRoomPlan,validateRoomPlan} from '../public/dmx-ar-model.js';
 
 test('large club is a portable, independent room with 192 supported lights',()=>{
@@ -76,4 +76,24 @@ test('large hall preserves 192 lights and protects only the central DJ booth',()
   assert.equal(zone.depth*plan.depth,3);
   assert.equal(zone.y,0);
   assert.deepEqual(validateRoomPlan(JSON.parse(JSON.stringify(plan))),plan);
+});
+
+
+test('village barn has a pitched roof, right platform and eight lights aimed at the left dance floor',()=>{
+ const plan=villageBarnRoom();
+ assert.deepEqual(validateRoomPlan(JSON.parse(JSON.stringify(plan))),plan);
+ assert.equal(plan.height,5);assert.equal(plan.width,10);assert.equal(plan.depth,14);
+ assert.ok(Buffer.byteLength(JSON.stringify(plan))<256000);
+ assert.ok(plan.mesh.vertices.some(([x,y,z])=>x===0&&z===5));
+ assert.ok(plan.mesh.vertices.some(([x,y,z])=>x===5&&z===3.2));
+ assert.ok(plan.mesh.vertices.some(([x,y,z])=>x===1.5&&y===6&&z===.45));
+ assert.ok(plan.mesh.vertices.some(([x,y,z])=>x===5&&y===10&&z===.45));
+ const positions=Object.values(plan.positions);
+ assert.deepEqual(positions.reduce((c,p)=>(c[p.type]=(c[p.type]||0)+1,c),{}),{moving:2,spot:4,bar:2});
+ for(const p of positions){
+  assert.ok(p.target.x<0);
+  assert.ok(p.height+p.size.height<5-Math.abs(p.x)*1.8/5);
+  if(p.motionArea)assert.ok((p.motionArea.x+p.motionArea.width-.5)*plan.width<1.5,'moving range excludes side platform');
+ }
+ assert.notEqual(plan.id,villageBarnRoom().id);
 });

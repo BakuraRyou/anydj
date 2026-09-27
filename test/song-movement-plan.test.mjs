@@ -34,12 +34,12 @@ test('compileShow includes the score in the cacheable analysis result',()=>{
  assert.ok(plan.songMovement.passages.length>0);
 });
 
-test('measured rhythm changes movement with identical energy and does not invent attacks from beats',()=>{
+test('dense attacks retain accents without accelerating or expanding the whole formation',()=>{
  const make=interval=>{const p=music(.8,.5);p.arrangement.bassAttacks=Array.from({length:Math.floor(32/interval)},(_,i)=>({time:i*interval,strength:.9}));p.songMovement=planSongMovement(p);return p;};
  const sparse=make(2),dense=make(.25),a=dense.songMovement.passages[0],b=sparse.songMovement.passages[0];
- assert.equal(a.energy,b.energy);assert.ok(a.rhythm.density>b.rhythm.density);assert.ok(a.motionDrive>b.motionDrive);
+ assert.equal(a.energy,b.energy);assert.ok(a.rhythm.density>b.rhythm.density);assert.equal(a.motionDrive,b.motionDrive);assert.equal(a.extent,b.extent);assert.equal(a.pace,b.pace);assert.ok(a.accents.length>b.accents.length);
  const phaseTravel=p=>automaticGroupMotionAt(p,6).phase-automaticGroupMotionAt(p,2).phase;
- assert.ok(phaseTravel(dense)>phaseTravel(sparse));
+ assert.ok(Math.abs(phaseTravel(dense)-phaseTravel(sparse))<1e-9);
  const noAttacks=planSongMovement(music(.8,.5));
  assert.ok(noAttacks.passages.every(p=>p.accents.length===0&&p.rhythm.confidence===0));
 });
@@ -139,4 +139,27 @@ test('reduced but rhythmically active flow retains gentle development while genu
  for(const input of [music(.05,.26),music(.28,0),{duration:32,sections:[{start:0,end:32,look:'flow',intensity:.28}]}])assert.ok(planSongMovement(input).passages.every(s=>!s.motion));
  const held={...p,sectionLighting:[{start:1,end:7,movement:0}]};
  assert.deepEqual(automaticGroupMotionAt(held,2),automaticGroupMotionAt(held,6));
+});
+
+test('a local peak gets an active spatial figure in an otherwise flowing song',()=>{
+ const section=(start,end,energy,drive,look)=>({start,end,energy,drive,look});
+ const spans=[section(0,40,.28,.2,'flow'),section(40,52,.8,.48,'peak'),section(52,64,.82,.75,'peak'),section(64,104,.28,.2,'flow')];
+ const source={duration:104,sections:spans.map(s=>({start:s.start,end:s.end,look:s.look,intensity:s.energy})),arrangement:{patterns:{phrases:spans.map(s=>({start:s.start,end:s.end,energy:s.energy,tone:.45,movement:{driving:s.drive}}))}}};
+ const score=planSongMovement(source),peaks=score.passages.filter(p=>p.start>=40&&p.start<64);
+ assert.notEqual(score.character,'driving');
+ assert.equal(peaks.length,2);
+ for(const p of peaks){
+  assert.equal(p.role,'impact');
+  assert.ok(['diagonal-sweep','crossed-banks','rotating-fan','parallel-sweep','hinged-lines'].includes(p.composition),p.composition);
+  assert.ok(p.motionDrive<=p.drive,'local form selection must not boost the movement clock');
+ }
+ assert.notEqual(peaks[0].composition,peaks[1].composition);
+ const p={...source,songMovement:score};
+ for(const boundary of [40,52,64]){
+  const a=automaticGroupMotionAt(p,boundary-1e-6),b=automaticGroupMotionAt(p,boundary+1e-6);
+  for(let rank=0;rank<8;rank++){
+   const x=groupComposition(a,rank,8,1,6),y=groupComposition(b,rank,8,1,6);
+   assert.ok(Math.hypot(x.x-y.x,x.y-y.y)<1e-4);
+  }
+ }
 });

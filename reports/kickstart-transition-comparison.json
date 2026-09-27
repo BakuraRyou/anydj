@@ -1,0 +1,81 @@
+{
+  "results": [
+    {
+      "start": 141.19,
+      "end": 142.69,
+      "before": {
+        "darkSeconds": 1,
+        "minPower": 0,
+        "meanPower": 0.6046223385274858,
+        "maxAngle": 0.12676851198283567,
+        "maxStep": 0.04760733091357777
+      },
+      "after": {
+        "darkSeconds": 0,
+        "minPower": 3.1862794494876185,
+        "meanPower": 4.061419862077186,
+        "maxAngle": 0.12676851198283567,
+        "maxStep": 0.04760733091357777
+      }
+    },
+    {
+      "start": 168.81,
+      "end": 170.16,
+      "before": {
+        "darkSeconds": 0.8666666666666667,
+        "minPower": 0,
+        "meanPower": 1.3782496765479793,
+        "maxAngle": 0.10463508809439802,
+        "maxStep": 0.026551299977797954
+      },
+      "after": {
+        "darkSeconds": 0,
+        "minPower": 6.761057882616582,
+        "meanPower": 8.309246397358288,
+        "maxAngle": 0.10463508809439802,
+        "maxStep": 0.026551299977797954
+      }
+    },
+    {
+      "start": 246.53,
+      "end": 247.9,
+      "before": {
+        "darkSeconds": 0.9,
+        "minPower": 0,
+        "meanPower": 0.964974281702423,
+        "maxAngle": 0.3715838832854783,
+        "maxStep": 0.06561293185790475
+      },
+      "after": {
+        "darkSeconds": 0,
+        "minPower": 3.788858918624161,
+        "meanPower": 5.035638096969045,
+        "maxAngle": 0.3715838832854783,
+        "maxStep": 0.06561293185790475
+      }
+    },
+    {
+      "start": 252.78,
+      "end": 253.58,
+      "before": {
+        "darkSeconds": 0.3333333333333333,
+        "minPower": 0,
+        "meanPower": 0.9041770387679695,
+        "maxAngle": 0.4009842534616997,
+        "maxStep": 0.06483072659972401
+      },
+      "after": {
+        "darkSeconds": 0,
+        "minPower": 2.067872543022385,
+        "meanPower": 2.5061417047984675,
+        "maxAngle": 0.4009842534616997,
+        "maxStep": 0.06483072659972401
+      }
+    }
+  ],
+  "outside": {
+    "samples": 3065,
+    "maxPowerDelta": 0,
+    "maxTargetDelta": 0
+  }
+}

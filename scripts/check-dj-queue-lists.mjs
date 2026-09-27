@@ -47,7 +47,7 @@ try {
  await evaluate("document.querySelector('#djLamp').value='';document.querySelector('#djLamp').dispatchEvent(new Event('change'));document.querySelector('#fadeDuration').value='2';document.querySelector('#enqueueAll').click();document.querySelector('#queueSaveList').click();var listName=document.querySelector('#queueName');listName.value='Warm-up';listName.dispatchEvent(new Event('input'))");
  await wait("document.querySelector('#queueCount').textContent==='2'&&document.querySelector('#queueSaved').textContent.includes('gespeichert')");
  const first=await evaluate("document.querySelector('#queueSelect').value");
- await evaluate("document.querySelector('[aria-label=\"Übergang vom vorherigen Titel vorbereiten\"]').click()");
+ await evaluate("document.querySelector('[data-queue-transition]').click()");
  await wait("document.querySelector('.dj-transition-preview').open");
  assert.ok(await evaluate("[...document.querySelectorAll('.dj-deck audio')].every(a=>a.paused&&!a.src)"),'preparation leaves decks unloaded');
  await evaluate("const dialog=document.querySelector('.dj-transition-preview');for(const [key,value] of [['time',8],['cue',1],['duration',2]]){const e=dialog.querySelector('[data-edit-'+key+']');e.value=value;e.dispatchEvent(new Event('input'));}dialog.querySelector('[data-add]').click();dialog.querySelector('[data-choose]').click()");
@@ -55,8 +55,14 @@ try {
  const savedTransition=await evaluate("import('/dj-library.js').then(m=>m.readQueueLists()).then(data=>data.lists[0].entries[1].transition)");
  assert.equal(savedTransition.plan.time,8);assert.ok(savedTransition.plan.points);
  await evaluate("document.querySelector('.dj-transition-preview').close()");
- await evaluate("document.querySelector('#queueStart').click()");
+ await evaluate("document.querySelector('#stage-tab-3d').click();document.querySelector('#stageSettings').click();document.querySelector('[data-workspace-tab=music]').click()");
+ await wait("document.querySelector('[data-song-list]')?.value===document.querySelector('#queueSelect').value&&document.querySelectorAll('[data-song-list-tracks] li').length===2");
+ assert.equal(await evaluate("document.querySelector('[data-song-list-start]').checkVisibility()"),true);
+ assert.equal(await evaluate("document.querySelector('[data-song-list] option:checked').textContent"),'Warm-up');
+ await evaluate("document.querySelector('[data-song-list-start]').click()");
  await wait("!document.querySelector('audio').paused");
+ await wait("document.querySelector('[data-song-list-start]').textContent==='Playlist-Automatik pausieren'");
+ await evaluate("document.querySelector('[data-stage3d-expand]').click()");
  assert.equal(await evaluate("document.querySelector('#queueSelect').value"),first);
  assert.equal(await evaluate("document.querySelector('#queueCount').textContent"),'2');
  await evaluate("document.querySelector('#queueNew').click();var listName=document.querySelector('#queueName');listName.value='Party';listName.dispatchEvent(new Event('input'));document.querySelectorAll('[aria-label=\"In Warteschlange einreihen\"]')[1].click()");

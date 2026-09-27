@@ -2,9 +2,16 @@ const time=value=>`${Math.floor(Math.max(0,value)/60)}:${String(Math.floor(Math.
 export function createStageTransport(host,{isVisible}){
   const section=document.createElement('section');section.className='stage-3d-transport';section.setAttribute('aria-label','Songsteuerung');section.hidden=true;
   section.innerHTML='<div class="stage-3d-song-heading"><label>Deck <select data-song-deck aria-label="Deck für Songsteuerung"></select></label><button type="button" class="button secondary" data-song-library aria-expanded="false">Song laden</button><strong data-song-title>Kein Track geladen</strong><button type="button" class="button secondary" data-song-play disabled>Play</button></div><div class="stage-3d-song-picker" hidden><select data-song-track aria-label="Song aus der Bibliothek"></select><button type="button" class="button secondary" data-song-load>Laden</button><button type="button" class="button secondary" data-song-import>Datei hinzufügen</button><input type="file" data-song-files accept="audio/*" multiple hidden><p data-song-feedback role="status"></p></div><label class="stage-3d-song-position"><span class="sr-only">Songposition</span><input class="range" data-song-seek type="range" min="0" max="1" step="0.01" value="0" disabled></label><div class="stage-3d-song-bottom"><output data-song-clock hidden>0:00 / 0:00</output><label>Tempo <input data-song-rate class="range" type="range" min="-16" max="16" step="0.1" value="0" disabled><output data-song-rate-value>0 %</output></label><button type="button" class="button secondary" data-song-reset>Tempo zurücksetzen</button></div><p data-song-note hidden></p>';
+  const playlist=document.createElement('div');playlist.className='stage-3d-playlists';
+  playlist.innerHTML='<div class="stage-3d-playlist-heading"><h3>Musiklisten</h3><span data-song-list-count></span></div><label class="stage-3d-list-choice"><span>Playlist auswählen</span><select data-song-list aria-label="Playlist auswählen"></select></label><button type="button" class="button primary" data-song-list-start>Playlist starten</button><p data-song-list-status role="status"></p><ol data-song-list-tracks aria-label="Titel der Playlist"></ol>';
+  const deckTools=document.createElement('div');deckTools.className='stage-3d-deck-tools';
+  deckTools.append(...section.childNodes);section.append(playlist,deckTools);
+  const heading=document.createElement('h3');heading.textContent='Einzelnes Deck';deckTools.prepend(heading);
   host.append(section);const controls=new Map(),q=key=>{if(!controls.has(key))controls.set(key,section.querySelector(`[data-song-${key}]`));return controls.get(key);};
   const text=(key,value)=>{const node=q(key);if(node.textContent!==value)node.textContent=value;};
-  let api=null,selected='',snapshot=null;
+  let api=null,selected='',snapshot=null,listSignature='',listEntriesSignature='',listBusy=false,listError='';
+  q('list').onchange=()=>{listError='';api?.selectPlaylist?.(q('list').value);update();};
+  q('list-start').onclick=async()=>{if(listBusy)return;listError='';listBusy=true;update();try{await api?.startPlaylist?.();}catch(error){listError=error.message;}finally{listBusy=false;update();}};
   const seek=value=>{if(snapshot?.canSeek){api.seek(snapshot.id,Math.max(0,Math.min(snapshot.duration,value)));update();}};
   const picker=section.querySelector('.stage-3d-song-picker');let trackSignature='',busy=false;
   q('library').onclick=()=>{picker.hidden=!picker.hidden;q('library').setAttribute('aria-expanded',String(!picker.hidden));update();};
@@ -21,6 +28,21 @@ export function createStageTransport(host,{isVisible}){
   q('play').onclick=()=>{if(snapshot?.canPlay)api.toggle(snapshot.id);};
   function update(){
     section.hidden=!api;if(!api||!isVisible())return;
+    const playlists=api.getPlaylists?.();playlist.hidden=!playlists;
+    if(playlists){
+      const signature=JSON.stringify(playlists.lists);
+      if(signature!==listSignature){q('list').replaceChildren(...playlists.lists.map(list=>new Option(list.name,list.id)));listSignature=signature;}
+      q('list').value=playlists.selected;q('list').disabled=!playlists.ready||listBusy;
+      q('list-start').disabled=listBusy||!playlists.canStart;
+      text('list-start',listBusy?'Wird gestartet …':playlists.running?'Playlist-Automatik pausieren':'Playlist starten');
+      text('list-count',playlists.entries.length+' Titel');
+      text('list-status',listError||playlists.status||(!playlists.entries.length?'Diese Liste ist leer. Füge in der Bibliothek Titel zu deiner Musikliste hinzu.':playlists.running?'Playlist-Automatik läuft.':'Die Titel werden der Reihe nach abgespielt.'));
+      const entriesSignature=JSON.stringify(playlists.entries);
+      if(entriesSignature!==listEntriesSignature){
+        q('list-tracks').replaceChildren(...playlists.entries.map(entry=>{const li=document.createElement('li'),title=document.createElement('strong'),status=document.createElement('small');title.textContent=entry.title;title.title=entry.title;status.textContent=entry.status;li.append(title,status);return li;}));
+        listEntriesSignature=entriesSignature;
+      }
+    }
     const decks=api.getDecks();
     if(!decks.some(d=>d.id===selected))selected=(decks.find(d=>d.playing)||decks.find(d=>d.duration)||decks[0])?.id||'';
     const signature=decks.map(d=>d.id).join('|');

@@ -44,7 +44,7 @@ for(let tick=0;tick<=Math.floor(end*30);tick++){
   maxStep=Math.max(maxStep,step);maxAngle=Math.max(maxAngle,angleDegrees);
   if(l.power<=.001&&l.movingGroupActive)darkTrackingSamples++;
   previous.set(l.id,l);
-  return {id:l.id,power:l.power,trackMotion:!!l.movingGroupActive,zoneTransit:!!l.zoneTransit,authoredTarget:authored.get(l.id)?.target,target:l.target,step,angleDegrees,relit};
+  return {id:l.id,power:l.power,sceneLead:l.sceneLead,sceneGain:l.sceneGain,surfaceGain:l.surfaceGain,surfaceOverlap:l.surfaceOverlap,trackMotion:!!l.movingGroupActive,zoneTransit:!!l.zoneTransit,authoredTarget:authored.get(l.id)?.target,target:l.target,step,angleDegrees,relit};
  });
  const picture=showScoreAt(plan,time);
  samples.push({time,role:picture?.role,form:picture?.form,mask:presence.mask,action:presence.action,shutter:exposure.level,heads});

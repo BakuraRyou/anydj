@@ -10,9 +10,10 @@ export function createStageFullTransport(host,{dialog,topControls,canvas,onDeckT
   section.className='stage-3d-full-transport';section.hidden=true;
   section.setAttribute('aria-label','Decks und Überblendung im Vollbild');
   const deckMarkup=id=>`<article class="stage-3d-mini-deck" data-full-deck="${id}" aria-label="Deck ${id}">
-    <div class="stage-3d-mini-heading"><button type="button" class="stage-3d-mini-badge" data-full-deck-tools aria-label="Deck ${id}: Song laden und Tempo einstellen">${id}</button><strong data-full-title>Kein Track geladen</strong><button type="button" class="button" data-full-play disabled aria-label="Deck ${id} abspielen">Play</button></div>
+    <div class="stage-3d-mini-heading"><button type="button" class="stage-3d-mini-badge" data-full-deck-tools aria-label="Deck ${id}: Song laden und Tempo einstellen">${id}</button><span class="stage-3d-mini-title"><strong data-full-title>Kein Track geladen</strong><span class="stage-3d-mini-processing" data-full-processing hidden role="img" aria-label="Lichtshow wird berechnet" title="Lichtshow wird berechnet"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M20 12a8 8 0 1 1-8-8"/><path d="M16 4h4v4"/></svg></span></span><button type="button" class="button" data-full-play disabled aria-label="Deck ${id} abspielen">Play</button></div>
     <div class="stage-3d-mini-timeline"><canvas width="640" height="80" aria-hidden="true"></canvas><input data-full-seek type="range" min="0" max="1" step="0.01" value="0" disabled aria-label="Abspielposition Deck ${id}"></div>
     <div class="stage-3d-mini-clock"><output data-full-position>0:00</output><span data-full-state>Kein Track</span><span data-full-duration>0:00</span></div>
+    <label class="stage-3d-mini-volume"><span>Lautstärke</span><input data-full-volume type="range" min="0" max="1" step="0.01" value="1" aria-label="Lautstärke Deck ${id}"><output data-full-volume-value>100 %</output></label>
   </article>`;
   section.innerHTML=`${deckMarkup('A')}<div class="stage-3d-mini-mixer">
     <label class="stage-3d-mini-mix-label"><span>A</span><span>Überblendung</span><span>B</span><input data-full-crossfade class="range" type="range" min="0" max="1" step="0.01" value="0" aria-label="Crossfader zwischen Deck A und B"></label>
@@ -25,7 +26,7 @@ export function createStageFullTransport(host,{dialog,topControls,canvas,onDeckT
   const sizeObserver=new ResizeObserver(()=>host.style.setProperty('--stage-deck-height',section.getBoundingClientRect().height+'px'));sizeObserver.observe(section);
   const q=name=>section.querySelector(`[data-full-${name}]`);
   const cards=[...section.querySelectorAll('[data-full-deck]')].map(element=>({
-    element,id:element.dataset.fullDeck,title:element.querySelector('[data-full-title]'),play:element.querySelector('[data-full-play]'),seek:element.querySelector('[data-full-seek]'),
+    element,id:element.dataset.fullDeck,processing:element.querySelector('[data-full-processing]'),volume:element.querySelector('[data-full-volume]'),volumeValue:element.querySelector('[data-full-volume-value]'),title:element.querySelector('[data-full-title]'),play:element.querySelector('[data-full-play]'),seek:element.querySelector('[data-full-seek]'),
     waveform:element.querySelector('canvas'),position:element.querySelector('[data-full-position]'),duration:element.querySelector('[data-full-duration]'),state:element.querySelector('[data-full-state]')
   }));
   const mixer=section.querySelector('.stage-3d-mini-mixer'),crossfade=q('crossfade'),mix=q('mix'),auto=q('auto'),duration=q('fade-duration'),fade=q('fade'),status=q('status');
@@ -66,6 +67,7 @@ export function createStageFullTransport(host,{dialog,topControls,canvas,onDeckT
   section.addEventListener('keydown',event=>{if(event.key!=='Escape')event.stopPropagation();},options);
   for(const card of cards){
     const edit=card.element.querySelector('[data-full-deck-tools]');edit.title='Song laden und Tempo einstellen';edit.onclick=()=>onDeckTools?.(card.id);
+    card.volume.oninput=()=>{api?.setVolume?.(card.id,Number(card.volume.value));update();};
     card.play.onclick=()=>{if(!card.play.disabled){api?.toggle(card.id);update();}};
     card.seek.oninput=()=>{if(!card.seek.disabled){api?.seek(card.id,Number(card.seek.value));update();}};
   }
@@ -83,11 +85,15 @@ export function createStageFullTransport(host,{dialog,topControls,canvas,onDeckT
       const d=decks.find(deck=>deck.id===card.id)||{};
       const position=Math.max(0,Number(d.position)||0),length=Math.max(0,Number(d.duration)||0);
       setText(card.title,d.title||'Kein Track geladen');card.title.title=d.title||'Kein Track geladen';
+      card.processing.hidden=d.analysis?.kind!=='working';
+      if(!card.processing.hidden){const label=d.analysis.text||'Lichtshow wird berechnet';card.processing.title=label;card.processing.setAttribute('aria-label',label);}
       setText(card.play,d.playing?'Pause':'Play');setDisabled(card.play,!d.canPlay);
       card.play.setAttribute('aria-label',`Deck ${card.id} ${d.playing?'pausieren':'abspielen'}`);
       card.element.classList.toggle('is-playing',Boolean(d.playing));
       setDisabled(card.seek,!d.canSeek);card.seek.max=length||1;card.seek.value=position;
       card.seek.setAttribute('aria-valuetext',`${time(position)} von ${time(length)}`);
+      const volume=Math.max(0,Math.min(1,Number.isFinite(d.volume)?d.volume:1));
+      card.volume.value=volume;setDisabled(card.volume,!api.setVolume);setText(card.volumeValue,Math.round(volume*100)+' %');card.volume.setAttribute('aria-valuetext',Math.round(volume*100)+' Prozent');
       setText(card.position,time(position));setText(card.duration,time(length));
       setText(card.state,d.playing?'Spielt':d.title?'Pausiert':'Kein Track');
       drawWaveform(card.waveform,d.waveform,position,length,[],card.id==='A'?'#f6ac7b':'#77d2dc');

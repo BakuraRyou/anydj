@@ -1,5 +1,9 @@
 import {stageBrandRects} from './dmx-stage-brand-data.js';
 
+// The source logo is display-white. Use a subdued paint reflectance for the
+// physical backdrop sign; the shared surface lighting still shades it normally.
+const matteRects=stageBrandRects.map(([x,y,w,h,color])=>[x,y,w,h,'#'+[1,3,5].map(i=>Math.round(parseInt(color.slice(i,i+2),16)*.24).toString(16).padStart(2,'0')).join('')]);
+
 // World-space geometry is shared by Canvas, WebGL, WebGPU and VR. Existing
 // saved rooms receive the sign without changing their plans or imported meshes.
 export function drawStageBrand(layout,{polygon,eye=null,wallVisible=()=>true}) {
@@ -29,5 +33,5 @@ export function drawStageBrand(layout,{polygon,eye=null,wallVisible=()=>true}) {
   }
   const point=(x,y,offset)=>[center[0]+right[0]*(x/96-.5)*width+inward[0]*offset,center[1]+right[1]*(x/96-.5)*width+inward[1]*offset,top-y/96*signHeight];
   const rectangle=(x,y,w,h,color,offset)=>polygon([point(x,y,offset),point(x+w,y,offset),point(x+w,y+h,offset),point(x,y+h,offset)],color,1,null,.7);
-  for(const [x,y,w,h,color] of stageBrandRects)rectangle(x,y,w,h,color,mountOffset);
+  for(const [x,y,w,h,color] of matteRects)rectangle(x,y,w,h,color,mountOffset);
 }

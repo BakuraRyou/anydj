@@ -341,7 +341,7 @@ const lensCircles=new Map([8,16].map(n=>[n,Array.from({length:n},(_,i)=>[Math.co
 // Shared world geometry: desktop canvas and stereoscopic WebXR use the same scene.
 export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{},thickness=()=>1,footprint=null,beam=null,lens=null,floorSurface=null,surfacePatch=null,surfaceLayers=undefined,projectSurfaces=beamSurfacePatches,fixtureDetail=()=>true,wallVisible=()=>true,eye=null}){
   const ambient=layout.ar?100:sceneEnvironmentBrightness(layout),rawPolygon=polygon,colors=new Map();
-  const surfaceLight=createSurfaceLighting(layout.ar?[]:lights,ambient,[0,layout.depth/2,(layout.height||3)/2]);
+  const surfaceLight=createSurfaceLighting(layout.ar?[]:lights.map(l=>l.surfaceGain<1?{...l,power:l.power*l.surfaceGain}:l),ambient,[0,layout.depth/2,(layout.height||3)/2]);
   const dim=color=>{if(!color)return color;if(!colors.has(color))colors.set(color,environmentColor(color,ambient));return colors.get(color);};
   polygon=(points,fill,alpha=1,stroke=null,lineWidth=.7,emissive=false)=>rawPolygon(points,emissive?fill:fill&&points.length>=3?surfaceLight(points,fill):dim(fill),alpha,emissive?stroke:dim(stroke),lineWidth,emissive);
   const line=(a,b,color)=>polygon([a,b],null,1,color);
@@ -414,7 +414,7 @@ export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{}
     if(light.power<=0)continue;
     const {height,length,radius,stretch,angle}=lightFootprint(light),profile=lightProfile(light.type,light.beamAngle,light.previewAperture);
     const p=[light.position.x,light.position.y,height],t=[light.target.x,light.target.y,light.target.z||.012];
-    const strength=Math.min(1,light.power)*profile.power/(1+.015*length*length);
+    const strength=Math.min(1,light.power)*(light.surfaceGain??1)*profile.power/(1+.015*length*length);
     // All fixture cones illuminate every receiving plane, including broad washes.
     // Explicit wall-only regions are clipped inside the shared projector.
     if(!layout.roomPlan?.positions?.[light.id]?.wallTarget||light.wallIndex>=0){

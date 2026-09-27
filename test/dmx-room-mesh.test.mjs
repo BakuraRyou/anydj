@@ -58,7 +58,13 @@ test('models and scans render as filled geometry in desktop/VR and remain hidden
   for(const room of [plan(),validateRoomPlan({...newRoomPlan(),representation:'scan',surfaces:[{kind:'wall',points:[[-4,6,0],[4,6,0],[4,6,3],[-4,6,3]]}]})]){
     for(const ar of [false,true]){
       const scene=applyRoomPlan(source,room,ar),faces=[];drawStageGeometry(scene.layout,[],[],0,{polygon(p,fill){if(fill)faces.push(p);}});
-      assert.equal(faces.length,ar?0:room.mesh?12:2);
+      if(ar)assert.equal(faces.length,0);
+      else {
+        // Room branding is additional geometry. Verify every imported surface
+        // itself instead of coupling this test to unrelated decoration counts.
+        const expected=room.mesh?room.mesh.triangles.map(t=>t.map(i=>room.mesh.vertices[i])):room.surfaces.flatMap(s=>surfaceTriangles(s.points));
+        for(const face of expected)assert.ok(faces.some(p=>JSON.stringify(p)===JSON.stringify(face)),'captured room triangle must render');
+      }
     }
   }
 });

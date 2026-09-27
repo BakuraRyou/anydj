@@ -48,24 +48,7 @@ export function clubStageRoom() {
   plan.name='Club-Bühne · Publikum & Hintergrund';
   plan.environmentBrightness=18;
   plan.representation='model';
-  const mesh={name:'Club mit Bühne, Publikumsfläche und Bühnenhintergrund',vertices:[],triangles:[],colors:[]};
-  // Small faces also keep the canvas renderer's depth sorting stable.
-  const face=([a,b,c,d],color)=>{
-    const distance=(p,q)=>Math.hypot(...p.map((v,i)=>v-q[i]));
-    const columns=Math.ceil(Math.max(distance(a,b),distance(d,c))/3),rows=Math.ceil(Math.max(distance(a,d),distance(b,c))/3);
-    const point=(u,v)=>a.map((n,i)=>(1-v)*(n+(b[i]-n)*u)+v*(d[i]+(c[i]-d[i])*u));
-    for(let row=0;row<rows;row++)for(let col=0;col<columns;col++){
-      const u=col/columns,v=row/rows,U=(col+1)/columns,V=(row+1)/rows,start=mesh.vertices.length;
-      mesh.vertices.push(point(u,v),point(U,v),point(U,V),point(u,V));
-      mesh.triangles.push([start,start+1,start+2],[start,start+2,start+3]);mesh.colors.push(color,color);
-    }
-  };
-  const box=(x,y,z,w,d,h,color)=>{
-    const a=[x,y,z],b=[x+w,y,z],c=[x+w,y+d,z],e=[x,y+d,z];
-    const top=p=>[p[0],p[1],z+h];
-    face([top(a),top(b),top(c),top(e)],color);
-    for(const [p,q] of [[a,b],[b,c],[c,e],[e,a]])face([p,q,top(q),top(p)],color);
-  };
+  const {mesh,face,box}=roomMeshBuilder('Club mit Bühne, Publikumsfläche und Bühnenhintergrund');
   const floorX=[-18,-12,12,18],floorY=[0,8,32,36,46,50];
   for(let x=0;x<floorX.length-1;x++)for(let y=0;y<floorY.length-1;y++){
     if(x===1&&y===3)continue; // The stage supplies its own floor.
@@ -120,5 +103,72 @@ export function largeHallRoomWithDJQuietZone() {
   plan.style='industrial';
   // Only the central DJ booth at the front is protected (6 × 3 metres).
   plan.zones=[{id:'hall-dj',name:'DJ-Pult',x:12/30,y:0,width:6/30,depth:3/42}];
+  return validateRoomPlan(plan);
+}
+
+function roomMeshBuilder(name){
+  const mesh={name,vertices:[],triangles:[],colors:[]};
+  // Small faces also keep the canvas renderer's depth sorting stable.
+  const face=([a,b,c,d],color)=>{
+    const distance=(p,q)=>Math.hypot(...p.map((v,i)=>v-q[i]));
+    const columns=Math.ceil(Math.max(distance(a,b),distance(d,c))/3),rows=Math.ceil(Math.max(distance(a,d),distance(b,c))/3);
+    const point=(u,v)=>a.map((n,i)=>(1-v)*(n+(b[i]-n)*u)+v*(d[i]+(c[i]-d[i])*u));
+    for(let row=0;row<rows;row++)for(let col=0;col<columns;col++){
+      const u=col/columns,v=row/rows,U=(col+1)/columns,V=(row+1)/rows,start=mesh.vertices.length;
+      mesh.vertices.push(point(u,v),point(U,v),point(U,V),point(u,V));
+      mesh.triangles.push([start,start+1,start+2],[start,start+2,start+3]);mesh.colors.push(color,color);
+    }
+  };
+  const box=(x,y,z,w,d,h,color)=>{
+    const a=[x,y,z],b=[x+w,y,z],c=[x+w,y+d,z],e=[x,y+d,z];
+    const top=p=>[p[0],p[1],z+h];
+    face([top(a),top(b),top(c),top(e)],color);
+    for(const [p,q] of [[a,b],[b,c],[c,e],[e,a]])face([p,q,top(q),top(p)],color);
+  };
+  return {mesh,face,box};
+}
+
+
+export function villageBarnRoom(){
+  const plan=newRoomPlan(10,14,5);
+  plan.name='Dorfscheune';plan.style='hall';plan.environmentBrightness=22;plan.representation='model';
+  const {mesh,face,box}=roomMeshBuilder('Dorfscheune · Spitzdach, Podest rechts, Tanzfläche links');
+  // Floorboards; omit the floor underneath the 45 cm high side platform.
+  for(let i=0;i<20;i++){
+    const x=-5+i*.5,color=i%3===0?'#69503a':'#59432f';
+    if(x>=1.5){
+      face([[x,0,0],[x+.5,0,0],[x+.5,6,0],[x,6,0]],color);
+      face([[x,10,0],[x+.5,10,0],[x+.5,14,0],[x,14,0]],color);
+    }else face([[x,0,0],[x+.5,0,0],[x+.5,14,0],[x,14,0]],color);
+  }
+  // Vertical timber cladding, with 3.2 m eaves and a 5 m ridge.
+  for(const side of [-1,1])for(let y=0;y<14;y+=.5)face([[side*5,y,0],[side*5,y+.5,0],[side*5,y+.5,3.2],[side*5,y,3.2]],y%1===0?'#614a35':'#6c533c');
+  for(const y of [0,14])for(let x=-5;x<5;x+=.5){
+    const roof=x=>5-Math.abs(x)*1.8/5;
+    face([[x,y,0],[x+.5,y,0],[x+.5,y,roof(x+.5)],[x,y,roof(x)]],x%1===0?'#614a35':'#6c533c');
+  }
+  face([[-5,0,3.2],[0,0,5],[0,14,5],[-5,14,3.2]],'#493929');
+  face([[0,0,5],[5,0,3.2],[5,14,3.2],[0,14,5]],'#493929');
+  // Visible posts and tie beams support a modest village-party rig.
+  for(const y of [2,7,12]){
+    for(const x of [-4.85,4.65])box(x,y,0,.2,.2,3.2,'#39291d');
+    box(-4.85,y,2.95,9.7,.2,.2,'#39291d');
+  }
+  box(1.5,6,0,3.5,4,.45,'#75563b');
+  box(.6,7,0,.45,1.6,.15,'#75563b');box(1.05,7,0,.45,1.6,.3,'#75563b');
+  box(3.7,7.1,.45,.8,1.8,.9,'#443526');
+  for(const y of [6.35,9.1])box(3.9,y,.45,.55,.55,1.1,'#23252a');
+  // The open left half is the dance floor; the front remains an entrance aisle.
+  const dance={x:.08,y:3/14,width:.48,depth:8/14};
+  const sizes={moving:{width:.34,depth:.34,height:.4},spot:{width:.25,depth:.25,height:.3},bar:{width:1,depth:.12,height:.15}};
+  const add=(id,type,name,x,y,height,target)=>{
+    plan.positions['barn-'+id]={type,name,x,y,height,rotation:0,size:{...sizes[type]},target,...(type==='moving'?{motionArea:{...dance}}:{})};
+  };
+  add('moving-front','moving','Tanzfläche · Moving Head vorne',.7,2.1,2.5,{x:-2,y:5});
+  add('moving-back','moving','Tanzfläche · Moving Head hinten',.7,12.1,2.5,{x:-2,y:9});
+  for(const [i,x,y,tx,ty] of [[1,-4.5,2.1,-2,5],[2,-4.5,7.1,-2,8],[3,4.4,7.1,-1,7],[4,-4.5,12.1,-2,10]])add('par-'+i,'spot','Querbalken · PAR '+i,x,y,2.6,{x:tx,y:ty});
+  add('bar-front','bar','Podestkante · LED-Bar vorne',1.7,6.4,.55,{x:-1.5,y:5});
+  add('bar-back','bar','Podestkante · LED-Bar hinten',1.7,9.6,.55,{x:-1.5,y:10});
+  plan.mesh=mesh;plan.zones=[];
   return validateRoomPlan(plan);
 }

@@ -24,7 +24,7 @@ export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones}
   }
   pages.get('music').append(q('.stage-3d-transport'));
   pages.get('room').append(room);pages.get('position').append(dancer);
-  const positionHint=document.createElement('p');positionHint.className='stage-3d-position-hint';positionHint.textContent='Wähle „Ego-Perspektive“, um den Raum mit WASD zu erkunden oder Standort und Augenhöhe einzustellen.';pages.get('position').append(positionHint);
+  const positionHint=document.createElement('p');positionHint.className='stage-3d-position-hint';positionHint.textContent='Wähle „Im Raum“, um den Raum mit WASD zu erkunden oder Standort und Augenhöhe einzustellen.';pages.get('position').append(positionHint);
   const lightPage=pages.get('lighting'),lightTabs=document.createElement('div');lightTabs.className='stage-3d-light-tabs';
   lightTabs.innerHTML='<button type="button" class="button secondary" data-light-view="song">Song-Licht</button><button type="button" class="button secondary" data-light-view="live">Live-Look & Verbindung</button>';
   const songHost=document.createElement('div');songHost.className='stage-3d-song-editor';

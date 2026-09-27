@@ -53,3 +53,20 @@ test('background A follows room lighting and has no self illumination',()=>{
     if(brightness>0)assert.ok(colors.some(c=>c!=='#000000'));
   }
 });
+
+
+test('A stays subdued in a dim club while remaining responsive to ambient light',()=>{
+  const plan=clubStageRoom(),peaks=[];
+  for(const brightness of [0,5,18,100]){
+    plan.environmentBrightness=brightness;
+    const colors=[];
+    drawStageGeometry(roomPlanLayout(plan),[],[],0,{polygon:(points,color)=>{
+      if(points.length===4&&points.every(p=>Math.abs(p[1]-48.45)<1e-6))colors.push(color);
+    }});
+    peaks.push(Math.max(...colors.flatMap(c=>[1,3,5].map(i=>parseInt(c.slice(i,i+2),16)))));
+  }
+  assert.equal(peaks[0],0);
+  assert.ok(peaks[1]<=4,'almost dark room: the sign must not stand out as a lamp');
+  assert.ok(peaks[2]<=14,'default club brightness: subdued background material');
+  assert.ok(peaks[3]>peaks[2]&&peaks[3]<80,'daylight reveals matte paint instead of display white');
+});

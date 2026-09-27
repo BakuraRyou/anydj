@@ -50,6 +50,7 @@ try {
   let touch=false;
   const click=async selector=>{
    await evaluate(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({block:'nearest',inline:'nearest'})`);
+   await wait(`(()=>{const n=document.querySelector(${JSON.stringify(selector)}),r=n.getBoundingClientRect();return n.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));})()`);
    const p=await evaluate(`(()=>{const n=document.querySelector(${JSON.stringify(selector)}),r=n.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;return {x,y,hit:n.contains(document.elementFromPoint(x,y))};})()`);
    assert.equal(p.hit,true,'click target unobstructed: '+selector);
    if(touch){await c('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[{x:p.x,y:p.y}]});await c('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});return;}
@@ -68,6 +69,21 @@ try {
     assert.ok(await evaluate("document.querySelector('.stage-3d-inspector').getBoundingClientRect().height")>100);
     await click('[data-tools-close]');
    }
+   // The page itself can be visible while a stale fullscreen rule hides its contents.
+   await click('[data-dancer]');
+   await wait("document.querySelector('[data-workspace-tab=position]').getAttribute('aria-expanded')==='true'");
+   for(const selector of ['.stage-3d-dancer','[data-dancer-map]','[data-dancer-x]','[data-dancer-distance]','[data-dancer-height]']){
+    assert.equal(await evaluate(`document.querySelector(${JSON.stringify(selector)}).checkVisibility()`),true,'location control visible: '+selector);
+   }
+   await evaluate("(()=>{const n=document.querySelector('[data-dancer-height]');n.value='1.9';n.dispatchEvent(new Event('change',{bubbles:true}));})()");
+   await click('[data-tools-close]');
+   await click('[data-workspace-tab=position]');
+   assert.equal(await evaluate("document.querySelector('[data-dancer-map]').checkVisibility()"),true,'location remains visible after reopening drawer');
+   await click('[data-tools-close]');
+   await click('[data-dancer]');
+   await click('[data-workspace-tab=position]');
+   assert.equal(await evaluate("document.querySelector('.stage-3d-position-hint').checkVisibility()"),true,'overview shows location guidance');
+   await click('[data-tools-close]');
    await writeFile('/tmp/anydj-show-screen-'+width+'.png',Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
   }
   await click('[data-workspace-tab=room]');
