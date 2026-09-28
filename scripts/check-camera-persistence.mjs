@@ -75,6 +75,18 @@ try {
   // Corrupt browser storage falls back to usable defaults.
   await evaluate("stage.destroy();localStorage.setItem('anydj-3d-camera-v1','{broken')");
   await reload();assert.equal(await evaluate("document.querySelector('[data-dancer]').getAttribute('aria-pressed')"),'false');
+  await evaluate("document.querySelector('[data-dancer]').click();document.querySelector('[data-dancer-map]').scrollIntoView({block:'center'})");
+  await new Promise(r=>setTimeout(r,300));
+  const map=await evaluate("(()=>{const m=document.querySelector('[data-dancer-map]').getScreenCTM(),p=new DOMPoint(120,82).matrixTransform(m),t=new DOMPoint(185,82).matrixTransform(m);return {x:p.x,y:p.y,tx:t.x,ty:t.y};})()");
+  assert.equal(await evaluate(`document.querySelector('[data-dancer-map]').contains(document.elementFromPoint(${map.x},${map.y}))`),true,'map is reachable');
+  const oldX=await evaluate("document.querySelector('[data-dancer-x]').value");
+  await c('Input.dispatchMouseEvent',{type:'mousePressed',x:map.x,y:map.y,button:'left',buttons:1,clickCount:1});
+  await c('Input.dispatchMouseEvent',{type:'mouseMoved',x:map.tx,y:map.ty,buttons:1});
+  assert.equal(await evaluate("document.querySelector('[data-dancer-x]').value"),oldX,'drag only previews until release');
+  await c('Input.dispatchMouseEvent',{type:'mouseReleased',x:map.tx,y:map.ty,button:'left',buttons:0,clickCount:1});
+  await wait("Math.abs(JSON.parse(localStorage.getItem('anydj-3d-camera-v1')||'{}').dancer?.yaw+Math.PI/2)<.01");
+  const aimed=await read();assert.ok(Math.abs(aimed.dancer.x)<.01);assert.ok(Math.abs(aimed.dancer.y+3)<.01);
+  await reload();assert.ok(Math.abs((await read()).dancer.yaw+Math.PI/2)<.01,'aim persists');
   await evaluate('stage.destroy()');assert.deepEqual(errors,[]);
   console.log('Camera persistence passed: position, yaw/pitch, height, Ego mode, overview dolly, immediate pagehide save, reload and malformed storage.');
 } finally {

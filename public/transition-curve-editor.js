@@ -77,5 +77,5 @@ export function createTransitionCurveEditor(svg,{onChange,onInspect}){
   return false;
  }
  svg.addEventListener('keydown',event=>{if(key(event))event.stopPropagation();});
- return {key,setPlan(value,{reset=false,position=0}={}){mixPosition=position;plan=value;points=value?transitionControlPoints(value):null;if(reset){history=[];future=[];selected=null;}draw();}};
+ return {key,setPlan(value,{reset=false,position=0,disabled=false}={}){mixPosition=position;plan=value;points=value&&!disabled?transitionControlPoints(value):null;if(reset){history=[];future=[];selected=null;}draw();}};
 }

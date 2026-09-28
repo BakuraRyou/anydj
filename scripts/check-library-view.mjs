@@ -67,9 +67,57 @@ try {
   for(const [width,height] of [[1280,900],[390,844]]){
    await c('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<600});
    await evaluate("document.querySelector('#libraryTools').scrollIntoView({block:'center'})");
-   assert.equal(await evaluate("['trackSearch','trackFilter','trackSort'].every(id=>{const n=document.getElementById(id),r=n.getBoundingClientRect();return n.checkVisibility()&&r.left>=0&&r.right<=innerWidth;})"),true);
+   assert.equal(await evaluate("document.querySelector('#trackFilter').checkVisibility()"),false);
+   await evaluate("document.querySelector('#libraryFilterButton').click()");
+   await wait("document.querySelector('#libraryFilterButton').getAttribute('aria-expanded')==='true'");
+   assert.equal(await evaluate("['trackSearch','libraryFilterButton','trackFilter','trackSort'].every(id=>{const n=document.getElementById(id),r=n.getBoundingClientRect();return n.checkVisibility()&&r.left>=0&&r.right<=innerWidth;})"),true);
+   await c('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+   await c('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+   await wait("!document.querySelector('#libraryFilterPopover').matches(':popover-open')");
   }
-  assert.deepEqual(errors,[]);console.log('Library view passed: newest default, sorting, filters, search, queue order, persistence and responsive controls.');
+  // Catalog extension, multiple assignments and persistence through the real UI.
+  await evaluate("document.querySelector('#libraryFilterButton').click()");
+  await wait("document.querySelector('#libraryFilterPopover').matches(':popover-open')");
+  await evaluate("{const form=document.querySelector('#libraryFilterPopover form');form.closest('details').open=true;form.querySelector('input').value='Verträumt';form.requestSubmit();}");
+  await wait("[...document.querySelectorAll('.feeling-filter label')].some(n=>n.textContent==='Verträumt')");
+  await evaluate("document.querySelector('#libraryFilterPopover').hidePopover();document.querySelector('#trackList button[aria-label=\"Gefühle bearbeiten\"]').click()");
+  await wait("document.querySelector('.feeling-dialog')");
+  await evaluate("{const dialog=document.querySelector('.feeling-dialog');for(const label of dialog.querySelectorAll('label'))if(['Ruhig','Verträumt'].includes(label.textContent))label.querySelector('input').click();[...dialog.querySelectorAll('button')].find(n=>n.textContent==='Speichern').click();}");
+  await wait("!document.querySelector('.feeling-dialog')&&document.querySelectorAll('#trackList .feeling-badges span').length===2");
+  await evaluate("document.querySelector('#libraryFilterButton').click()");
+  await wait("document.querySelector('#libraryFilterPopover').matches(':popover-open')");
+  await evaluate("[...document.querySelectorAll('.feeling-filter label')].find(n=>n.textContent==='Verträumt').querySelector('input').click()");
+  assert.deepEqual(await names(),['Zulu.mp3']);
+  await evaluate('window.__beforeLibraryReload=true');await c('Page.reload');
+  await wait("!window.__beforeLibraryReload&&document.querySelectorAll('#trackList .dj-track-label strong').length===1");
+  assert.deepEqual(await names(),['Zulu.mp3']);
+  assert.equal(await evaluate("document.querySelectorAll('#trackList .feeling-badges span').length"),2);
+  assert.equal(await evaluate("[...document.querySelectorAll('.feeling-filter label')].find(n=>n.textContent==='Verträumt').querySelector('input').checked"),true);
+  // A real audio import still creates persisted suggestions when model APIs fail.
+  const importFallback=()=>evaluate(`{
+   const nativeFetch=window.fetch.bind(window);window.fetch=(url,options)=>String(url).startsWith('/api/analysis/')?Promise.reject(new TypeError('Desktop offline')):nativeFetch(url,options);
+   document.querySelector('#djStructure').checked=false;
+   document.querySelector('.feeling-filter button').click();
+   const rate=16000,length=rate*12,buffer=new ArrayBuffer(44+length*2),view=new DataView(buffer);
+   const text=(offset,value)=>{for(let i=0;i<value.length;i++)view.setUint8(offset+i,value.charCodeAt(i));};
+   text(0,'RIFF');view.setUint32(4,36+length*2,true);text(8,'WAVE');text(12,'fmt ');view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);view.setUint32(24,rate,true);view.setUint32(28,rate*2,true);view.setUint16(32,2,true);view.setUint16(34,16,true);text(36,'data');view.setUint32(40,length*2,true);
+   for(let i=0;i<length;i++){const t=i/rate,value=(Math.sin(t*2*Math.PI*261.63)+Math.sin(t*2*Math.PI*329.63)+Math.sin(t*2*Math.PI*392))*.12;view.setInt16(44+i*2,value*32767,true);}
+   const transfer=new DataTransfer();transfer.items.add(new File([buffer],'Fallback.wav',{type:'audio/wav'}));const files=document.querySelector('#djFiles');files.files=transfer.files;files.dispatchEvent(new Event('change'));
+  }`);
+  await importFallback();
+  await wait("(async()=>{const {readLibrary}=await import('/dj-library.js');return (await readLibrary()).some(t=>t.name==='Fallback.wav'&&t.feelingAnalysis?.source==='browser');})()");
+  assert.equal(await evaluate("(async()=>{const {readLibrary}=await import('/dj-library.js');return Object.keys((await readLibrary()).find(t=>t.name==='Fallback.wav').feelingAnalysis.scores).length>0;})()"),true);
+  await evaluate("document.querySelector('#libraryTools').scrollIntoView({block:'center'});document.querySelector('#libraryFilterButton').click()");
+  await wait("document.querySelector('#libraryFilterPopover').matches(':popover-open')");
+  await writeFile(join(tmpdir(),'anydj-feeling-filter.png'),Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  // Standalone web edition uses the same tag UI and local signal fallback.
+  await c('Page.addScriptToEvaluateOnNewDocument',{source:"const editionObserver=new MutationObserver(()=>{if(document.documentElement)document.documentElement.dataset.edition='web';if(document.body){const demo=document.createElement('button');demo.id='demoTracks';demo.hidden=true;document.body.append(demo);editionObserver.disconnect();}});editionObserver.observe(document,{childList:true,subtree:true});"});
+  await evaluate('window.__beforeLibraryReload=true');await c('Page.reload');
+  await wait("!window.__beforeLibraryReload&&document.querySelector('.feeling-filter')&&document.querySelector('#djStructure').disabled&&document.querySelector('#trackList').textContent==='Dateien hierher ziehen'");
+  await importFallback();
+  await wait("(async()=>{const {readLibrary}=await import('/dj-library.js');return (await readLibrary()).some(t=>t.name==='Fallback.wav'&&t.feelingAnalysis?.source==='browser');})()");
+  await wait("document.querySelectorAll('#trackList .feeling-badges span').length>0");
+  assert.deepEqual(errors,[]);console.log('Library view passed: sorting, search, responsive popover, feeling catalog, manual tags, persistence and real audio fallback.');
 
 } finally {
   ws?.close();chrome.kill('SIGKILL');app.server.closeAllConnections();

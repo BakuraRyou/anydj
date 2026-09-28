@@ -100,16 +100,16 @@ export function createMovingPreparation({schedule=fn=>setTimeout(fn,0),cancel=cl
     prepare(plans,mode='auto',mood='balanced'){
       if(destroyed||!enabled)return;
       currentMode=modes(mode);currentMood=movingMood(mood);
-      const key=currentMode+':'+currentMood;
       queue=[...new Set(plans.filter(Boolean))].map(plan=>{
+        const planMood=movingMood(plan.movingMood??currentMood),key=currentMode+':'+planMood;
         let variants=cache.get(plan);if(!variants){variants=new Map();cache.set(plan,variants);}
-        if(!variants.has(key))variants.set(key,{plan,mode:currentMode,mood:currentMood,state:'waiting',job:null,result:null});
+        if(!variants.has(key))variants.set(key,{plan,mode:currentMode,mood:planMood,state:'waiting',job:null,result:null});
         return variants.get(key);
       });
       notify();start();
     },
-    read(plan,time,mode='auto',mood='balanced'){return movingPlanAt(cache.get(plan)?.get(modes(mode)+':'+movingMood(mood))?.result,time);},
-    exposure(plan,time,mode='auto',mood='balanced'){return movingCueExposure(cache.get(plan)?.get(modes(mode)+':'+movingMood(mood))?.result?.cues,time);},
+    read(plan,time,mode='auto',mood='balanced'){return movingPlanAt(cache.get(plan)?.get(modes(mode)+':'+movingMood(plan?.movingMood??mood))?.result,time);},
+    exposure(plan,time,mode='auto',mood='balanced',options){return movingCueExposure(cache.get(plan)?.get(modes(mode)+':'+movingMood(plan?.movingMood??mood))?.result?.cues,time,options);},
     stats,
     destroy(){destroyed=true;enabled=false;if(pending!==null)cancel(pending);pending=null;queue=[];cache=new WeakMap();},
   };

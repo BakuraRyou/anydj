@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {sceneReadability} from '../public/dmx-scene-readability.js';
-import {planSongMovement} from '../public/song-movement-plan.js';
+import {GROUP_COMPOSITIONS,planSongMovement} from '../public/song-movement-plan.js';
 import {automaticGroupScore,automaticGroupMotionAt,groupComposition,presenceRowFocus} from '../public/dmx-group-motion.js';
 import {applyMovingPresence} from '../public/dmx-activity.js';
 function song(energies=[.5,.55,.9,.5]){
@@ -83,11 +83,13 @@ test('shared desktop and VR geometry applies receiving-surface gain without dimm
 test('spatial readability remains symmetric after room motors and protected-zone routing',async()=>{
  const {createRoomPreview,newRoomPlan}=await import('../public/dmx-ar-model.js');
  const {movingPresenceAt}=await import('../public/dmx-activity.js');
+ for(const composition of GROUP_COMPOSITIONS){
  const p=song(),room=newRoomPlan(12,10,4);
+ p.songMovement.passages.forEach(s=>{s.composition=composition;});
  for(let row=0;row<3;row++)for(let rank=0;rank<8;rank++)room.positions[`r${row}h${rank}`]={type:'moving',x:(rank-3.5)*1.2,y:2+row*3,height:3.5,rotation:0,size:{width:.3,depth:.3,height:.4}};
  room.zones=[{id:'quiet',name:'Ruhezone',x:.42,y:.65,width:.16,depth:.15}];
  const preview=createRoomPreview();
- for(let tick=0;tick<90;tick++){
+ for(let tick=0;tick<20;tick++){
   const t=2+tick/30,presence=movingPresenceAt({movingPlan:p,movingMood:'balanced',songTime:t});
   const lights=Object.entries(room.positions).map(([id,position])=>({id,type:'moving',position,target:{x:0,y:4},motionUV:{x:.5,y:.5},motionPresentation:'auto',color:'#ffcc44',power:.8,movingPresenceBasePower:.8,movingPresence:presence}));
   const output=preview({layout:{width:12,depth:10,positions:room.positions},crowd:[],lights},room,false,t).lights;
@@ -99,7 +101,8 @@ test('spatial readability remains symmetric after room motors and protected-zone
   for(let row=0;row<3;row++)for(let rank=0;rank<4;rank++){
    const a=output.find(l=>l.id===`r${row}h${rank}`),b=output.find(l=>l.id===`r${row}h${7-rank}`);
    assert.ok(Math.abs(a.sceneGain-b.sceneGain)<1e-9);
-   assert.ok(Math.abs(a.power-b.power)<1e-7);
+   assert.ok(Math.abs(a.power-b.power)<1e-7,`${composition}: ${a.id}/${b.id} ${a.power}/${b.power}`);
   }
+ }
  }
 });

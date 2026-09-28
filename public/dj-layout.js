@@ -71,7 +71,21 @@ export function simplifyDJLayout(decks,mixer,lightStage){
  window.addEventListener('pagehide',()=>observer.disconnect(),{once:true});
  const headingRow=document.querySelector('.dj-library-heading'),files=disclosure('Musik hinzufügen','dj-import-options');
  headingRow.append(files);files.append(document.getElementById('addTracks'),document.getElementById('linkFolder'),document.getElementById('folderBar'),document.getElementById('folderStatus'));
- files.append(document.getElementById('libraryTools').querySelector('button'));
+ files.append(document.getElementById('enqueueAll'));
+ const filterButton=document.getElementById('libraryFilterButton'),filterPopover=document.getElementById('libraryFilterPopover');
+ const positionFilters=()=>{
+  const rect=filterButton.getBoundingClientRect();
+  filterPopover.style.left=Math.max(12,Math.min(rect.right-filterPopover.offsetWidth,innerWidth-filterPopover.offsetWidth-12))+'px';
+  const below=rect.bottom+8,above=rect.top-filterPopover.offsetHeight-8;
+  filterPopover.style.top=Math.max(12,Math.min(below+filterPopover.offsetHeight<=innerHeight-12?below:above,innerHeight-filterPopover.offsetHeight-12))+'px';
+ };
+ filterPopover.addEventListener('toggle',()=>{const open=filterPopover.matches(':popover-open');filterButton.setAttribute('aria-expanded',String(open));if(open)positionFilters();});
+ filterButton.setAttribute('aria-expanded','false');
+ const updateFilterIndicator=()=>{filterButton.dataset.active=String(document.getElementById('trackFilter').value!=='all'||document.getElementById('trackSort').value!=='newest'||Boolean(filterPopover.querySelector('.feeling-filter input:checked')));};
+ filterPopover.addEventListener('change',()=>{updateFilterIndicator();if(filterPopover.matches(':popover-open'))positionFilters();});
+ new ResizeObserver(()=>{if(filterPopover.matches(':popover-open'))positionFilters();}).observe(filterPopover);requestAnimationFrame(updateFilterIndicator);
+ window.addEventListener('resize',()=>{if(filterPopover.matches(':popover-open'))positionFilters();});
+ document.addEventListener('scroll',()=>{if(filterPopover.matches(':popover-open'))positionFilters();},true);
  const manage=disclosure('Liste verwalten','dj-list-options');
  document.querySelector('.queue-manager').append(manage);
  const manageSummary=manage.querySelector('summary');

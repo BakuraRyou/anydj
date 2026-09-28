@@ -2,7 +2,7 @@ import {songMovementAt,movementAccentEnvelope} from './song-movement-plan.js';
 import {lightingScenes} from './dmx-light-scenes.js';
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,Number.isFinite(v)?v:0));
 const cache=new WeakMap();
-export const SHOW_SCORE_VERSION=8;
+export const SHOW_SCORE_VERSION=11;
 export const SHOW_FORMS=['parallel','fan','converge','cross','wings','tiers','arc','ribbon'];
 // Compare every passage with the whole song before assigning visual scale.
 // Uniform loud material has no artificial climax; a peak needs real contrast.
@@ -100,6 +100,16 @@ export function showScoreAt(plan,time){
  while(lo<hi){const m=(lo+hi)>>>1;if(score[m].start<=time)lo=m+1;else hi=m;}
  const picture=score[lo-1];return picture&&time<picture.end?picture:null;
 }
+// Use the same picture handover for pair membership.
+// Silence remains authoritative; only a measured arrival permits a quick cut.
+export function showPictureLayers(plan,time){
+ const picture=showScoreAt(plan,time);if(!picture)return [];
+ const previous=showScoreAt(plan,picture.start-.00001);
+ if(!previous||picture.role==='silence'||previous.role==='silence')return [{picture,weight:1}];
+ const duration=Math.min((picture.end-picture.start)*.4,picture.featured ? .25 : 1.8);
+ const x=clamp((time-picture.start)/Math.max(.001,duration)),blend=x*x*(3-2*x);
+ return blend>=1?[{picture,weight:1}]:[{picture:previous,weight:1-blend},{picture,weight:blend}];
+}
 export function showScorePose(picture,time){
  const start=picture.motionStart??picture.start,end=picture.motionEnd??picture.end;
  const p=clamp((time-start)/Math.max(.001,end-start));
@@ -112,7 +122,7 @@ export function showScorePose(picture,time){
  const spread=(held?9:16+10*energy)*(1+(held?0:.04*movementAccentEnvelope(intent,time)))*(picture.role==='build'?.35+.65*p:1);
  const drift=held?side*4:side*(-7+14*develop);
  return [-1,-1/3,1/3,1].map((r,i)=>{
-  const mirrored=intent?.symmetry==='paired'&&r>0;
+  const mirrored=intent?.symmetry!=='evaluating'&&r>0;
   if(mirrored){const left=showScorePose({...picture,movementIntent:{...intent,symmetry:'evaluating'}},time)[3-i];return {...left,pan:-left.pan};}
   const outer=i===0||i===3,sign=r<0?-1:1;
   let pan,tilt;

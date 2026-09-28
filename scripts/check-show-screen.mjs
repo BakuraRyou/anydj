@@ -50,6 +50,8 @@ try {
   let touch=false;
   const click=async selector=>{
    await evaluate(`document.querySelector(${JSON.stringify(selector)}).scrollIntoView({block:'nearest',inline:'nearest'})`);
+   const wake=await evaluate(`(()=>{const r=document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};})()`);
+   await c('Input.dispatchMouseEvent',{type:'mouseMoved',...wake});
    await wait(`(()=>{const n=document.querySelector(${JSON.stringify(selector)}),r=n.getBoundingClientRect();return n.contains(document.elementFromPoint(r.x+r.width/2,r.y+r.height/2));})()`);
    const p=await evaluate(`(()=>{const n=document.querySelector(${JSON.stringify(selector)}),r=n.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;return {x,y,hit:n.contains(document.elementFromPoint(x,y))};})()`);
    assert.equal(p.hit,true,'click target unobstructed: '+selector);
@@ -58,6 +60,19 @@ try {
    await c('Input.dispatchMouseEvent',{type:'mousePressed',x:p.x,y:p.y,button:'left',clickCount:1});
    await c('Input.dispatchMouseEvent',{type:'mouseReleased',x:p.x,y:p.y,button:'left',clickCount:1});
   };
+  await click('[data-view-menu=xr]>summary');
+  assert.equal(await evaluate("document.querySelector('[data-xr-path=remote]').checkVisibility()"),true,'connection is first when no PC headset is available');
+  assert.equal(await evaluate("document.querySelector('[data-share-start]').checkVisibility()"),true,'connect action needs no nested disclosure');
+  assert.equal(await evaluate("document.querySelector('[data-stage-vr]').checkVisibility()"),false,'remote path uses the start action in the headset');
+  await click('[data-share-start]');
+  await wait("!document.querySelector('[data-share-links]').hidden");
+  assert.ok(await evaluate("document.querySelector('[data-share-code]').textContent.length")>=6);
+  await click('[data-share-start]');
+  await wait("document.querySelector('[data-share-links]').hidden");
+  await click('[data-xr-choose=local]');
+  assert.equal(await evaluate("document.querySelector('[data-vr-recheck]').checkVisibility()"),true);
+  assert.equal(await evaluate("document.querySelector('[data-stage-vr]').checkVisibility()"),true);
+  await click('[data-view-menu=xr]>summary');
   for(const [width,height] of [[1440,900],[390,844],[844,390]]){
    touch=width<600;
    await c('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<600});

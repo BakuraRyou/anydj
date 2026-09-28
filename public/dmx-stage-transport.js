@@ -34,7 +34,7 @@ export function createStageTransport(host,{isVisible}){
       if(signature!==listSignature){q('list').replaceChildren(...playlists.lists.map(list=>new Option(list.name,list.id)));listSignature=signature;}
       q('list').value=playlists.selected;q('list').disabled=!playlists.ready||listBusy;
       q('list-start').disabled=listBusy||!playlists.canStart;
-      text('list-start',listBusy?'Wird gestartet …':playlists.running?'Playlist-Automatik pausieren':'Playlist starten');
+      text('list-start',listBusy?'Wird gestartet …':playlists.running?'Playlist-Automatik pausieren':playlists.canResume?'Playlist fortsetzen':'Playlist starten');
       text('list-count',playlists.entries.length+' Titel');
       text('list-status',listError||playlists.status||(!playlists.entries.length?'Diese Liste ist leer. Füge in der Bibliothek Titel zu deiner Musikliste hinzu.':playlists.running?'Playlist-Automatik läuft.':'Die Titel werden der Reihe nach abgespielt.'));
       const entriesSignature=JSON.stringify(playlists.entries);

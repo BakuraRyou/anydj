@@ -1,3 +1,5 @@
+import {inferFeelings} from './feeling-tags.js';
+import {createFeelingLibrary} from './feeling-library.js';
 import {createFlickerControl} from './light-flicker.js';
 import {makeTransitionVariant,variantProblem,bindVariant} from './transition-library.js';
 import {openTransitionLinks} from './transition-links.js';
@@ -133,6 +135,11 @@ const decks = ['A','B'].map((name, index) => {
     for(const other of decks)if(other.track===track)other.colorPicker.update(track);
   });
   panel.querySelector('.dj-track-title').after(deck.colorPicker.element);deck.colorPicker.element.querySelector('.dj-color-menu').append(edit);deck.colorPicker.update(null);
+  const profileLabel=document.createElement('label');profileLabel.className='dj-deck-show-profile';profileLabel.append('Lichtshow');
+  const profileSelect=document.createElement('select');profileSelect.dataset.deckShowProfile=name;profileSelect.setAttribute('aria-label',`Lichtshow für Song in Deck ${name}`);profileSelect.title='Wird für diesen Song gespeichert';profileSelect.disabled=true;
+  profileSelect.replaceChildren(...[...$('djShowProfile').options].map(option=>new Option(option.textContent,option.value)));profileLabel.append(profileSelect);panel.querySelector('.dj-track-title').after(profileLabel);
+  deck.profileSelect=profileSelect;
+  profileSelect.onchange=async()=>{profileSelect.disabled=true;try{await setTrackShowProfile(name,profileSelect.value);profileSelect.setCustomValidity('');}catch(error){profileSelect.setCustomValidity(error.message);profileSelect.reportValidity();}finally{syncDeckShowProfile(deck);}};
   edit.onclick=()=>editSections(deck.track,()=>deck.audio.currentTime);
   panel.querySelector('.dj-play').onclick = () => perform(() => toggleDeck(deck));
   panel.querySelector('.dj-cue').onclick = () => { pauseQueue();cancelFade(); return perform(async () => {audio.pause(); audio.currentTime = deck.cue; deck.loop=null; deck.transition = null; await stopIfSilent();}); };
@@ -161,12 +168,22 @@ const performanceControls=createPerformance({decks,mixer,ready:audioReady,
     deck.loop=null;deck.audio.currentTime=target.time;deck.audio.playbackRate=target.rate;deck.manualRate=target.rate;deck.transition=null;
   }});
 simplifyDJLayout(decks,mixer,lightStage);
+function syncDeckShowProfile(deck){
+ const input=deck.profileSelect;input.disabled=!deck.track||Boolean(deck.spotify)||Boolean(deck.track.profileSaving);
+ input.value=SHOW_PROFILES.includes(deck.track?.showProfile)?deck.track.showProfile:showProfile;
+}
+async function setTrackShowProfile(id,value){
+ const track=decks.find(d=>d.name===id)?.track;if(!track||track.profileSaving||!SHOW_PROFILES.includes(value))return;
+ const previous=track.showProfile;track.showProfile=value;track.profileSaving=true;
+ try{await saveTrack(track);if(track.basePlan)replacePlan(track,track.basePlan);updateLightPreview();}
+ catch(error){track.showProfile=previous;throw error;}
+ finally{track.profileSaving=false;for(const deck of decks)syncDeckShowProfile(deck);}
+}
 // Optional 3D transport uses the same deck actions as the main controls.
 const stageLightDrafts=new Map();
 lightStage.setTransport({
   getShowProfiles:()=>[...$('djShowProfile').options].map(option=>({value:option.value,label:option.textContent})),
-  getShowProfile:()=>$('djShowProfile').value,
-  setShowProfile:value=>{const input=$('djShowProfile');if(input.disabled||![...input.options].some(option=>option.value===value))return;input.value=value;input.dispatchEvent(new Event('change'));},
+  setTrackShowProfile,
   getMixer:()=>({position:Number($('crossfader').value),mix:$('mixValue').textContent,canCrossfade:!$('crossfader').disabled,
     auto:$('autoCrossfade').checked,canAuto:!$('autoCrossfade').disabled,duration:$('fadeDuration').value,canDuration:!$('fadeDuration').disabled,
     fading:!$('fadeCancel').hidden,canFade:!$('fadeCancel').hidden||!$('fadeNow').disabled,status:$('fadeStatus').textContent}),
@@ -176,13 +193,13 @@ lightStage.setTransport({
   fade:()=>($('fadeCancel').hidden?$('fadeNow'):$('fadeCancel')).click(),
   getPlaylists:()=>({selected:selectedQueueList,ready:queueListsReady,
     lists:[{id:'',name:'Aktuelle Warteschlange'},...queueLists.map(({id,name})=>({id,name}))],
-    running:queueRunning&&(editingLiveQueue()||activeSetId===selectedQueueList),
-    canStart:!$('queueStart').disabled&&(queueRunning&&(editingLiveQueue()||activeSetId===selectedQueueList)||!(fade||decks.filter(d=>!d.audio.paused).length>1)),
+    running:queueRunning&&(editingLiveQueue()||activeSetId===selectedQueueList),canResume:canResumeQueue(),
+    canStart:(!(queueRunning&&(editingLiveQueue()||activeSetId===selectedQueueList))?!$('queuePlay').disabled:!$('queueStart').disabled)&&(queueRunning&&(editingLiveQueue()||activeSetId===selectedQueueList)||!(fade||decks.filter(d=>!d.audio.paused).length>1)),
     status:fade?'Übergang läuft.':decks.filter(d=>!d.audio.paused).length>1?'Zum Start nur ein Deck laufen lassen.':$('queueStatus').textContent,
     entries:displayedQueue().map(entry=>{const track=entry.provider==='spotify'?entry.remote:tracks.find(t=>t.id===entry.trackId);const deck=decks.find(d=>d.queueEntry===entry.id||d.setEntry?.sourceEntryId===entry.id);
       return {id:entry.id,title:track?.name||'Track fehlt',status:deck&&!deck.audio.paused?'Spielt · Deck '+deck.name:entry.provider==='spotify'?'Spotify':analysisStatus(track,$('djStructure').checked).text};})}),
   selectPlaylist:id=>{if(!queueListsReady||id&&!queueLists.some(list=>list.id===id))return;const select=$('queueSelect');select.value=id;select.dispatchEvent(new Event('change'));},
-  startPlaylist:async()=>{if(!$('queueStart').disabled){const error=await $('queueStart').onclick();if(error)throw Error(error);}},
+  startPlaylist:async()=>{const error=await (queueRunning&&(editingLiveQueue()||activeSetId===selectedQueueList)?$('queueStart').onclick():resumeQueue());if(error)throw Error(error);},
   getTracks:()=>tracks.filter(t=>!t.deleted).map(t=>({id:t.id,title:t.name,ready:Boolean(t.plan&&!t.missing&&!t.pendingChange)})),
   importFiles:files=>addFiles(files),
   mountEditor:async(id,host,options)=>{const d=decks.find(d=>d.name===id);if(!d?.track?.basePlan?.arrangement)return null;return editSections(d.track,()=>d.audio.currentTime,{...options,host,externalAudio:d.audio,edits:stageLightDrafts.get(d.track.id)});},
@@ -191,7 +208,7 @@ lightStage.setTransport({
   shortcut:(event,deckId)=>performanceControls.handleShortcut(event,{stage:true,deckId}),
   getDecks:()=>decks.map(d=>{
     const seek=d.panel.querySelector('.dj-seek'),play=d.panel.querySelector('.dj-play');
-    return {id:d.name,trackId:d.track?.id||d.spotify?.id||null,title:d.track?.name||d.spotify?.name||'',waveform:d.track?.waveform,
+    return {id:d.name,trackId:d.track?.id||d.spotify?.id||null,title:d.track?.name||d.spotify?.name||'',waveform:d.track?.waveform,showProfile:SHOW_PROFILES.includes(d.track?.showProfile)?d.track.showProfile:showProfile,canSetShowProfile:Boolean(d.track&&!d.track.profileSaving&&!d.spotify),
       analysis:d.spotify?null:analysisStatus(d.track,$('djStructure').checked),
       duration:d.spotify?Number(seek.max):d.track?.plan?.duration||0,position:d.spotify?Number(seek.value):d.resumeTime??d.audio.currentTime,
       volume:Number(d.panel.querySelector('.dj-volume').value),rate:d.audio.playbackRate,playing:d.spotify?play.textContent==='Pause':!d.audio.paused,
@@ -486,8 +503,11 @@ function replacePlan(track, plan) {
   for (const deck of decks) if (deck.track === track) {
     if(track.plan && !deck.audio.paused) deck.transition = {from:track.plan, start:deck.audio.currentTime};
   }
+  const feelingAnalysis=inferFeelings(plan);
+  if(JSON.stringify(track.feelingAnalysis)!==JSON.stringify(feelingAnalysis)){track.feelingAnalysis=feelingAnalysis;void persist(track);}
   track.basePlan=plan;
-  track.plan=applySectionLighting(applyShowProfile(applyTrackColors(plan,globalColorMode??track.colorMode),showProfile),track.sectionEdits||[]);
+  track.plan=applySectionLighting(applyShowProfile(applyTrackColors(plan,globalColorMode??track.colorMode),SHOW_PROFILES.includes(track.showProfile)?track.showProfile:showProfile),track.sectionEdits||[]);
+  if(SHOW_PROFILES.includes(track.showProfile))track.plan={...track.plan,movingMood:movingMoodForProfile(track.showProfile)};
   track.stageMotifs=prepareStageMotifs(track.plan);
   lightStage.prepareMovingHeads();
   for (const deck of decks) if (deck.track === track) drawDeck(deck);
@@ -520,7 +540,8 @@ async function editSections(track,position=()=>0,embedded={}) {
     catch(error){if(editorSession===id){await stopEditorSession();notice(`Editor-Lichtausgabe unterbrochen: ${error.message}`,true);}}
     finally{busy=false;}
   },80);
-  try{return openSectionEditor({track,host:embedded.host,externalAudio:embedded.externalAudio,edits:embedded.edits??track.sectionEdits,plan:applyShowProfile(applyTrackColors(track.basePlan,globalColorMode??track.colorMode),showProfile),position:()=>initialPosition,
+  try{return openSectionEditor({track,host:embedded.host,externalAudio:embedded.externalAudio,edits:embedded.edits??track.sectionEdits,plan:applyShowProfile(applyTrackColors(track.basePlan,globalColorMode??track.colorMode),SHOW_PROFILES.includes(track.showProfile)?track.showProfile:showProfile),position:()=>initialPosition,
+    getDiagnostics:()=>({lightTuning:lightTuning?.settings,stage:lightStage.getDiagnostics()}),
     onPreview:sample,
     mountPreview:host=>{stage=lightStage.mountEditor(host);wizStatus=document.createElement('p');wizStatus.className='le-set-status';wizStatus.textContent=!webMode&&$('djLamp').value?'WiZ: startet mit der Wiedergabe · bei Pause bleibt das Licht am Abspielpunkt':'WiZ: keine Lampe ausgewählt';host.append(wizStatus);if(latest)stage.update(latest.frame,latest.streams);return stage;},
     onBeforePlay:async()=>{
@@ -582,7 +603,7 @@ async function prepareTracks() {
         const beat = webMode?{grid:null,message:'Browseranalyse'}:await analyzeBeats(decoded,{token, signal:lifetime.signal});
         if(track.deleted || (track.revision||0)!==revision)continue;
         track.phase='Stilverlauf wird erkannt …';renderLibrary();
-        const style = webMode?{style:null,message:'Lokale Signalanalyse'}:await analyzeStyle(decoded,{token,signal:lifetime.signal});
+        const style = await analyzeStyle(decoded,{token,signal:lifetime.signal});
         if(track.deleted || (track.revision||0)!==revision)continue;
         track.styleMessage=style.message;
         track.analysisWarnings=webMode?[]:[...(!beat.grid?[beat.message]:[]),...(!style.style?[style.message]:[])];
@@ -677,8 +698,9 @@ function groupTrackActions(row,compact=false) {
   if(compact)actions.append(more);
   row.append(actions);
 }
+const feelings=createFeelingLibrary({changed:()=>renderLibrary(),notice});
 const localCovers=createLocalCovers({save:persist,changed:()=>renderLibrary()});
-const libraryView=()=>libraryTracks(tracks,{query:$('trackSearch').value,filter:$('trackFilter').value,sort:$('trackSort').value});
+const libraryView=()=>libraryTracks(tracks,{query:$('trackSearch').value,filter:$('trackFilter').value,sort:$('trackSort').value,feelings:feelings.selected,catalog:feelings.catalog});
 function renderLibrary() {
   if(libraryDragging)return;
   spotifyLibrary.refresh();
@@ -694,14 +716,15 @@ function renderLibrary() {
     const info=document.createElement('div');info.className='dj-track-info';
     const name=document.createElement('strong');name.textContent=track.name;name.title=track.relativePath||track.name;
     const state=document.createElement('small');paintAnalysis(state,track);
-    const label=document.createElement('div');label.className='dj-track-label';label.append(name,state);info.append(label);localCovers.attach(info,track);li.append(info);
+    const label=document.createElement('div');label.className='dj-track-label';label.append(name,state,feelings.badges(track));info.append(label);localCovers.attach(info,track);li.append(info);
     for(const deck of decks) li.append(button(deck.name,()=>loadDeck(deck,track),!deck.audio.paused||track.missing||track.pendingChange,`Auf Deck ${deck.name} laden`));
     const enqueueButton=button('+ Queue',()=>{},track.missing||track.pendingChange,'In Warteschlange einreihen');enqueueButton.onclick=()=>enqueue(track);li.append(enqueueButton);
     if((!track.folderId && (!track.file || track.failed))||track.queuePreparationError) li.append(button('↻',()=>relink(track),false,'Erneut verknüpfen'));
+    li.append(button('Gefühle',()=>feelings.edit(track),false,'Gefühle bearbeiten'));
     li.append(button('Übergänge',()=>showTransitionLinks(track),!transitionLibraryReady,'Gespeicherte Übergänge'));
     li.append(button('Abschnitte',()=>editSections(track),!track.basePlan?.arrangement,'Abschnittslicht bearbeiten'));
     li.append(button('Neu berechnen',()=>recalculateShow(track),Boolean(track.phase)||track.missing||track.pendingChange,'Lichtshow neu berechnen'));
-    if($('trackSort').value==='manual'&&!$('trackSearch').value.trim()&&$('trackFilter').value==='all')for(const [label,offset] of [['↑',-1],['↓',1]]) li.append(button(label,async()=>{const target=index+offset;[tracks[index],tracks[target]]=[tracks[target],tracks[index]];await Promise.all(tracks.map((t,i)=>{t.order=i;return persist(t);}));renderLibrary();},index+offset<0||index+offset>=tracks.length,label==='↑'?'In Bibliothek nach oben':'In Bibliothek nach unten'));
+    if($('trackSort').value==='manual'&&!$('trackSearch').value.trim()&&$('trackFilter').value==='all'&&!feelings.selected.length)for(const [label,offset] of [['↑',-1],['↓',1]]) li.append(button(label,async()=>{const target=index+offset;[tracks[index],tracks[target]]=[tracks[target],tracks[index]];await Promise.all(tracks.map((t,i)=>{t.order=i;return persist(t);}));renderLibrary();},index+offset<0||index+offset>=tracks.length,label==='↑'?'In Bibliothek nach oben':'In Bibliothek nach unten'));
     if(!folder || track.folderId!==folder.id) li.append(button('×',async()=>{track.deleted=true;tracks=tracks.filter(t=>t!==track);await removeTrack(track.id).catch(()=>{});await Promise.all(tracks.map((t,i)=>{t.order=i;return persist(t);}));renderLibrary();},decks.some(d=>d.track===track),'Track entfernen'));
     groupTrackActions(li,true);$('trackList').append(li);
   }
@@ -773,6 +796,7 @@ const stopPreviewClock=startShowClock(()=>decks.map((deck,i)=>({key:deck.audio,t
 setInterval(()=>{
   $('crossfader').disabled=Boolean(spotifyDeck?.spotifyStarted);
   for(const deck of decks) {
+    syncDeckShowProfile(deck);
     if(deck.spotify){
       const active=deck===spotifyDeck,position=active?spotifyLibrary.playback.position:0,duration=deck.spotify.duration/1000;
       const status=deck.panel.querySelector('.dj-analysis');status.textContent='Spotify'+(active&&deck.spotifyStarted&&!spotifyLibrary.playback.state?' · Verbindet …':'');status.dataset.analysis='complete';
@@ -813,6 +837,7 @@ window.addEventListener('pagehide',()=>{
   const old=session;session=null;if(old)void api('/api/music/stop',{id:old},true).catch(()=>{});
 });
 (async()=>{
+  await feelings.load();
   try {tracks=(await readLibrary()).sort((a,b)=>a.order-b.order);await Promise.all(tracks.map(restoreShow));const savedQueue=await readQueue();queue=Array.isArray(savedQueue)?savedQueue.filter(validQueueEntry).map(entry=>copyQueueEntry(entry)):[];const storedLists=await readQueueLists();
     queueLists=Array.isArray(storedLists?.lists)?storedLists.lists.filter(list=>typeof list?.id==='string'&&typeof list.name==='string'&&Array.isArray(list.entries)).map(list=>({id:list.id,name:list.name.slice(0,80),entries:list.entries.filter(validQueueEntry).map(entry=>copyQueueEntry(entry))})):[];
     queueSourceName=typeof storedLists?.liveName==='string'?storedLists.liveName.slice(0,80):'';selectedQueueList=queueLists.some(list=>list.id===storedLists?.selected)?storedLists.selected:'';queueListsReady=true;
@@ -1036,7 +1061,7 @@ async function applyFolderEntries(entries) {
   for(const {track,entry} of changes.unchanged){track.file=entry.file;track.handle=entry.handle;track.missing=false;track.pendingChange=false;}
   for(const {track,entry} of changes.update) {
     Object.assign(track,{queuePreparationError:null,file:entry.file,handle:entry.handle,name:entry.file.name,size:entry.file.size,lastModified:entry.file.lastModified,
-      revision:(track.revision||0)+1,sectionEdits:null,plan:null,basePlan:null,windows:null,refined:false,structureState:null,phase:null,analysisWarnings:[],failed:false,missing:false,pendingChange:false,state:''});
+      revision:(track.revision||0)+1,feelingAnalysis:null,sectionEdits:null,plan:null,basePlan:null,windows:null,refined:false,structureState:null,phase:null,analysisWarnings:[],failed:false,missing:false,pendingChange:false,state:''});
   }
   for(const entry of changes.add)tracks.push({id:crypto.randomUUID(),addedAt:Date.now(),folderId:folder.id,relativePath:entry.path,
     name:entry.file.name,size:entry.file.size,lastModified:entry.file.lastModified,file:entry.file,handle:entry.handle});
@@ -1250,6 +1275,29 @@ function editQueue(action,listId=selectedQueueList) {
   if(editingLiveQueue())queueEpoch++;action(displayedQueue());persistDisplayedQueue();renderQueue();
 }
 $('queueClear').onclick=()=>editQueue(entries=>{if(editingLiveQueue())shuffleEnabled=false;entries.splice(0);});
+let queueResumeBusy=false;
+function canResumeQueue(){
+ return Boolean((editingLiveQueue()||activeSetId===selectedQueueList)&&queueDeck?.setEntry&&
+  (queue.length||queueDeck.spotify&&!queueDeck.spotifyEnded||queueDeck.track&&!queueDeck.audio.ended));
+}
+async function resumeQueue(){
+ if(queueResumeBusy)return;
+ if(!canResumeQueue())return $('queueStart').onclick();
+ if(queueRunning)return;
+ if(fade||decks.some(d=>d!==queueDeck&&(!d.audio.paused||d.spotifyStarted&&!d.spotifyPaused)))return 'Zum Fortsetzen bitte den Übergang beenden und das andere Deck pausieren.';
+ queueResumeBusy=true;renderQueue();
+ const current=queueDeck,entry=current.setEntry,selected=selectedQueueList;
+ try{
+  await audioReady();
+  if(current!==queueDeck||entry!==current.setEntry||selected!==selectedQueueList)return;
+  if(current.spotify){if(!current.spotifyEnded&&current.spotifyPaused)await toggleDeck(current,true);}
+  else if(current.track&&!current.audio.ended&&current.audio.paused)await toggleDeck(current,true);
+  if(current!==queueDeck||entry!==current.setEntry||selected!==selectedQueueList)return;
+  queueRunning=true;queueEpoch++;queueMessage='Automatik fortgesetzt';autoFadePaused=false;
+ }catch(error){notice(error.message,true);return error.message;}
+ finally{queueResumeBusy=false;renderQueue();}
+}
+$('queuePlay').onclick=async()=>{const error=await resumeQueue();if(error){queueMessage=error;notice(error,true);renderQueue();}};
 $('queueStart').onclick=async()=>{
   if(queueRunning&&(editingLiveQueue()||activeSetId===selectedQueueList)){pauseQueue();return;}
   if(fade||decks.filter(d=>!d.audio.paused).length>1){notice('Zum Start der Warteschlange bitte den Übergang beenden und nur ein Deck laufen lassen.',true);return;}
@@ -1349,6 +1397,10 @@ function renderQueue() {
   $('queueCount').textContent=queue.length;
   $('queueStart').textContent=editingLiveQueue()?(queueRunning?'Automatik pausieren':'Start'):queueRunning&&activeSetId===selectedQueueList?'Set-Automatik pausieren':'Set von Anfang starten';
   $('queueStart').disabled=!queueListsReady||(!queue.length&&(!queueRunning||!editingLiveQueue()));
+  const resumable=canResumeQueue();
+  $('queuePlay').disabled=!queueListsReady||queueResumeBusy||Boolean(fade)||queueRunning&&(editingLiveQueue()||activeSetId===selectedQueueList)||(!resumable&&!queue.length);
+  $('queuePlay').title=resumable?'Aktuellen Titel an der pausierten Stelle fortsetzen':'Ausgewählte Warteschlange abspielen';
+  if(resumable&&!queueRunning){$('queueStart').textContent=editingLiveQueue()?'Nächsten Titel starten':'Set von Anfang starten';}
   $('queueClear').disabled=!queue.length||locked;
   $('queueStatus').textContent=editingLiveQueue()?(/^Automatik läuft(?: · Spotify)?$/.test(queueMessage)?'':queueMessage):'Feste Setliste · Titel bleiben erhalten. Änderungen gelten beim nächsten Set-Start.';
   const byId=new Map(tracks.map(track=>[track.id,track]));

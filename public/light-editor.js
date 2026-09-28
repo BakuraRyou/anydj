@@ -4,7 +4,7 @@ import {editPhaseTime} from './light-editor-model.js';
 import {createLightTimeline} from './light-editor-timeline.js';
 
 // The host owns mounting. Persistence, audio and physical output belong to the caller.
-export function createLightEditor(host,{plan,edits,title='Lichtshow',position=()=>0,audioSrc=null,externalAudio=null,onSave=async()=>{},onClose=()=>{},onPreview=()=>{},onBeforePlay=async()=>{}}) {
+export function createLightEditor(host,{plan,edits,title='Lichtshow',position=()=>0,getDiagnostics=()=>null,audioSrc=null,externalAudio=null,onSave=async()=>{},onClose=()=>{},onPreview=()=>{},onBeforePlay=async()=>{}}) {
   const dialog=document.createElement('section');dialog.className='light-editor';host.append(dialog);
   const stylesheet=document.createElement('link');stylesheet.rel='stylesheet';stylesheet.href=new URL('./light-editor.css',import.meta.url).href;dialog.append(stylesheet);
   dialog.insertAdjacentHTML('beforeend',`<form>
@@ -12,11 +12,11 @@ export function createLightEditor(host,{plan,edits,title='Lichtshow',position=()
   <div class="le-workspace">
     <section class="le-main" aria-label="Lichtverlauf">
       <div class="le-intro"><span class="le-step">1</span><div><h3>Abschnitt auswählen</h3><p>Klicke auf einen Abschnitt und ändere seine Farben oder Lebendigkeit.</p></div></div>
-      <div class="le-transport"><button type="button" data-play disabled>▶ Anhören</button><output data-clock></output><label class="le-check"><input type="checkbox" data-loop> Abschnitt wiederholen</label></div>
+      <div class="le-transport"><button type="button" data-play disabled>▶ Anhören</button><output data-clock></output><button type="button" data-review-export title="Aktuelle Lichtplanung und Songposition als JSON herunterladen">Analyse exportieren</button><label class="le-check"><input type="checkbox" data-loop> Abschnitt wiederholen</label></div>
       <p class="le-audio-note" data-audio-note hidden>Zum Anhören die Audiodatei im DJ-Pult laden. Die Lichtvorschau ist bereits verfügbar.</p>
       <div class="le-timeline-card"><div class="le-timeline-tools"><strong>Deine Lichtabschnitte</strong><label class="le-zoom">Zoom<input data-zoom type="range" min="1" max="8" step="1" value="1"></label></div><div data-timeline></div><p class="le-guidance">Klicken zum Auswählen · Ränder ziehen zum Verlängern · Oben in die Zeitachse klicken zum Springen</p></div>
       <div class="le-preview-card"><div data-set-preview hidden></div><div class="light-editor-preview"><span data-orb aria-hidden="true"></span><div><strong>Lichtvorschau</strong><p>Farbe und Helligkeit an der Abspielposition</p></div></div><strong class="le-curve-heading">Lichtverlauf</strong><canvas width="800" height="44" aria-label="Farb- und Helligkeitsverlauf der Lichtshow"></canvas></div>
-      <details class="le-tools"><summary>Abschnitte und Timing bearbeiten</summary><div class="le-tool-grid"><label>Zeiten einrasten<select data-snap><option value="beat">Am Beat</option><option value="bar">Am Takt</option><option value="free">Frei</option></select></label><label>Teilung bei Sekunde<input data-split-time type="number" min="0" step="any"></label></div><div class="le-actions"><button type="button" data-position>Position aus dem DJ-Pult</button><button type="button" data-split>Hier teilen</button><button type="button" data-merge>Mit nächstem verbinden</button><button type="button" data-add>In freiem Bereich hinzufügen</button><button type="button" data-duplicate>Duplizieren</button><button type="button" data-delete>Abschnitt entfernen</button></div><p>Freie Bereiche verwenden die automatisch berechnete Show. Zum Verschieben braucht ein Abschnitt freien Platz.</p><p>Tastatur: Pfeiltasten verschieben im gewählten Raster. Bei „Frei“: 0,1 s, mit Umschalt: 1 s.</p><button type="button" data-reset>Alle Abschnitte zurücksetzen</button></details><details class="le-tools"><summary>Lichtshow mit einem Video auswerten</summary><p>Exportiert die aktuelle Lichtplanung und Songposition für den Vergleich mit einer Aufnahme. Bewegung: Automatisch / Ausgewogen, ohne Raumeinstellungen. Musik und Video sind nicht enthalten.</p><button type="button" data-review-export>Analyse exportieren</button></details>
+      <details class="le-tools"><summary>Abschnitte und Timing bearbeiten</summary><div class="le-tool-grid"><label>Zeiten einrasten<select data-snap><option value="beat">Am Beat</option><option value="bar">Am Takt</option><option value="free">Frei</option></select></label><label>Teilung bei Sekunde<input data-split-time type="number" min="0" step="any"></label></div><div class="le-actions"><button type="button" data-position>Position aus dem DJ-Pult</button><button type="button" data-split>Hier teilen</button><button type="button" data-merge>Mit nächstem verbinden</button><button type="button" data-add>In freiem Bereich hinzufügen</button><button type="button" data-duplicate>Duplizieren</button><button type="button" data-delete>Abschnitt entfernen</button></div><p>Freie Bereiche verwenden die automatisch berechnete Show. Zum Verschieben braucht ein Abschnitt freien Platz.</p><p>Tastatur: Pfeiltasten verschieben im gewählten Raster. Bei „Frei“: 0,1 s, mit Umschalt: 1 s.</p><button type="button" data-reset>Alle Abschnitte zurücksetzen</button></details><details class="le-tools"><summary>Lichtshow mit einem Video auswerten</summary><p>Exportiert die aktuelle Lichtplanung und Songposition für den Vergleich mit einer Aufnahme. Enthält den gewählten Showmodus und deine Abschnittseinstellungen. Raumeinstellungen, Musik und Video sind nicht enthalten. Nutze „Analyse exportieren“ neben der Wiedergabesteuerung.</p></details>
     </section>
     <aside class="le-inspector" aria-label="Ausgewählten Abschnitt gestalten">
       <div class="le-intro"><span class="le-step">2</span><div><h3>Lichtwirkung ändern</h3><p>Gilt nur für den ausgewählten Abschnitt.</p></div></div>
@@ -103,7 +103,8 @@ export function createLightEditor(host,{plan,edits,title='Lichtshow',position=()
   q('[data-review-export]').onclick=()=>{
     try{
       preview();
-      const blob=new Blob([lightReviewJSON(lightReview(rendered,{title,time}))],{type:'application/json'});
+      const review=lightReview(rendered,{title,time});review.runtime=getDiagnostics();
+      const blob=new Blob([lightReviewJSON(review)],{type:'application/json'});
       const url=URL.createObjectURL(blob),link=document.createElement('a');
       link.href=url;link.download='anydj-light-review.json';link.click();
       setTimeout(()=>URL.revokeObjectURL(url),1000);

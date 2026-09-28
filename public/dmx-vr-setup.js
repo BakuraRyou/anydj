@@ -11,7 +11,7 @@ export function createVRSetup(host,{onRefresh=()=>{}}={}){
   recheck.setAttribute('aria-label','VR-Verfügbarkeit erneut prüfen');
   const start=host.querySelector('[data-stage-vr]');if(start)start.after(recheck);else host.insertBefore(recheck,details);
   const title=details.querySelector('strong'),steps=details.querySelector('ol'),status=details.querySelector('[role=status]'),desktop=/Electron\//.test(navigator.userAgent);
-  function render(){const advice=vrSetupAdvice(state,{desktop});title.textContent=state==='checking'?'VR-Verfügbarkeit wird geprüft …':advice.title;
+  function render(){details.dataset.vrState=state;details.dispatchEvent(new Event('vr-connection-change',{bubbles:true}));const advice=vrSetupAdvice(state,{desktop});title.textContent=state==='checking'?'VR-Verfügbarkeit wird geprüft …':advice.title;
     const instructions=state==='no-headset'||state==='error'?['Die aktuelle Browserumgebung bietet noch keine immersive VR-Sitzung an. Daraus lässt sich nicht erkennen, ob oder wie deine Brille angeschlossen ist.','Sobald die VR-Verbindung bereit ist, erneut prüfen. Beim Zurückkehren zu AnyDj wird automatisch geprüft.']:advice.steps;
     steps.replaceChildren(...instructions.map(text=>{const li=document.createElement('li');li.textContent=text;return li;}));details.querySelector('[data-vr-paths]').hidden=state==='ready';}
   recheck.onclick=async()=>{recheck.disabled=true;recheck.textContent='Prüfe …';status.textContent='Prüfe …';try{await onRefresh();if(!disposed)status.textContent='Prüfung abgeschlossen.';}catch{if(!disposed){status.textContent='Prüfung fehlgeschlagen. Bitte erneut versuchen.';details.open=true;}}finally{if(!disposed){recheck.disabled=false;recheck.textContent='Erneut prüfen';}}};

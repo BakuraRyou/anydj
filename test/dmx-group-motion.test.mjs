@@ -10,7 +10,7 @@ function source(time,plan=song()){
  return {layout:{width:8,depth:6,positions:{}},lights:Array.from({length:8},(_,i)=>({id:'s'+i,type:'moving',position:{x:i-3.5,y:4,height:3},target:{x:0,y:3},motionUV:{x:.5,y:.5},motionPresentation:'auto',movingPresence,movingPresenceBasePower:.7,power:.7,color:'#00cccc'}))};
 }
 const heads=scene=>scene.lights.filter(l=>l.type==='moving');
-test('ten distinct paths evolve through the second half and have smooth endpoints',()=>{
+test('all catalog paths evolve through the second half and have smooth endpoints',()=>{
  const signatures=new Set();
  for(const motion of GROUP_MOTIONS){
   const at=(progress,row=0)=>Array.from({length:12},(_,rank)=>groupMotionOffset({motion,progress,energy:.8,duration:8,amount:1},rank,12,row));

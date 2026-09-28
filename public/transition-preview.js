@@ -1,12 +1,18 @@
+import {alignTransition} from './transition-align.js';
 import {createTransitionTimeline} from './transition-timeline.js';
 import {createTransitionCurveEditor} from './transition-curve-editor.js';
 import {transitionAudioGains,scheduleTransitionGain} from './transition-audio.js';
 import {transitionBassDb} from './musical-transition.js';
 import {formatTime} from './dj-model.js';
 
-export function editTransitionPlan(pair,{time,cue,duration,style}){
+export function editTransitionPlan(pair,{time,cue,duration,style},{fitDuration=false}={}){
  const labels={smooth:'Sanfter Übergang',bass:'Bassübergabe',handover:'Kurze Überlagerung',cut:'Kurzer Wechsel'};
  if(![time,cue,duration].every(Number.isFinite)||time<0||cue<0||duration<.1||duration>60||!Object.hasOwn(labels,style))throw Error('Gültige Zeiten und eine Dauer zwischen 0,1 und 60 Sekunden eingeben.');
+ if(fitDuration){
+  const latestTime=pair.from.duration-duration*pair.from.rate,latestCue=pair.to.duration-duration*pair.to.rate;
+  if(latestTime<0||latestCue<0)throw Error('Für diese Überblenddauer ist einer der Titel zu kurz. Bitte eine kürzere Dauer wählen.');
+  time=latestTime;cue=0;
+ }
  const remaining=Math.min((pair.from.duration-time)/pair.from.rate,(pair.to.duration-cue)/pair.to.rate);
  if(!Number.isFinite(remaining)||duration>remaining+.001)throw Error('Der Übergang reicht über das Ende eines Titels. Start, Einstieg oder Dauer anpassen.');
  return {...pair.plan,time,cue,duration,style,label:labels[style],kind:'time',manual:true,audioProfile:null,points:style===pair.plan.style?pair.plan.points:null,reason:'Manuell gewählte Zeitpunkte und Übergangsart.'};
@@ -64,10 +70,12 @@ export function createTransitionPreview({host,getPair,onChoose,routing,getUnavai
  // Start with a usable proposal; reveal precision tools only when requested.
  const intro=document.createElement('p');intro.className='preview-intro';intro.textContent='Wähle einen Übergang, höre ihn an und übernimm ihn für diese beiden Titel.';header.after(intro);
  const basic=document.createElement('section');basic.className='preview-basic';basic.setAttribute('aria-label','Übergang wählen');
- basic.append(q('[data-edit-style]').closest('label'),q('[data-edit-duration]').closest('label'));
+ q('[data-edit-status]').id='transition-edit-status';q('[data-edit-duration]').setAttribute('aria-describedby','transition-edit-status');
+ q('[data-edit-duration]').closest('label').firstChild.textContent='1 · Dauer (Sekunden)';
+ basic.append(q('[data-edit-style]').closest('label'),q('[data-edit-duration]').closest('label'),q('[data-edit-status]'));
  const timelineHost=document.createElement('section');basic.append(timelineHost);
  const timeline=createTransitionTimeline(timelineHost,{onChange:(key,value)=>{if(!pair||!valid)return;syncFields();q('[data-edit-'+key+']').value=String(value);q('[data-edit-'+key+']').dataset.displayValue='';edit();syncFields();}});
- const advanced=document.createElement('section');advanced.className='preview-advanced';advanced.setAttribute('aria-label','Lautstärkekurve anpassen');advanced.innerHTML='<h4>Lautstärkekurve selbst zeichnen</h4>';
+ const advanced=document.createElement('details');advanced.className='preview-advanced';advanced.setAttribute('aria-label','Lautstärkekurve anpassen');advanced.innerHTML='<summary>Lautstärkeverlauf anpassen <span>Optional</span></summary>';
  workspace.before(basic,advanced);advanced.append(workspace);settings.prepend(q('[data-direction]').closest('label'));
  q('.preview-edit legend').textContent='Zeitpunkte in den Titeln';
  details.prepend(q('[data-alternative]').closest('label'));details.append(q('[data-volume]').closest('label'));
@@ -92,10 +100,16 @@ export function createTransitionPreview({host,getPair,onChoose,routing,getUnavai
  const proposals=document.createElement('section');proposals.className='preview-proposals';proposals.innerHTML='<h3>Welcher Übergang passt?</h3><p>Höre die Varianten im Vergleich. Bei Bedarf kannst du jede direkt anpassen.</p><div data-proposal-cards></div>';
  q('[data-alternative]').closest('label').hidden=true;
  main.append(proposals);
- const editPlaces=document.createElement('button');editPlaces.type='button';editPlaces.className='button secondary';editPlaces.dataset.editPlaces='';editPlaces.textContent='Startstellen anpassen';editPlaces.onclick=()=>{const expanded=timelineHost.hidden;timelineHost.hidden=!expanded;exact.hidden=!expanded;editPlaces.setAttribute('aria-expanded',String(expanded));};editPlaces.setAttribute('aria-expanded','false');
+ const editPlaces=document.createElement('button');editPlaces.type='button';editPlaces.className='button secondary';editPlaces.dataset.editPlaces='';editPlaces.textContent='Genaue Zeitpunkte';editPlaces.onclick=()=>{const expanded=exact.hidden;exact.hidden=!expanded;exact.open=expanded;editPlaces.setAttribute('aria-expanded',String(expanded));};editPlaces.setAttribute('aria-expanded','false');
  const proposalEditor=document.createElement('div');proposalEditor.className='proposal-editor';proposalEditor.hidden=true;
+ basic.append(editPlaces);
  const closeEditor=document.createElement('button');closeEditor.type='button';closeEditor.className='button secondary';closeEditor.textContent='Fertig';closeEditor.onclick=()=>{const card=proposalEditor.closest('article');proposalEditor.hidden=true;card?.removeAttribute('data-editing');card?.querySelector('[data-proposal-edit]')?.focus();};
- proposalEditor.append(basic,editPlaces,timelineHost,exact,advanced,details,closeEditor);timelineHost.hidden=exact.hidden=true;main.append(proposalEditor);
+ const alignBar=document.createElement('div');alignBar.className='transition-align-actions';
+ const alignButton=document.createElement('button');alignButton.type='button';alignButton.className='button secondary';alignButton.dataset.transitionAlign='';alignButton.textContent='Anpassen';
+ const alignHint=document.createElement('span');alignHint.textContent='Passende Beats suchen · Songstellen und Dauer werden bei Bedarf verschoben.';
+ alignBar.append(alignButton,alignHint);
+ alignButton.onclick=()=>{if(!pair||!valid)return;stop('');try{pair.plan=alignTransition(pair);syncFields();render();q('[data-edit-status]').textContent=`Angepasst: A ab ${formatTime(pair.plan.time)} · B ab ${formatTime(pair.plan.cue)} · ${pair.plan.duration.toFixed(1)} s. Bitte anhören und übernehmen.`;}catch(error){q('[data-edit-status]').textContent=error.message;}};
+ proposalEditor.append(basic,timelineHost,alignBar,exact,advanced,details,closeEditor);timelineHost.hidden=false;exact.hidden=true;main.append(proposalEditor);
  const audition=document.createElement('div');audition.className='preview-audition';audition.append(q('[data-play]'),q('[data-stop]'));
  details.append(q('[data-timing]'));main.append(savedDetails);actions.prepend(audition);actions.after(keys);
  q('[data-edit-style]').closest('label').hidden=true;
@@ -124,7 +138,7 @@ export function createTransitionPreview({host,getPair,onChoose,routing,getUnavai
    const paths=[0,1].map(channel=>{const path=document.createElementNS(chart.namespaceURI,'path');path.setAttribute('fill','none');path.setAttribute('stroke',channel?'#79ced8':'#f7ad76');path.setAttribute('stroke-width','3');chart.append(path);return path;});
    const controls=document.createElement('div'),choose=document.createElement('button'),listen=document.createElement('button'),editButton=document.createElement('button');
    editButton.type='button';editButton.className='button secondary';editButton.dataset.proposalEdit=index;editButton.textContent='Anpassen';
-   editButton.onclick=()=>{selectProposal(index);stop('');proposals.querySelectorAll('[data-editing]').forEach(node=>node.removeAttribute('data-editing'));card.dataset.editing='true';card.append(proposalEditor);proposalEditor.hidden=false;timelineHost.hidden=exact.hidden=true;editPlaces.setAttribute('aria-expanded','false');q('[data-edit-duration]').focus({preventScroll:true});};
+   editButton.onclick=()=>{selectProposal(index);stop('');proposals.querySelectorAll('[data-editing]').forEach(node=>node.removeAttribute('data-editing'));card.dataset.editing='true';card.append(proposalEditor);proposalEditor.hidden=false;timelineHost.hidden=false;exact.hidden=true;editPlaces.setAttribute('aria-expanded','false');q('[data-edit-duration]').focus({preventScroll:true});};
    choose.type=listen.type='button';choose.className=listen.className='button secondary';choose.dataset.proposalChoose=index;listen.dataset.proposalListen=index;
    choose.onclick=()=>selectProposal(index);
    listen.onclick=()=>{if(selectedAlternative===index&&job){stop();return;}selectProposal(index);if(!valid)return;if(!output()){updateOutput();configure.click();return;}void play();};
@@ -163,7 +177,7 @@ export function createTransitionPreview({host,getPair,onChoose,routing,getUnavai
   q('[data-stop]').disabled=true;q('[data-stop]').hidden=true;updateOutput();q('[data-position]').disabled=false;q('[data-status]').textContent=message;
  }
  function render(){
-  timeline.setPair(valid?pair:null);updateOutput();curveEditor.setPlan(valid?pair?.plan:null,{position:pair?.position||0});
+  alignButton.disabled=!pair||!valid;timeline.setPair(valid?pair:null);updateOutput();curveEditor.setPlan(pair?.plan,{position:pair?.position||0,disabled:!valid});
   for(const selector of ['[data-out]','[data-in]'])q(selector).setAttribute('d','');
   if(pair){
    const {from,to,plan}=pair;
@@ -194,13 +208,16 @@ export function createTransitionPreview({host,getPair,onChoose,routing,getUnavai
  }
  function open(){q('[data-direction]').disabled=Boolean(suppliedPair);q('[data-refresh]').disabled=Boolean(suppliedPair);q('[data-remember]').closest('label').hidden=Boolean(suppliedPair);if(routing?.routingHost){outputBar.after(routing.routingHost);routing.routingHost.open=false;routing.routingHost.hidden=true;}loadPair();resetView();if(!dialog.open)dialog.showModal();}
  function syncFields(){if(!pair)return;for(const key of ['time','cue','duration','style']){const input=q('[data-edit-'+key+']');input.value=key==='style'?pair.plan[key]:Number(pair.plan[key].toFixed(2));input.dataset.displayValue=input.value;input.dataset.exactValue=String(pair.plan[key]);if(key!=='style')input.step='.01';}}
- function edit(){
+ function edit(event){
   if(!pair)return;stop('');
   try{
    const values=Object.fromEntries(['time','cue','duration'].map(key=>[key,q('[data-edit-'+key+']').value===q('[data-edit-'+key+']').dataset.displayValue?Number(q('[data-edit-'+key+']').dataset.exactValue):q('[data-edit-'+key+']').valueAsNumber]));
-   pair.plan=editTransitionPlan(pair,{...values,style:q('[data-edit-style]').value});valid=true;
-   q('[data-edit-status]').textContent='Geändert · Hörprobe zum Prüfen starten, dann übernehmen.';q('[data-choose]').disabled=false;render();
-  }catch(error){valid=false;q('[data-edit-status]').textContent=error.message;q('[data-play]').disabled=true;q('[data-choose]').disabled=true;curveEditor.setPlan(null);timeline.setPair(null);}
+   pair.plan=editTransitionPlan(pair,{...values,style:q('[data-edit-style]').value},{fitDuration:event?.target===q('[data-edit-duration]')});valid=true;
+   const adjusted=['time','cue'].filter(key=>pair.plan[key]!==values[key]);
+   for(const key of adjusted){const input=q('[data-edit-'+key+']');input.value=Number(pair.plan[key].toFixed(2));input.dataset.displayValue=input.value;input.dataset.exactValue=String(pair.plan[key]);}
+   q('[data-edit-duration]').removeAttribute('aria-invalid');
+   q('[data-edit-status]').textContent=adjusted.length?`Startstellen an ${pair.plan.duration.toFixed(1)} s angepasst: Wechsel bei ${formatTime(pair.plan.time)}, Einstieg bei ${formatTime(pair.plan.cue)}. Bitte probehören und übernehmen.`:'Geändert · Hörprobe zum Prüfen starten, dann übernehmen.';q('[data-choose]').disabled=false;render();
+  }catch(error){valid=false;if(event?.target===q('[data-edit-duration]'))event.target.setAttribute('aria-invalid','true');q('[data-edit-status]').textContent=error.message+' Die Kurve zeigt weiterhin den letzten gültigen Übergang.';q('[data-play]').disabled=true;q('[data-choose]').disabled=true;curveEditor.setPlan(pair.plan,{position:pair.position||0,disabled:true});timeline.setPair(null);}
  }
  for(const key of ['time','cue','duration','style'])q('[data-edit-'+key+']').addEventListener(key==='style'?'change':'input',edit);
  q('[data-direction]').onchange=loadPair;q('[data-refresh]').onclick=loadPair;
@@ -271,7 +288,7 @@ export function createTransitionPreview({host,getPair,onChoose,routing,getUnavai
  q('[data-position]').oninput=e=>position(+e.target.value);
  q('[data-volume]').oninput=()=>{if(job)job.master.gain.setTargetAtTime(+q('[data-volume]').value,job.ctx.currentTime,.02);};
  dialog.addEventListener('keydown',event=>{
-  if(!proposalEditor.hidden&&curveEditor.key(event))return;
+  if(!proposalEditor.hidden&&advanced.open&&curveEditor.key(event))return;
   if(event.defaultPrevented||event.repeat||event.isComposing||event.altKey)return;
   if((event.ctrlKey||event.metaKey)&&event.key==='Enter'){event.preventDefault();q('[data-choose]').click();return;}
   if(event.ctrlKey||event.metaKey||event.target.closest('input,select,textarea,[contenteditable],button,summary,a'))return;

@@ -172,3 +172,124 @@ export function villageBarnRoom(){
   plan.mesh=mesh;plan.zones=[];
   return validateRoomPlan(plan);
 }
+
+export function festivalStageRoom({legacyLighting=false}={}){
+  const plan=newRoomPlan(40,56,12);
+  plan.outdoor=true;plan.name='Festival-Bühne';plan.style='industrial';plan.environmentBrightness=12;plan.representation='model';
+  const {mesh,face,box}=roomMeshBuilder('Festival-Bühne · offene Fantasie-Kulisse unter freiem Himmel');
+  // Grass/gravel site, with no perimeter walls or ceiling over the audience.
+  const xs=[-20,-12,12,20],ys=[0,14,38,40,54,56];
+  for(let x=0;x<xs.length-1;x++)for(let y=0;y<ys.length-1;y++){
+    if(x===1&&y===3)continue;
+    face([[xs[x],ys[y],0],[xs[x+1],ys[y],0],[xs[x+1],ys[y+1],0],[xs[x],ys[y+1],0]],x===1&&y===1?'#514a3b':'#35402c');
+  }
+  box(-12,40,0,24,14,1.2,'#333941');
+  // Two side stairways, six 20 cm steps each.
+  for(const side of [-1,1])for(let i=0;i<6;i++)box(side<0?-14:12,38.5+i*.5,0,2,.5,(i+1)*.2,'#4a5057');
+  // Open-air fantasy facade: decorative towers and wings, never a roof.
+  face([[-7,55.8,1.2],[7,55.8,1.2],[7,55.8,9.5],[-7,55.8,9.5]],'#233e42');
+  for(const side of [-1,1]){
+    for(const [x,y,h] of [[9,53.5,10.5],[15,50.5,8]]){
+      box(side*x-1.25,y,0,2.5,2,h,'#46534b');
+      box(side*x-1.4,y-.1,h-.5,2.8,2.2,.35,'#998054');
+      const start=mesh.vertices.length;
+      mesh.vertices.push([side*x-1.4,y-.1,h],[side*x+1.4,y-.1,h],[side*x,y+.9,Math.min(12,h+1.3)]);
+      mesh.triangles.push([start,start+1,start+2]);mesh.colors.push('#8c754e');
+    }
+    for(let i=0;i<5;i++){
+      const inner=7+i*1.6,outer=inner+1.5,top=9.2-i*.95,y=55.4-i*.7;
+      face([[side*inner,y,1.2],[side*outer,y,1.2],[side*outer,y,top-1.1],[side*inner,y,top]],i%2?'#496c60':'#355b56');
+      face([[side*inner,y-.03,top-.18],[side*outer,y-.03,top-1.28],[side*outer,y-.03,top-1.1],[side*inner,y-.03,top]],'#b09360');
+    }
+  }
+  // A large ornamental sun surrounds the subdued A on the central backdrop.
+  for(let i=0;i<48;i++){
+    const a=i*Math.PI/24,b=(i+1)*Math.PI/24;
+    const point=(angle,r)=>[Math.cos(angle)*r,55,7.1+Math.sin(angle)*r];
+    face([point(a,2.7),point(b,2.7),point(b,3.05),point(a,3.05)],'#ac915d');
+  }
+  box(-3,50,1.2,6,1.2,1,'#252c34');
+  // Flown PA arrays and subwoofers flank the stage.
+  for(const side of [-1,1]){
+    for(let i=0;i<5;i++)box(side<0?-15.4:14.2,40.5,4.2+i*.65,1.2,.9,.6,'#171c23');
+    for(let i=0;i<3;i++)box(side<0?-15.4:12,38.5+i*.9,0,3.4,.8,1.1,'#1d2229');
+  }
+  // Short front-of-stage barrier with open side access.
+  for(let x=-11;x<12;x+=2){box(x,37.4,0,.08,.15,1.05,'#515960');box(x,37.4,.95,2,.15,.1,'#515960');}
+  box(-3,8,0,6,4,.3,'#3a4248');box(-2.4,9,.3,4.8,1,1,'#262e36');
+  plan.positions=festivalLighting(legacyLighting);
+  plan.mesh=mesh;
+  plan.zones=[{id:'festival-foh',name:'Regie / FOH',x:17/40,y:8/56,width:6/40,depth:4/56}];
+  return validateRoomPlan(plan);
+}
+
+function festivalLighting(legacy=false){
+  const plan={positions:{}};
+  if(legacy){
+  const sizes={moving:{width:.34,depth:.34,height:.4},spot:{width:.25,depth:.25,height:.3},bar:{width:1,depth:.12,height:.15},truss:{width:6,depth:.3,height:.3}};
+  let count=0;
+  const dance={x:.175,y:15/56,width:.65,depth:21/56};
+  const add=(type,name,x,y,height,target)=>{plan.positions['festival-'+ ++count]={type,name,x,y,height,rotation:0,size:{...sizes[type]},...(target?{target}:{}),...(type==='moving'?{motionArea:{...dance}}:{})};};
+  for(let row=0;row<4;row++){
+    const y=41+row*4;
+    for(let i=0;i<4;i++)add('truss',`Bühne · Traverse ${row+1}/${i+1}`,-9+i*6,y,9.5);
+    for(let i=0;i<8;i++)add('moving',`Festival · Moving Head ${row+1}/${i+1}`,-10.5+i*3,y,9,{x:(-10.5+i*3)*.9,y:24+row*3});
+    for(let i=0;i<6;i++)add('spot',`Bühne · PAR ${row+1}/${i+1}`,-10+i*4,y,8.9,{x:-8+i*3.2,y:35});
+    for(let i=0;i<4;i++)add('bar',`Bühne · LED-Bar ${row+1}/${i+1}`,-9+i*6,y,8.7,{x:-9+i*6,y:36});
+  }
+    return plan.positions;
+  }
+  const sizes={moving:{width:.34,depth:.34,height:.4},spot:{width:.25,depth:.25,height:.3},bar:{width:1,depth:.12,height:.15}};
+  const audience={x:.1,y:16/56,width:.8,depth:20/56};
+  let count=0;
+  const add=(type,name,x,y,height,target,area=audience)=>{
+    plan.positions[`festival-v2-${++count}`]={type,name,x,y,height,rotation:0,size:{...sizes[type]},target,...(type==='moving'?{motionArea:{...area}}:{})};
+  };
+  // Low stage-edge fans, with a second visual layer supplied by tower fixtures.
+  for(let i=0;i<24;i++){
+    const x=-11.5+i;
+    add('moving',`Bühnenkante · Beam-Fächer ${i+1}`,x,40.4,1.3,{x:x*1.3,y:24});
+  }
+  for(const side of [-1,1]){
+    const label=side<0?'Links':'Rechts';
+    for(const [tower,x,y,top] of [['Innenturm',9,53.5,10.5],['Außenturm',15,50.5,8]]){
+      for(let i=0;i<6;i++)add('moving',`${label} · ${tower} · Beam ${i+1}`,side*x,y-.4,2.1+i*(top-2.8)/5,{x:side*(3+i*2),y:21+i*2});
+      for(let i=0;i<4;i++)add('spot',`${label} · ${tower} · Fassadenlicht ${i+1}`,side*(x-.9+i*.6),y-1.1,.3,{x:side*(x-.9+i*.6),y,z:top-.7});
+    }
+    for(let i=0;i<8;i++){
+      const x=side*(6+i*1.4),height=9.4-i*.7,y=54.8-i*.45;
+      add('moving',`${label} · Kulissenfächer ${i+1}`,x,y,height,{x:side*(2+i*1.7),y:31-i});
+    }
+    for(let i=0;i<6;i++){
+      const x=side*(7+i*1.5),y=54.9-i*.65;
+      add('bar',`${label} · Konturlicht ${i+1}`,x,y-.2,2.4+i*.45,{x,y:y+.3,z:8.5-i*.8});
+      add('spot',`${label} · Flügel-Wash ${i+1}`,x,y-1,.3,{x,y:y+.3,z:6.5-i*.5});
+    }
+  }
+  // A ring of real, individually editable fixtures, not painted-on decoration.
+  for(let i=0;i<16;i++){
+    const angle=(i+.5)*Math.PI/8,x=Math.cos(angle)*3.05,z=7.1+Math.sin(angle)*3.05;
+    add('moving',`Sonnenring · Beam ${i+1}`,x,54.7,z,{x:x*3,y:27+Math.sin(angle)*7});
+  }
+  for(let i=0;i<12;i++){
+    const x=-6.6+i*1.2;
+    add('spot',`Zentrale Fassade · Wash ${i+1}`,x,54.5,1.3,{x,y:55.8,z:8.7});
+    add('bar',`Bühnenkante · LED-Akzent ${i+1}`,-11+i*2,40.1,1.3,{x:-11+i*2,y:35});
+  }
+  for(let i=0;i<16;i++)add('spot',`Publikum · Akzent ${i+1}`,-11.25+i*1.5,41,4.5,{x:-15+i*2,y:27});
+  return plan.positions;
+}
+
+// Upgrade the original preset rig in place, including renamed copies. Keep
+// manually edited rigs intact, and retain the room identity, geometry and zones.
+export function upgradeFestivalLighting(plan){
+  // Earlier saved festival rigs can already have the new fixtures but still
+  // lack the outdoor flag. Repair that independently of any lighting edits.
+  if(plan.outdoor!==true&&plan.mesh?.name==='Festival-Bühne · offene Fantasie-Kulisse unter freiem Himmel')plan=validateRoomPlan({...plan,outdoor:true});
+  if(!plan.positions?.['festival-1']||Object.keys(plan.positions).length!==88)return plan;
+  const original=festivalStageRoom({legacyLighting:true});
+  const same=(a,b)=>JSON.stringify(a)===JSON.stringify(b);
+  if(!Object.keys(original.positions).every(id=>same(plan.positions[id],original.positions[id])))return plan;
+  const updated=festivalStageRoom();
+  return validateRoomPlan({...plan,outdoor:true,positions:updated.positions});
+}

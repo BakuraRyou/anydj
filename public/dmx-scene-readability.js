@@ -1,3 +1,4 @@
+import {automaticFixtureGroups} from './dmx-group-motion.js';
 import {lightFootprint} from './dmx-light-geometry.js';
 const clamp=v=>Math.max(0,Math.min(1,v));
 // Preview composition after routing: never alter a safe target, open a shutter,
@@ -29,6 +30,18 @@ export function sceneReadability(lights){
   // lead beam retain their intensity; sparse rigs have no exposure penalty.
   const surfaceGain=Math.max(.55,1/Math.sqrt(1+Math.max(0,overlap-3)*.18));
   values.set(a.light,{...a.light,power:a.light.power*spatialGain,surfaceGain,spatialGain,surfaceOverlap:overlap});
+ }
+ // Keep the attenuation of a mirrored pair together. Small differences
+ // after routing must not introduce an independent brightness animation.
+ const paired=lights.filter(l=>l.type==='moving'&&l.motionSymmetry==='paired');
+ const roles=automaticFixtureGroups(paired.map(l=>({id:l.id,position:l.position,group:l.motionGroup})));
+ const members=new Map(paired.map(l=>{const r=roles.get(l.id);return [r.group+':'+r.rank,l];}));
+ for(const light of paired){
+  const r=roles.get(light.id);if(r.rank>(r.count-1)/2)continue;
+  const other=members.get(r.group+':'+(r.count-1-r.rank)),a=values.get(light),b=values.get(other);
+  if(!a||!b)continue;
+  const gain=Math.min(a.spatialGain,b.spatialGain);
+  a.spatialGain=b.spatialGain=gain;a.power=light.power*gain;b.power=other.power*gain;
  }
  return lights.map(l=>values.get(l)||l);
 }

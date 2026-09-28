@@ -10,29 +10,29 @@ export function timelineEdit(pair,key,value){
 export function createTransitionTimeline(host,{onChange}){
  const ns='http://www.w3.org/2000/svg';let pair=null,drag=null;
  host.classList.add('transition-timeline');
- const heading=document.createElement('h3');heading.textContent='Welche Stellen sollen ineinander übergehen?';host.append(heading);
- const hint=document.createElement('p');hint.className='small';hint.textContent='Fasse den farbigen Bereich an und verschiebe ihn. Am rechten Rand änderst du die Länge.';host.append(hint);
+ const heading=document.createElement('h3');heading.textContent='2 · Songstellen auswählen';host.append(heading);
+ const hint=document.createElement('p');hint.className='small';hint.textContent='↔ Wellenform ziehen, um eine andere Songstelle zu wählen. Danach anhören und übernehmen.';host.append(hint);
  const lanes=['time','cue'].map((key,index)=>{
-  const row=document.createElement('section'),label=document.createElement('div'),title=document.createElement('strong'),readout=document.createElement('span');label.className='timeline-label';title.textContent=index?'Danach · Einstieg':'Jetzt · Wechselstelle';label.append(title,readout);
-  const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 1000 64');svg.setAttribute('role','group');svg.setAttribute('aria-label',title.textContent);
+  const row=document.createElement('section'),label=document.createElement('div'),title=document.createElement('strong'),readout=document.createElement('span');label.className='timeline-label';title.textContent=index?'Song B · Anfang':'Song A · Ende';label.append(title,readout);
+  const svg=document.createElementNS(ns,'svg');svg.setAttribute('viewBox','0 0 1000 64');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('role','group');svg.setAttribute('aria-label',title.textContent);
   const node=(tag,attrs)=>{const n=document.createElementNS(ns,tag);for(const [k,v] of Object.entries(attrs))n.setAttribute(k,v);svg.append(n);return n;};
   node('rect',{x:0,y:0,width:1000,height:64,fill:'#101920',rx:6});
-  const wave=node('path',{fill:'none',stroke:index?'#79ced8':'#f7ad76','stroke-opacity':'.4','stroke-width':2,'pointer-events':'none'});
+  const wave=node('path',{fill:'none',stroke:index?'#79ced8':'#f7ad76','stroke-opacity':'.85','stroke-width':2,'pointer-events':'none'});
   const region=node('rect',{y:4,height:56,rx:4,fill:index?'#79ced833':'#f7ad7633',stroke:index?'#79ced8':'#f7ad76',tabindex:0,role:'slider','data-timeline-start':key,'aria-label':index?'Einstieg im nächsten Titel':'Wechselstelle im ausgehenden Titel'});
   const edge=node('rect',{y:4,height:56,width:10,rx:3,fill:index?'#79ced8':'#f7ad76',tabindex:0,role:'slider','data-timeline-end':key,'aria-label':'Überblenddauer über '+(index?'nächsten':'ausgehenden')+' Titel ändern'});
   const footer=document.createElement('div');footer.className='timeline-scale';const startLabel=document.createElement('span'),endLabel=document.createElement('span'),zoom=document.createElement('button');zoom.type='button';zoom.textContent='Details vergrößern';zoom.className='timeline-zoom';footer.append(startLabel,zoom,endLabel);
   row.append(label,svg,footer);host.append(row);
-  const lane={key,index,svg,wave,region,edge,readout,startLabel,endLabel,zoom,near:true,range:[0,1],waveData:null};
+  const lane={key,index,title,svg,wave,region,edge,readout,startLabel,endLabel,zoom,near:true,range:[0,1],waveData:null};
   zoom.onclick=()=>{lane.near=!lane.near;lane.waveData=null;draw(lane);};
   const seconds=e=>{const r=svg.getBoundingClientRect();return lane.range[0]+clamp((e.clientX-r.left)/r.width,0,1)*(lane.range[1]-lane.range[0]);};
   svg.addEventListener('pointerdown',e=>{
    if(!pair||e.button!==0)return;e.preventDefault();
    const duration=e.target===edge,source=index?pair.to:pair.from;
-   drag={lane,id:e.pointerId,key:duration?'duration':key,start:seconds(e),value:duration?pair.plan.duration:pair.plan[key],rate:duration?source.rate:1};
+   drag={lane,id:e.pointerId,key:duration?'duration':key,start:seconds(e),clientX:e.clientX,pixelWidth:svg.getBoundingClientRect().width,span:lane.range[1]-lane.range[0],slide:lane.near&&!duration,value:duration?pair.plan.duration:pair.plan[key],rate:duration?source.rate:1};
    svg.setPointerCapture(e.pointerId);(duration?edge:region).focus();
-   if(e.target!==region&&e.target!==edge){drag.value=timelineEdit(pair,key,seconds(e));onChange(key,drag.value);}
+   if(!lane.near&&e.target!==region&&e.target!==edge){drag.value=timelineEdit(pair,key,seconds(e));onChange(key,drag.value);}
   });
-  svg.addEventListener('pointermove',e=>{if(drag?.lane!==lane||drag.id!==e.pointerId)return;onChange(drag.key,timelineEdit(pair,drag.key,drag.value+(seconds(e)-drag.start)/drag.rate));});
+  svg.addEventListener('pointermove',e=>{if(drag?.lane!==lane||drag.id!==e.pointerId)return;onChange(drag.key,timelineEdit(pair,drag.key,drag.value+(e.clientX-drag.clientX)/drag.pixelWidth*drag.span*(drag.slide?-1:1)/drag.rate));});
   const finish=()=>{if(drag?.lane===lane){drag=null;lane.waveData=null;draw(lane);}};
   svg.addEventListener('pointerup',finish);svg.addEventListener('pointercancel',finish);svg.addEventListener('lostpointercapture',finish);
   svg.addEventListener('keydown',e=>{
@@ -42,18 +42,19 @@ export function createTransitionTimeline(host,{onChange}){
   });
   return lane;
  });
+ function titleFor(lane,source){lane.title.textContent=(lane.index?'Song B · ':'Song A · ')+(source.track?.name||source.name||'Song');lane.title.title=lane.title.textContent;}
  function draw(lane){
   const {key,index,svg,wave,region,edge,readout,startLabel,endLabel,zoom}=lane;
   svg.style.pointerEvents=pair?'':'none';for(const node of [region,edge])node.setAttribute('tabindex',pair?'0':'-1');
   if(!pair){readout.textContent='Zwei Titel laden';wave.setAttribute('d','');region.setAttribute('width','0');edge.setAttribute('visibility','hidden');return;}
   edge.removeAttribute('visibility');const source=index?pair.to:pair.from,start=pair.plan[key],end=start+pair.plan.duration*source.rate;
-  if(!drag){lane.range=lane.near?[Math.max(0,start-10*source.rate),Math.min(source.duration,end+10*source.rate)]:[0,source.duration];}
+  lane.range=lane.near?[start,end]:[0,source.duration];
   const [a,b]=lane.range,span=Math.max(.001,b-a),x=t=>clamp((t-a)/span*1000,0,1000);
   region.setAttribute('x',x(start));region.setAttribute('width',Math.max(1,x(end)-x(start)));edge.setAttribute('x',clamp(x(end)-5,0,990));
   for(const [node,v,max] of [[region,start,source.duration-pair.plan.duration*source.rate],[edge,pair.plan.duration,Math.min(60,(pair.from.duration-pair.plan.time)/pair.from.rate,(pair.to.duration-pair.plan.cue)/pair.to.rate)]]){
    node.setAttribute('aria-valuemin',node===edge?.1:0);node.setAttribute('aria-valuemax',max);node.setAttribute('aria-valuenow',v);node.setAttribute('aria-valuetext',node===edge?v.toFixed(2)+' Sekunden':clock(v));
   }
-  readout.textContent=clock(start)+' – '+clock(end);startLabel.textContent=clock(a);endLabel.textContent=clock(b);zoom.textContent=lane.near?'Ganzen Titel zeigen':'Details vergrößern';zoom.setAttribute('aria-pressed',String(lane.near));
+  titleFor(lane,source);readout.textContent=clock(start)+' – '+clock(end)+' · '+pair.plan.duration.toFixed(1)+' s';startLabel.textContent=clock(a);endLabel.textContent=clock(b);zoom.textContent=lane.near?'Ganzen Titel zeigen':'Überlappung zeigen';zoom.setAttribute('aria-pressed',String(lane.near));
   const values=source.waveform?.peaks||source.waveform?.rms,signature=values?`${a}:${b}:${values.length}`:'empty';
   if(lane.waveData!==signature){lane.waveData=signature;wave.setAttribute('d',values?Array.from({length:250},(_,i)=>{const t=a+(i+.5)/250*span,v=values[Math.min(values.length-1,Math.floor(t/source.duration*values.length))]||0,h=clamp(v,0,1)*27;return `M${i*4+2} ${32-h}v${h*2}`;}).join(' '):'M0 32H1000');}
  }

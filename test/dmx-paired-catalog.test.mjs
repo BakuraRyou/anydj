@@ -48,3 +48,14 @@ test('extent crosses neutral continuously and preserves allowed area and pair sy
   }
  }
 });
+test('the expanded catalog contains at least forty distinct paired spatial trajectories',()=>{
+ assert.ok(GROUP_COMPOSITIONS.length>=40);
+ const signatures=new Set();
+ for(const composition of GROUP_COMPOSITIONS){
+  const points=[.2,.4,.7].flatMap(p=>Array.from({length:12},(_,rank)=>{
+   const c=groupComposition(motion(composition,p,p*Math.PI*2),rank,12,1,6);
+   return [Number(c.x.toFixed(4)),Number(c.y.toFixed(4))];
+  }));signatures.add(JSON.stringify(points));
+ }
+ assert.equal(signatures.size,GROUP_COMPOSITIONS.length);
+});

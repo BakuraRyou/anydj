@@ -216,6 +216,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
         destroy(){editorPreview=null;marker.replaceWith(scene);status.remove();render();if(!active&&!panel.open&&!hardware.enabled&&!stage3d.sharing){clearInterval(timer);timer=null;}}
       };
     },
+    getDiagnostics:()=>({...stage3d.getDiagnostics(),mode:editor.mode,equipment:editor.equipment}),
     setTransport:stage3d.setTransport,
     prepareMovingHeads(){movingHeads.prepare();},
     setMovingMood(value){movingHeads.setMood(value);},

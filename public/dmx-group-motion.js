@@ -1,7 +1,8 @@
-import {selectGroupScore,SONG_MOVEMENT_VERSION,movementAccentEnvelope} from './song-movement-plan.js';
+import {selectGroupScore,SONG_MOVEMENT_VERSION,movementAccentEnvelope,SPATIAL_MOTIONS} from './song-movement-plan.js';
 export {GROUP_COMPOSITIONS,GROUP_MOTIONS} from './song-movement-plan.js';
 const clamp=v=>Math.max(0,Math.min(1,v));
 const cache=new WeakMap();
+const extendedForms=new Set(['side-columns','split-levels','wide-ribbons',...SPATIAL_MOTIONS.map(([name])=>name)]);
 export function automaticGroupScore(plan){
  if(!plan)return [];
  if(cache.has(plan))return cache.get(plan);
@@ -62,7 +63,7 @@ function describeMotion(plan,passage,progress,time){
   const phase=(passage.phaseOffset??0)+travel;
   const preparation=passage.intent?.anticipation;
   const anticipation=preparation?preparation.strength*ease((time-preparation.start)/(preparation.end-preparation.start)):0;
-  return {start:passage.start,end:passage.end,motion:passage.motion,composition:passage.composition,coordination:passage.coordination,theme:passage.theme,development:passage.development,progress,phase,accent:movementAccentEnvelope(passage.intent,time),anticipation,intent:passage.intent,energy:passage.energy,drive:passage.drive,direction:passage.direction,duration:passage.end-passage.start};
+  return {start:passage.start,end:passage.end,motion:passage.motion,composition:passage.composition,coordination:passage.coordination,theme:passage.theme,development:passage.development,progress,sceneProgress:clamp((time-passage.start)/(passage.end-passage.start)),phase,accent:movementAccentEnvelope(passage.intent,time),anticipation,intent:passage.intent,energy:passage.energy,drive:passage.drive,direction:passage.direction,duration:passage.end-passage.start};
 }
 export function automaticGroupMotionAt(plan,time){
  if(!plan||!Number.isFinite(time))return null;
@@ -103,7 +104,7 @@ export function showGroupMotionAt(plan,time,picture){
  if(!picture||['held','silence'].includes(picture.role))return null;
  const motion=automaticGroupMotionAt(plan,time);
  if(!motion?.intent)return null;
- const adapt=m=>({...m,composition:m.composition==='traveling-group'?'parallel-sweep':m.composition,presentation:'show',intent:{...m.intent,articulation:Math.max(.55,m.intent?.articulation??0)},...(m.from?{from:adapt(m.from)}:{})});
+ const adapt=m=>({...m,composition:m.composition==='traveling-group'?'parallel-sweep':m.composition,presentation:'show',intent:{...m.intent,symmetry:'paired',articulation:Math.max(.55,m.intent?.articulation??0)},...(m.from?{from:adapt(m.from)}:{})});
  return adapt(motion);
 }
 // Evaluate each physical member AFTER expanding the four source roles. Rows
@@ -123,6 +124,11 @@ export function groupMotionOffset(motion,rank,count,row=0){
  const phase=p*Math.PI*2,member=rank/(count-1)*2-1,sign=member<0?-1:1;
  const side=(motion.direction||1)*(row%2?-1:1),offset=member*Math.PI*.7;
  let x=0,y=0;
+ if(extendedForms.has(motion.motion)){
+  const c=groupComposition({...motion,composition:motion.motion,progress:p,phase},rank,count,row,3);
+  const amount=envelope*(motion.amount??1)*Math.min(1,(motion.duration??8)/6);
+  return {x:(c.x-.5)*.44*amount,y:(c.y-.5)*.32*amount};
+ }
  switch(motion.motion){
   case 'opening-lines':x=member*(2*p-1);y=.4*Math.sin(Math.PI*p);break;
   case 'rising-fan':x=member*.5;y=2*p-1;break;
@@ -176,13 +182,55 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
  const phase=motion.phase??p*Math.PI*2,side=motion.direction||1;
  const slots=Math.ceil(count/2),pair=Math.min(rank,count-1-rank);
  const centerPair=pair===slots-1,outerPair=pair===0;
+ const columnPosition=paired?(slots>1?pair/(slots-1):.5):u;
  const depth=.14+.72*(row+.5)/Math.max(1,groups),depthSpan=Math.min(.22,.6/Math.max(1,groups));
  // A formation's travel must not shrink with the number of trusses. Keep
  // row spacing for the picture, but develop the whole line on the shared phase.
  const reach=.08+.08*clamp(motion.energy??0)*clamp(motion.drive??0);
  const lineDepth=depth+Math.sin(phase)*Math.min(reach,depth-.04,.96-depth);
+ const h=Math.abs(r),bank=pair%2===0?-1:1;
  let x=.5,y=depth,level=1;
  switch(motion.composition){
+
+  case 'edge-ladder':x=.5+Math.sign(r)*(.33+.05*Math.sin(phase));y=.16+.68*columnPosition+.06*Math.cos(phase);break;
+  case 'stacked-fans':x=.5+r*(.22+.13*(.5+.5*Math.sin(phase)));y=.5+bank*.22+h*.06*Math.cos(phase);break;
+  case 'staggered-columns':x=.5+r*.35;y=.22+.56*(pair%3)/2+.065*Math.sin(phase);break;
+  case 'diamond-frame':x=.5+r*(.32+.035*Math.cos(phase));y=.5+bank*(1-h)*(.28+.035*Math.sin(phase));break;
+  case 'box-frame':x=.5+r*(.34+.025*Math.sin(phase));y=.5+bank*.25+.04*Math.cos(phase);break;
+  case 'chevron':x=.5+r*.36;y=.23+.43*h+.06*Math.sin(phase);break;
+  case 'inverted-chevron':x=.5+r*.33;y=.74-.42*h+.065*Math.cos(phase);break;
+  case 'double-arch':x=.5+r*.37;y=.3+.26*Math.sin(h*Math.PI)+bank*.1+.04*Math.cos(phase);break;
+  case 'scallops':x=.5+r*.34;y=.5+.17*Math.cos(h*Math.PI*2)+.06*Math.sin(phase);break;
+  case 'zipper':x=.5+r*(.28+bank*.06*Math.sin(phase));y=.5+bank*.24*Math.cos(phase)+h*.04;break;
+  case 'scissors':x=.5+r*.34;y=.5+bank*h*.29*Math.sin(phase);break;
+  case 'bow-tie':x=.5+r*(.25+.07*Math.sin(phase));y=.5+bank*h*(.17+.08*Math.cos(phase));break;
+  case 'ripple-fan':x=.5+r*(.3+.07*Math.cos(phase-h*Math.PI));y=.5+.18*Math.sin(phase-h*Math.PI);break;
+  case 'pendulum-lines':x=.5+r*(.32+.03*Math.sin(phase));y=.5+.17*Math.cos(phase)+r*.13;break;
+  case 'slanted-bands':x=.5+r*.32;y=.5+bank*.2+r*.12+.04*Math.sin(phase);break;
+  case 'horizon-sweep':x=.5+r*.39;y=.25+.16*(.5+.5*Math.sin(phase))+.06*Math.cos(phase)*h;break;
+  case 'rising-columns':x=.5+Math.sign(r)*(.18+.19*h);y=.22+.52*(.5+.5*Math.sin(phase))+.03*h;break;
+  case 'orbit-pairs':x=.5+Math.sign(r)*(.2+.1*h+.04*Math.cos(phase));y=.5+bank*.16+.09*Math.sin(phase);break;
+  case 'ellipse-frame':x=.5+r*(.34+.02*Math.sin(phase));y=.5+bank*.23*Math.sqrt(Math.max(0,1-r*r))+.04*Math.cos(phase);break;
+  case 'expanding-gates':x=.5+Math.sign(r)*(.14+.2*(.5+.5*Math.sin(phase))+.04*h);y=.22+.52*h;break;
+  case 'cascade-bands':x=.5+r*.37;y=.5+.22*Math.sin(phase-pair*.45-row*.3);break;
+  case 'nested-frames':x=.5+r*(bank<0?.38:.23);y=.5+bank*(.15+.05*Math.sin(phase))+.05*h;break;
+  case 'side-columns':
+   // Two side banks retain a clear empty centre while travelling vertically.
+   x=.5+Math.sign(r)*(.3+.06*Math.cos(phase));
+   y=.2+.6*columnPosition+.08*Math.sin(phase);
+   break;
+  case 'split-levels':{
+   // Complete mirrored pairs occupy separate bands and move in opposition.
+   const band=pair%2===0?-1:1;
+   x=.5+r*(.32+.04*Math.cos(phase));
+   y=.5+band*(.23+.07*Math.sin(phase));
+   break;
+  }
+  case 'wide-ribbons':
+   // Outer arcs leave negative space rather than converging on the logo.
+   x=.5+Math.sign(r)*(.25+.12*Math.abs(r)+.03*Math.cos(phase));
+   y=.25+.45*Math.abs(r)+.07*Math.sin(phase);
+   break;
   case 'opening-lines':{
    // One opening over the build; no periodic closing before its arrival.
    const opening=.12+.28*ease(p);
@@ -271,10 +319,12 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
  }
  // Ordered passages keep separate depth bands for each row. The whole
  // picture shares its development; rows do not criss-cross the same centre.
- if((motion.coordination==='ordered'||motion.coordination==='build')&&!['curtain','traveling-group','frame-center','mirror-pairs','opening-lines'].includes(motion.composition)){
+ if((motion.coordination==='ordered'||motion.coordination==='build')&&!extendedForms.has(motion.composition)&&!['curtain','traveling-group','frame-center','mirror-pairs','opening-lines','side-columns','split-levels','wide-ribbons'].includes(motion.composition)){
   const band=.26+.48*(row+.5)/Math.max(1,groups);
   y=band+(y-.5)*.55;
  }
+ const art=artisticPose(motion.intent?.artisticScene,motion.sceneProgress??p,rank,count,row,groups);
+ if(art){x+=(art.x-x)*art.weight;y+=(art.y-y)*art.weight;}
  // During a long passage, rows softly exchange how broadly they carry the
  // figure. Partners keep the same phase and dimmer; only geometric reach varies.
  if(motion.development){
@@ -381,4 +431,42 @@ export function presenceRowFocus(presence,row,groups){
  if(!motion?.from)return current;
  const previous=evaluate({...motion.from,amount:motion.amount}),t=motion.blend;
  return {gain:previous.gain+(current.gain-previous.gain)*t,lead:previous.lead+(current.lead-previous.lead)*t};
+}
+
+
+// Complete scenes use one passage clock. Row delays are bounded entrances,
+// never independent oscillators. Intensity and safety routing stay upstream/downstream.
+export function artisticPose(scene,progress,rank,count,row=0,groups=1){
+ if(!scene||count<2)return null;
+ const p=clamp(progress),enter=ease(p/.2),leave=ease((1-p)/.2);
+ const weight=enter*leave*clamp(scene.strength??.85);
+ const u=rank/(count-1),r=u*2-1,h=Math.abs(r),pair=Math.min(rank,count-1-rank);
+ const role=(groups>1?row:pair)%3,phase=p*Math.PI*2;
+ const t=ease((p-.06*role)/(.7-.06*role));
+ let x,y;
+ switch(scene.name){
+  case 'blossom':
+   x=.5+r*(.12+.29*t);y=.23+.15*role+.18*(1-r*r)*t;break;
+  case 'architecture':{
+   const vault=ease((p-.25)/.4);
+   x=.5+r*(.34-.04*role);
+   const pillar=.22+.25*role;
+   y=pillar+( .3+.36*(1-r*r)-pillar)*vault;break;
+  }
+  case 'braid':
+   if(role===2){x=.5+r*.4;y=.25+.48*h;}
+   else {const bank=role===0?-1:1;x=.5+r*(.29+.05*Math.cos(phase));y=.5+bank*.2*Math.sin(phase)+r*.08;}
+   break;
+  case 'dialogue':{
+   const answer=ease((p-.35)/.3),lead=role===0?1-answer:role===1?answer:.2;
+   x=.5+r*(.19+.2*lead);y=.24+.2*role+.09*lead*(1-r*r);break;
+  }
+  case 'dissolve':{
+   const separate=Math.sin(Math.PI*p)**2;
+   x=.5+r*(.22+.16*separate);
+   y=.5+(pair%2?1:-1)*.22*separate+.04*role;break;
+  }
+  default:return null;
+ }
+ return {x:clamp(x),y:clamp(y),weight};
 }

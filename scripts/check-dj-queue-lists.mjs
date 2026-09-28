@@ -26,7 +26,7 @@ try {
  const {targetId}=await command('Target.createTarget',{url:'about:blank'});const {sessionId}=await command('Target.attachToTarget',{targetId,flatten:true});
  const c=(method,params)=>command(method,params,sessionId);await c('Runtime.enable');await c('Page.enable');
  const evaluate=async expression=>{const r=await c('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true,userGesture:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
- const wait=async(expression,timeout=30000)=>{const start=Date.now();while(Date.now()-start<timeout){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Timed out: '+expression+' '+JSON.stringify(errors)+' '+await evaluate("({queue:document.querySelector('#queueStatus')?.textContent,status:document.querySelector('#djStatus')?.textContent,count:document.querySelector('#queueCount')?.textContent,start:document.querySelector('#queueStart')?.textContent,decks:[...document.querySelectorAll('audio')].map(a=>({time:a.currentTime,paused:a.paused}))})"));};
+ const wait=async(expression,timeout=30000)=>{const start=Date.now();while(Date.now()-start<timeout){try{if(await evaluate(expression))return;}catch(error){if(!/navigated or closed|context|Cannot find/i.test(error.message))throw error;}await new Promise(r=>setTimeout(r,100));}throw Error('Timed out: '+expression+' '+JSON.stringify(errors)+' '+await evaluate("({queue:document.querySelector('#queueStatus')?.textContent,status:document.querySelector('#djStatus')?.textContent,count:document.querySelector('#queueCount')?.textContent,start:document.querySelector('#queueStart')?.textContent,decks:[...document.querySelectorAll('audio')].map(a=>({time:a.currentTime,paused:a.paused}))})"));};
  await c('Emulation.setDeviceMetricsOverride',{width:1280,height:1000,deviceScaleFactor:1,mobile:false});
  await c('Page.addScriptToEvaluateOnNewDocument',{source:`window.rateWrites=[];const descriptor=Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype,'playbackRate');Object.defineProperty(HTMLMediaElement.prototype,'playbackRate',{...descriptor,set(value){window.rateWrites.push(value);descriptor.set.call(this,value);}});`});
  await c('Page.navigate',{url:base+'/dj'});await wait("document.querySelector('#djLamp')?.options.length>1");
@@ -50,7 +50,7 @@ try {
  await evaluate("document.querySelector('[data-queue-transition]').click()");
  await wait("document.querySelector('.dj-transition-preview').open");
  assert.ok(await evaluate("[...document.querySelectorAll('.dj-deck audio')].every(a=>a.paused&&!a.src)"),'preparation leaves decks unloaded');
- await evaluate("const dialog=document.querySelector('.dj-transition-preview');for(const [key,value] of [['time',8],['cue',1],['duration',2]]){const e=dialog.querySelector('[data-edit-'+key+']');e.value=value;e.dispatchEvent(new Event('input'));}dialog.querySelector('[data-add]').click();dialog.querySelector('[data-choose]').click()");
+ await evaluate("const dialog=document.querySelector('.dj-transition-preview');for(const [key,value] of [['duration',2],['time',8],['cue',1]]){const e=dialog.querySelector('[data-edit-'+key+']');e.value=value;e.dispatchEvent(new Event('input'));}dialog.querySelector('[data-add]').click();dialog.querySelector('[data-choose]').click()");
  await wait("document.querySelector('.dj-transition-preview [data-status]').textContent.includes('gespeichert')");
  const savedTransition=await evaluate("import('/dj-library.js').then(m=>m.readQueueLists()).then(data=>data.lists[0].entries[1].transition)");
  assert.equal(savedTransition.plan.time,8);assert.ok(savedTransition.plan.points);
@@ -65,6 +65,14 @@ try {
  await evaluate("document.querySelector('[data-stage3d-expand]').click()");
  assert.equal(await evaluate("document.querySelector('#queueSelect').value"),first);
  assert.equal(await evaluate("document.querySelector('#queueCount').textContent"),'2');
+ const remainingBeforeResume=await evaluate("import('/dj-library.js').then(m=>m.readQueue())");
+ await evaluate("window.resumedAudio=[...document.querySelectorAll('.dj-deck audio')].find(a=>!a.paused);resumedAudio.pause();resumedAudio.currentTime=3;");
+ await wait("!document.querySelector('#queuePlay').disabled");
+ await evaluate("document.querySelector('#queuePlay').click()");
+ await wait("!resumedAudio.paused");
+ assert.ok(await evaluate("resumedAudio.currentTime>=3&&resumedAudio.currentTime<4"),'Play resumes instead of rewinding');
+ assert.deepEqual(await evaluate("import('/dj-library.js').then(m=>m.readQueue())"),remainingBeforeResume,'remaining entries are not rebuilt');
+
  await evaluate("document.querySelector('#queueNew').click();var listName=document.querySelector('#queueName');listName.value='Party';listName.dispatchEvent(new Event('input'));document.querySelectorAll('[aria-label=\"In Warteschlange einreihen\"]')[1].click()");
  const second=await evaluate("document.querySelector('#queueSelect').value");
  await wait("document.querySelector('#queueCount').textContent==='1'&&document.querySelector('#queueLive').textContent.includes('läuft weiter')");

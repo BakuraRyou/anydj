@@ -91,14 +91,22 @@ try {
  await evaluate("document.querySelectorAll('[aria-label=\"Auf Deck B laden\"]')[1].click()");
  await wait("document.querySelector('[data-full-deck=B] [data-full-title]').textContent==='test.mp3'");
  await wait("!document.querySelector('[data-full-deck=B] [data-full-seek]').disabled");
- // Fullscreen profile shares the original selection and saved moving mode.
+ // Profiles belong to the loaded songs and persist independently.
  assert.deepEqual(await evaluate("[...document.querySelector('[data-full-profile]').options].map(o=>o.value)"),['auto','show','party','disco','calm','atmospheric']);
- await evaluate("document.querySelector('[data-full-profile]').value='show';document.querySelector('[data-full-profile]').dispatchEvent(new Event('change'))");
- assert.equal(await evaluate("document.querySelector('#djShowProfile').value"),'show');
- assert.equal(await evaluate("localStorage.getItem('wiz-dj-show-profile')"),'show');
- assert.equal(await evaluate("localStorage.getItem('anydj-moving-mood')"),'show');
- await evaluate("document.querySelector('#djShowProfile').value='party';document.querySelector('#djShowProfile').dispatchEvent(new Event('change'))");
- await wait("document.querySelector('[data-full-profile]').value==='party'");
+ await evaluate("document.querySelector('[data-full-deck=A] [data-full-profile]').value='show';document.querySelector('[data-full-deck=A] [data-full-profile]').dispatchEvent(new Event('change'))");
+ await wait("!document.querySelector('[data-full-deck=A] [data-full-profile]').disabled");
+ assert.equal(await evaluate("document.querySelector('[data-full-deck=B] [data-full-profile]').value"),'auto');
+ assert.equal(await evaluate("import('/dj-library.js').then(m=>m.readLibrary()).then(ts=>ts.find(t=>t.name==='test.wav').showProfile)"),'show');
+ await evaluate("document.querySelector('[data-full-deck=B] [data-full-profile]').value='party';document.querySelector('[data-full-deck=B] [data-full-profile]').dispatchEvent(new Event('change'))");
+ await wait("!document.querySelector('[data-full-deck=B] [data-full-profile]').disabled");
+ assert.equal(await evaluate("import('/dj-library.js').then(m=>m.readLibrary()).then(ts=>ts.find(t=>t.name==='test.mp3').showProfile)"),'party');
+ await evaluate("document.querySelector('#djShowProfile').value='calm';document.querySelector('#djShowProfile').dispatchEvent(new Event('change'))");
+ await wait("document.querySelector('[data-full-deck=A] [data-full-profile]').value==='show'&&document.querySelector('[data-full-deck=B] [data-full-profile]').value==='party'");
+ await wait("document.querySelector('[data-deck-show-profile=A]').value==='show'&&document.querySelector('[data-deck-show-profile=B]').value==='party'");
+ await evaluate("document.querySelector('[data-deck-show-profile=A]').value='disco';document.querySelector('[data-deck-show-profile=A]').dispatchEvent(new Event('change'))");
+ await wait("!document.querySelector('[data-deck-show-profile=A]').disabled&&document.querySelector('[data-full-deck=A] [data-full-profile]').value==='disco'");
+ assert.equal(await evaluate("import('/dj-library.js').then(m=>m.readLibrary()).then(ts=>ts.find(t=>t.name==='test.wav').showProfile)"),'disco');
+ assert.equal(await evaluate("document.querySelector('[data-deck-show-profile=B]').value"),'party');
  // Real pointer seeking and independent playback use the main audio elements.
  await click('[data-full-deck=B] [data-full-seek]');
  await wait("Math.abs(deckB.querySelector('audio').currentTime-6)<.15");

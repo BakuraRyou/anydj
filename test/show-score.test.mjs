@@ -98,7 +98,7 @@ test('review exports the active show score and the actual show movement',()=>{
  assert.deepEqual(review.decisions.showScore,plan.showScore);
  assert.deepEqual(review.snapshot.pose,movingCueAt(movingCues(plan,'auto','show'),21.37));
 });
-test('a dark transfer prepares a quiet-to-active entrance before the actual beat',async()=>{
+test('a quiet-to-active surface change prepares its target without inventing a blackout',async()=>{
  const {movingCueExposure}=await import('../public/dmx-moving-cues.js');
  const base=music({duration:24});
  base.sections=[{start:0,end:4,look:'held'},{start:4,end:24,look:'peak'}];
@@ -107,8 +107,9 @@ test('a dark transfer prepares a quiet-to-active entrance before the actual beat
  base.arrangement.times=base.arrangement.times.filter(t=>t>=4);
  const plan=applyShowProfile(base,'show'),cues=movingCues(plan,'auto','show');
  const entry=cues.find(c=>c.role==='arrival');assert.ok(entry);
- assert.equal(entry.time,4);assert.ok(entry.darkTravel);
- assert.equal(movingCueExposure(cues,entry.time-entry.travel*.5).level,0);
+ assert.equal(entry.time,4);assert.ok(entry.travel>0);
+ for(let t=entry.time-entry.travel-.2;t<entry.time+.4;t+=.01)assert.equal(movingCueExposure(cues,t).level,1);
+ assert.deepEqual(movingCueAt(cues,entry.time),entry.pose);
 });
 test('focus survives predictive playback and respects fixture motion range',async()=>{
  const {createMovingPreview}=await import('../public/dmx-vr-playback.js');

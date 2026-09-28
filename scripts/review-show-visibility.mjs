@@ -8,13 +8,16 @@ import {showScoreAt} from '../public/show-score.js';
 import {automaticStage} from '../public/dmx-auto.js';
 import {encodeStage,decodeStage} from '../public/dmx-model.js';
 import {movingCues,movingCueAt,movingCueExposure} from '../public/dmx-moving-cues.js';
-import {movingPresenceAt} from '../public/dmx-activity.js';
+import {activityAt,movingPresenceAt} from '../public/dmx-activity.js';
 import {projectMovingHeads,movingDevicePoses} from '../public/dmx-layout-model.js';
 import {applyRoomPlan,createRoomPreview} from '../public/dmx-ar-model.js';
 import {clubStageRoom} from '../public/dmx-room-presets.js';
 const [input,output,startArg='36',endArg='45',profile='show']=process.argv.slice(2),start=Number(startArg),end=Number(endArg);
 if(!input||!output||!Number.isFinite(start)||!Number.isFinite(end)||start<0||end<=start)throw Error('Expected plan.json trace.json start end');
-const plan=applyShowProfile(JSON.parse(readFileSync(input)),profile),mood=movingMoodForProfile(profile);
+const saved=JSON.parse(readFileSync(input));
+const original=saved.format==='anydj-light-review'?saved.plan:saved;
+if(original.showProfile&&original.showProfile!==profile)throw Error('Export profile differs; use the matching profile or an unprofiled base plan.');
+const plan=original.showProfile===profile?original:applyShowProfile(original,profile),mood=movingMoodForProfile(profile);
 if(end>plan.duration)throw Error('Interval exceeds song duration');
 const room=clubStageRoom(),preview=createRoomPreview(),cues=movingCues(plan,'auto',mood);
 const layout={width:8,depth:6,positions:{}},devices=Array.from({length:4},(_,i)=>({id:'h'+i}));
@@ -27,12 +30,13 @@ const angle=(a,b,position)=>{
 };
 let relights=0,maxRelightStep=0,maxStep=0,maxAngle=0,maxRelightAngle=0,darkTrackingSamples=0;
 for(let tick=0;tick<=Math.floor(end*30);tick++){
- const time=tick/30,frame=showFrameAt(plan,time),source={movingPlan:plan,songTime:time,frame,weight:1};
+ const time=tick/30,frame=showFrameAt(plan,time),section=plan.sections?.find(s=>time>=s.start&&time<s.end);
+ const source={movingPlan:plan,movingMood:mood,songTime:time,frame,weight:1,look:section?.look,sectionProgress:section?(time-section.start)/(section.end-section.start):0};
  const presence=movingPresenceAt({...source,movingMood:mood}),exposure=movingCueExposure(cues,time);
  const colors=decodeStage(encodeStage(automaticStage([source],2,equipment,'auto',{movingSource:true}).frames,equipment),equipment).flatMap(f=>f.cells);
  const lights=projectMovingHeads(layout,movingDevicePoses(movingCueAt(cues,time),devices,{formation:'designed',layout}),devices).map((l,i)=>{
-  const rgb=colors[i],power=Math.max(...rgb)/255;
-  return {...l,type:'moving',color:`rgb(${rgb.join(',')})`,power,movingPresenceBasePower:power,movingPresence:presence,movingShutter:exposure.level,cueTransit:exposure.transfer,motionPresentation:mood==='show'?'show':mood==='balanced'?'auto':undefined};
+  const rgb=colors[i],power=Math.max(...rgb)/255,color=power?rgb.map(v=>Math.round(v/power)):rgb;
+  return {...l,type:'moving',color:`rgb(${color.join(',')})`,power,movingPresenceBasePower:power,movingPresence:presence,movingShutter:exposure.level,movingGroupShutter:profile==='auto'?movingCueExposure(cues,time,{groupMotion:true}).level:undefined,cueTransit:exposure.transfer,motionPresentation:mood==='show'?'show':mood==='balanced'?'auto':undefined};
  });
  const scene={layout,crowd:[],lights},result=preview(scene,room,false,time);
  if(time<start)continue;
@@ -47,7 +51,7 @@ for(let tick=0;tick<=Math.floor(end*30);tick++){
   return {id:l.id,power:l.power,sceneLead:l.sceneLead,sceneGain:l.sceneGain,surfaceGain:l.surfaceGain,surfaceOverlap:l.surfaceOverlap,trackMotion:!!l.movingGroupActive,zoneTransit:!!l.zoneTransit,authoredTarget:authored.get(l.id)?.target,target:l.target,step,angleDegrees,relit};
  });
  const picture=showScoreAt(plan,time);
- samples.push({time,role:picture?.role,form:picture?.form,mask:presence.mask,action:presence.action,shutter:exposure.level,heads});
+ samples.push({time,sourceDimming:frame.dimming,musicalExposure:activityAt(source,1)[0],presenceLayers:(presence.layers||[presence]).map(p=>({weight:p.weight??1,level:p.level,mask:p.mask,action:p.action,progress:p.progress,occupancy:p.occupancy,rowFraction:p.rowFraction,rowSelection:p.rowSelection})),role:picture?.role,form:picture?.form,mask:presence.mask,action:presence.action,shutter:exposure.level,heads});
 }
 const summary={interval:[start,end],sampleHz:30,heads:samples[0]?.heads.length,relights,maxRelightStep,maxStep,maxAngle,maxRelightAngle,darkTrackingSamples};
 writeFileSync(output,JSON.stringify({room:room.name,profile,method:'Offline preset replay; source colors and shutters, room targets, zones and motors. No saved UI overrides, source follow filter, prediction or GPU rendering.',summary,samples}));

@@ -1,5 +1,5 @@
 import {automaticGroupMotionAt,showGroupMotionAt,automaticFixtureGroups,groupComposition,presenceRowFocus} from './dmx-group-motion.js';
-import {showScoreAt} from './show-score.js';
+import {showScoreAt,showPictureLayers} from './show-score.js';
 import {showActionAt} from './show-action.js';
 import {lightingScenes,lightingSceneAt,scenePresence,bassPresence} from './dmx-light-scenes.js';
 import {instrumentDevelopment,instrumentRests} from './instrument-activity.js';
@@ -116,15 +116,14 @@ function cuesFor(plan){
   });
   cache.set(plan,cues);return cues;
 }
-export function activityAt(source,units){
-  const plan=source.movingPlan,time=source.songTime;
-  let cue=null,amount=0,expansion=1,darkness=1;
+export function musicalDarknessAt(plan,time){
+  let darkness=1,active=false;
   const blackouts=plan?.arrangement?.blackouts||[];
   if(Number.isFinite(time)&&blackouts.length){
     let lo=0,hi=blackouts.length;
     while(lo<hi){const mid=(lo+hi)>>>1;if(blackouts[mid].start<=time)lo=mid+1;else hi=mid;}
     const stop=blackouts[lo-1];
-    if(stop&&time<stop.end)darkness=1-smooth((time-stop.start)/.06);
+    if(stop&&time<stop.end){active=true;darkness=1-smooth((time-stop.start)/.06);}
   }
   if(plan&&Number.isFinite(time)){
     let rests=restCache.get(plan);
@@ -132,8 +131,14 @@ export function activityAt(source,units){
     let lo=0,hi=rests.length;
     while(lo<hi){const mid=(lo+hi)>>>1;if(rests[mid].start<=time)lo=mid+1;else hi=mid;}
     const rest=rests[lo-1];
-    if(rest&&time<rest.end)darkness*=1-smooth((time-rest.start)/.6);
+    if(rest&&time<rest.end){active=true;darkness*=1-smooth((time-rest.start)/.6);}
   }
+  return {level:darkness,active};
+}
+export function activityAt(source,units){
+  const plan=source.movingPlan,time=source.songTime;
+  let cue=null,amount=0,expansion=1;
+  const darkness=musicalDarknessAt(plan,time).level;
   if(darkness===0)return Array(units).fill(0);
   if(plan&&Number.isFinite(time)){
     const cues=cuesFor(plan);
@@ -206,11 +211,24 @@ export function movingPresenceAt(source){
   if(source.movingMood==='show'){
    const level=activityAt(source,1)[0],action=showActionAt(plan,time),picture=showScoreAt(plan,time);
    // A dark head still follows an active picture, ready for its next exposure.
-   const selection=picture?{trackMotion:!['held','silence'].includes(picture.role),occupancy:picture.occupancy,selection:picture.index%2,rowFraction:picture.rowFraction,rowSelection:picture.rowSelection}:{};
    const rhythm=plan.sectionLighting?.find(s=>time>=s.start&&time<s.end)?.rhythm;
-   const groupMotion=(!rhythm||rhythm==='auto')?showGroupMotionAt(plan,time,picture):null;
-   if(action&&(!rhythm||rhythm==='auto')&&action.cue.action!=='hit')return {level,spread:1,...selection,groupMotion,mask:'show-action',action:action.cue.action,phase:action.cue.phase,progress:action.progress,amount:Math.max(0,Math.min(1,source.flicker??1))};
-   return rhythm&&rhythm!=='auto'?{level,spread:1,mask:'all'}:{level,spread:1,...selection,groupMotion,mask:'show-score'};
+   const accent=action&&action.cue.action!=='hit'?{mask:'show-action',action:action.cue.action,phase:action.cue.phase,progress:action.progress,amount:Math.max(0,Math.min(1,source.flicker??1))}:{};
+   if(rhythm&&rhythm!=='auto')return {level,spread:1,mask:'all'};
+   const release=picture?.role==='silence'&&musicalDarknessAt(plan,time).active;
+   const layers=showPictureLayers(plan,time).map(({picture:p,weight})=>{
+    // Keep the outgoing members during a measured fade. Musical darkness
+    // owns their level; occupancy=0 must not bypass its release envelope.
+    const selection=release&&p.role==='silence'?(showScoreAt(plan,p.start-.00001)||p):p;
+    // Membership and geometry must belong to the same picture. Keep the
+    // outgoing endpoint during its handover instead of replacing both layers
+    // with the incoming movement (or abruptly removing it for a held picture).
+    const motionTime=Math.min(time,p.end-.000001);
+    const groupMotion=showGroupMotionAt(plan,motionTime,p);
+    return {weight,presence:{level,spread:1,
+     trackMotion:!['held','silence'].includes(p.role),occupancy:selection.occupancy,selection:selection.index%2,
+     rowFraction:selection.rowFraction,rowSelection:selection.rowSelection,groupMotion,mask:'show-score',...accent}};
+   });
+   return layers.length===1?layers[0].presence:mixMovingPresence(layers);
   }
   const scenes=lightingScenes(plan),previous=scenes[scene.index-1];
   const groupMotion=automaticGroupMotionAt(plan,time);
@@ -258,15 +276,16 @@ export function movingPresenceLevel(presence,rank,count){
   const n=Math.max(1,Math.ceil(slots*presence.occupancy)),selected=presence.selection?slots-1-slot:slot;
   if(presence.occupancy<=0||selected>=n)return 0;
  }
- if(presence.mask==='show-score')return presence.level;
- if(presence.mask==='show-action'){
-  if(count===1)return presence.level;
+ if(presence.mask==='show-score'||presence.mask==='show-action'){
+  const base=1;
+  if(presence.mask==='show-score'||count===1)return presence.level;
   const p=presence.progress,amount=presence.amount??1;
-  const recover=smooth((p-.72)/.28);
-  const radius=slots===1?0:(slots-1-slot)/(slots-1);
-  const group=count===2?rank:slot%2;
+  // A cue takes over the running picture rather than closing all shutters
+  // on its first frame. Rejoin that same picture when the sequence finishes.
+  const envelope=smooth(p/.18)*(1-smooth((p-.72)/.28));
+  const radius=slots===1?0:(slots-1-slot)/(slots-1),group=slot%2;
   const staged=presence.action==='launch'?smooth(p*2-radius):group===presence.phase?1-smooth((p-.35)/.25):smooth((p-.12)/.25);
-  return presence.level*(1-amount*(1-staged)*(1-recover));
+  return presence.level*(base+(staged-base)*amount*envelope);
  }
  if(presence.mask==='bass-chase'){
   if(count===1)return presence.level;

@@ -110,9 +110,33 @@ export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones}
       return content;
     }
     const help=disclosure('Bedienung','help');help.append(q('[data-camera-help]'),status);
-    const xr=disclosure('AR / VR','xr'),actions=document.createElement('div');actions.className='stage-view-xr-actions';
-    actions.append(q('[data-stage-ar]'),q('[data-stage-vr]'),q('[data-vr-recheck]'));
-    xr.append(actions,q('.stage-vr-status'),q('.stage-vr-setup'),q('.stage-vr-share'));
+    const xr=disclosure('AR / VR','xr');xr.classList.add('stage-xr-flow');
+    const intro=document.createElement('p');intro.textContent='Wie möchtest du die Lichtshow in der Brille öffnen?';
+    const paths=document.createElement('div');paths.className='stage-xr-paths';paths.setAttribute('role','group');paths.setAttribute('aria-label','Verbindungsweg');
+    const share=q('.stage-vr-share'),setup=q('.stage-vr-setup'),vrStatus=q('.stage-vr-status');
+    const remote=document.createElement('section'),local=document.createElement('section');remote.dataset.xrPath='remote';local.dataset.xrPath='local';
+    const remoteHeading=document.createElement('h3');remoteHeading.textContent='1 · Brille verbinden';
+    const next=document.createElement('p');next.className='stage-xr-next';next.textContent='2 · Nach der Kopplung im Browser der Brille „VR starten“ wählen. Die Musik steuerst du hier am Rechner.';
+    share.open=true;remote.append(remoteHeading,share,next);
+    const localHeading=document.createElement('h3');localHeading.textContent='1 · PC-Verbindung prüfen';
+    const actions=document.createElement('div');actions.className='stage-view-xr-actions';
+    const recheck=q('[data-vr-recheck]');setup.open=true;
+    const startHeading=document.createElement('h3');startHeading.textContent='2 · Vorschau starten';
+    actions.append(q('[data-stage-vr]'),q('[data-stage-ar]'));
+    local.append(localHeading,recheck,setup,startHeading,actions,vrStatus);
+    let userPathChosen=false;
+    function choosePath(path){remote.hidden=path!=='remote';local.hidden=path!=='local';for(const button of paths.children)button.setAttribute('aria-pressed',String(button.dataset.xrChoose===path));}
+    for(const [path,label] of [['remote','Browser in der Brille'],['local','Brille am PC']]){const button=document.createElement('button');button.type='button';button.className='button secondary';button.dataset.xrChoose=path;button.textContent=label;button.onclick=()=>{userPathChosen=true;choosePath(path);};paths.append(button);}
+    function syncConnection(){
+      const connected=share.dataset.connection==='connected';
+      remoteHeading.textContent=connected?'Brille verbunden':'1 · Brille verbinden';
+      next.textContent=connected?'Die Vorschau ist verbunden. Wähle „VR starten“ in der Brille. Aufbau und Lichtshow werden live übertragen.':'2 · Nach der Kopplung im Browser der Brille „VR starten“ wählen. Die Musik steuerst du hier am Rechner.';
+      const ready=setup.dataset.vrState==='ready';localHeading.textContent=ready?'PC-VR ist bereit':'1 · PC-Verbindung prüfen';
+      local.classList.toggle('is-ready',ready);
+      if(ready&&!userPathChosen&&!['waiting','connected'].includes(share.dataset.connection))choosePath('local');
+    }
+    xr.append(intro,paths,remote,local);choosePath(setup.dataset.vrState==='ready'?'local':'remote');syncConnection();
+    panel.addEventListener('vr-connection-change',syncConnection,{signal:toolEvents.signal});
     tools.replaceChildren(views,zoom,extras);
     document.addEventListener('pointerdown',event=>{for(const menu of extras.children)if(menu.open&&!menu.contains(event.target))menu.open=false;},{signal:toolEvents.signal});
     tools.addEventListener('keydown',event=>{if(event.key!=='Escape')return;const open=[...extras.children].find(m=>m.open);if(open){event.preventDefault();event.stopPropagation();open.open=false;open.querySelector('summary').focus();}},{signal:toolEvents.signal});

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {planSongMovement,songMovementAt,SONG_MOVEMENT_VERSION,movementAccentEnvelope} from '../public/song-movement-plan.js';
+import {planSongMovement,songMovementAt,SONG_MOVEMENT_VERSION,movementAccentEnvelope,SPATIAL_MOTIONS} from '../public/song-movement-plan.js';
 import {automaticGroupScore,automaticGroupMotionAt,groupComposition} from '../public/dmx-group-motion.js';
 import {compileShow} from '../public/show-plan.js';
 import {settings} from '../lib/music.mjs';
@@ -128,10 +128,12 @@ test('reduced but rhythmically active flow retains gentle development while genu
  const source=music(.28,.26);
  const p={...source,songMovement:planSongMovement(source)};
  const score=automaticGroupScore(p);
- assert.ok(score.every(s=>s.motion&&['curtain','frame-center','breathing-arch'].includes(s.composition)));
+ assert.ok(score.every(s=>s.motion&&['curtain','frame-center','breathing-arch','side-columns','wide-ribbons',...SPATIAL_MOTIONS.filter(x=>x[3]).map(x=>x[0])].includes(s.composition)));
  assert.ok(score.every(s=>s.intent.motionDrive===0),'gentle development has no added beat-rate spin');
- const a=groupComposition(automaticGroupMotionAt(p,2),0,8,2,6),b=groupComposition(automaticGroupMotionAt(p,5),0,8,2,6);
- assert.ok(Math.hypot(a.x-b.x,a.y-b.y)>.03);
+ // Compare the full gesture: a sinusoidal path can revisit the same point
+ // at two arbitrarily selected times without being stationary.
+ const samples=Array.from({length:20},(_,i)=>groupComposition(automaticGroupMotionAt(p,1+i*.3),0,8,2,6));
+ assert.ok(samples.some(a=>samples.some(b=>Math.hypot(a.x-b.x,a.y-b.y)>.03)));
  for(const look of ['held','quiet','break','outro']){
   const held={...source,sections:[{start:0,end:32,look}]};
   assert.ok(planSongMovement(held).passages.every(s=>!s.motion),look);
@@ -150,7 +152,7 @@ test('a local peak gets an active spatial figure in an otherwise flowing song',(
  assert.equal(peaks.length,2);
  for(const p of peaks){
   assert.equal(p.role,'impact');
-  assert.ok(['diagonal-sweep','crossed-banks','rotating-fan','parallel-sweep','hinged-lines'].includes(p.composition),p.composition);
+  assert.ok(['diagonal-sweep','crossed-banks','rotating-fan','parallel-sweep','hinged-lines','split-levels','wide-ribbons',...SPATIAL_MOTIONS.filter(x=>!x[3]).map(x=>x[0])].includes(p.composition),p.composition);
   assert.ok(p.motionDrive<=p.drive,'local form selection must not boost the movement clock');
  }
  assert.notEqual(peaks[0].composition,peaks[1].composition);

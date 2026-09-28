@@ -106,15 +106,16 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
       else if(!blackout&&target&&(lit||hasPlan))poses=(hasPlan?followMovingHeads:advanceMovingHeads)(poses,target,lastTime===null?0:time-lastTime);
       lastTime=time;
       const leader=prepared.filter(s=>s.frame&&s.frame.state!==false&&s.weight>0).sort((a,b)=>b.weight-a.weight)[0];
+      const songMood=leader?.movingPlan?.movingMood??mood;
       const look=leader?.look??leader?.movingPlan?.sections?.find(s=>leader.songTime>=s.start&&leader.songTime<s.end)?.look;
       let designs=leader?.movingPlan&&directionCache.get(leader.movingPlan);
-      if(leader?.movingPlan&&(!designs||designs.disco!==(mood==='disco'))){designs={disco:mood==='disco',values:movingDirections(leader.movingPlan,mood==='disco')};directionCache.set(leader.movingPlan,designs);}
+      if(leader?.movingPlan&&(!designs||designs.disco!==(songMood==='disco'))){designs={disco:songMood==='disco',values:movingDirections(leader.movingPlan,songMood==='disco')};directionCache.set(leader.movingPlan,designs);}
       const design=designs?.values.find(d=>d&&leader.songTime>=d.start&&leader.songTime<d.end);
-      const calm=leader&&(design?.category==='atmospheric'||leader.motionCharacter==='atmospheric'||['held','quiet','break','outro'].includes(look)||['calm','atmospheric'].includes(mood));
+      const calm=leader&&(design?.category==='atmospheric'||leader.motionCharacter==='atmospheric'||['held','quiet','break','outro'].includes(look)||['calm','atmospheric'].includes(songMood));
       const mirrored=design?.formation==='mirror';
       // Normal automatic playback uses one rig-wide gesture throughout a song.
       // Switching to repeated pair roles on percussion breaks larger formations.
-      const formation=mode==='auto'?((mood==='balanced'||mood==='show')?'designed':mood!=='disco'||calm?'coherent':mirrored?'mirror':null):null;
+      const formation=mode==='auto'?((songMood==='balanced'||songMood==='show')?'designed':songMood!=='disco'||calm?'coherent':mirrored?'mirror':null):null;
       const placement={formation,layout:getLayout?.()};
       const devicePoses=movingDevicePoses(poses,devices,placement);
       const projected=getLayout?projectMovingHeads(getLayout(),devicePoses,devices):null;
@@ -127,9 +128,10 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
       const presenceSources=streams.filter(s=>s.frame&&s.frame.state!==false&&s.weight>0);
       const presenceWeight=presenceSources.reduce((sum,s)=>sum+s.weight,0);
       const shutters=mode==='auto'?presenceSources.map(s=>preparation.exposure(s.movingPlan,s.songTime,mode,mood)):[];
+      const movingGroupShutter=mode==='auto'&&presenceSources.every(s=>(s.movingPlan?.movingMood??mood)==='balanced')?Math.min(1,...presenceSources.map(s=>preparation.exposure(s.movingPlan,s.songTime,mode,mood,{groupMotion:true}).level)):undefined;
       const movingShutter=Math.min(1,...shutters.map(s=>s.level)),cueTransit=shutters.some(s=>s.transfer);
-      const movingPresence=mode==='auto'?(presenceWeight?mixMovingPresence(presenceSources.map(s=>({presence:movingPresenceAt({...s,movingMood:mood}),weight:s.weight/presenceWeight}))):streams.length?{level:0,spread:0}:movingPresenceAt({})):null;
-      const aheadPresence=projectedAhead&&presenceWeight?mixMovingPresence(aheadSources.filter(s=>s.frame&&s.frame.state!==false&&s.weight>0).map(s=>({presence:movingPresenceAt({...s,movingMood:mood}),weight:s.weight/presenceWeight}))):null;
+      const movingPresence=mode==='auto'?(presenceWeight?mixMovingPresence(presenceSources.map(s=>({presence:movingPresenceAt({...s,movingMood:s.movingPlan?.movingMood??mood}),weight:s.weight/presenceWeight}))):streams.length?{level:0,spread:0}:movingPresenceAt({})):null;
+      const aheadPresence=projectedAhead&&presenceWeight?mixMovingPresence(aheadSources.filter(s=>s.frame&&s.frame.state!==false&&s.weight>0).map(s=>({presence:movingPresenceAt({...s,movingMood:s.movingPlan?.movingMood??mood}),weight:s.weight/presenceWeight}))):null;
       const order=heads.map((_,i)=>i).sort((a,b)=>(projected?.[a].position.x??a)-(projected?.[b].position.x??b));
       const ranks=[];order.forEach((i,rank)=>{ranks[i]=rank;});
       heads.forEach((head,i)=>{
@@ -140,7 +142,7 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
         const power=basePower*movingPresenceLevel(movingPresence,ranks[i],heads.length)*movingShutter;
         const color=basePower?rgb.map(v=>Math.round(v/basePower)):rgb;
         const {pan,tilt}=projected?{pan:projected[i].frontPan,tilt:.55+.6*projected[i].tilt/90}:devicePoses[i];
-        if(projected)preview.push({...projected[i],motionRange:reducedMotion.matches?0:devices[i].motionRange??1,motionGroup:devices[i].group,motionPresentation:mood==='show'?'show':mood==='balanced'&&mode==='auto'?'auto':undefined,movingShutter,cueTransit,...(movingPresence?{movingPresence,movingPresenceBasePower:basePower}:{}),...(projectedAhead?{motionAhead:{seconds:predictionSeconds,movingPresence:aheadPresence,target:projectedAhead[i].target,motionUV:projectedAhead[i].motionUV,motionFocus:projectedAhead[i].motionFocus}}:{}),color:`rgb(${color.join(',')})`,power});
+        if(projected)preview.push({...projected[i],motionRange:reducedMotion.matches?0:devices[i].motionRange??1,motionGroup:devices[i].group,motionPresentation:mood==='show'?'show':mood==='balanced'&&mode==='auto'?'auto':undefined,movingShutter,movingGroupShutter,cueTransit,...(movingPresence?{movingPresence,movingPresenceBasePower:basePower}:{}),...(projectedAhead?{motionAhead:{seconds:predictionSeconds,movingPresence:aheadPresence,target:projectedAhead[i].target,motionUV:projectedAhead[i].motionUV,motionFocus:projectedAhead[i].motionFocus}}:{}),color:`rgb(${color.join(',')})`,power});
         if(projected)setStyle(i,'--head-position',String((projected[i].position.x/getLayout().width+.5)*100));
         setStyle(i,'--head-pan',`${pan.toFixed(2)}deg`);
         setStyle(i,'--head-tilt',tilt.toFixed(3));

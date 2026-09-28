@@ -53,3 +53,17 @@ test('playback velocity is continuous across 50 ms sample boundaries without ove
  for(let t=0;t<=.2;t+=.001){assert.ok(at(t)>=0&&at(t)<=4);}
  assert.equal(at(.175),4);
 });
+test('songs retain independent movement profiles across global mood changes',()=>{
+ const tasks=[];const prep=createMovingPreparation({schedule:fn=>{tasks.push(fn);return tasks.length;}});
+ const a={...song(),movingMood:'calm'},b={...song(),movingMood:'energetic'};
+ prep.setEnabled(true);prep.prepare([a,b],'auto','disco');while(tasks.length)tasks.shift()();
+ for(const plan of [a,b]){
+  const job=movingPlanJob(plan,'auto',plan.movingMood);while(!job.done)job.advance();
+  assert.deepEqual(prep.read(plan,18,'auto','disco'),movingPlanAt(job.result,18));
+ }
+ const before=[prep.read(a,18),prep.read(b,18)];
+ assert.notDeepEqual(before[0],before[1]);
+ prep.prepare([a,b],'auto','show');assert.equal(tasks.length,0);
+ assert.deepEqual([prep.read(a,18,'auto','show'),prep.read(b,18,'auto','show')],before);
+ prep.destroy();
+});

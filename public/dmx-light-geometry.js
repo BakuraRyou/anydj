@@ -29,8 +29,8 @@ const cross3=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]
 export function beamBoundary(layout){return layout.roomPlan?.boundary||[[-layout.width/2,layout.room?(layout.lightMin||0):-Math.max(4,layout.depth)],[layout.width/2,layout.room?(layout.lightMin||0):-Math.max(4,layout.depth)],[layout.width/2,layout.depth],[-layout.width/2,layout.depth]];}
 // First physical room intersection, including concave boundaries.
 export function roomBeamHit(layout,origin,direction){
-  const boundary=beamBoundary(layout),height=layout.height||3;let distance=Infinity,wallIndex=-1,targetSurface='floor';
-  for(const [z,surface] of [[0,'floor'],[height,'ceiling']]){
+  const boundary=layout.roomPlan?.outdoor?[]:beamBoundary(layout),height=layout.height||3;let distance=Infinity,wallIndex=-1,targetSurface='floor';
+  for(const [z,surface] of (layout.roomPlan?.outdoor?[[0,'floor']]:[[0,'floor'],[height,'ceiling']])){
     const t=(z-origin[2])/direction[2];if(t>1e-6&&t<distance){distance=t;targetSurface=surface;}
   }
   for(let i=0;i<boundary.length;i++){
@@ -152,8 +152,9 @@ export function previewOpticalRays(light,layout){
 export function beamSurfacePatches(light,layout,floorFaces,{smooth=false,layers:requestedLayers}={}){
   const {height,length,radius}=lightFootprint(light),origin=[light.position.x,light.position.y,height],axis=unit3(sub3([light.target.x,light.target.y,light.target.z??.012],origin));
   const u=unit3(cross3(axis,Math.abs(axis[2])<.9?[0,0,1]:[0,1,0])),v=cross3(axis,u),boundary=beamBoundary(layout),roof=layout.height||3;
-  const faces=floorFaces.flatMap(face=>[face.map(p=>[...p,0]),face.map(p=>[...p,roof])]);
-  boundary.forEach((a,i)=>{const b=boundary[(i+1)%boundary.length];faces.push([[...a,0],[...b,0],[...b,roof],[...a,roof]]);});
+  const outdoor=layout.roomPlan?.outdoor===true;
+  const faces=floorFaces.flatMap(face=>outdoor?[face.map(p=>[...p,0])]:[face.map(p=>[...p,0]),face.map(p=>[...p,roof])]);
+  if(!outdoor)boundary.forEach((a,i)=>{const b=boundary[(i+1)%boundary.length];faces.push([[...a,0],[...b,0],[...b,roof],[...a,roof]]);});
   const limits=layout.roomPlan?.positions?.[light.id]?.wallTarget;
   if(limits&&light.wallIndex>=0&&boundary[light.wallIndex]){
     const a=boundary[light.wallIndex],b=boundary[(light.wallIndex+1)%boundary.length];

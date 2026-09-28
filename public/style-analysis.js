@@ -6,7 +6,8 @@ export async function analyzeStyle(decoded,{token='',signal,onStatus=()=>{}}={})
     signal?.throwIfAborted();
     onStatus('Stilverlauf wird erkannt …');
     const headers={...(token?{Authorization:`Bearer ${token}`}:{})};
-    const statusResponse=await fetch('/api/analysis/style',{headers,signal});
+    // Bound only the availability probe; model inference keeps its full runtime.
+    const statusResponse=await fetch('/api/analysis/style',{headers,signal:AbortSignal.any([signal,AbortSignal.timeout(2500)].filter(Boolean))});
     const status=await statusResponse.json();
     if(!statusResponse.ok)throw Error(status.error?.message||'Stilerkennung nicht erreichbar.');
     if(!status.available)throw Error(status.message);

@@ -1,3 +1,4 @@
+import {matchesFeelings,DEFAULT_FEELINGS} from './feeling-tags.js';
 import {fileIdentity} from './dj-model.js';
 import {SHOW_PLAN_VERSION} from './show-plan.js';
 // IndexedDB contains file references, metadata and computed shows, never audio.
@@ -23,8 +24,10 @@ async function transaction(mode,action,name='tracks') {
     tx.onerror=tx.onabort=()=>reject(tx.error||Error('Speichern fehlgeschlagen.'));
   });
 }
-const metadata=track=>({id:track.id,name:track.name,size:track.size,lastModified:track.lastModified,
-  cover:track.cover||null,coverKey:track.coverKey||null,hotCues:track.hotCues||null,colorMode:track.colorMode||null,sectionEdits:track.sectionEdits||null,order:track.order,addedAt:track.addedAt??null,handle:track.handle||null,folderId:track.folderId||null,relativePath:track.relativePath||null});
+const metadata=track=>({feelingAnalysis:track.feelingAnalysis||null,feelingAdded:track.feelingAdded||[],feelingExcluded:track.feelingExcluded||[],id:track.id,name:track.name,size:track.size,lastModified:track.lastModified,
+  cover:track.cover||null,coverKey:track.coverKey||null,hotCues:track.hotCues||null,colorMode:track.colorMode||null,showProfile:track.showProfile||null,sectionEdits:track.sectionEdits||null,order:track.order,addedAt:track.addedAt??null,handle:track.handle||null,folderId:track.folderId||null,relativePath:track.relativePath||null});
+export const readFeelingCatalog=()=>transaction('readonly',store=>store.get('feelingCatalog'),'settings');
+export const saveFeelingCatalog=catalog=>transaction('readwrite',store=>store.put(catalog,'feelingCatalog'),'settings');
 export const readLibrary=()=>transaction('readonly',store=>store.getAll());
 export async function removeTrack(id) {
   const db=await openDatabase();
@@ -74,11 +77,11 @@ export const readTransitionLibrary=()=>transaction('readonly',store=>store.get('
 export const saveTransitionLibrary=value=>transaction('readwrite',store=>store.put(value,'transitionLibrary'),'settings');
 
 // View preferences never reorder the stored library or an existing queue.
-export function libraryTracks(tracks,{query='',filter='all',sort='newest'}={}){
+export function libraryTracks(tracks,{query='',filter='all',sort='newest',feelings=[],catalog=DEFAULT_FEELINGS}={}){
  const text=query.trim().toLocaleLowerCase();
  const problem=t=>Boolean(t.missing||t.pendingChange||t.failed||t.queuePreparationError||(!t.file&&!t.handle));
  const ready=t=>Boolean(t.plan&&!t.phase&&!t.recalculate&&!problem(t));
- const rows=tracks.filter(t=>!t.deleted&&`${t.name} ${t.relativePath||''}`.toLocaleLowerCase().includes(text)&&
+ const rows=tracks.filter(t=>!t.deleted&&matchesFeelings(t,feelings,catalog)&&`${t.name} ${t.relativePath||''}`.toLocaleLowerCase().includes(text)&&
   (filter==='ready'?ready(t):filter==='pending'?!problem(t)&&!ready(t):filter==='problems'?problem(t):filter==='folder'?Boolean(t.folderId):filter==='files'?!t.folderId:true));
  const order=t=>Number.isFinite(t.order)?t.order:tracks.indexOf(t);
  const date=t=>Number.isFinite(t.addedAt)?t.addedAt:0;

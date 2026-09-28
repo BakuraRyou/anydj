@@ -53,14 +53,14 @@ test('sustained peaks hand surfaces over at phrase boundaries without oscillatin
  const sections=Array.from({length:5},(_,i)=>({start:i*14,end:(i+1)*14,look:'peak',motif:1,intensity:.85}));
  const p={duration:70,sections,arrangement:{patterns:{phrases:sections.map(s=>({...s,energy:.85,tone:.5,movement:{driving:.7}}))}}};
  const score=planSongMovement(p);
- assert.equal(score.passages[0].surface,'wall');
- assert.equal(score.passages[1].surface,'wall');
- assert.equal(score.passages[2].surface,'floor');
- assert.equal(score.passages[3].surface,'floor');
- assert.equal(score.passages[4].surface,'wall');
- const plan={...p,songMovement:score},at=automaticGroupMotionAt(plan,28);
- assert.ok(at.from);assert.equal(at.blend,0);
- assert.equal(groupComposition(at,0,8,0,6).wallBlend,1);
- const after=groupComposition(automaticGroupMotionAt(plan,30),0,8,0,6);
- assert.equal(after.wallBlend,0);
+ assert.ok(score.passages.some(p=>p.surface==='floor'),'peak labels cannot force a wall picture');
+ const plan={...p,songMovement:score};
+ for(let i=1;i<score.passages.length;i++){
+  const current=score.passages[i],previous=score.passages[i-1];
+  const at=automaticGroupMotionAt(plan,current.start);
+  assert.ok(at.from);assert.equal(at.blend,0);
+  assert.equal(groupComposition(at,0,8,0,6).wallBlend,previous.surface==='wall'?1:0);
+  const after=groupComposition(automaticGroupMotionAt(plan,current.start+2),0,8,0,6);
+  assert.equal(after.wallBlend,current.surface==='wall'?1:0);
+ }
 });

@@ -39,3 +39,10 @@ test('automatic visibility hands over on the same timeline as the group movement
   assert.equal(presence.layers[0].weight,1-motion.blend);
  }
 });
+test('continuation includes the incoming passage duration when budgeting dominant forms',()=>{
+ const p=song(14,[.8,.82,.83,.81]);
+ const score=automaticGroupScore(p);
+ assert.notEqual(score[0].composition,score[1].composition,'two similar 14-second passages must not evade the 24-second continuation budget');
+ const a=groupComposition(automaticGroupMotionAt(p,14-1e-6),0,8,1,6),b=groupComposition(automaticGroupMotionAt(p,14+1e-6),0,8,1,6);
+ assert.ok(Math.hypot(a.x-b.x,a.y-b.y)<1e-4);
+});

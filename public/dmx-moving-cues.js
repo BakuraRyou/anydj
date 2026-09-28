@@ -1,3 +1,4 @@
+import {automaticGroupScore} from './dmx-group-motion.js';
 import {planShowScore,showScorePose} from './show-score.js';
 import {lightingScenes,scenePose,lightingGestures,gesturePose,musicalMovementEvents} from './dmx-light-scenes.js';
 import {movingDirections,directedPose,groovePose,spatialPose} from './dmx-moving-direction.js';
@@ -12,7 +13,17 @@ const continuous=cue=>cue?.continuous||cue?.reason==='groove';
 // Travel ends ON the event. Quiet gaps hold the last destination.
 export function movingCues(plan,mode,mood='balanced'){
   if(mode==='auto'&&movingMood(mood)==='show')return showMovingCues(plan);
-  if(mode==='auto'&&movingMood(mood)==='balanced'){const conducted=barMovingCues(plan);if(conducted)return conducted;}
+  if(mode==='auto'&&movingMood(mood)==='balanced'){const conducted=barMovingCues(plan);if(conducted){
+    const score=automaticGroupScore(plan);
+    return conducted.map(cue=>{
+      if(!cue.darkTravel)return cue;
+      const start=cue.time-cue.travel-.18,end=cue.time+.3;
+      const parts=score.filter(p=>p.end>start&&p.start<end);
+      const manual=plan.sectionLighting?.some(s=>s.start<end&&s.end>start&&(s.movement===0||s.rhythm&&s.rhythm!=='auto'));
+      const groupTravel=!manual&&parts.length>0&&parts[0].start<=start&&parts.at(-1).end>=end&&parts.every((p,i)=>p.motion&&(!i||parts[i-1].end===p.start));
+      return groupTravel?{...cue,groupTravel:true}:cue;
+    });
+  }}
   return patternMovingCues(plan,mode,mood);
 }
 // Pattern engine retained for the explicitly selected alternative moods/modes.
@@ -193,18 +204,18 @@ export function movingCueAt(cues,time){
     const a=cues[index-1],b=cues[index],c=cues[index+1];
     if(!a||!c||!continuous(b)||!continuous(c)||
       Math.abs(b.travel-(b.time-a.time))>1e-6||Math.abs(c.travel-(c.time-b.time))>1e-6)return 0;
-    const u=(b.pose[head][key]-a.pose[head][key])/(b.time-a.time),v=(c.pose[head][key]-b.pose[head][key])/(c.time-b.time);
-    return motionTangent(a.pose[head][key],b.pose[head][key],c.pose[head][key],b.time-a.time,c.time-b.time)?2*u*v/(u+v)*(1-(b.settle??0)):0;
+    const u=((b.pose[head][key]??0)-(a.pose[head][key]??0))/(b.time-a.time),v=((c.pose[head][key]??0)-(b.pose[head][key]??0))/(c.time-b.time);
+    return motionTangent(a.pose[head][key]??0,b.pose[head][key]??0,c.pose[head][key]??0,b.time-a.time,c.time-b.time)?2*u*v/(u+v)*(1-(b.settle??0)):0;
   };
   const curvature=(index,head,key)=>{
     const a=cues[index-1],b=cues[index],c=cues[index+1];
     if(!a||!c||!continuous(b)||!continuous(c)||Math.abs(b.travel-(b.time-a.time))>1e-6||Math.abs(c.travel-(c.time-b.time))>1e-6)return 0;
-    const left=b.time-a.time,right=c.time-b.time,u=(b.pose[head][key]-a.pose[head][key])/left,v=(c.pose[head][key]-b.pose[head][key])/right;
+    const left=b.time-a.time,right=c.time-b.time,u=((b.pose[head][key]??0)-(a.pose[head][key]??0))/left,v=((c.pose[head][key]??0)-(b.pose[head][key]??0))/right;
     if(Math.abs(u)<1e-9||Math.abs(v)<1e-9)return 0;
     return 2*(v-u)/(left+right)*(1-(b.settle??0));
   };
-  return previous.pose.map((p,i)=>Object.fromEntries(['pan','tilt'].map(key=>[key,
-    motionQuintic(p[key],next.pose[i][key],tangent(lo-1,i,key),tangent(lo,i,key),next.travel,phase,curvature(lo-1,i,key),curvature(lo,i,key))])));
+  return previous.pose.map((p,i)=>Object.fromEntries(['pan','tilt',...(p.focus!==undefined||next.pose[i].focus!==undefined?['focus']:[])].map(key=>[key,
+    motionQuintic(p[key]??0,next.pose[i][key]??0,tangent(lo-1,i,key),tangent(lo,i,key),next.travel,phase,curvature(lo-1,i,key),curvature(lo,i,key))])));
 }
 
 // Shared musical events drive short authored gestures. Quiet scenes keep
@@ -286,15 +297,15 @@ export function barMovingCues(plan){
 
 // Fade out before a relocation starts, travel dark, then reveal the arrival.
 // Ordinary expressive movement keeps its light; this is not a beat blackout.
-export function movingCueExposure(cues,time){
+export function movingCueExposure(cues,time,{groupMotion=false}={}){
  if(!cues?.length||!Number.isFinite(time))return {level:1,transfer:false};
  let lo=0,hi=cues.length;
  while(lo<hi){const mid=(lo+hi)>>>1;if(cues[mid].time<=time)lo=mid+1;else hi=mid;}
  const previous=cues[Math.max(0,lo-1)],next=cues[lo];
  const smooth=v=>{v=clamp(v);return v*v*(3-2*v);};
  let level=1,transfer=false;
- if(previous.darkTravel&&time<previous.time+.3){level=smooth((time-previous.time)/.3);transfer=true;}
- if(next?.darkTravel){
+ if(previous.darkTravel&&!(groupMotion&&previous.groupTravel)&&time<previous.time+.3){level=smooth((time-previous.time)/.3);transfer=true;}
+ if(next?.darkTravel&&!(groupMotion&&next.groupTravel)){
   const start=next.time-next.travel;
   if(time>=start-.18){level=Math.min(level,1-smooth((time-(start-.18))/.18));transfer=time>=start||transfer;}
  }
@@ -337,18 +348,19 @@ export function showMovingCues(plan){
   const pose=desired.map((p,i)=>({pan:previous.pose[i].pan+(p.pan-previous.pose[i].pan)*Math.min(1,edit?.movement??1),tilt:previous.pose[i].tilt+(p.tilt-previous.pose[i].tilt)*Math.min(1,edit?.movement??1),focus:(previous.pose[i].focus??0)+((p.focus??0)-(previous.pose[i].focus??0))*Math.min(1,edit?.movement??1)}));
   const required=Math.max(motionDuration(previous.pose,pose,.8),Math.abs((pose[0].focus??0)-(previous.pose[0].focus??0))*1.8);
   if(required<.08)continue;
-  // A scheduled dark transfer may prepare the next entrance during a rest.
-  // Explicit movement holds remain authoritative, including their endpoints.
+  // Surface changes do not authorize a blackout. Musical rests and action
+  // sequences own darkness; explicit movement holds keep their endpoints.
   const blocked=holds.filter(s=>s.start<time&&s.end>previous.time);
   const earliest=Math.max(previous.time,...blocked.map(s=>Math.min(time,s.end)));
   const available=time-earliest;
   if(available+1e-8<required)continue;
   const surface=picture.role==='held'?'floor':picture.featured?'ceiling':'wall';
-  // Sustained, unmetered flow develops over the available interval, rather
-  // than waiting and then squeezing the whole change into a short motor burst.
-  const travel=picture.role==='flow'&&!picture.rhythmic?available:Math.min(available,Math.max(required,picture.role==='held'?1.4:picture.role==='build'?2.2:1.1));
-  cues.push({time,travel,pose,surface,role:picture.role,formation:picture.form,picture:picture.index,coordinated:true,
-   reason:entry?'show-picture':'show-motion',...(surface!==previous.surface&&(picture.role==='held'||previous.role==='held')?{darkTravel:true}:{})});
+  // Continuing musical motion uses the full interval and carries velocity
+  // through waypoints. Held poses and featured arrivals retain their stops.
+  const flowing=!picture.featured&&['flow','groove','build'].includes(picture.role)&&!['held','silence'].includes(previous.role)&&blocked.length===0;
+  const travel=flowing?available:Math.min(available,Math.max(required,picture.role==='held'?1.4:picture.role==='build'?2.2:1.1));
+  cues.push({time,travel,...(flowing?{continuous:true}:{}),pose,surface,role:picture.role,formation:picture.form,picture:picture.index,coordinated:true,
+   reason:entry?'show-picture':'show-motion'});
  }
  return cues;
 }

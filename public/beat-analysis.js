@@ -7,7 +7,8 @@ export async function analyzeBeats(decoded,{engine='beat-this',token='',signal,o
     signal?.throwIfAborted();
     onStatus('Beat This! erkennt Beats und Taktanfänge …');
     const headers={...(token?{Authorization:`Bearer ${token}`}:{})};
-    const statusResponse=await fetch('/api/analysis/beats',{headers,signal});
+    // Bound only the availability probe; model inference keeps its full runtime.
+    const statusResponse=await fetch('/api/analysis/beats',{headers,signal:AbortSignal.any([signal,AbortSignal.timeout(2500)].filter(Boolean))});
     const status=await statusResponse.json();
     if(!statusResponse.ok)throw Error(status.error?.message||'Beat This! nicht erreichbar.');
     if(!status.available)throw Error(status.message);

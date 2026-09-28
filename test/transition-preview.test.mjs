@@ -30,3 +30,13 @@ test('single proposal gains editable templates without pretending they are analy
  assert.ok(short.slice(1).every(p=>p.duration<=.5));
  assert.equal(transitionProposals({...pair,from:{duration:90,rate:1}}).length,1);
 });
+
+test('duration edits align outgoing end and incoming start while preserving requested duration and curve',()=>{
+ const points=[[[0,1],[.4,.8],[1,0]],[[0,0],[.6,.3],[1,1]]];
+ const source={from:{duration:210,rate:1},to:{duration:100,rate:2},plan:{time:208,cue:90,duration:2,style:'bass',points}};
+ const result=editTransitionPlan(source,{...source.plan,duration:20},{fitDuration:true});
+ assert.equal(result.duration,20);assert.equal(result.time,190);assert.equal(result.cue,0);assert.deepEqual(result.points,points);
+ assert.equal(source.plan.time,208);
+ assert.throws(()=>editTransitionPlan(source,{...source.plan,duration:60},{fitDuration:true}),/zu kurz/);
+ assert.throws(()=>editTransitionPlan(source,{...source.plan,duration:NaN},{fitDuration:true}));
+});

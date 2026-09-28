@@ -1,3 +1,4 @@
+import {createLightOutputTrace} from './light-output-trace.js';
 import {createRoomMotors} from './dmx-light-geometry.js';
 import {roomMusicalAim,respectRoomVolumes,alignRoomFormation} from './dmx-ar-model.js';
 import {createMovingPreview} from './dmx-vr-playback.js';
@@ -20,6 +21,7 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
   const toggle=document.createElement('button');toggle.type='button';toggle.className='button secondary';toggle.dataset.stage3dToggle='';toggle.textContent='3D-Bühne einschalten';toggle.setAttribute('aria-pressed','false');controls.append(toggle);
   const panel=document.createElement('section');panel.className='stage-3d';panel.hidden=true;panel.setAttribute('aria-label','3D-Bühnenvorschau');
   panel.innerHTML=`<div class="stage-3d-heading"><strong>3D-Bühne <small>Simulation</small></strong><button type="button" class="button secondary" data-stage3d-full aria-haspopup="dialog" aria-pressed="false">Full</button><button type="button" class="button secondary" data-stage3d-expand>Große Ansicht</button><button type="button" class="button secondary" data-camera="reset">Kamera zurücksetzen</button></div><canvas tabindex="0" role="img" aria-label="Räumliche Lichtbühne. Mit Linksziehen oder Alt plus Pfeiltasten drehen, mit Rechtsziehen verschieben, mit Mausrad, Plus und Minus vorwärts oder rückwärts bewegen."></canvas><div class="stage-3d-full-controls" hidden><span>FULL · Esc zum Verlassen</span><button type="button" class="button secondary" data-stage3d-full-close>Full schließen</button></div><div class="stage-3d-tools"><button type="button" class="button secondary" data-camera="front">Publikum</button><button type="button" class="button secondary" data-camera="top">Draufsicht</button><button type="button" class="button secondary" data-camera="in" aria-label="Vorwärts bewegen">+</button><button type="button" class="button secondary" data-camera="out" aria-label="Rückwärts bewegen">−</button><button type="button" class="button secondary" data-dancer aria-pressed="false">Auf die Tanzfläche</button><span data-camera-help>Links ziehen: drehen · Rechts ziehen: verschieben · Mausrad / + / −: vor / zurück</span></div><fieldset class="stage-3d-dancer" hidden><legend>Dein Standort auf der Tanzfläche</legend><svg data-dancer-map viewBox="0 0 240 140" role="img" aria-label="Standort wählen: Bühne oben, Tanzfläche darunter"><rect x="10" y="4" width="220" height="25" rx="3" fill="#476174"/><text x="120" y="21" text-anchor="middle" fill="#edf6fa">BÜHNE</text><rect x="10" y="34" width="220" height="96" rx="3" fill="#183b42" stroke="#638891"/><path data-dancer-direction fill="none" stroke="#9ee7d6" stroke-width="2"/><circle data-dancer-dot r="5" fill="#b8ffe6"/></svg><div class="stage-3d-location"><label>Links / rechts <input data-dancer-x type="range" step="0.1" value="0"></label><label>Abstand zur Bühne <input data-dancer-distance type="range" min="0.4" step="0.1" value="3"></label><label>Augenhöhe <select data-dancer-height><option value="1.2">1,20 m</option><option value="1.5">1,50 m</option><option value="1.7" selected>1,70 m</option><option value="1.9">1,90 m</option></select></label><output data-dancer-position></output></div><div class="stage-3d-walk"><button type="button" class="button secondary" data-walk="forward">Vorwärts</button><button type="button" class="button secondary" data-walk="back">Zurück</button><button type="button" class="button secondary" data-walk="left">Schritt links</button><button type="button" class="button secondary" data-walk="right">Schritt rechts</button></div><label class="stage-3d-aim"><input type="checkbox" data-dancer-aim> Moving Heads auf die Tanzfläche richten · nur diese Vorschau</label></fieldset><p role="status">Vereinfachte Lichtvorschau · Aufbau aus „Bühne & Geräte aufstellen“</p>`;
+  const outputTrace=createLightOutputTrace();
   const scene=host.querySelector('.stage-scene');
   if(scene)scene.after(panel);else host.append(panel);
   const marker=document.createComment('stage-3d-home');panel.before(marker);
@@ -140,7 +142,8 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
     q('dancer-position').textContent=`${dancer.x.toFixed(1)} m seitlich · ${(club?dancer.y:-dancer.y).toFixed(1)} m ${club?'von vorne':'vor der Bühne'}`;
     const x=10+(dancer.x/ layout.width+.5)*220,y=34+(club?1-dancer.y/depth:-dancer.y/depth)*96;
     q('dancer-dot').setAttribute('cx',x);q('dancer-dot').setAttribute('cy',y);
-    q('dancer-direction').setAttribute('d',`M ${x} ${y} l ${-Math.sin(dancer.yaw)*16} ${-Math.cos(dancer.yaw)*16}`);
+    const vx=-Math.sin(dancer.yaw)*220/layout.width,vy=-Math.cos(dancer.yaw)*96/depth,length=Math.hypot(vx,vy)||1;
+    q('dancer-direction').setAttribute('d',`M ${x} ${y} l ${vx/length*24} ${vy/length*24}`);
     if(crowdMapLayout!==`${layout.width}/${layout.depth}/${club}`)syncCrowd();
   }
   function setDancer(value){
@@ -157,8 +160,20 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
   }
   dancerButton.textContent='Im Raum';dancerButton.setAttribute('aria-label','Raum aus der Ego-Perspektive ansehen');
   dancerButton.onclick=()=>{setDancer(camera.mode!=='dancer');canvas.focus({preventScroll:true});};
-  q('dancer-map').onpointerdown=e=>{
-    const r=e.currentTarget.getBoundingClientRect(),x=(e.clientX-r.left)/r.width*240,y=(e.clientY-r.top)/r.height*140;
+  const locationMap=q('dancer-map');let locationDrag=null;
+  const locationHint=document.createElement('p');locationHint.className='stage-3d-map-hint';locationHint.textContent='Standort drücken, zur Blickrichtung ziehen und loslassen. Ein Klick versetzt nur den Standort.';locationMap.after(locationHint);
+  const mapPoint=e=>{const matrix=locationMap.getScreenCTM();return matrix?new DOMPoint(e.clientX,e.clientY).matrixTransform(matrix.inverse()):null;};
+  function previewLocation(e){
+    const point=mapPoint(e);if(!locationDrag||!point)return;
+    const dx=(point.x-locationDrag.x)/220*locationDrag.width,dy=-(point.y-locationDrag.y)/96*locationDrag.depth;
+    if(Math.hypot(e.clientX-locationDrag.clientX,e.clientY-locationDrag.clientY)>=5){locationDrag.aimed=true;locationDrag.yaw=Math.atan2(-dx,dy);}
+    q('dancer-dot').setAttribute('cx',locationDrag.x);q('dancer-dot').setAttribute('cy',locationDrag.y);
+    const vx=-Math.sin(locationDrag.yaw)*220/locationDrag.width,vy=-Math.cos(locationDrag.yaw)*96/locationDrag.depth,length=Math.hypot(vx,vy)||1;
+    q('dancer-direction').setAttribute('d',`M ${locationDrag.x} ${locationDrag.y} l ${vx/length*24} ${vy/length*24}`);
+  }
+  locationMap.onpointerdown=e=>{
+    if(e.button!==0||locationDrag)return;
+    const point=mapPoint(e);if(!point)return;const {x,y}=point;
     if(x<10||x>230||y<34||y>130)return;
     const layout=viewLayout(),depth=layout.room?layout.depth:Math.max(4,layout.depth);
     const px=((x-10)/220-.5)*layout.width,distance=(layout.room?1-(y-34)/96:(y-34)/96)*depth;
@@ -168,8 +183,18 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
       else if(crowd.length<12)crowd.push({x:clamp(px/Math.max(.1,layout.width-1.2)+.5,0,1),y:clamp((distance-.6)/Math.max(.1,depth-1.2),0,1)});
       syncCrowd();requestDraw();return;
     }
-    dancer.x=px;dancer.y=layout.room?distance:-distance;syncDancer();requestDraw();
+    e.preventDefault();stopWalking();
+    locationDrag={id:e.pointerId,x,y,px,py:layout.room?distance:-distance,width:layout.width,depth,yaw:dancer.yaw,clientX:e.clientX,clientY:e.clientY};
+    locationMap.setPointerCapture(e.pointerId);previewLocation(e);
   };
+  locationMap.onpointermove=e=>{if(locationDrag?.id===e.pointerId){e.preventDefault();previewLocation(e);}};
+  locationMap.onpointerup=e=>{
+    if(locationDrag?.id!==e.pointerId)return;previewLocation(e);
+    const draft=locationDrag;locationDrag=null;dancer.x=draft.px;dancer.y=draft.py;dancer.yaw=draft.yaw;
+    if(locationMap.hasPointerCapture(e.pointerId))locationMap.releasePointerCapture(e.pointerId);
+    syncDancer();requestDraw();
+  };
+  locationMap.onpointercancel=locationMap.onlostpointercapture=e=>{if(locationDrag?.id===e.pointerId){locationDrag=null;syncDancer();}};
   q('dancer-x').oninput=e=>{dancer.x=Number(e.target.value);syncDancer();requestDraw();};
   q('dancer-distance').oninput=e=>{dancer.y=(viewLayout().room?1:-1)*Number(e.target.value);syncDancer();requestDraw();};
   q('dancer-height').onchange=e=>{dancer.eyeHeight=Number(e.target.value);requestDraw();};
@@ -199,6 +224,7 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
       }else syncDancer();
     }
     const scene=vrScene(performance.now()/1000);
+    outputTrace.push(performance.now(),music.streams||[],[...lights,...moving],scene.lights);
     const renderStart=performance.now();
     ctx.setTransform(scale,0,0,scale,0,0);renderer(ctx,width,height,scene.layout,scene.lights,camera,scene.crowd,scene.motion);
     renderAverage=renderAverage*.9+(performance.now()-renderStart)*.1;
@@ -350,6 +376,7 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
   cameraStorageReady=true;
   window.addEventListener('pagehide',saveCamera);
   return {
+    getDiagnostics:()=>outputTrace.snapshot(),
     get isOpen(){return isOpen();},
     setEnabled:value=>activate(value,{expandView:false}),
     open:trigger=>{if(!isOpen())openShow(trigger||expand);},

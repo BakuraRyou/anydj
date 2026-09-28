@@ -62,16 +62,16 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-ar-room]').value"),club.id);
   assert.equal(await evaluate("document.querySelector('[data-ar-name]').value"),'Mein Testclub');
   await evaluate("window.confirm=()=>true;document.querySelector('[data-ar-delete]').click()");
-  await mount();assert.equal((await stored()).plans.length,5);
+  await mount();assert.equal((await stored()).plans.length,6);
   assert.ok((await stored()).plans.some(p=>p.id===original.id));
   // Upgrade an existing library while preserving its active room and enable flag.
   await evaluate(`localStorage.setItem('anydj-ar-rooms-v1',JSON.stringify({plans:[${JSON.stringify(original)}],selected:${JSON.stringify(original.id)},enabled:true}))`);
   await mount();saved=await stored();
-  assert.equal(saved.plans.length,6);assert.deepEqual(saved.plans[0],original);
+  assert.equal(saved.plans.length,7);assert.deepEqual(saved.plans[0],original);
   assert.equal(saved.selected,original.id);assert.equal(saved.enabled,true);
   // A renamed club from the former button must not be duplicated.
   await evaluate(`localStorage.setItem('anydj-ar-rooms-v1',JSON.stringify({plans:[${JSON.stringify({...club,name:'Alter Club'})}],selected:${JSON.stringify(club.id)},enabled:false}))`);
-  await mount();assert.equal((await stored()).plans.length,5);assert.equal((await stored()).enabled,false);
+  await mount();assert.equal((await stored()).plans.length,6);assert.equal((await stored()).enabled,false);
   const stage=(await stored()).plans.find(p=>p.name==='Club-Bühne · Publikum & Hintergrund');
   assert.ok(stage);assert.equal(Object.keys(stage.positions).length,168);
   await change('room',stage.id);await change('name','Meine Club-Bühne');
@@ -106,6 +106,26 @@ try {
   assert.deepEqual((await stored()).plans.find(p=>p.id===barn.id).mesh,barn.mesh);
   await evaluate("window.confirm=()=>true;document.querySelector('[data-ar-delete]').click()");
   await mount();assert.equal((await stored()).plans.some(p=>p.id===barn.id),false);
+  const festival=(await stored()).plans.find(p=>p.name==='Festival-Bühne');
+  assert.ok(festival);assert.equal(Object.keys(festival.positions).length,160);
+  await change('room',festival.id);
+  await c('Page.reload');await wait("document.readyState==='complete'&&!document.querySelector('#host')");await mount();
+  assert.equal((await stored()).selected,festival.id);
+  assert.deepEqual((await stored()).plans.find(p=>p.id===festival.id),festival);
+  await evaluate("window.confirm=()=>true;document.querySelector('[data-ar-delete]').click()");
+  await mount();assert.equal((await stored()).plans.some(p=>p.id===festival.id),false);
+  await evaluate(`(async()=>{const {festivalStageRoom}=await import('/dmx-room-presets.js');const saved=JSON.parse(localStorage.getItem('anydj-ar-rooms-v1'));const legacy=festivalStageRoom({legacyLighting:true});legacy.name='Festival gespeichert';saved.plans.push(legacy);saved.selected=legacy.id;localStorage.setItem('anydj-ar-rooms-v1',JSON.stringify(saved));window.legacyFestivalId=legacy.id;})()`);
+  await mount();
+  const migrated=(await stored()).plans.find(p=>p.name==='Festival gespeichert');
+  assert.equal(migrated.id,await evaluate('window.legacyFestivalId'));
+  assert.equal(Object.keys(migrated.positions).length,160);
+  await evaluate(`{const saved=JSON.parse(localStorage.getItem('anydj-ar-rooms-v1'));const plan=saved.plans.find(p=>p.id===saved.selected);delete plan.outdoor;plan.positions['festival-v2-1'].height=.75;localStorage.setItem('anydj-ar-rooms-v1',JSON.stringify(saved));}`);
+  await mount();
+  const repaired=(await stored()).plans.find(p=>p.id===migrated.id);
+  assert.equal(repaired.outdoor,true);
+  assert.equal(repaired.positions['festival-v2-1'].height,.75);
+  await c('Page.reload');await wait("document.readyState==='complete'&&!document.querySelector('#host')");await mount();
+  assert.deepEqual((await stored()).plans.find(p=>p.id===repaired.id),repaired);
   for(const width of [1280,390]){
     await c('Emulation.setDeviceMetricsOverride',{width,height:844,deviceScaleFactor:1,mobile:false});
     assert.equal(await evaluate("[...document.querySelectorAll('[data-ar-room],[data-ar-new-room],[data-ar-copy]')].every(n=>{const r=n.getBoundingClientRect();return n.checkVisibility()&&r.left>=0&&r.right<=innerWidth;})"),true);

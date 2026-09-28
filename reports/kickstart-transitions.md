@@ -51,3 +51,13 @@ Vergleich: identischer vorbereiteter Songplan, Club-Preset mit 48 Moving Heads, 
 Ergebnis: Eine merkbare Verringerung des Schnitt-Eindrucks ist gut begründet: ganze Gruppen verschwinden nicht mehr für bis zu eine Sekunde, während ihre vorhandene Bewegungsbahn sichtbar weiterläuft. Die musikalische und visuelle Live-Abnahme bleibt offen. Das Experiment prüft keine physischen DMX-Geräte und keine GPU-Performance. Vor einer Produktivintegration muss die Unterscheidung zwischen Quellposen und tatsächlich verwendeter Raumchoreografie erhalten bleiben; geometrische Dunkelfahrten dürfen nicht global entfallen.
 
 Messwerte: `reports/kickstart-transition-comparison.json`.
+
+## Produktivintegration
+
+Die Korrektur ist jetzt eingebaut. Automatische Quellcues erhalten eine zusätzliche Kennzeichnung, wenn die Gruppenbewegung das gesamte Aus-/Einblendfenster lückenlos abdeckt. Manuelle Rhythmuswahl und Bewegungshalte schließen diese Freigabe aus. Die normale Quellbelichtung bleibt erhalten; eine zweite Belichtung wird ausschließlich für die tatsächlich eingesetzte automatische Raumgruppenbewegung berechnet. Bei nur teilweiser Übernahme der Gruppenpose wird auch die Freigabe anteilig überblendet. Andere Modi und ungekennzeichnete Dunkelfahrten bleiben unverändert.
+
+Die Anpassung erfolgt vor Ruhezonen- und Motorverarbeitung. Quell-Blackouts, Nullpegel und die nachgelagerten räumlichen Sperren bleiben wirksam. `scripts/review-show-visibility.mjs` bildet denselben Pfad ab.
+
+Produktivpfad erneut auf Kickstart My Heart, 140–255 s, 48 Moving Heads, 30 Hz verglichen: **3451 Frames, maximale Leistungs- und Zielpunktabweichung gegenüber dem erfolgreichen Experiment jeweils 0**. Gesamte Testsuite: **890 bestanden**. Neue Tests in `test/dmx-group-shutter.test.mjs`. Visuelle Live-Abnahme und physische DMX-Prüfung bleiben offen.
+
+Die Cue-Vorbereitung wird beim Neuladen neu aufgebaut; eine erneute Audioanalyse ist für diese Änderung nicht erforderlich.
