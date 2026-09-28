@@ -1,0 +1,134 @@
+[
+  {
+    "interval": [
+      25.69,
+      40.01
+    ],
+    "before": {
+      "meanLit": 14.6,
+      "minLit": 12,
+      "meanDegreesPerSecond": 0.618,
+      "stillSeconds": 10.47,
+      "darkMovingSeconds": 0.0,
+      "mirrorErrorMetres": 1.539011003185516e-14
+    },
+    "after": {
+      "meanLit": 14.6,
+      "minLit": 12,
+      "meanDegreesPerSecond": 0.705,
+      "stillSeconds": 9.53,
+      "darkMovingSeconds": 0.0,
+      "mirrorErrorMetres": 1.539011003185516e-14
+    }
+  },
+  {
+    "interval": [
+      40.01,
+      47.18
+    ],
+    "before": {
+      "meanLit": 14.47,
+      "minLit": 12,
+      "meanDegreesPerSecond": 0.297,
+      "stillSeconds": 5.33,
+      "darkMovingSeconds": 0.0,
+      "mirrorErrorMetres": 1.7962296908674955e-14
+    },
+    "after": {
+      "meanLit": 14.3,
+      "minLit": 6,
+      "meanDegreesPerSecond": 1.965,
+      "stillSeconds": 0.0,
+      "darkMovingSeconds": 0.0,
+      "mirrorErrorMetres": 1.2809491335957509e-14
+    }
+  },
+  {
+    "interval": [
+      132.4,
+      134.96
+    ],
+    "before": {
+      "meanLit": 0,
+      "minLit": 0,
+      "meanDegreesPerSecond": 0,
+      "stillSeconds": 0.0,
+      "darkMovingSeconds": 2.6,
+      "mirrorErrorMetres": 0
+    },
+    "after": {
+      "meanLit": 12,
+      "minLit": 12,
+      "meanDegreesPerSecond": 3.509,
+      "stillSeconds": 0.0,
+      "darkMovingSeconds": 0.0,
+      "mirrorErrorMetres": 1.3466689516704696e-14
+    }
+  },
+  {
+    "interval": [
+      142.1,
+      155.98
+    ],
+    "before": {
+      "meanLit": 14.08,
+      "minLit": 12,
+      "meanDegreesPerSecond": 0.923,
+      "stillSeconds": 6.47,
+      "darkMovingSeconds": 0.0,
+      "mirrorErrorMetres": 3.923660740106592e-14
+    },
+    "after": {
+      "meanLit": 13.67,
+      "minLit": 6,
+      "meanDegreesPerSecond": 1.053,
+      "stillSeconds": 1.27,
+      "darkMovingSeconds": 0.0,
+      "mirrorErrorMetres": 5.2814885788587084e-14
+    }
+  },
+  {
+    "interval": [
+      170.75,
+      185.08
+    ],
+    "before": {
+      "meanLit": 35.97,
+      "minLit": 6,
+      "meanDegreesPerSecond": 4.259,
+      "stillSeconds": 0.0,
+      "darkMovingSeconds": 0.0,
+      "mirrorErrorMetres": 3.557151798805476e-14
+    },
+    "after": {
+      "meanLit": 35.97,
+      "minLit": 6,
+      "meanDegreesPerSecond": 4.224,
+      "stillSeconds": 0.0,
+      "darkMovingSeconds": 0.0,
+      "mirrorErrorMetres": 3.202372833989377e-14
+    }
+  },
+  {
+    "interval": [
+      203.2,
+      216
+    ],
+    "before": {
+      "meanLit": 0,
+      "minLit": 0,
+      "meanDegreesPerSecond": 0,
+      "stillSeconds": 0.0,
+      "darkMovingSeconds": 12.8,
+      "mirrorErrorMetres": 0
+    },
+    "after": {
+      "meanLit": 0,
+      "minLit": 0,
+      "meanDegreesPerSecond": 0,
+      "stillSeconds": 0.0,
+      "darkMovingSeconds": 12.8,
+      "mirrorErrorMetres": 0
+    }
+  }
+]

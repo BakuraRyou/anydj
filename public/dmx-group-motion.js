@@ -104,7 +104,12 @@ export function showGroupMotionAt(plan,time,picture){
  if(!picture||['held','silence'].includes(picture.role))return null;
  const motion=automaticGroupMotionAt(plan,time);
  if(!motion?.intent)return null;
- const adapt=m=>({...m,composition:m.composition==='traveling-group'?'parallel-sweep':m.composition,presentation:'show',intent:{...m.intent,symmetry:'paired',articulation:Math.max(.55,m.intent?.articulation??0)},...(m.from?{from:adapt(m.from)}:{})});
+ const adapt=m=>{
+  const gentle=!!m.intent?.developing;
+  return {...m,amount:(m.amount??1)*(gentle?.35:1),composition:m.composition==='traveling-group'?'parallel-sweep':m.composition,presentation:'show',
+   intent:{...m.intent,symmetry:'paired',articulation:gentle?.08:Math.max(.55,m.intent?.articulation??0),...(gentle?{surface:'floor'}:{})},
+   ...(m.from?{from:adapt(m.from)}:{})};
+ };
  return adapt(motion);
 }
 // Evaluate each physical member AFTER expanding the four source roles. Rows

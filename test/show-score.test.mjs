@@ -194,3 +194,22 @@ test('paired parallel pictures open without an unintended change of sides',()=>{
  const picture={form:'parallel',start:6,end:10,role:'flow',drive:0,direction:-1,energy:.27,movementIntent:{symmetry:'paired',motionDrive:0}};
  for(let time=6;time<=10;time+=.025){const pose=showScorePose(picture,time);assert.ok(pose[0].pan<0&&pose[1].pan<0&&pose[2].pan>0&&pose[3].pan>0);}
 });
+
+test('quiet authored developments remain animated in Show while genuine held pictures stay held',async()=>{
+ const {SONG_MOVEMENT_VERSION}=await import('../public/song-movement-plan.js');
+ const {showGroupMotionAt}=await import('../public/dmx-group-motion.js');
+ const base=music({drive:0,energy:.3,duration:24});
+ base.songMovement={version:SONG_MOVEMENT_VERSION,passages:[
+  {start:0,end:8,developing:false,motion:null,composition:null,motionDrive:0,rhythm:{confidence:0}},
+  {start:8,end:16,developing:true,motion:'box-frame',composition:'box-frame',coordination:'ordered',motionDrive:0,rhythm:{confidence:0},energy:.3,drive:0,symmetry:'paired',surface:'floor'},
+  {start:16,end:24,developing:true,motion:'edge-ladder',composition:'edge-ladder',coordination:'ordered',motionDrive:0,rhythm:{confidence:0},energy:.3,drive:0,symmetry:'paired',surface:'floor'}]};
+ const score=planShowScore(base);
+ assert.equal(score[0].role,'held');
+ assert.ok(score.filter(p=>p.start>=8).every(p=>p.role==='flow'));
+ assert.equal(showGroupMotionAt(base,4,score[0]),null);
+ const picture=score.find(p=>p.start===8);
+ assert.ok(showGroupMotionAt(base,10,picture));
+ assert.ok(showGroupMotionAt(base,10,picture).amount<=.35);
+ assert.equal(showGroupMotionAt(base,10,picture).intent.surface,'floor');
+ assert.notDeepEqual(showGroupMotionAt(base,10,picture),showGroupMotionAt(base,14,picture));
+});

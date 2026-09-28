@@ -140,6 +140,16 @@ export function activityAt(source,units){
   let cue=null,amount=0,expansion=1;
   const darkness=musicalDarknessAt(plan,time).level;
   if(darkness===0)return Array(units).fill(0);
+  // Show owns group entrances and withdrawals. The generic activity director
+  // must not erase a live picture with an independent finishDark sequence.
+  // Measured musical rests above remain authoritative, including their fade.
+  if(source.movingMood==='show'||plan?.showProfile==='show'){
+    const picture=showScoreAt(plan,time);
+    if(picture){
+      const explicitSilence=picture.role==='silence'&&!musicalDarknessAt(plan,time).active;
+      return Array(units).fill(explicitSilence?0:darkness);
+    }
+  }
   if(plan&&Number.isFinite(time)){
     const cues=cuesFor(plan);
     let lo=0,hi=cues.length;

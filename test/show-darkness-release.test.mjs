@@ -25,3 +25,13 @@ test('an explicitly empty picture without a measured release does not inherit li
  const p=plan();delete p.structure;
  assert.ok(lights(p,2.001).every(l=>l.power===0));
 });
+
+test('Show keeps an active picture through a generic falling-intensity blackout',()=>{
+ const n=160,other=Array.from({length:n},(_,i)=>i<20?.2:i<60?.2-(i-20)*.00475:i<100?.01:.2);
+ const p={sections:[{start:0,end:10,look:'held'},{start:10,end:16,look:'peak'}],arrangement:{drama:{step:.1,intensity:other.map(v=>v*4)}},showScore:[{start:0,end:16,role:'flow',occupancy:.5}]};
+ const at=(units,movingMood)=>activityAt({movingPlan:p,songTime:8,look:'held',movingMood},units);
+ for(const units of [1,2,4,8]){
+  assert.deepEqual(at(units,'balanced'),Array(units).fill(0),'reproduce the independent withdrawal');
+  assert.deepEqual(at(units,'show'),Array(units).fill(1),'Show exposure follows the live picture');
+ }
+});

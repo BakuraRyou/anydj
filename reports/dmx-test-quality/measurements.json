@@ -1,0 +1,466 @@
+{
+  "summary": {
+    "interval": [
+      0,
+      216
+    ],
+    "sampleHz": 15,
+    "heads": 48,
+    "relights": 1134,
+    "maxRelightStep": 5.043657966904866,
+    "maxStep": 7.694899882897255,
+    "maxAngle": 5.979730820802709,
+    "maxRelightAngle": 5.489140249830601,
+    "darkTrackingSamples": 58502
+  },
+  "forms": {
+    "tiers": 61.241,
+    "parallel": 33.139999999999965,
+    "arc": 32.23000000000001,
+    "cross": 21.509999999999984,
+    "fan": 20.919999999999998,
+    "converge": 18.42,
+    "ribbon": 14.330000000000013,
+    "wings": 14.320000000000022
+  },
+  "pictures": 29,
+  "medianPictureSeconds": 7.1699999999999875,
+  "shortPictures": [],
+  "longestPictures": [
+    {
+      "start": 25.69,
+      "end": 40.01,
+      "role": "held",
+      "form": "tiers"
+    },
+    {
+      "start": 202.5,
+      "end": 216.111,
+      "role": "silence",
+      "form": "tiers"
+    },
+    {
+      "start": 14.06,
+      "end": 25.69,
+      "role": "build",
+      "form": "parallel"
+    },
+    {
+      "start": 84.8,
+      "end": 95.54,
+      "role": "flow",
+      "form": "arc"
+    },
+    {
+      "start": 142.1,
+      "end": 152.84,
+      "role": "held",
+      "form": "tiers"
+    },
+    {
+      "start": 3.79,
+      "end": 14.06,
+      "role": "build",
+      "form": "fan"
+    },
+    {
+      "start": 155.98,
+      "end": 163.62,
+      "role": "build",
+      "form": "converge"
+    },
+    {
+      "start": 65.04,
+      "end": 72.24,
+      "role": "build",
+      "form": "converge"
+    }
+  ],
+  "globalDark": [],
+  "movingDark": [
+    [
+      203.07,
+      216,
+      12.93
+    ],
+    [
+      132.4,
+      135,
+      2.6
+    ],
+    [
+      169.2,
+      169.33,
+      0.13
+    ],
+    [
+      67.13,
+      67.2,
+      0.07
+    ],
+    [
+      70.73,
+      70.8,
+      0.07
+    ],
+    [
+      97.6,
+      97.67,
+      0.07
+    ],
+    [
+      156.27,
+      156.33,
+      0.07
+    ],
+    [
+      165.67,
+      165.73,
+      0.07
+    ]
+  ],
+  "stillWhileLit": [
+    [
+      29.6,
+      40.2,
+      10.6
+    ],
+    [
+      146.67,
+      153,
+      6.33
+    ],
+    [
+      41.07,
+      46.27,
+      5.2
+    ],
+    [
+      135.53,
+      135.8,
+      0.27
+    ],
+    [
+      142.13,
+      142.27,
+      0.13
+    ],
+    [
+      0,
+      0.07,
+      0.07
+    ],
+    [
+      0.13,
+      0.2,
+      0.07
+    ]
+  ],
+  "largestSteps": [
+    {
+      "time": 122.46666666666667,
+      "speed": 85.53019930872104,
+      "lit": 18,
+      "role": "groove",
+      "musicalExposure": 1
+    },
+    {
+      "time": 157.66666666666666,
+      "speed": 85.10702754713286,
+      "lit": 28,
+      "role": "build",
+      "musicalExposure": 1
+    },
+    {
+      "time": 122.4,
+      "speed": 84.33686083660794,
+      "lit": 16,
+      "role": "groove",
+      "musicalExposure": 1
+    },
+    {
+      "time": 157.6,
+      "speed": 83.62420070845891,
+      "lit": 28,
+      "role": "build",
+      "musicalExposure": 1
+    },
+    {
+      "time": 55.6,
+      "speed": 82.33710374745901,
+      "lit": 30,
+      "role": "flow",
+      "musicalExposure": 1
+    },
+    {
+      "time": 157.73333333333332,
+      "speed": 82.2406432993142,
+      "lit": 26,
+      "role": "build",
+      "musicalExposure": 1
+    },
+    {
+      "time": 86.2,
+      "speed": 80.88819782356133,
+      "lit": 24,
+      "role": "flow",
+      "musicalExposure": 1
+    },
+    {
+      "time": 127.4,
+      "speed": 79.62220842716211,
+      "lit": 18,
+      "role": "groove",
+      "musicalExposure": 1
+    },
+    {
+      "time": 122.06666666666666,
+      "speed": 79.57216702694186,
+      "lit": 20,
+      "role": "groove",
+      "musicalExposure": 1
+    },
+    {
+      "time": 122.33333333333333,
+      "speed": 79.40127030506717,
+      "lit": 14,
+      "role": "groove",
+      "musicalExposure": 1
+    },
+    {
+      "time": 122.13333333333334,
+      "speed": 79.2526351458209,
+      "lit": 22,
+      "role": "groove",
+      "musicalExposure": 1
+    },
+    {
+      "time": 157.53333333333333,
+      "speed": 78.29963991440805,
+      "lit": 32,
+      "role": "build",
+      "musicalExposure": 1
+    }
+  ],
+  "windows": [
+    {
+      "start": 0,
+      "end": 8,
+      "meanLit": 21.6,
+      "meanSpeed": 1.29,
+      "meanPower": 4.42,
+      "wall": 0.0
+    },
+    {
+      "start": 8,
+      "end": 16,
+      "meanLit": 31.5,
+      "meanSpeed": 0.94,
+      "meanPower": 8.99,
+      "wall": 0.0
+    },
+    {
+      "start": 16,
+      "end": 24,
+      "meanLit": 30,
+      "meanSpeed": 0.83,
+      "meanPower": 9.61,
+      "wall": 0.0
+    },
+    {
+      "start": 24,
+      "end": 32,
+      "meanLit": 20.6,
+      "meanSpeed": 1.41,
+      "meanPower": 15.88,
+      "wall": 0.0
+    },
+    {
+      "start": 32,
+      "end": 40,
+      "meanLit": 12,
+      "meanSpeed": 0.0,
+      "meanPower": 16.12,
+      "wall": 0.0
+    },
+    {
+      "start": 40,
+      "end": 48,
+      "meanLit": 17,
+      "meanSpeed": 1.14,
+      "meanPower": 15.77,
+      "wall": 0.0
+    },
+    {
+      "start": 48,
+      "end": 56,
+      "meanLit": 31.9,
+      "meanSpeed": 11.02,
+      "meanPower": 32.87,
+      "wall": 0.15
+    },
+    {
+      "start": 56,
+      "end": 64,
+      "meanLit": 14.6,
+      "meanSpeed": 10.16,
+      "meanPower": 12.12,
+      "wall": 0.0
+    },
+    {
+      "start": 64,
+      "end": 72,
+      "meanLit": 24.1,
+      "meanSpeed": 12.1,
+      "meanPower": 15.64,
+      "wall": 0.13
+    },
+    {
+      "start": 72,
+      "end": 80,
+      "meanLit": 18.3,
+      "meanSpeed": 13.95,
+      "meanPower": 27.99,
+      "wall": 0.04
+    },
+    {
+      "start": 80,
+      "end": 88,
+      "meanLit": 16.9,
+      "meanSpeed": 10.12,
+      "meanPower": 23.4,
+      "wall": 0.23
+    },
+    {
+      "start": 88,
+      "end": 96,
+      "meanLit": 11.5,
+      "meanSpeed": 2.78,
+      "meanPower": 16.61,
+      "wall": 0.0
+    },
+    {
+      "start": 96,
+      "end": 104,
+      "meanLit": 23.9,
+      "meanSpeed": 9.59,
+      "meanPower": 33.05,
+      "wall": 0.02
+    },
+    {
+      "start": 104,
+      "end": 112,
+      "meanLit": 20.6,
+      "meanSpeed": 7.21,
+      "meanPower": 38.45,
+      "wall": 0.0
+    },
+    {
+      "start": 112,
+      "end": 120,
+      "meanLit": 19.2,
+      "meanSpeed": 6.32,
+      "meanPower": 38.45,
+      "wall": 0.02
+    },
+    {
+      "start": 120,
+      "end": 128,
+      "meanLit": 18.1,
+      "meanSpeed": 9.11,
+      "meanPower": 29.74,
+      "wall": 0.19
+    },
+    {
+      "start": 128,
+      "end": 136,
+      "meanLit": 11.4,
+      "meanSpeed": 5.77,
+      "meanPower": 5.27,
+      "wall": 0.0
+    },
+    {
+      "start": 136,
+      "end": 144,
+      "meanLit": 14.8,
+      "meanSpeed": 0.92,
+      "meanPower": 9.35,
+      "wall": 0.0
+    },
+    {
+      "start": 144,
+      "end": 152,
+      "meanLit": 12,
+      "meanSpeed": 0.45,
+      "meanPower": 20.32,
+      "wall": 0.0
+    },
+    {
+      "start": 152,
+      "end": 160,
+      "meanLit": 20.2,
+      "meanSpeed": 9.21,
+      "meanPower": 20.27,
+      "wall": 0.11
+    },
+    {
+      "start": 160,
+      "end": 168,
+      "meanLit": 26.3,
+      "meanSpeed": 9.02,
+      "meanPower": 22.55,
+      "wall": 0.22
+    },
+    {
+      "start": 168,
+      "end": 176,
+      "meanLit": 40.0,
+      "meanSpeed": 3.32,
+      "meanPower": 41.62,
+      "wall": 0.0
+    },
+    {
+      "start": 176,
+      "end": 184,
+      "meanLit": 31.1,
+      "meanSpeed": 4.54,
+      "meanPower": 43.64,
+      "wall": 0.0
+    },
+    {
+      "start": 184,
+      "end": 192,
+      "meanLit": 19.6,
+      "meanSpeed": 4.67,
+      "meanPower": 40.93,
+      "wall": 0.0
+    },
+    {
+      "start": 192,
+      "end": 200,
+      "meanLit": 19.4,
+      "meanSpeed": 5.38,
+      "meanPower": 34.13,
+      "wall": 0.0
+    },
+    {
+      "start": 200,
+      "end": 208,
+      "meanLit": 5.5,
+      "meanSpeed": 3.8,
+      "meanPower": 4.71,
+      "wall": 0.0
+    },
+    {
+      "start": 208,
+      "end": 216,
+      "meanLit": 0,
+      "meanSpeed": 0,
+      "meanPower": 0.82,
+      "wall": 0.0
+    }
+  ],
+  "method": "Fresh full beat/style/instrument analysis; Show profile; Club stage preset; 48 moving heads; 15 Hz room replay. Representative four source roles, not saved UI settings. No GPU/rendering or listening assessment.",
+  "mirrorErrorMaxMetres": 4.913160255860068e-14,
+  "beatAlignedActions": 66
+}

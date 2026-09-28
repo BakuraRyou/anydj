@@ -2,7 +2,7 @@ import {songMovementAt,movementAccentEnvelope} from './song-movement-plan.js';
 import {lightingScenes} from './dmx-light-scenes.js';
 const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,Number.isFinite(v)?v:0));
 const cache=new WeakMap();
-export const SHOW_SCORE_VERSION=11;
+export const SHOW_SCORE_VERSION=12;
 export const SHOW_FORMS=['parallel','fan','converge','cross','wings','tiers','arc','ribbon'];
 // Compare every passage with the whole song before assigning visual scale.
 // Uniform loud material has no artificial climax; a peak needs real contrast.
@@ -38,7 +38,8 @@ export function planShowScore(plan){
   const rhythmic=scene.drive>=.45&&attacks.some(t=>t>=scene.start&&t<scene.end)||!!(movementIntent?.motionDrive>=.45&&movementIntent.rhythm.confidence>=.5);
   const envelope=(plan.arrangement?.motionEnvelope||[]).filter(p=>p.time>=scene.start&&p.time<scene.end),first=envelope[0];
   const expressive=scene.motion?.length>1||envelope.some(p=>Math.abs(p.energy-first.energy)>=.08||Math.abs(p.tone-first.tone)>=.12||Number.isFinite(p.pitch)&&Number.isFinite(first.pitch)&&Math.abs(p.pitch-first.pitch)>=2);
-  const role=scene.kind==='silence'?'silence':scene.kind==='build'?'build':rhythmic?'groove':expressive&&(scene.kind==='sweep'||scene.cinematic)?'flow':'held';
+  const developing=!!(movementIntent?.developing&&movementIntent.motion);
+  const role=scene.kind==='silence'?'silence':scene.kind==='build'?'build':rhythmic?'groove':developing?'flow':expressive&&(scene.kind==='sweep'||scene.cinematic)?'flow':'held';
   const prior=spans.at(-1);
   const phraseBoundary=phrases.some(p=>Math.abs(p.start-scene.start)<.05);
   // Loudness fragments are not new entrances. Keep real rests/builds and
