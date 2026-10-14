@@ -183,7 +183,6 @@ async function refresh(silent = false) {
     render(!state.sending && !state.pending);
     if (!['ready', 'music'].includes(result.state) || !silent || wasOffline) {
       notice(result.message, result.state === 'ready' ? '' : 'warning');
-      if (result.setupUrl) { const link = document.createElement('a'); link.href = result.setupUrl; link.textContent = ' WLAN-Einrichtung öffnen'; $('notice').append(link); }
     }
     text('footerStatus', result.message);
   } catch (error) {

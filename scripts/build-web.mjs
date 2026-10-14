@@ -1,3 +1,4 @@
+import {validateLandingShows} from './validate-landing-shows.mjs';
 import {buildDownloads} from './desktop-downloads.mjs';
 import {cp,mkdir,readFile,writeFile,readdir,rm} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
@@ -11,12 +12,14 @@ function privacyLayout(html){
  return html.replace('</head>','<link rel="stylesheet" href="./privacy.css"><script type="module" src="./privacy.js"></script></head>')
   .replace('</body>',consent+'\n</body>');
 }
+await validateLandingShows(join(root,'web'));
 await rm(output,{recursive:true,force:true});await mkdir(output,{recursive:true});
 await writeFile(join(output,'analytics-config.js'),`export const measurementId=${JSON.stringify(measurementId)};\n`);
-// Only public code/styles. Never include models, music, device configuration or server files.
+// Only public code/styles. Never include models, private music, device configuration or server files.
 for(const file of await readdir(join(root,'public'))){
   if(/\.(js|css)$/.test(file)||file==='tutorial.json'||file==='animatus-small.svg')await cp(join(root,'public',file),join(output,file));
 }
+await cp(join(root,'web','demo-shows'),join(output,'demo-shows'),{recursive:true});
 let dj=await readFile(join(root,'public','dj.html'),'utf8');
 dj=dj.replace('<html lang="de">','<html lang="de" data-edition="web">')
  .replace('<title>AnyDj · DJ</title>','<title>AnyDj · Web-Demo</title>')
@@ -38,7 +41,7 @@ function siteLayout(html,name){
  return privacyLayout(html.replace('<!-- SITE_HEADER -->',active(header.trim())).replace('<!-- SITE_FOOTER -->',active(footer.trim())));
 }
 for(const name of ['index.html','impressum.html','datenschutz.html'])await writeFile(join(output,name),siteLayout(await readFile(join(root,'web',name),'utf8'),name));
-for(const name of ['web.css','privacy.css','privacy.js','product-preview.webp'])await cp(join(root,'web',name),join(output,name));
+for(const name of ['web.css','privacy.css','privacy.js','product-preview.webp','landing-show.js','landing-show.css','landing-show-poster.webp'])await cp(join(root,'web',name),join(output,name));
 console.log(measurementId?'Google Analytics vorbereitet: Laden nur nach Einwilligung.':'Google Analytics deaktiviert: keine Mess-ID konfiguriert.');
 console.log('Web-Version erstellt: dist/web/ — Inhalt auf HTTPS-Webspace hochladen. Kein Node.js/Python-Server erforderlich.');
 

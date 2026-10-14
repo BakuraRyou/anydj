@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import dgram from 'node:dgram';
 import http from 'node:http';
-import { mkdtemp, readFile, rm } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { once } from 'node:events';
@@ -285,17 +285,17 @@ test('Fremdes Gerät an alter IP wird nicht als bekannte Lampe übernommen', asy
   const result = await call('/api/connection', 'POST', { ip });
   assert.equal(result.body.state, 'offline'); assert.notEqual(result.body.device.mac, 'ffffffffffff');
 });
-test('Seitenprüfung erkennt Einrichtungsnetz und begrenzt wiederholte erfolglose Suchen', async t => {
+test('Seitenprüfung bleibt bei fehlender Lampe offline und begrenzt Suchen im Heimnetz', async t => {
   const directory = await mkdtemp(join(tmpdir(), 'wiz-connection-'));
   t.after(() => rm(directory, { recursive: true, force: true }));
   const client = new DemoClient();
-  const { call } = await httpApp(t, { demo: false, dataDir: directory, client, detectSetup: async () => true });
+  const { call } = await httpApp(t, { demo: false, dataDir: directory, client });
   const ip = (await call('/api/discover', 'POST', {})).body.found[0];
   client.lights.clear(); let searches = 0;
   client.discover = async () => { searches++; return { devices: [] }; };
   const first = await call('/api/connection', 'POST', { ip });
-  assert.equal(first.body.state, 'setup'); assert.equal(first.body.setupUrl, '/setup');
-  assert.equal((await call('/api/connection', 'POST', { ip })).body.state, 'setup');
+  assert.equal(first.body.state, 'offline'); assert.equal(first.body.setupUrl, undefined);
+  assert.equal((await call('/api/connection', 'POST', { ip })).body.state, 'offline');
   assert.equal(searches, 1);
 });
 
@@ -326,4 +326,26 @@ test('Lokale API akzeptiert neuen und bisherigen App-Header, aber keinen fehlend
  }
  const denied=await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'});
  assert.equal(denied.status,403);
+});
+
+test('Entfernte WLAN-Einrichtung bleibt auch mit alter Recovery-Konfiguration unerreichbar', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'wiz-no-wifi-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const config = JSON.stringify({ enabled: true, mac: 'a8bb5074d27c', ssid: 'TestHome', password: 'test-password', interface: 'wlo1' });
+  await writeFile(join(directory, 'recovery.json'), config);
+  const client = new DemoClient();
+  const { base, call } = await httpApp(t, { demo: false, dataDir: directory, client });
+  for (const path of ['/setup', '/setup.js', '/setup.html']) {
+    assert.equal((await fetch(base + path)).status, 404, path);
+  }
+  for (const [path, method] of [['device', 'GET'], ['pair', 'POST'], ['complete', 'POST'], ['recovery', 'GET'], ['recovery', 'POST']]) {
+    assert.equal((await call('/api/setup/' + path, method, method === 'POST' ? {} : undefined)).status, 404, path);
+  }
+  const ip = (await call('/api/discover', 'POST', {})).body.found[0];
+  client.lights.clear();
+  const result = await call('/api/connection', 'POST', { ip, force: true });
+  assert.equal(result.body.state, 'offline');
+  assert.equal(result.body.setupUrl, undefined);
+  assert.equal(await readFile(join(directory, 'recovery.json'), 'utf8'), config);
+  assert.doesNotMatch(await (await fetch(base + '/')).text(), /href="\/setup"/);
 });

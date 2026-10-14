@@ -1,0 +1,40 @@
+{
+  "renderer": "webgl",
+  "performanceSample": {
+    "frames": 39,
+    "seconds": 2.00010000000149
+  },
+  "performanceNote": "Headless Chrome with SwiftShader; not a physical mobile GPU benchmark.",
+  "checks": [
+    "Three shows play with hosted CSP",
+    "Only selected media loads",
+    "Pause and seek",
+    "Offscreen pause",
+    "Mobile width and render resolution",
+    "Reduced motion stops rendering",
+    "Rapid selection",
+    "Invalid JSON and recovery",
+    "Canvas fallback without WebGL",
+    "No runtime exceptions"
+  ],
+  "requests": [
+    "/demo-shows/catalog.json",
+    "/demo-shows/neon.json",
+    "/demo-shows/neon.wav",
+    "/demo-shows/sunset.json",
+    "/demo-shows/sunset.wav",
+    "/demo-shows/sunset.wav",
+    "/demo-shows/electric.json",
+    "/demo-shows/electric.wav",
+    "/demo-shows/electric.wav",
+    "/demo-shows/neon.json",
+    "/demo-shows/sunset.json",
+    "/demo-shows/electric.json",
+    "/demo-shows/electric.json",
+    "/demo-shows/neon.json",
+    "/demo-shows/neon.wav",
+    "/demo-shows/catalog.json",
+    "/demo-shows/neon.json",
+    "/demo-shows/neon.wav"
+  ]
+}

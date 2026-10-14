@@ -30,6 +30,23 @@ export const GROUP_COMPOSITIONS=['curtain','mirror-pairs','traveling-group','fra
 const compositionFor={'counter-fans':'mirror-pairs','traveling-wave':'traveling-group','opening-arch':'rotating-fan','diagonal-curtain':'curtain','braided-pairs':'crossed-banks',orbit:'frame-center','folding-gates':'diagonal-sweep','rising-steps':'depth-wave',ripple:'gather','crossing-ribbons':'question-answer','unison-sweep':'parallel-sweep','breathing-arch':'breathing-arch','hinged-lines':'hinged-lines','opening-lines':'opening-lines','rising-fan':'rising-fan','side-columns':'side-columns','split-levels':'split-levels','wide-ribbons':'wide-ribbons'};
 export const GROUP_MOTIONS=['counter-fans','traveling-wave','opening-arch','diagonal-curtain','braided-pairs','orbit','folding-gates','rising-steps','ripple','crossing-ribbons','unison-sweep','breathing-arch','hinged-lines','opening-lines','rising-fan','side-columns','split-levels','wide-ribbons'];
 for(const [name] of SPATIAL_MOTIONS){GROUP_COMPOSITIONS.push(name);GROUP_MOTIONS.push(name);compositionFor[name]=name;}
+// Automatic-only geometries: eleven paths with ten spatial arrangements.
+// Arrangements change pair spacing, depth and row relationships, never just speed.
+export const AUTO_FORMATIONS=[
+ ['petals',[.45,.3,.55,.65]],['vaults',[.5,.35,.65,.4]],
+ ['gates',[.65,.55,.25,.45]],['terraces',[.55,.6,.4,.35]],
+ ['polygons',[.7,.65,.3,.5]],['chains',[.75,.8,.2,.6]],
+ ['sails',[.5,.4,.55,.55]],['comets',[.8,.75,.2,.7]],
+ ['lattice',[.8,.85,.2,.4]],['crowns',[.6,.45,.4,.7]],
+ ['helices',[.7,.7,.35,.6]]
+].flatMap(([family,affinity])=>['unison','lanes','opposed','staggered','braided','nested','open','folded','diagonal','rings'].map((layout,variant)=>({
+ name:`auto-${family}-${layout}`,family,layout,variant,
+ affinity:affinity.map((v,i)=>Math.max(0,Math.min(1,v+(variant-4.5)*[.025,.035,-.02,.025][i]))),
+ gentle:['petals','vaults','sails','crowns'].includes(family)&&![4,9].includes(variant),
+ build:['gates','sails','crowns'].includes(family)&&[0,1,5,6].includes(variant)
+})));
+const autoByName=new Map(AUTO_FORMATIONS.map(f=>[f.name,f]));
+export const AUTOMATIC_FORMATIONS=[...GROUP_MOTIONS,...AUTO_FORMATIONS.map(f=>f.name)];
 // Affinities: energy, rhythmic drive, vocals, spectral brightness. Selection is
 // made once per musical passage, never per rendered frame or fixture count.
 const affinities=[[.7,.8,.2,.4],[.5,.6,.4,.6],[.5,.3,.6,.5],[.6,.5,.3,.8],[.8,.8,.2,.6],[.5,.3,.4,.7],[.8,.7,.2,.3],[.6,.6,.3,.5],[.4,.4,.6,.7],[.9,.9,.1,.5],[.8,.85,.3,.5],[.5,.4,.6,.5],[.7,.65,.3,.65],[.55,.4,.4,.5],[.65,.5,.3,.6],[.45,.35,.55,.45],[.75,.65,.3,.55],[.55,.45,.5,.65]];
@@ -39,7 +56,30 @@ const spatialFamily=new Map(SPATIAL_MOTIONS.map(([name,family])=>[name,family]))
 const gentleSpatial=SPATIAL_MOTIONS.filter(([, , ,gentle])=>gentle).map(([name])=>name);
 const strongSpatial=SPATIAL_MOTIONS.filter(([, , ,gentle])=>!gentle).map(([name])=>name);
 const coordination=p=>p.kind==='build'?'build':p.developing||p.kind==='sweep'||p.kind==='groove'&&p.energy<.65?'ordered':'layered';
-const family=name=>spatialFamily.get(name)||(['side-columns','wide-ribbons'].includes(name)?'sides':name==='split-levels'?'levels':['opening-arch','counter-fans','opening-lines'].includes(name)?'fan':['diagonal-curtain','traveling-wave','unison-sweep'].includes(name)?'line':['orbit','ripple'].includes(name)?'frame':['breathing-arch','rising-fan'].includes(name)?'arch':'crossing');
+const family=name=>autoByName.get(name)?.family||spatialFamily.get(name)||(['side-columns','wide-ribbons'].includes(name)?'sides':name==='split-levels'?'levels':['opening-arch','counter-fans','opening-lines'].includes(name)?'fan':['diagonal-curtain','traveling-wave','unison-sweep'].includes(name)?'line':['orbit','ripple'].includes(name)?'frame':['breathing-arch','rising-fan'].includes(name)?'arch':'crossing');
+// Spatial arrangements can dominate their underlying curve. Account for that
+// resemblance across old and new names instead of treating aliases as variety.
+export function automaticVisualFamily(name){
+ const f=autoByName.get(name);
+ if(!f)return family(name);
+ if(['staggered','lanes'].includes(f.layout))return f.layout==='staggered'?'levels':'line';
+ if(['open','folded'].includes(f.layout))return 'sides';
+ if(['nested','rings'].includes(f.layout))return 'frame';
+ return ({petals:'arch',vaults:'arch',crowns:'arch',sails:'arch',terraces:'levels',polygons:'arch',chains:'wave',comets:'wave',lattice:'crossing',helices:'crossing',gates:'fan'})[f.family];
+}
+// Sequence roles are chosen at passage boundaries, not from frame timers.
+// Similar music can develop another role without demanding a new trajectory.
+export function selectAutomaticSequence(p,previous,history=[]){
+ if(p.kind==='silence'||p.kind==='sculpture'&&!p.developing)return null;
+ if(p.kind==='build')return 'opening';
+ if(previous&&previous.energy-p.energy>.18&&p.drive<.6)return 'settle';
+ const choices=p.developing||p.energy<.45||p.drive<.25?['breath','sweep']
+  :p.kind==='impact'?['opening','wave','exchange']
+  :p.vocals>.65?['exchange','sweep','breath']:['sweep','wave','exchange','opening'];
+ const cost=name=>history.reduce((sum,h)=>sum+(h.sequence===name?(h.end-h.start)*clamp(1-(p.start-h.end)/72):0),0)
+  +(history.at(-1)?.sequence===name?12:0);
+ return choices.reduce((best,name)=>cost(name)<cost(best)?name:best,choices[0]);
+}
 const clamp=v=>Math.max(0,Math.min(1,Number.isFinite(v)?v:0));
 // Select receiving surfaces from the figure and recent spatial exposure, not
 // from loudness labels. Decisions happen at authored passage boundaries only.
@@ -141,9 +181,10 @@ export function songMovementAt(plan,time){
  const p=passages[lo-1];return p&&time<p.end?p:null;
 }
 
-export function selectGroupScore(plan){
+export function selectGroupScore(plan,expanded=false){
  if(!plan)return [];
  const passages=movementPassages(plan);
+ const visualFamily=expanded?automaticVisualFamily:family;
  const history=[],motifs=new Map(),visits=new Map(),totalExposure=new Map();let last=null,lastTheme=null,previousPassage=null,runStart=0;
  const score=passages.map(p=>{
   const active=p.kind!=='silence'&&(p.kind!=='sculpture'||p.developing);
@@ -157,16 +198,17 @@ export function selectGroupScore(plan){
   // Recently exposed geometry should not dominate merely because the motif
   // repeats. History is computed on the song timeline, never during playback.
   const exposure=name=>history.reduce((sum,h)=>sum+(h.motion===name?(h.end-h.start)*clamp(1-(p.start-h.end)/72):0),0);
-  const compatible=recalled&&(totalExposure.get(recalled.motion)||0)+p.end-p.start<=Math.max(24,p.end*.28)&&last!==recalled.motion&&exposure(recalled.motion)<(p.themeLabel?40:24)&&motionFits(p,recalled.motion)&&Math.abs(recalled.energy-p.energy)<.18&&Math.abs(recalled.drive-p.drive)<.18&&Math.abs(recalled.tone-p.tone)<.18&&Math.abs((recalled.density??0)-(intent?.rhythm.density??0))<.2;
+  const compatible=recalled&&(!expanded||visualFamily(last)!==visualFamily(recalled.motion))&&(totalExposure.get(recalled.motion)||0)+p.end-p.start<=Math.max(24,p.end*.28)&&last!==recalled.motion&&exposure(recalled.motion)<(p.themeLabel?40:24)&&motionFits(p,recalled.motion)&&Math.abs(recalled.energy-p.energy)<.18&&Math.abs(recalled.drive-p.drive)<.18&&Math.abs(recalled.tone-p.tone)<.18&&Math.abs((recalled.density??0)-(intent?.rhythm.density??0))<.2;
   const continues=active&&last&&previousPassage&&previousPassage.kind===p.kind&&previousPassage.motif===p.motif&&previousPassage.themeLabel===p.themeLabel&&coordination(previousPassage)===coordination(p)&&!p.development?.index&&p.kind!=='build'&&p.end-runStart<=24&&(totalExposure.get(last)||0)+p.end-p.start<=Math.max(24,p.end*.28)&&motionFits(p,last)&&['energy','drive','vocals','tone'].every(k=>Math.abs(p[k]-previousPassage[k])<.1);
-  const motion=active?continues?last:compatible?recalled.motion:GROUP_MOTIONS.map((name,i)=>({name,cost:features.reduce((s,v,j)=>s+Math.abs(v-affinities[i][j]),0)+
-   (intent?.preferred.length&&!intent.preferred.includes(compositionFor[name])?.8:0)+exposure(name)/18+(p.kind==='build'?0:(totalExposure.get(name)||0)/40)+history.reduce((sum,h)=>sum+(family(h.motion)===family(name)?(h.end-h.start)*clamp(1-(p.start-h.end)/48)/48:0),0)+(last===name?1.2:0)})).filter(({name})=>motionFits(p,name)&&(!p.development?.index||name!==last)).sort((a,b)=>a.cost-b.cost)[0].name:null;
+  const motion=active?continues?last:compatible?recalled.motion:(expanded?AUTOMATIC_FORMATIONS:GROUP_MOTIONS).map((name,i)=>({name,cost:features.reduce((s,v,j)=>s+Math.abs(v-(autoByName.get(name)?.affinity||affinities[i])[j]),0)+
+   (intent?.preferred.length&&!autoByName.has(name)&&!intent.preferred.includes(compositionFor[name])?.8:0)+exposure(name)/18+(p.kind==='build'?0:(totalExposure.get(name)||0)/40)+history.reduce((sum,h)=>sum+(visualFamily(h.motion)===visualFamily(name)?(h.end-h.start)*clamp(1-(p.start-h.end)/48)/(expanded?24:48):0),0)+(last===name?1.2:expanded&&last&&visualFamily(last)===visualFamily(name)?.8:0)})).filter(({name})=>motionFits(p,name)&&(!p.development?.index||name!==last)).sort((a,b)=>a.cost-b.cost)[0].name:null;
   if(motion&&motifKey!==null&&!recalled)motifs.set(motifKey,{...p,motion,density:intent?.rhythm.density??0});
+  const sequence=expanded&&active?(continues?history.at(-1)?.sequence:selectAutomaticSequence(p,previousPassage,history)):null;
   if(!continues)runStart=p.start;
   previousPassage=p;
-  if(motion){history.push({motion,start:p.start,end:p.end});totalExposure.set(motion,(totalExposure.get(motion)||0)+p.end-p.start);last=motion;}
+  if(motion){history.push({motion,sequence,start:p.start,end:p.end});totalExposure.set(motion,(totalExposure.get(motion)||0)+p.end-p.start);last=motion;}
   while(history.length&&history[0].end<p.start-72)history.shift();
-  return {start:p.start,end:p.end,...(p.development?{development:p.development}:{}),motion,composition:compositionFor[motion]??null,coordination:coordination(p),intent,energy:p.energy,drive:p.drive,direction:p.direction??1,theme:motifKey?{key:motifKey,occurrence}:null,groupIndex:p.groupIndex,motif:p.motif??null,recalled:!!(active&&compatible)};
+  return {start:p.start,end:p.end,...(expanded?{sequence}:{}),...(p.development?{development:p.development}:{}),motion,composition:compositionFor[motion]??(autoByName.has(motion)?motion:null),coordination:coordination(p),intent:expanded?{...intent,symmetry:'paired',surface:'floor'}:intent,energy:p.energy,drive:p.drive,direction:p.direction??1,theme:motifKey?{key:motifKey,occurrence}:null,groupIndex:p.groupIndex,motif:p.motif??null,recalled:!!(active&&compatible)};
  });
  return score;
 }
@@ -246,6 +288,8 @@ export function movementAccentEnvelope(intent,time){
 }
 
 function motionFits(p,name){
+ const extra=autoByName.get(name);
+ if(extra)return coordination(p)==='build'?extra.build:(p.developing||coordination(p)==='ordered')?extra.gentle:true;
  if(coordination(p)==='build')return ['opening-lines','rising-fan'].includes(name);
  if(['opening-lines','rising-fan'].includes(name))return false;
  if(spatialFamily.has(name))return !p.developing&&coordination(p)!=='ordered'||gentleSpatial.includes(name);

@@ -71,10 +71,9 @@ Bereits gespeicherte Teilanalysen bleiben im Bibliothekscache: Nach dem Update
 betroffene Titel einmal über **Lichtshow neu berechnen** aktualisieren.
 Private Lampendaten, Musikdateien und Berichte werden nicht eingepackt.
 
-Die automatische WLAN-Neueinrichtung verwendet weiterhin Linux/NetworkManager
-(`nmcli`). Auf Windows ist damit noch keine gleichwertige WLAN-Reparatur
-verfügbar. Die UDP-Steuerung erreichbarer WiZ-Lampen ist enthalten; andere
-Lampenprotokolle und eine universelle Verbindungskonfiguration folgen separat.
+WLAN-Scans und automatische WLAN-Neueinrichtung sind entfernt. Die App erstellt
+keine NetworkManager-Profile. Die UDP-Steuerung bereits eingerichteter WiZ-Lampen
+im vorhandenen Netzwerk ist enthalten.
 Linux-Pakete setzen ein unterstütztes Desktop-Linux mit den üblichen
 Systembibliotheken voraus; AppImage benötigt je nach Distribution FUSE oder
 kann mit `--appimage-extract-and-run` gestartet werden.

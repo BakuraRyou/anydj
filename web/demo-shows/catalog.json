@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "shows": [
+    {
+      "id": "neon",
+      "title": "Neon Pulse",
+      "artist": "AnyDj · 120 BPM",
+      "description": "Weite Bewegungen. Klare Beats.",
+      "show": "./demo-shows/neon.json"
+    },
+    {
+      "id": "sunset",
+      "title": "Golden Hour",
+      "artist": "AnyDj · 100 BPM",
+      "description": "Warme Farben. Ruhiger Groove.",
+      "show": "./demo-shows/sunset.json"
+    },
+    {
+      "id": "electric",
+      "title": "Electric Blue",
+      "artist": "AnyDj · 132 BPM",
+      "description": "Kühle Strahlen. Dynamische Fächer.",
+      "show": "./demo-shows/electric.json"
+    }
+  ]
+}

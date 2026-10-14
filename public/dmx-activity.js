@@ -1,3 +1,4 @@
+import {strobeScoreAt} from './dmx-strobe-score.js';
 import {automaticGroupMotionAt,showGroupMotionAt,automaticFixtureGroups,groupComposition,presenceRowFocus} from './dmx-group-motion.js';
 import {showScoreAt,showPictureLayers} from './show-score.js';
 import {showActionAt} from './show-action.js';
@@ -216,6 +217,10 @@ export function mixMovingPresence(entries){
 }
 export function movingPresenceAt(source){
  const plan=source.movingPlan,time=source.songTime;
+ if(source.stageMode==='strobe'||plan?.showProfile==='strobe'){
+  const groupMotion=strobeScoreAt(plan,time);
+  return {level:groupMotion?musicalDarknessAt(plan,time).level:0,spread:1,mask:'all',rowFraction:1,rowSelection:0,trackMotion:true,groupMotion:groupMotion?{...groupMotion,flicker:source.flicker}:null};
+ }
  const scene=(!source.movingMood||source.movingMood==='balanced'||source.movingMood==='show')&&lightingSceneAt(plan,time);
  if(scene){
   if(source.movingMood==='show'){
@@ -241,7 +246,7 @@ export function movingPresenceAt(source){
    return layers.length===1?layers[0].presence:mixMovingPresence(layers);
   }
   const scenes=lightingScenes(plan),previous=scenes[scene.index-1];
-  const groupMotion=automaticGroupMotionAt(plan,time);
+  const groupMotion=automaticGroupMotionAt(plan,time,true);
   // Visibility, selected rows and motor choreography share the handover.
   // Previously a new rig was exposed in .2/.8 s while its pose was still fading.
   const manual=plan.sectionLighting?.some(s=>time>=s.start&&time<s.end&&s.rhythm&&s.rhythm!=='auto');
@@ -280,6 +285,7 @@ export function movingPresenceAt(source){
 }
 export function movingPresenceLevel(presence,rank,count){
  if(!presence)return 1;
+ if(presence.groupMotion?.presentation==='strobe')return presence.level*groupComposition(presence.groupMotion,rank,count).level;
  if(presence.layers)return presence.layers.reduce((sum,p)=>sum+(p.weight??1)*movingPresenceLevel(p,rank,count),0);
  const slots=Math.ceil(count/2),slot=Math.min(rank,count-1-rank);
  if(presence.occupancy!==undefined){

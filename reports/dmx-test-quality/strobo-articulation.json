@@ -1,0 +1,25 @@
+{
+  "events": {
+    "events": 336,
+    "percussion": 268,
+    "percussionChanges": 41
+  },
+  "replay": {
+    "interval": [
+      0,
+      216
+    ],
+    "sampleHz": 15,
+    "heads": 48,
+    "relights": 1422,
+    "maxRelightStep": 0.7652992885206298,
+    "maxStep": 0.894443830512041,
+    "maxAngle": 3.650222617102252,
+    "maxRelightAngle": 1.9606423726985656,
+    "darkTrackingSamples": 127076
+  },
+  "tests": {
+    "passed": 554,
+    "failed": 0
+  }
+}

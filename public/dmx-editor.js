@@ -81,6 +81,8 @@ export function createStageEditor(host,onChange){
     for(const option of q('target').options)if(option.value[0]==='g')option.hidden=option.disabled=!config.members.includes(+option.value.slice(1));
     if(![...q('target').options].some(o=>o.value===selected&&!o.disabled))selected='global';
     q('mode').value=mode;q('editor').hidden=mode!=='design';q('auto').hidden=!Object.hasOwn(STAGE_PRESETS,mode);q('count').value=count;
+    q('count').closest('label').hidden=mode==='strobe';
+    q('auto').querySelector('.stage-explanation').hidden=mode==='strobe';
     q('auto-title').textContent=STAGE_PRESETS[mode]?.name||'Die Musik gestaltet deine Bühne';
     q('auto-help').textContent=STAGE_PRESETS[mode]?.help||'';
     q('target').value=selected;q('membership').hidden=selected[0]!=='f';
@@ -138,7 +140,7 @@ export function createStageEditor(host,onChange){
       if(Number.isInteger(changes.group))for(const i of indices)config.members[i]=changes.group;
       changeEquipment(()=>({...equipment,devices:equipment.devices.map((d,i)=>indices.includes(i)?{...d,...changes}:d)}));
     },get equipment(){return equipment;},get config(){return config;},get enabled(){return mode!=='shared';},get mode(){return mode;},get count(){return count;},get selected(){return selected;},
-    select(index){if(Object.hasOwn(STAGE_PRESETS,mode)){q('count').focus();return;}selected=`f${index}`;mode='design';refresh();save();q('target').focus();},
+    select(index){if(Object.hasOwn(STAGE_PRESETS,mode)){q(mode==='strobe'?'mode':'count').focus();return;}selected=`f${index}`;mode='design';refresh();save();q('target').focus();},
     preview(palette,description){const signature=JSON.stringify(palette);if(q('palette').dataset.colors!==signature){q('palette').dataset.colors=signature;q('palette').replaceChildren(...palette.map((rgb,i)=>{const chip=document.createElement('span');chip.style.background=`rgb(${rgb.join(',')})`;chip.setAttribute('role','img');chip.setAttribute('aria-label',`Farbe ${i+1}: RGB ${rgb.join(', ')}`);return chip;}));}if(q('auto-status').textContent!==description)q('auto-status').textContent=description;},
     context(key,name){key=key||'';if(sectionKey===key)return;sectionKey=key;sectionName=name||'';refresh();},
   };

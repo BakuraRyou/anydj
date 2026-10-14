@@ -42,7 +42,7 @@ export function createDmxConnection(parent,onEnable=()=>{}){
   const sendTimer=setInterval(async()=>{
     if(!id||sending||disposed)return;sending=true;const session=id;
     try{await api('frame',{id:session,channels:Array.from(latest)});}catch(e){if(id===session)await stop(e.message);}finally{sending=false;}
-  },100);
+  },50);
   const pollTimer=web?null:setInterval(()=>void poll(),2500);
   draw();void poll();
   return {

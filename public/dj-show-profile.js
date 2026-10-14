@@ -2,13 +2,14 @@ import {choreographColors} from './color-choreography.js';
 import {songPaletteAt} from './song-palette.js';
 import {planShowScore,SHOW_SCORE_VERSION} from './show-score.js';
 import {arrangementLevelAt} from './show-arrangement.js';
-export const SHOW_PROFILES=['auto','show','party','disco','calm','atmospheric'];
+export const SHOW_PROFILES=['auto','show','strobe','party','disco','calm','atmospheric'];
 export const movingMoodForProfile=profile=>profile==='show'||profile==='calm'||profile==='atmospheric'||profile==='disco'?profile:profile==='party'?'energetic':'balanced';
 const clamp=value=>Math.max(0,Math.min(1,value));
 // Apply to the original plan, never to the previous preset's output. This is
 // a lighting interpretation of selected accents, not another beat detector.
 export function applyShowProfile(plan,profile='auto') {
   if(!SHOW_PROFILES.includes(profile))throw Error('Unbekannte Lichtshow.');
+  if(profile==='strobe')return {...plan,showProfile:'strobe'};
   if(profile==='show')return showProfile(plan);
   if(profile==='calm'||profile==='atmospheric'){
     const atmospheric=profile==='atmospheric',source=plan.arrangement;

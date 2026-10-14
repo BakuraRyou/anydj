@@ -1,0 +1,26 @@
+{
+  "summary": {
+    "interval": [
+      0,
+      216
+    ],
+    "sampleHz": 15,
+    "heads": 48,
+    "relights": 1888,
+    "maxRelightStep": 0.7652992885206298,
+    "maxStep": 0.894443830512041,
+    "maxAngle": 3.650222617102252,
+    "maxRelightAngle": 1.9606423726985656,
+    "darkTrackingSamples": 141904
+  },
+  "method": "Offline 15 Hz preset replay with four representative source roles and static support; room targets, zones and motors. No saved UI overrides, source follow filter, prediction, GPU rendering or acoustic listening assessment.",
+  "events": {
+    "melody": 58,
+    "bass": 304,
+    "expression": 10
+  },
+  "tests": {
+    "passed": 546,
+    "failed": 0
+  }
+}

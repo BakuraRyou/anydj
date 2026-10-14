@@ -10,10 +10,6 @@ import { randomBytes, timingSafeEqual } from 'node:crypto';
 import { networkInterfaces } from 'node:os';
 import { AppError, WizClient, assertLocalIP, validatePilot, capabilities } from './lib/wiz.mjs';
 import { DemoClient } from './lib/demo.mjs';
-import { SetupClient } from './lib/setup.mjs';
-import { AutoRecovery } from './lib/recovery.mjs';
-import { RecoveryMonitor } from './lib/recovery-monitor.mjs';
-import { setupNetworkStatus } from './lib/connection.mjs';
 import { MusicSession } from './lib/music.mjs';
 import { BeatAnalysis } from './lib/beat-analysis.mjs';
 import { StyleAnalysis } from './lib/style-analysis.mjs';
@@ -47,6 +43,11 @@ const STATIC = new Map([
   ['/dmx-group-motion.js', ['dmx-group-motion.js', 'text/javascript; charset=utf-8']],
   ['/dmx-activity.js', ['dmx-activity.js', 'text/javascript; charset=utf-8']],
   ['/dmx-auto.js', ['dmx-auto.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-strobe-conductor.js', ['dmx-strobe-conductor.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-strobe-space.js', ['dmx-strobe-space.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-strobe-motifs.js', ['dmx-strobe-motifs.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-strobe-score.js', ['dmx-strobe-score.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-strobe.js', ['dmx-strobe.js', 'text/javascript; charset=utf-8']],
   ['/dmx-show.js', ['dmx-show.js', 'text/javascript; charset=utf-8']],
   ['/dmx-editor.js', ['dmx-editor.js', 'text/javascript; charset=utf-8']],
   ['/dmx-fixture-library.js', ['dmx-fixture-library.js', 'text/javascript; charset=utf-8']],
@@ -100,8 +101,6 @@ const STATIC = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/style.css', ['style.css', 'text/css; charset=utf-8']],
-  ['/setup', ['setup.html', 'text/html; charset=utf-8']],
-  ['/setup.js', ['setup.js', 'text/javascript; charset=utf-8']],
   ['/editor', ['editor.html', 'text/html; charset=utf-8']],
   ['/editor.js', ['editor.js', 'text/javascript; charset=utf-8']],
   ['/editor-model.js', ['editor-model.js', 'text/javascript; charset=utf-8']],
@@ -223,7 +222,6 @@ function tokenMatches(header, token) {
 export async function createApp({
   demo = false, client = demo ? new DemoClient() : new WizClient(),
   dataDir = join(ROOT, 'data'), token = '', hosts = allowedHosts(), tls = null, previewTls = tls, previewPort = Number(process.env.VR_PREVIEW_PORT || 3031),
-  setup = new SetupClient(), detectSetup = setupNetworkStatus,
   beatAnalysis = new BeatAnalysis(),
   structureAnalysis = new StructureAnalysis(),
   styleAnalysis = new StyleAnalysis(),
@@ -239,7 +237,6 @@ export async function createApp({
   let connecting = null;
   const connectionCache = new Map();
   const storePath = join(dataDir, 'devices.json');
-  const recovery=new AutoRecovery({dataDir,client,onReady:async record=>{remember(record);await save();connectionCache.clear();}});
 
   if (!demo) {
     try {
@@ -328,12 +325,11 @@ export async function createApp({
       throw error;
     }
   }
-  async function checkConnection(ip, local, force = false) {
+  async function checkConnection(ip, force = false) {
     if (!devices.has(ip) && devices.has(connectionCache.get(ip)?.result.device?.ip)) ip = connectionCache.get(ip).result.device.ip;
-    if(recovery.running)return {state:'recovering',message:recovery.status.message,devices:list(),device:devices.has(ip)?serialize(devices.get(ip)):null};
     const cached = connectionCache.get(ip);
     if (!force && cached && Date.now() < cached.until && !music.session) return { ...cached.result, devices: list() };
-    if (connecting) { await connecting; return checkConnection(ip, local); }
+    if (connecting) { await connecting; return checkConnection(ip); }
     const task = (async () => {
       const stored = devices.get(ip);
       let record, scanError = false;
@@ -354,30 +350,11 @@ export async function createApp({
         } catch { scanError = true; }
       }
       let result;
-      if(record&&!record.musicActive)await recovery.observeReady(record);
       if (record) result = { state: record.musicActive ? 'music' : 'ready', message: record.musicActive ? 'Musik läuft bereits. Statusprüfung pausiert während der Wiedergabe.' : record.ip !== ip && ip ? 'Lampe unter neuer IP wiedergefunden und verbunden.' : 'Lampe verbunden.', device: serialize(record) };
       else {
-        const resumed = local && !demo && stored && !music.session && await recovery.resumeHome(stored.mac, stored.ip);
-        let detection=null;
-        if(!resumed&&local&&!demo&&stored&&!music.session){
-          const config=await recovery.config();
-          const scan=await detectSetup(stored.mac,{interfaceName:config?.interface||''});
-          detection=typeof scan==='boolean'?{visible:scan,code:scan?'SETUP_VISIBLE':'SETUP_NOT_VISIBLE'}:scan;
-        }
-        const setup = detection?.visible;
-        result = { state: setup ? 'setup' : 'offline', setupUrl: setup ? '/setup' : null,
-          message: setup ? 'Die Lampe sendet ihr Einrichtungsnetz. Sie muss erneut mit dem WLAN verbunden werden.' : music.session ? 'Verbindungsprüfung wartet, bis die laufende Musik beendet ist.' : scanError ? 'Lampe nicht erreichbar; die automatische Suche konnte nicht abgeschlossen werden. Die App versucht es erneut.' : 'Lampe aktuell nicht im Heimnetz erreichbar. Die App sucht automatisch erneut.',
+        result = { state: 'offline',
+          message: music.session ? 'Verbindungsprüfung wartet, bis die laufende Musik beendet ist.' : scanError ? 'Lampe nicht erreichbar; die Suche im vorhandenen Netzwerk konnte nicht abgeschlossen werden.' : 'Lampe aktuell nicht im Heimnetz erreichbar. Bitte Stromversorgung und Verbindung im Router prüfen.',
           device: stored ? serialize(devices.get(ip)) : null };
-        if(detection&&!setup){
-          result.diagnosis={code:detection.code,checkedAt:new Date().toISOString()};
-          if(detection.code==='WIFI_SCAN_FAILED')result.message='Die WLAN-Suche auf dem Rechner ist fehlgeschlagen. Der Einrichtungsmodus der Lampe konnte nicht geprüft werden. Die App versucht es erneut.';
-          else if(detection.code==='SETUP_NOT_VISIBLE')result.message='Keine Antwort im Heimnetz und kein Einrichtungs-WLAN der Lampe gefunden. Eine automatische Einrichtung ist erst möglich, sobald die Lampe erreichbar ist. Die App prüft weiter.';
-        }
-        if(resumed)result={...result,state:resumed.state,message:resumed.message,setupUrl:null};
-      }
-      if(result.state==='setup'&&!music.session){
-        const recoveryStatus=await recovery.start(stored.mac, stored.ip);
-        if(recoveryStatus)result={...result,state:recoveryStatus.state==='recovering'?'recovering':'setup',message:recoveryStatus.message,setupUrl:recoveryStatus.state==='recovering'?null:'/setup'};
       }
       const entry = { result, until: Date.now() + (record?.musicActive ? 0 : 5000) };
       connectionCache.set(ip, entry); if (record?.ip) connectionCache.set(record.ip, entry);
@@ -483,15 +460,13 @@ export async function createApp({
         const body = await bodyJSON(req);
         const ip = body.ip ? assertLocalIP(body.ip, client.interfaces()) : devices.keys().next().value;
         if (body.ip && !devices.has(ip) && !connectionCache.has(ip)) throw new AppError('Unbekannte Lampe.', 404);
-        const local = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress);
-        json(res, 200, await checkConnection(ip, local, body.force === true)); return;
+        json(res, 200, await checkConnection(ip, body.force === true)); return;
       }
       if (path.startsWith('/api/music/')) {
         if (req.method !== 'POST') throw new AppError('Musikzugriff benötigt POST.', 405);
         const body = await bodyJSON(req);
         if (path === '/api/music/start') {
           if (connecting) throw new AppError('Verbindungsprüfung läuft noch. Bitte kurz warten.', 409, 'CONNECTION_CHECK');
-          if(recovery.running)throw new AppError('Automatische WLAN-Wiederverbindung läuft.',409);
           const ip = assertLocalIP(body.ip, client.interfaces());
           if (!devices.has(ip)) throw new AppError('Lampe zuerst hinzufügen.', 404);
           if (body.source === 'system' && (demo || !['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress))) {
@@ -505,38 +480,10 @@ export async function createApp({
         if (path === '/api/music/stop') { json(res, 200, await music.stop(body.id)); return; }
         throw new AppError('Musik-Endpunkt nicht gefunden.', 404);
       }
-      if (path.startsWith('/api/setup/')) {
-        if (demo) throw new AppError('WLAN-Einrichtung ist im Demo-Modus deaktiviert.', 409);
-        if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress)) {
-          throw new AppError('WLAN-Einrichtung bitte direkt am Rechner über localhost öffnen.', 403);
-        }
-        if(path==='/api/setup/recovery') {
-          if(req.method==='GET'){json(res,200,{enabled:Boolean(await recovery.config()),...recovery.status});return;}
-          if(req.method==='POST'){
-            const body=await bodyJSON(req);
-            if(body.enabled!==false&&![...devices.values()].some(d=>d.mac?.toLowerCase()===body.mac?.toLowerCase()))throw new AppError('Nur gespeicherte Lampen können automatisch verbunden werden.',409);
-            try{json(res,200,await recovery.configure(body));}catch{throw new AppError('Wiederverbindungs-Konfiguration ungültig oder Vorgang läuft.',409);}
-            return;
-          }
-        }
-        if(recovery.running)throw new AppError('Automatische WLAN-Wiederverbindung läuft bereits.',409);
-        if (req.method === 'GET' && path === '/api/setup/device') {
-          json(res, 200, await setup.device()); return;
-        }
-        if (req.method === 'POST' && path === '/api/setup/pair') {
-          json(res, 200, await setup.pair(await bodyJSON(req))); return;
-        }
-        if (req.method === 'POST' && path === '/api/setup/complete') {
-          const body = await bodyJSON(req);
-          json(res, 200, await setup.complete(body.mac)); return;
-        }
-        throw new AppError('Einrichtungsendpunkt nicht gefunden.', 404);
-      }
       if (req.method === 'GET' && path === '/api/devices') {
         json(res, 200, { devices: list(), interfaces: client.interfaces() }); return;
       }
       if (req.method === 'POST' && path === '/api/discover') {
-        if (recovery.running) throw new AppError('Automatische WLAN-Wiederverbindung läuft. Bitte kurz warten.',409);
         if (music.session) throw new AppError('Musik zuerst stoppen, bevor erneut nach Lampen gesucht wird.', 409, 'MUSIC_ACTIVE');
         const body = await bodyJSON(req);
         if (body.interface != null && typeof body.interface !== 'string') throw new AppError('interface muss eine IPv4-Adresse sein.');
@@ -651,10 +598,6 @@ export async function createApp({
   server.headersTimeout = 10000;
   server.keepAliveTimeout = 5000;
   server.maxHeadersCount = 50;
-  const recoveryMonitor = new RecoveryMonitor({ recovery, devices, checkConnection,
-    isBusy: () => Boolean(music.session || connecting || discovering) });
-  if (!demo) server.on('listening', () => recoveryMonitor.start());
-  server.on('close', () => recoveryMonitor.stop());
   server.on('close', () => { beatAnalysis.close(); structureAnalysis.close(); styleAnalysis.close(); if (music.session) void music.stop(music.session.id); });
   server.on('listening',()=>dmx.startMonitoring());
   server.on('close',()=>void dmx.close());

@@ -13,7 +13,7 @@ test('short analysis fragments neither restart nor accelerate a continuing perio
   assert.ok(Math.abs(a.phase-b.phase)<1e-8);
  }
 });
-test('auto and show depth waves share a surface decision despite different row and member phases',()=>{
+test('Automatic keeps depth waves in the room while Show retains coordinated wall staging',()=>{
  const room=clubStageRoom();room.zones=[]; // Isolate surface choice from exclusion routing.
  for(const mode of ['auto','show'])for(const surface of ['floor','wall'])for(const phase of [0,1,2,3]){
   const motion={...passage(0,24),phase,progress:.5,amount:1,intent:{symmetry:'paired',surface}};
@@ -23,7 +23,7 @@ test('auto and show depth waves share a surface decision despite different row a
   assert.equal(new Set(heads.map(l=>l.motionWallBlend)).size,1);
   for(const light of heads){
    const mapped=wallChoreography(light,room);
-   if(surface==='floor')assert.deepEqual(mapped.target,light.target);
+   if(mode==='auto'||surface==='floor')assert.deepEqual(mapped.target,light.target);
    else assert.equal(mapped.wallIndex,room.positions[light.id].wallTarget.wall);
   }
  }
@@ -63,4 +63,33 @@ test('sustained peaks hand surfaces over at phrase boundaries without oscillatin
   const after=groupComposition(automaticGroupMotionAt(plan,current.start+2),0,8,0,6);
   assert.equal(after.wallBlend,current.surface==='wall'?1:0);
  }
+});
+
+test('Automatic ignores explicit and legacy wall projection without changing the requested trajectory',async()=>{
+ const {roomSurfaceChoreography}=await import('../public/dmx-ar-model.js');
+ const room=clubStageRoom();room.zones=[];
+ const [id,p]=Object.entries(room.positions).find(([,p])=>p.wallTarget);
+ for(const motionWallBlend of [undefined,0,.5,1]){
+  const light={id,type:'moving',position:p,modelSize:p.size,power:.6,target:{x:2,y:20},motionUV:{x:.6,y:.9},motionPresentation:'auto',motionWallBlend};
+  assert.deepEqual(wallChoreography(light,room),light);
+ }
+ const layout={width:20,depth:30,height:8,room:true};
+ const light={id:'free',type:'moving',position:{x:2,y:20,height:6},target:{x:4,y:12},power:.7,motionUV:{x:.6,y:.55},motionPresentation:'auto'};
+ assert.deepEqual(roomSurfaceChoreography(light,layout),light,'legacy perimeter fallback cannot invent a wall target');
+});
+
+test('Automatic wall-tagged compositions remain animated and illuminated after room motors',async()=>{
+ const {createRoomPreview}=await import('../public/dmx-ar-model.js');
+ const room=clubStageRoom(),preview=createRoomPreview();let first,last;
+ for(let tick=0;tick<=120;tick++){
+  const time=tick/15,progress=.12+.76*tick/120;
+  const motion={...passage(0,10),progress,phase:time*.7,amount:1,intent:{symmetry:'paired',surface:'wall'}};
+  const scene={layout:{width:8,depth:6,positions:{}},crowd:[],lights:Array.from({length:8},(_,i)=>({id:'h'+i,type:'moving',position:{x:i-3.5,y:4,height:3},target:{x:0,y:3},motionUV:{x:.5,y:.5},motionPresentation:'auto',movingPresence:{level:1,mask:'all',rowFraction:1,groupMotion:motion},power:1}))};
+  const heads=preview(scene,room,false,time).lights.filter(l=>l.type==='moving');
+  assert.ok(heads.some(l=>l.power>.01),'removing wall staging must not remove the active rig');
+  assert.ok(heads.filter(l=>l.power>.01).every(l=>(l.target.z??0)<.05),'authored floor figures reach the floor after motor simulation');
+  if(tick===30)first=heads.map(l=>l.target);
+  last=heads.map(l=>l.target);
+ }
+ assert.ok(last.some((t,i)=>Math.hypot(t.x-first[i].x,t.y-first[i].y)>.5),'the figure still evolves');
 });

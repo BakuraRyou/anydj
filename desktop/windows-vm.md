@@ -83,7 +83,7 @@ Der bestehende Windows-Build ist noch nicht vollständig einsatzbereit:
 | KI-Stilanalyse | `music-style.py` nutzt Essentia-Python; Windows-Anbindung ersetzen und Ergebnisgleichheit prüfen |
 | Beat / Struktur | Native Windows-Abhängigkeiten, Modellcache und eingefrorene Programme prüfen |
 | Rechner-Audio | `lib/music.mjs` nutzt Linux-`parec`; Windows-Ausgabeerfassung ergänzen |
-| WLAN | `lib/connection.mjs` und `lib/recovery.mjs` nutzen `nmcli`; Windows-Anbindung ergänzen |
+| WLAN | Keine WLAN-Scans oder Einrichtung; Lampen müssen bereits im Netzwerk eingerichtet sein |
 | DMX | `lib/dmx.mjs` nutzt OLA; native plattformübergreifende Netzwerk-Ausgänge ergänzen |
 | Release | Erst mit erfolgreichen KI-, Installations- und Funktionstests als vollständig bereitstellen |
 

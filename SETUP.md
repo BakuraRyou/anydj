@@ -1,4 +1,4 @@
-# Experimentelle Einrichtung ohne AnyDj-App
+# Einrichtung von AnyDj
 
 ## Lokale HTTPS-Entwicklung und Spotify
 
@@ -68,119 +68,16 @@ Ohne eigene App-ID und echte Anmeldung ist nur der simulierte Integrationstest
 möglich. Die DJ-Integrationsauswertung steht in
 [reports/tidal-integration-evaluation.md](reports/tidal-integration-evaluation.md).
 
-## Lampeneinrichtung
+## WLAN-Lampen
 
-Stand: 19.09.2026. Nur `ESP03_SHRGB1C_01`, Firmware `1.32.0`.
-Geräteidentifikation, WLAN-Zugangsdatenübertragung, Abschluss und anschließende
-UDP-Abfragen (getPilot, getSystemConfig, getModelConfig) wurden an der echten
-Lampe erfolgreich bestätigt. Die Lampe wurde in der App gespeichert. Ein
-Stromausfall-/Neustarttest der Lampe wurde nicht durchgeführt.
-
-1. Lampe in den manuellen Einrichtungsmodus bringen (AnyDjConfig_…-WLAN).
-2. Rechner mit diesem WLAN verbinden; eine parallele LAN-Verbindung erleichtert
-   den anschließenden Heimnetztest. Die App schaltet selbst keine Netzwerke um.
-3. `http://localhost:3030/setup` am Rechner öffnen und „Lampe prüfen“ wählen.
-4. SSID und Passwort des 2,4-GHz-WPA2-Netzes lokal eingeben und übertragen.
-5. Erst bei Gerätestatus 5 und gemeldeter IP wird „Einrichtung abschließen“ angeboten.
-6. In der normalen Oberfläche suchen oder die gemeldete Heimnetz-IP hinzufügen.
-   Erst eine dortige Statusantwort bestätigt die lokale Steuerbarkeit.
-
-Keine Passwörter in Gerätedatei oder UDP-Historie. Die neuen API-Endpunkte sind
-auf Loopback-Clients begrenzt, verwenden die bestehenden Host-/Origin-/Token-
-und Schreibheader-Prüfungen und sind im Demo-Modus deaktiviert. Schreibanfragen
-werden nach Timeout nicht automatisch wiederholt. Nach fehlgeschlagenem Versuch
-ggf. Lampe erneut in den Einrichtungsmodus bringen und Server neu starten.
-
-## Protokollnachweis
-
-Untersuchte unveränderte Originalfirmware:
-`http://firmware.wiz.world/firmwares/ESP03_SHRGB1C_01/1.32.0/wizlight.bin`
-
-- DHCP: Rechner `192.168.56.100/24`, Lampe `192.168.56.1`.
-- `GET /device` liefert `{mac,name,fw,status}`, bei Status 5 zusätzlich `ip`.
-- `POST /pairing`: `offsets`, `enc_ssid`, `enc_pwd`, `iv`, `pwd`, `hid`, `env`, `reg`.
-- `POST /complete`: Abschluss nach erfolgreichem WLAN-Beitritt.
-- Handler `0x400e2ef4`, Statushandler `0x400e30c4`, Schlüsselableitung
-  `0x400d8b44`, Entschlüsselung `0x400d8c20`.
-- Offsets `[1,0]` wählen die ersten 16 Zeichen der ersten Base64-Zeile des öffentlichen Zertifikats (nach dem Header).
-  MD5 als 32 ASCII-Hexzeichen ergibt den AES-256-CBC-Schlüssel; Base64 für IV
-  und Ciphertext, PKCS#7-Padding. `pwd` ist ein angehängter Klartextsuffix und
-  bleibt leer, da das vollständige Passwort in `enc_pwd` übertragen wird.
-- `hid=0` lässt die Lampe ohne Cloud-Hauszuordnung; `env=pro`, `reg=eu`.
-  Genau diese Kombination wurde erfolgreich getestet. Eine zufällige Haus-ID
-  führte bei den vorherigen Versuchen nicht zu einer dauerhaft erreichbaren Lampe.
-
-Keine offizielle API. Die Protokollverschlüsselung mit öffentlich ableitbarem
-Schlüssel schützt nicht wie TLS. Übertragung im temporären offenen Lampen-WLAN.
-Die Firmware kann nach dem Beitritt weiterhin Herstellerdienste kontaktieren;
-die Webapp unterbindet das nicht. Andere Modelle/Firmware werden abgewiesen.
-
-Die Einrichtungsschnittstelle kann nach dem WLAN-Test unter der neuen Heimnetz-IP erreichbar sein. Der Client merkt sich die vom identifizierten Gerät gemeldete IP und prüft Modell/MAC vor dem Abschluss erneut. Abschlussantwort vollständig lesen; anschließend lokale UDP-Erreichbarkeit prüfen.
-
-## Automatische Wiederverbindung (ergänzt)
-
-Der oben beschriebene manuelle Ablauf wird für die konfigurierte bekannte Lampe
-nun durch `lib/recovery.mjs` automatisiert. Die Aussage „Die App schaltet selbst
-keine Netzwerke um“ gilt nur noch für den manuellen Ablauf. Die Automatik nutzt
-ein temporäres NetworkManager-Profil ohne Standardroute und Autoconnect; bei
-Abschluss/Fehler wird es gelöscht und die vorherige Verbindung wieder aktiviert.
-Zugangsdaten werden für diesen ausdrücklich aktivierten Modus lokal in
-`data/recovery.json` mit Dateirechten 0600 gespeichert. Sie werden nicht über
-Status-APIs zurückgegeben. Bestehende Einschränkung auf Modell/Firmware bleibt.
-
-An der echten Lampe getestet: Einrichtungsnetz erkannt, Identität geprüft,
-Heim-WLAN-Daten separat erfolgreich validiert, nach zunächst ausgebliebenem
-Beitritt einmal kontrolliert wiederholt, Gerätestatus 1 → 5, Abschluss bestätigt,
-UDP-Heimnetzverbindung unter 192.168.178.53 wiederhergestellt. Kein physischer
-Stromzyklus getestet. Automatik für diese Lampe ist aktiviert.
-
-## Wiederkehrender Einrichtungsmodus nach Stromunterbrechung
-
-Der laufende Server prüft die ausdrücklich aktivierte, gespeicherte Lampe jetzt
-auch ohne geöffnete Lampenseite. Nach jeder Prüfung wartet er 15 Sekunden;
-laufende Musik, Suche und Pairing pausieren die Hintergrundprüfung. Bei einem
-sichtbaren passenden AnyDjConfig-Netz folgen Netzwechsel, Identitätsprüfung,
-Pairing, Abschluss, Rückkehr zum vorherigen WLAN und UDP-Prüfung automatisch.
-Der WLAN-Scan fordert frische Ergebnisse an und erhält bis zu 12 Sekunden Zeit.
-Der Verbindungsaufbau zum Lampen-WLAN darf einschließlich DHCP bis zu 60 Sekunden
-dauern; die bisherige Grenze von 20 Sekunden brach beobachtete DHCP-Vorgänge ab.
-
-Nach einer unklaren Pairing-Antwort bleibt der Auftrag gespeichert. Erst nach
-dem gesamten Beitritts-Wartefenster und mindestens drei aufeinanderfolgenden
-frischen Gerätestatusantworten mit Status 0 ist ein zweiter Versuch erlaubt.
-Fehlgeschlagene Statusabfragen oder ein laufender Beitritt erlauben keine erneute
-Übertragung. Pro Durchlauf sind maximal zwei Übertragungen vorgesehen. Nach einem
-Fehler wartet die Automatik zwei Minuten; weitere Versuche erfordern erneut das
-volle Wartefenster und frisch bestätigten Status 0. Ein alter Fehlversuch sperrt
-damit spätere Wiederverbindungen nicht dauerhaft.
-Ein abgeschlossener Auftrag blockiert den nächsten Einrichtungszyklus nicht.
-Die automatische Prüfung benötigt einen laufenden Server; nach Codeänderungen
-muss dieser neu gestartet werden.
-
-## Start direkt beim Öffnen der DJ-Seite
-
-Die DJ-Seite ruft `/api/connection` beim Laden auf, unabhängig von der
-Musikbibliothek und ohne Play-Klick. Sie zeigt den Verbindungsfortschritt dauerhaft
-an und prüft außerhalb einer laufenden Musiksession alle sieben Sekunden erneut.
-Die zuletzt geprüfte Lampen-IP wird gespeichert und nach DHCP-Wechsel aktualisiert.
-
-Die Einrichtung verwendet jetzt einen kurzen HTTP/1.1-Austausch mit explizitem
-`Content-Length`, kanonischer Header-Schreibweise und `Connection: close` statt
-des allgemeinen Fetch-Verbindungspools. Auch der vollständige Antwortkörper
-unterliegt dem Timeout. Zugangsdaten werden im Transport nicht automatisch
-wiederholt. Dies reduziert Unterschiede zu einfachen einzelnen HTTP-Anfragen;
-eine Behebung des realen Pairing-Fehlers ist damit noch nicht nachgewiesen.
-
-## Abgleich mit früheren erfolgreichen Verbindungen
-
-Die damaligen Werkzeugläufe wurden mit der Implementierung abgeglichen;
-Details stehen in [recovery-history-comparison.md](reports/recovery-history-comparison.md).
-Die Automatik erhält nun auch die gespeicherte Heimnetz-IP als Statuskandidaten,
-bevor der AP diese erneut meldet. Nach bestätigtem Beitritt erfolgt der Abschluss
-bevorzugt im Heimnetz und nach zwei Sekunden Wartezeit. Eine bereits im Heimnetz
-erreichbare HTTP-Einrichtung wird auch ohne UDP-Antwort oder sichtbares
-Einrichtungs-WLAN fortgesetzt. Vor einem Pairing-Wiederholungsversuch wird die
-AP-Verbindung frisch aufgebaut und die MAC erneut geprüft.
+Lampen müssen bereits im Heimnetz eingerichtet sein. AnyDj kann sie dort per
+UDP finden und steuern; alternativ lässt sich ihre IP manuell hinzufügen.
+WLAN-Scans, WLAN-Einrichtung und automatische Netzwechsel wurden entfernt.
+AnyDj erstellt keine NetworkManager-Verbindungsprofile mehr. Die bisherigen
+Einrichtungsseiten und `/api/setup/*`-Endpunkte sind nicht mehr verfügbar.
+Alte Dateien `data/recovery.json` und `data/recovery-pending.json` werden nicht
+mehr gelesen. Bereits angelegte Netzwerkprofile bleiben im Betriebssystem
+bestehen. Nach dem Update den laufenden App-Server neu starten.
 
 ## DMX über USB und LAN
 

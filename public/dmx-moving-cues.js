@@ -1,3 +1,5 @@
+import {strobeConductor} from './dmx-strobe-conductor.js';
+import {strobeScore,strobeScoreAt,strobeComposition} from './dmx-strobe-score.js';
 import {automaticGroupScore} from './dmx-group-motion.js';
 import {planShowScore,showScorePose} from './show-score.js';
 import {lightingScenes,scenePose,lightingGestures,gesturePose,musicalMovementEvents} from './dmx-light-scenes.js';
@@ -12,6 +14,7 @@ const continuous=cue=>cue?.continuous||cue?.reason==='groove';
 // Choose destinations from acoustically selected events, never every grid beat.
 // Travel ends ON the event. Quiet gaps hold the last destination.
 export function movingCues(plan,mode,mood='balanced'){
+  if(mode==='strobe')return strobeMovingCues(plan);
   if(mode==='auto'&&movingMood(mood)==='show')return showMovingCues(plan);
   if(mode==='auto'&&movingMood(mood)==='balanced'){const conducted=barMovingCues(plan);if(conducted){
     const score=automaticGroupScore(plan);
@@ -25,6 +28,25 @@ export function movingCues(plan,mode,mood='balanced'){
     });
   }}
   return patternMovingCues(plan,mode,mood);
+}
+const strobeMotionCache=new WeakMap();
+// Sample the independent motif geometry; shutter events do not restart motors.
+export function strobeMovingCues(plan){
+ if(strobeMotionCache.has(plan))return strobeMotionCache.get(plan);
+ const result=[],score=strobeScore(plan);
+ const times=[...new Set([...score.flatMap(f=>[0,.08,.3,.55,.78,.9,1].map(p=>f.start+(f.end-f.start)*p)),
+  ...strobeConductor(plan).events.filter(e=>e.advance).flatMap(e=>[e.time,Math.min(plan.duration,e.time+e.duration)])])].sort((a,b)=>a-b);
+ for(const time of times){
+  const figure=strobeScoreAt(plan,time)??score.at(-1);if(!figure)continue;
+  if(result.length&&time<=result.at(-1).time)continue;
+  const edit=plan.sectionLighting?.find(s=>time>=s.start&&time<s.end);
+  const target=Array.from({length:4},(_,i)=>{const p=strobeComposition(figure,i,4);return {pan:(p.x-.5)*80,tilt:.5+p.y*.55};});
+  const previous=result.at(-1),travel=previous?time-previous.time:0,reach=previous?motionReach(previous.pose,target,travel,.8):1;
+  const pose=edit?.movement===0&&previous?previous.pose:target.map((p,i)=>previous?{pan:previous.pose[i].pan+(p.pan-previous.pose[i].pan)*reach,tilt:previous.pose[i].tilt+(p.tilt-previous.pose[i].tilt)*reach}:p);
+  result.push({time,travel,pose,formation:figure.id,coordinated:true});
+ }
+ if(!result.length)result.push({time:0,travel:0,pose:restingHeads()});
+ strobeMotionCache.set(plan,result);return result;
 }
 // Pattern engine retained for the explicitly selected alternative moods/modes.
 export function patternMovingCues(plan,mode,mood='balanced'){

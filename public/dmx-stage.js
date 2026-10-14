@@ -1,5 +1,5 @@
 import {createDmxConnection} from './dmx-connection.js';
-import {automaticStage,STAGE_PRESETS} from './dmx-auto.js';
+import {automaticStage,STAGE_PRESETS,stageModeForStreams} from './dmx-auto.js';
 import {createStageEditor} from './dmx-editor.js';
 import {mixFixtureFrames} from './dmx-show.js';
 import {stagePatch,encodeStage,decodeStage,fixtureKey} from './dmx-model.js';
@@ -98,7 +98,9 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   const modeHeading=document.createElement('h3');modeHeading.textContent='Wie soll dein Licht spielen?';live.append(modeHeading);
   const modeButtons=document.createElement('div');modeButtons.className='stage-mode-grid';live.append(modeButtons);
   const names={shared:['Gemeinsam','Alle Lampen folgen dem Mix'],auto:['Automatisch','Passend zum Song'],chase:['Lauflicht','Bewegung durch die Bühne'],wash:['Ruhige Flächen','Weich und zurückhaltend'],follow:['Musikimpulse','Gemeinsam im Rhythmus'],alternate:['Gruppenwechsel','Links und rechts im Wechsel'],design:['Individuell','Farben und Bewegung selbst wählen']};
-  for(const [mode,[name,description]] of Object.entries(names)){
+  for(const option of editorHost.querySelector('[data-mode]').options){
+    const mode=option.value;
+    const [name,description]=names[mode]||[STAGE_PRESETS[mode]?.name||option.textContent,mode==='strobe'?'120 Animationen passend zum Songabschnitt':STAGE_PRESETS[mode]?.help||''];
     const choice=document.createElement('button');choice.type='button';choice.className='stage-mode-choice';choice.dataset.stageChoice=mode;choice.innerHTML=`<strong>${name}</strong><span>${description}</span>`;
     choice.onclick=()=>{const select=editorHost.querySelector('[data-mode]');select.value=mode;select.dispatchEvent(new Event('change'));};modeButtons.append(choice);
   }
@@ -125,8 +127,9 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
     if(!panel.open&&!active&&!hardware.enabled&&!editorPreview&&!stage3d.sharing)return;
     const current=editorPreview?.frame??lastFrame(),streams=editorPreview?.streams??lastStreams();
     const demo=editorPreview?false:lastDemo(),blackout=editorPreview?false:lastBlackout();
-    panel.dataset.design=String(editor.enabled);panel.dataset.stageMode=editor.mode;
-    for(const choice of modeButtons.children)choice.setAttribute('aria-pressed',String(choice.dataset.stageChoice===editor.mode));
+    const mode=stageModeForStreams(streams,editor.mode);
+    panel.dataset.design=String(editor.enabled);panel.dataset.stageMode=mode;
+    for(const choice of modeButtons.children)choice.setAttribute('aria-pressed',String(choice.dataset.stageChoice===mode));
     const equipment=editor.equipment,patch=stagePatch(equipment);
     const equipmentTitle='Ausstattung · '+patch.length+' Geräte';
     if(equipmentSection.querySelector('summary').textContent!==equipmentTitle)equipmentSection.querySelector('summary').textContent=equipmentTitle;
@@ -157,16 +160,16 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
     const inputs=demo?[{frame:sample,weight:1,beat:t*2,look:'peak',washDimming:55}]:streams.length?streams:[{frame:sample,weight:1}];
     const main=inputs.filter(s=>s.frame&&s.weight>0).sort((a,b)=>b.weight-a.weight)[0];
     editor.context(main?.sectionKey,main?.sectionName);
-    fixtureNodes.forEach((node,i)=>node.setAttribute('aria-pressed',String(editor.mode==='design'&&editor.selected===`f${i}`)));
-    const automatic=Object.hasOwn(STAGE_PRESETS,editor.mode)?automaticStage(inputs,editor.count,equipment,editor.mode):null;
+    fixtureNodes.forEach((node,i)=>node.setAttribute('aria-pressed',String(mode==='design'&&editor.selected===`f${i}`)));
+    const automatic=Object.hasOwn(STAGE_PRESETS,mode)?automaticStage(inputs,editor.count,equipment,mode):null;
     if(automatic)editor.preview(automatic.palette.map(rgb=>{const f=adjustFrame({r:rgb[0],g:rgb[1],b:rgb[2],dimming:100});return [f.r,f.g,f.b];}),automatic.description);
-    const rawOutput=automatic?automatic.frames:editor.mode==='design'?mixFixtureFrames(inputs,editor.config,equipment):sample;
+    const rawOutput=automatic?automatic.frames:mode==='design'?mixFixtureFrames(inputs,editor.config,equipment):sample;
     const output=patch.map((f,i)=>Array.from({length:f.cells},(_,j)=>{const value=Array.isArray(rawOutput)?rawOutput[i]?.[j]:rawOutput;const adjusted=adjustFrame(value);return adjusted?{...adjusted,dimming:(adjusted.dimming??0)*(f.gain??100)/100}:adjusted;}));
     hardware.setDemo(demo);
     hardware.push(encodeStage(demo?null:output,equipment));
     const universe=encodeStage(blackout?null:output,equipment),fixtures=decodeStage(universe,equipment);
     fixtures.forEach((f,i)=>{if(f.type==='moving')f.cells=output[i].map(frame=>!frame||frame.state===false||blackout?[0,0,0]:['r','g','b'].map(k=>Math.round(Math.max(0,Math.min(255,frame[k]||0))*(frame.dimming||0)/100)));});
-    movingHeads.update(fixtures,adjustFrame(sample),t,blackout,inputs,editor.mode,editor.count);
+    movingHeads.update(fixtures,adjustFrame(sample),t,blackout,inputs,mode,editor.count);
     layout.setLights(fixtures.filter(f=>f.type!=='moving'));
     stage3d.update(fixtures.filter(f=>f.type!=='moving'),movingPreview,{streams:inputs});
     fixtures.forEach((f,i)=>f.cells.forEach((rgb,j)=>{

@@ -1,12 +1,15 @@
-import {selectGroupScore,SONG_MOVEMENT_VERSION,movementAccentEnvelope,SPATIAL_MOTIONS} from './song-movement-plan.js';
+import {strobeComposition} from './dmx-strobe-score.js';
+import {selectGroupScore,SONG_MOVEMENT_VERSION,movementAccentEnvelope,SPATIAL_MOTIONS,AUTO_FORMATIONS} from './song-movement-plan.js';
 export {GROUP_COMPOSITIONS,GROUP_MOTIONS} from './song-movement-plan.js';
 const clamp=v=>Math.max(0,Math.min(1,v));
-const cache=new WeakMap();
-const extendedForms=new Set(['side-columns','split-levels','wide-ribbons',...SPATIAL_MOTIONS.map(([name])=>name)]);
-export function automaticGroupScore(plan){
+const cache=new WeakMap(),expandedCache=new WeakMap();
+const autoForms=new Map(AUTO_FORMATIONS.map(f=>[f.name,f]));
+const extendedForms=new Set(['side-columns','split-levels','wide-ribbons',...SPATIAL_MOTIONS.map(([name])=>name),...AUTO_FORMATIONS.map(f=>f.name)]);
+export function automaticGroupScore(plan,expanded=false){
+ const selectedCache=expanded?expandedCache:cache;
  if(!plan)return [];
- if(cache.has(plan))return cache.get(plan);
- const score=plan.songMovement?.version===SONG_MOVEMENT_VERSION
+ if(selectedCache.has(plan))return selectedCache.get(plan);
+ const score=expanded?selectGroupScore(plan,true):plan.songMovement?.version===SONG_MOVEMENT_VERSION
   ?plan.songMovement.passages.map(p=>({...p,intent:p}))
   :selectGroupScore(plan);
  // Fit entrances once, including velocity direction; playback and seeks
@@ -31,7 +34,7 @@ export function automaticGroupScore(plan){
    },0)/a.length;
   };
   const before=cost(0);let best=before,offset=0;
-  if(p.composition===previous.composition&&p.coordination===previous.coordination&&p.direction===previous.direction){
+  if(p.sequence===previous.sequence&&p.composition===previous.composition&&p.coordination===previous.coordination&&p.direction===previous.direction){
    // A continuing figure inherits its exact musical phase, rather than being
    // independently aligned again on the next analysis fragment.
    offset=describeMotion(plan,previous,.88,p.start).phase-describeMotion(plan,{...p,phaseOffset:0},.12,p.start).phase;
@@ -39,7 +42,7 @@ export function automaticGroupScore(plan){
   }else for(let j=1;j<16;j++){const candidate=j*Math.PI/8,value=cost(candidate);if(value<best-1e-9){best=value;offset=candidate;}}
   p.phaseOffset=offset;p.transitionFit={before,after:best};
  }
- cache.set(plan,score);return score;
+ selectedCache.set(plan,score);return score;
 }
 // Unwrapped musical position: only measured downbeats supply extra motion.
 // Keeping it separate from passage progress preserves long-lived compositions.
@@ -63,14 +66,14 @@ function describeMotion(plan,passage,progress,time){
   const phase=(passage.phaseOffset??0)+travel;
   const preparation=passage.intent?.anticipation;
   const anticipation=preparation?preparation.strength*ease((time-preparation.start)/(preparation.end-preparation.start)):0;
-  return {start:passage.start,end:passage.end,motion:passage.motion,composition:passage.composition,coordination:passage.coordination,theme:passage.theme,development:passage.development,progress,sceneProgress:clamp((time-passage.start)/(passage.end-passage.start)),phase,accent:movementAccentEnvelope(passage.intent,time),anticipation,intent:passage.intent,energy:passage.energy,drive:passage.drive,direction:passage.direction,duration:passage.end-passage.start};
+  return {start:passage.start,end:passage.end,motion:passage.motion,composition:passage.composition,sequence:passage.sequence,coordination:passage.coordination,theme:passage.theme,development:passage.development,progress,sceneProgress:clamp((time-passage.start)/(passage.end-passage.start)),phase,accent:movementAccentEnvelope(passage.intent,time),anticipation,intent:passage.intent,energy:passage.energy,drive:passage.drive,direction:passage.direction,duration:passage.end-passage.start};
 }
-export function automaticGroupMotionAt(plan,time){
+export function automaticGroupMotionAt(plan,time,expanded=false){
  if(!plan||!Number.isFinite(time))return null;
  // Freeze the extra choreography at the same song time as authored motor holds.
  const edit=plan.sectionLighting?.find(s=>time>=s.start&&time<s.end);
  const sample=edit?.movement===0?edit.start:time;
- const score=automaticGroupScore(plan);let lo=0,hi=score.length;
+ const score=automaticGroupScore(plan,expanded);let lo=0,hi=score.length;
  while(lo<hi){const mid=(lo+hi)>>>1;if(score[mid].start<=sample)lo=mid+1;else hi=mid;}
  const p=score[lo-1];if(!p?.motion||sample>=p.end)return null;
  const previous=score[lo-2],next=score[lo];
@@ -102,7 +105,7 @@ export function automaticGroupMotionAt(plan,time){
 // formation retained than in Automatic. Both share the same continuous timing.
 export function showGroupMotionAt(plan,time,picture){
  if(!picture||['held','silence'].includes(picture.role))return null;
- const motion=automaticGroupMotionAt(plan,time);
+ const motion=automaticGroupMotionAt(plan,time,false);
  if(!motion?.intent)return null;
  const adapt=m=>{
   const gentle=!!m.intent?.developing;
@@ -166,6 +169,7 @@ export function presenceGroupOffset(presence,rank,count,row){
 // Position, membership and motion share one description and one crossfade.
 const ease=v=>{v=clamp(v);return v*v*(3-2*v);};
 export function groupComposition(motion,rank,count,row=0,groups=1){
+ if(motion?.presentation==='strobe')return strobeComposition(motion,rank,count,row,groups);
  if(!motion?.composition||count<2)return null;
  if(motion.from){
   const {from,blend,...current}=motion;
@@ -322,6 +326,8 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
    level=centerPair?1:1-ease((order-density)/.18);break;
   }
  }
+ const extra=autoForms.get(motion.composition);
+ if(extra){const point=automaticFormationPoint(extra,r,pair,row,groups,phase,p,motion.coordination);x=point.x;y=point.y;}
  // Ordered passages keep separate depth bands for each row. The whole
  // picture shares its development; rows do not criss-cross the same centre.
  if((motion.coordination==='ordered'||motion.coordination==='build')&&!extendedForms.has(motion.composition)&&!['curtain','traveling-group','frame-center','mirror-pairs','opening-lines','side-columns','split-levels','wide-ribbons'].includes(motion.composition)){
@@ -338,6 +344,13 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
   const reach=before+(after-before)*turn;
   x=.5+(x-.5)*reach;
   y=depth+(y-depth)*reach;
+ }
+ // One shared sequence controls geometry and occupancy together. It runs
+ // through the same phase fit and crossfade as the underlying formation.
+ if(motion.sequence){
+  const q=automaticSequencePose(motion,r,pair,slots,row,groups);
+  x+=(q.x-x)*q.mix;y+=(q.y-y)*q.mix;
+  level=q.level;
  }
  // Sparse lead figures retain supporting members during sustained high energy.
  // This changes occupancy, never the source dimmer or an authored blackout.
@@ -474,4 +487,67 @@ export function artisticPose(scene,progress,rank,count,row=0,groups=1){
   default:return null;
  }
  return {x:clamp(x),y:clamp(y),weight};
+}
+
+// Bounded analytic trajectories, evaluated once per head; no mesh or timer.
+function automaticFormationPoint(form,r,pair,row,groups,phase,progress,coordination){
+ const h=Math.abs(r),sign=r<0?-1:r>0?1:0;
+ const band=(row+.5)/Math.max(1,groups),bank=pair%2?-1:1;
+ const t=coordination==='build'?progress*Math.PI:phase;
+ let a=h,b=0;
+ switch(form.family){
+  case 'petals':a=h*(.7+.2*Math.cos(t));b=Math.sin(h*Math.PI)*Math.cos(t)*.7;break;
+  case 'vaults':a=h;b=(1-h*h)*(.55+.3*Math.sin(t));break;
+  case 'gates':a=.18+h*(.45+.32*(.5-.5*Math.cos(t)));b=(2*h-1)*.6*Math.cos(t*.5);break;
+  case 'terraces':a=h*.85;b=(pair%3-1)*.55+.16*Math.sin(t);break;
+  case 'polygons':a=.2+.65*h;b=(1-Math.abs(2*h-1))*.9*Math.cos(t);break;
+  case 'chains':a=h*(.8+.12*Math.sin(t-h*3));b=.65*Math.sin(t-h*Math.PI);break;
+  case 'sails':a=h*(.65+.2*Math.sin(t));b=(1-h)*(.7+.2*Math.cos(t))-.25;break;
+  case 'comets':a=.12+.72*h;b=.7*Math.sin(t)*(1-h)+.3*h;break;
+  case 'lattice':a=h*.85;b=bank*(.3+.4*h)*Math.cos(t);break;
+  case 'crowns':a=h;b=.65*Math.abs(Math.sin(h*Math.PI*1.5))+.15*Math.sin(t);break;
+  case 'helices':a=.18+.55*h+.1*Math.cos(t+h*3);b=.6*Math.sin(t+h*Math.PI);break;
+ }
+ let x=sign*a*.37,y=.5+b*.3;
+ switch(form.layout){
+  case 'lanes':y=.18+.64*band+b*.1;break;
+  case 'opposed':y=.5+(row%2?-1:1)*b*.3+(row%2?.07:-.07);x*=.82;break;
+  case 'staggered':y=.25+(pair%3)*.22+b*.07;x*=.9;break;
+  case 'braided':x*=.8+.15*bank*Math.sin(t);y=.5+bank*b*.26+.06*Math.cos(t);break;
+  case 'nested':x*=row%2?.58:.96;y=.5+b*(row%2?.16:.32);break;
+  case 'open':x=sign*(.18+a*.24);y=.5+b*.22;break;
+  case 'folded':x=sign*(.06+(1-a)*.31);y=.5+b*.25+.06*h;break;
+  case 'diagonal':y=.27+.4*h+b*.12;x*=.94;break;
+  case 'rings':x=sign*(.1+a*.25);y=.5+bank*Math.sqrt(Math.max(0,1-h*h))*.2+b*.12;break;
+ }
+ return {x:Math.max(.04,Math.min(.96,.5+x)),y:Math.max(.06,Math.min(.94,y))};
+}
+
+// Symmetric roles, not independent per-fixture oscillators. Light exchange
+// overlaps and retains support; none of these roles schedules a global blackout.
+function automaticSequencePose(motion,r,pair,slots,row,groups){
+ const phase=motion.phase??0,p=ease(motion.sceneProgress??motion.progress);
+ const band=(row+.5)/Math.max(1,groups),order=slots>1?pair/(slots-1):.5;
+ let x=.5+r*.34,y=.18+band*.64,level=1,mix=.6;
+ switch(motion.sequence){
+  case 'sweep':y=.5+.24*Math.sin(phase)+(band-.5)*.18;break;
+  case 'breath':x=.5+r*(.26+.05*Math.sin(phase));y=.18+band*.64;mix=.45;break;
+  case 'opening':{
+   const open=motion.coordination==='build'?p:.5-.5*Math.cos(phase);
+   x=.5+r*(.15+.29*open);y=.25+.5*band+.1*(1-Math.abs(r))*open;break;
+  }
+  case 'wave':{
+   const wave=phase-order*Math.PI-band*Math.PI*.5;
+   y=.5+.22*Math.sin(wave);level=.35+.65*(.5+.5*Math.cos(wave));break;
+  }
+  case 'exchange':{
+   // With only one row, exchange mirrored pairs instead of nonexistent rows.
+   const bank=groups>1?row%2:pair%2,lead=.5+.5*Math.sin(phase+bank*Math.PI);
+   x=.5+r*(.23+.17*lead);y=.22+.56*band;
+   level=.3+.7*lead;break;
+  }
+  case 'settle':x=.5+r*(.39-.12*p);y=.22+.56*band;mix=.45+.3*p;break;
+  default:mix=0;
+ }
+ return {x,y,level,mix};
 }

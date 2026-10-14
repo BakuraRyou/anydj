@@ -1,0 +1,250 @@
+{
+  "source": "dmx-test.mp3: existing full analysis /tmp/dmx-test-refined.json",
+  "sha256": "8d7c0b87ccdce99dbc529ef2399db870ae4329aa027a03e04aeea80fbbe2755a",
+  "duration": 216.111,
+  "sampleHz": 15,
+  "room": "Club-Bühne · Publikum & Hintergrund",
+  "method": "Offline 15 Hz preset replay with four representative source roles and static support; room targets, zones and motors. No saved UI overrides, source follow filter, prediction, GPU rendering or acoustic listening assessment.",
+  "summary": {
+    "before": {
+      "interval": [
+        0,
+        216
+      ],
+      "sampleHz": 15,
+      "heads": 48,
+      "relights": 3852,
+      "maxRelightStep": 1.4971911022405358,
+      "maxStep": 3.4914784476151115,
+      "maxAngle": 5.659055983964302,
+      "maxRelightAngle": 2.6635296143908986,
+      "darkTrackingSamples": 0
+    },
+    "after": {
+      "interval": [
+        0,
+        216
+      ],
+      "sampleHz": 15,
+      "heads": 48,
+      "relights": 2683,
+      "maxRelightStep": 5.787354912185108,
+      "maxStep": 7.7241483316560045,
+      "maxAngle": 6.0747795006835075,
+      "maxRelightAngle": 5.979033218901471,
+      "darkTrackingSamples": 38525
+    }
+  },
+  "sections": [
+    {
+      "start": 0,
+      "end": 3.79,
+      "look": "held",
+      "before": {
+        "darkPercent": 0,
+        "meanLit": 48,
+        "meanDegreesPerSecond": 0.5018557004466636
+      },
+      "after": {
+        "darkPercent": 10.526315789473685,
+        "meanLit": 5.368421052631579,
+        "meanDegreesPerSecond": 0.39651572091059006
+      }
+    },
+    {
+      "start": 3.79,
+      "end": 25.69,
+      "look": "held",
+      "before": {
+        "darkPercent": 72.03647416413374,
+        "meanLit": 13.422492401215806,
+        "meanDegreesPerSecond": 0.33662159588887836
+      },
+      "after": {
+        "darkPercent": 23.404255319148938,
+        "meanLit": 4.613981762917933,
+        "meanDegreesPerSecond": 0.3525695747656471
+      }
+    },
+    {
+      "start": 25.69,
+      "end": 40.01,
+      "look": "flow",
+      "before": {
+        "darkPercent": 98.13953488372093,
+        "meanLit": 0.8930232558139535,
+        "meanDegreesPerSecond": 0.004389924566140647
+      },
+      "after": {
+        "darkPercent": 7.906976744186046,
+        "meanLit": 5.47906976744186,
+        "meanDegreesPerSecond": 0.013702598968030466
+      }
+    },
+    {
+      "start": 40.01,
+      "end": 65.04,
+      "look": "flow",
+      "before": {
+        "darkPercent": 46.4,
+        "meanLit": 23.584,
+        "meanDegreesPerSecond": 2.9949401496368253
+      },
+      "after": {
+        "darkPercent": 1.6,
+        "meanLit": 22.221333333333334,
+        "meanDegreesPerSecond": 7.2611543115436
+      }
+    },
+    {
+      "start": 65.04,
+      "end": 77.62,
+      "look": "lift",
+      "before": {
+        "darkPercent": 51.32275132275132,
+        "meanLit": 21.841269841269842,
+        "meanDegreesPerSecond": 2.558290973776394
+      },
+      "after": {
+        "darkPercent": 11.640211640211641,
+        "meanLit": 11.16931216931217,
+        "meanDegreesPerSecond": 18.830054922279157
+      }
+    },
+    {
+      "start": 77.62,
+      "end": 99.12,
+      "look": "flow",
+      "before": {
+        "darkPercent": 19.875776397515526,
+        "meanLit": 37.453416149068325,
+        "meanDegreesPerSecond": 2.0501360497903716
+      },
+      "after": {
+        "darkPercent": 0,
+        "meanLit": 23.440993788819874,
+        "meanDegreesPerSecond": 10.189982665913542
+      }
+    },
+    {
+      "start": 99.12,
+      "end": 113.44,
+      "look": "peak",
+      "before": {
+        "darkPercent": 23.72093023255814,
+        "meanLit": 31.53488372093023,
+        "meanDegreesPerSecond": 2.1013149414260734
+      },
+      "after": {
+        "darkPercent": 12.55813953488372,
+        "meanLit": 30.330232558139535,
+        "meanDegreesPerSecond": 11.846020758911804
+      }
+    },
+    {
+      "start": 113.44,
+      "end": 127.77,
+      "look": "peak",
+      "before": {
+        "darkPercent": 6.976744186046512,
+        "meanLit": 42.36279069767442,
+        "meanDegreesPerSecond": 2.6817603390390174
+      },
+      "after": {
+        "darkPercent": 5.5813953488372094,
+        "meanLit": 27.77674418604651,
+        "meanDegreesPerSecond": 13.194342175171737
+      }
+    },
+    {
+      "start": 127.77,
+      "end": 142.1,
+      "look": "held",
+      "before": {
+        "darkPercent": 19.53488372093023,
+        "meanLit": 35.88837209302326,
+        "meanDegreesPerSecond": 1.8869610462345185
+      },
+      "after": {
+        "darkPercent": 20.46511627906977,
+        "meanLit": 14.567441860465117,
+        "meanDegreesPerSecond": 5.981792517935769
+      }
+    },
+    {
+      "start": 142.1,
+      "end": 155.98,
+      "look": "flow",
+      "before": {
+        "darkPercent": 97.11538461538461,
+        "meanLit": 1.3846153846153846,
+        "meanDegreesPerSecond": 0.14366869156194603
+      },
+      "after": {
+        "darkPercent": 0.4807692307692308,
+        "meanLit": 22.971153846153847,
+        "meanDegreesPerSecond": 10.733337573355584
+      }
+    },
+    {
+      "start": 155.98,
+      "end": 170.75,
+      "look": "flow",
+      "before": {
+        "darkPercent": 11.711711711711711,
+        "meanLit": 41.590090090090094,
+        "meanDegreesPerSecond": 2.867725464533069
+      },
+      "after": {
+        "darkPercent": 0,
+        "meanLit": 22.74774774774775,
+        "meanDegreesPerSecond": 13.653829902006356
+      }
+    },
+    {
+      "start": 170.75,
+      "end": 185.08,
+      "look": "peak",
+      "before": {
+        "darkPercent": 12.093023255813954,
+        "meanLit": 36.051162790697674,
+        "meanDegreesPerSecond": 2.0990312888625384
+      },
+      "after": {
+        "darkPercent": 11.627906976744185,
+        "meanLit": 31.553488372093025,
+        "meanDegreesPerSecond": 4.729394934613883
+      }
+    },
+    {
+      "start": 185.08,
+      "end": 199.41,
+      "look": "peak",
+      "before": {
+        "darkPercent": 13.953488372093023,
+        "meanLit": 37.86511627906977,
+        "meanDegreesPerSecond": 3.1075468095347625
+      },
+      "after": {
+        "darkPercent": 5.5813953488372094,
+        "meanLit": 28.804651162790698,
+        "meanDegreesPerSecond": 9.427421198159385
+      }
+    },
+    {
+      "start": 199.41,
+      "end": 216.111,
+      "look": "held",
+      "before": {
+        "darkPercent": 98.39357429718875,
+        "meanLit": 0.7710843373493976,
+        "meanDegreesPerSecond": 0.09697617692850403
+      },
+      "after": {
+        "darkPercent": 81.52610441767068,
+        "meanLit": 1.5261044176706828,
+        "meanDegreesPerSecond": 2.808770735944627
+      }
+    }
+  ]
+}

@@ -1,3 +1,4 @@
+import {strobeRole,strobeRoleColor} from './dmx-strobe-motifs.js';
 import {movingDirections} from './dmx-moving-direction.js';
 // Visual preview only; these heads do not occupy DMX channels.
 import {movingHeadTargets,advanceMovingHeads,followMovingHeads,restingHeads} from './dmx-moving-model.js';
@@ -67,23 +68,25 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
     prepare,
     update(fixtures,frame,time,blackout,streams=[],nextMode='auto',colorLimit=2){
       if(mode!==nextMode){mode=nextMode;prepare();}
+      const motionMode=mode;
       if((!enabled&&!getPreviewEnabled())||document.hidden){lastTime=null;return;}
       const devices=getDevices?.()??Array.from({length:4},(_,i)=>({id:`moving-${i}`}));syncDevices(devices);
       const spots=fixtures.filter(f=>f.profile==='dimmer-rgb');
-      let colors=(spots.length?spots:fixtures).flatMap(f=>f.cells);
+      let colors=(spots.length?spots:fixtures).flatMap(f=>f.cells),strobeColor;
       // Virtual heads need their own unmasked color source; spot exposure is
       // applied separately from moving presence and must not be inherited.
       // These four virtual heads need a complete formation of their own.
       // Sampling a three/five-spot rig (or a bar) can turn balanced colors into
       // a permanent 3:1 split. Keep the real fixture output untouched.
-      if(mode==='auto'&&streams.length){
+      if((mode==='auto'||mode==='strobe')&&streams.length){
         const preview=automaticStage(streams,colorLimit,previewEquipment,mode,{movingSource:true});
+        strobeColor=preview.strobeColor;
         const frames=preview.frames.map(cells=>cells.map(frame=>adjustFrame(frame)));
         colors=decodeStage(encodeStage(frames,previewEquipment),previewEquipment).flatMap(f=>f.cells);
       }
       const fallback=!frame||frame.state===false?[0,0,0]:['r','g','b'].map(key=>Math.round(Math.max(0,Math.min(255,Number(frame[key])||0))*Math.max(0,Math.min(100,Number(frame.dimming)||0))/100));
       const lit=!blackout&&[...colors,...fixtures.filter(f=>f.type==='moving').flatMap(f=>f.cells),...(!colors.length?[fallback]:[])].some(rgb=>Math.max(...rgb)>0);
-      const prepared=streams.map(s=>s.movingPlan?{...s,movingPose:preparation.read(s.movingPlan,s.songTime,mode,mood)||preparation.read(s.movingPlan,s.songTime,mode,previousMood)||restingHeads()}:{...s,movingMood:mood});
+      const prepared=streams.map(s=>s.movingPlan?{...s,movingPose:preparation.read(s.movingPlan,s.songTime,motionMode,mood)||preparation.read(s.movingPlan,s.songTime,motionMode,previousMood)||restingHeads()}:{...s,movingMood:mood});
       const hasPlan=prepared.some(s=>s.movingPlan&&s.frame&&s.weight>0);
       // Read the prepared timeline ahead in AUDIO time, including tempo changes.
       // A paused/seeked source never supplies a speculative future movement.
@@ -93,15 +96,15 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
         const previous=songTimes.get(s.movingPlan);songTimes.set(s.movingPlan,s.songTime);
         const advance=s.songTime-previous,rate=elapsed>0?advance/elapsed:0;
         const progressing=advance>0&&advance<.3&&rate>=.25&&rate<=4&&s.frame?.state!==false;
-        const movingPose=progressing?(preparation.read(s.movingPlan,s.songTime+predictionSeconds*rate,mode,mood)||preparation.read(s.movingPlan,s.songTime+predictionSeconds*rate,mode,previousMood)):null;
+        const movingPose=progressing?(preparation.read(s.movingPlan,s.songTime+predictionSeconds*rate,motionMode,mood)||preparation.read(s.movingPlan,s.songTime+predictionSeconds*rate,motionMode,previousMood)):null;
         return {...s,movingPose,songTime:progressing?s.songTime+predictionSeconds*rate:s.songTime};
       });
-      const aheadTarget=!blackout&&!reducedMotion.matches&&aheadSources.filter(s=>s.frame&&s.frame.state!==false&&s.weight>0).every(s=>s.movingPose)?(movingHeadTargets(aheadSources,mode)||movingHeadTargets(aheadSources.filter(s=>s.movingPlan).map(s=>({...s,frame:s.frame&&s.frame.state!==false?{...s.frame,dimming:100}:s.frame})),mode)):null;
+      const aheadTarget=!blackout&&!reducedMotion.matches&&aheadSources.filter(s=>s.frame&&s.frame.state!==false&&s.weight>0).every(s=>s.movingPose)?(movingHeadTargets(aheadSources,motionMode)||movingHeadTargets(aheadSources.filter(s=>s.movingPlan).map(s=>({...s,frame:s.frame&&s.frame.state!==false?{...s.frame,dimming:100}:s.frame})),motionMode)):null;
 
       row.dataset.prepared=String(hasPlan);
       // Keep following a prepared path during musical darkness so the heads
       // reach their next cue before the light returns. Paused decks stay out.
-      const target=movingHeadTargets(prepared,mode)||movingHeadTargets(prepared.filter(s=>s.movingPlan).map(s=>({...s,frame:s.frame&&s.frame.state!==false?{...s.frame,dimming:100}:s.frame})),mode);
+      const target=movingHeadTargets(prepared,motionMode)||movingHeadTargets(prepared.filter(s=>s.movingPlan).map(s=>({...s,frame:s.frame&&s.frame.state!==false?{...s.frame,dimming:100}:s.frame})),motionMode);
       if(reducedMotion.matches)poses=restingHeads();
       else if(!blackout&&target&&(lit||hasPlan))poses=(hasPlan?followMovingHeads:advanceMovingHeads)(poses,target,lastTime===null?0:time-lastTime);
       lastTime=time;
@@ -115,7 +118,7 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
       const mirrored=design?.formation==='mirror';
       // Normal automatic playback uses one rig-wide gesture throughout a song.
       // Switching to repeated pair roles on percussion breaks larger formations.
-      const formation=mode==='auto'?((songMood==='balanced'||songMood==='show')?'designed':songMood!=='disco'||calm?'coherent':mirrored?'mirror':null):null;
+      const formation=(motionMode==='auto'||motionMode==='strobe')?((songMood==='balanced'||songMood==='show')?'designed':songMood!=='disco'||calm?'coherent':mirrored?'mirror':null):null;
       const placement={formation,layout:getLayout?.()};
       const devicePoses=movingDevicePoses(poses,devices,placement);
       const projected=getLayout?projectMovingHeads(getLayout(),devicePoses,devices):null;
@@ -127,11 +130,11 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
       const defaultExposure=activityAt({},heads.length);
       const presenceSources=streams.filter(s=>s.frame&&s.frame.state!==false&&s.weight>0);
       const presenceWeight=presenceSources.reduce((sum,s)=>sum+s.weight,0);
-      const shutters=mode==='auto'?presenceSources.map(s=>preparation.exposure(s.movingPlan,s.songTime,mode,mood)):[];
-      const movingGroupShutter=mode==='auto'&&presenceSources.every(s=>(s.movingPlan?.movingMood??mood)==='balanced')?Math.min(1,...presenceSources.map(s=>preparation.exposure(s.movingPlan,s.songTime,mode,mood,{groupMotion:true}).level)):undefined;
+      const shutters=mode==='auto'?presenceSources.map(s=>preparation.exposure(s.movingPlan,s.songTime,motionMode,mood)):[];
+      const movingGroupShutter=(mode==='auto'||mode==='strobe')&&presenceSources.every(s=>(s.movingPlan?.movingMood??mood)==='balanced')?Math.min(1,...presenceSources.map(s=>preparation.exposure(s.movingPlan,s.songTime,motionMode,mood,{groupMotion:true}).level)):undefined;
       const movingShutter=Math.min(1,...shutters.map(s=>s.level)),cueTransit=shutters.some(s=>s.transfer);
-      const movingPresence=mode==='auto'?(presenceWeight?mixMovingPresence(presenceSources.map(s=>({presence:movingPresenceAt({...s,movingMood:s.movingPlan?.movingMood??mood}),weight:s.weight/presenceWeight}))):streams.length?{level:0,spread:0}:movingPresenceAt({})):null;
-      const aheadPresence=projectedAhead&&presenceWeight?mixMovingPresence(aheadSources.filter(s=>s.frame&&s.frame.state!==false&&s.weight>0).map(s=>({presence:movingPresenceAt({...s,movingMood:s.movingPlan?.movingMood??mood}),weight:s.weight/presenceWeight}))):null;
+      const movingPresence=(mode==='auto'||mode==='strobe')?(presenceWeight?mixMovingPresence(presenceSources.map(s=>({presence:movingPresenceAt({...s,stageMode:mode,movingMood:s.movingPlan?.movingMood??mood}),weight:s.weight/presenceWeight}))):streams.length?{level:0,spread:0}:movingPresenceAt({})):null;
+      const aheadPresence=projectedAhead&&presenceWeight?mixMovingPresence(aheadSources.filter(s=>s.frame&&s.frame.state!==false&&s.weight>0).map(s=>({presence:movingPresenceAt({...s,stageMode:mode,movingMood:s.movingPlan?.movingMood??mood}),weight:s.weight/presenceWeight}))):null;
       const order=heads.map((_,i)=>i).sort((a,b)=>(projected?.[a].position.x??a)-(projected?.[b].position.x??b));
       const ranks=[];order.forEach((i,rank)=>{ranks[i]=rank;});
       heads.forEach((head,i)=>{
@@ -140,9 +143,9 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
         const rgb=blackout?[0,0,0]:own?own:colors.length?colors[Math.round(i*(colors.length-1)/Math.max(1,heads.length-1))]:fallback.map(v=>Math.round(v*exposure));
         const basePower=Math.max(...rgb)/255;
         const power=basePower*movingPresenceLevel(movingPresence,ranks[i],heads.length)*movingShutter;
-        const color=basePower?rgb.map(v=>Math.round(v/basePower)):rgb;
+        const color=strobeColor?strobeRoleColor(strobeColor,strobeRole(ranks[i],heads.length)):basePower?rgb.map(v=>Math.round(v/basePower)):rgb;
         const {pan,tilt}=projected?{pan:projected[i].frontPan,tilt:.55+.6*projected[i].tilt/90}:devicePoses[i];
-        if(projected)preview.push({...projected[i],motionRange:reducedMotion.matches?0:devices[i].motionRange??1,motionGroup:devices[i].group,motionPresentation:mood==='show'?'show':mood==='balanced'&&mode==='auto'?'auto':undefined,movingShutter,movingGroupShutter,cueTransit,...(movingPresence?{movingPresence,movingPresenceBasePower:basePower}:{}),...(projectedAhead?{motionAhead:{seconds:predictionSeconds,movingPresence:aheadPresence,target:projectedAhead[i].target,motionUV:projectedAhead[i].motionUV,motionFocus:projectedAhead[i].motionFocus}}:{}),color:`rgb(${color.join(',')})`,power});
+        if(projected)preview.push({...projected[i],...(strobeColor?{strobeColor}:{}),motionRange:reducedMotion.matches?0:devices[i].motionRange??1,motionGroup:devices[i].group,motionPresentation:mode==='strobe'?'strobe':mood==='show'?'show':mood==='balanced'&&(motionMode==='auto'||motionMode==='strobe')?'auto':undefined,movingShutter,movingGroupShutter,cueTransit,...(movingPresence?{movingPresence,movingPresenceBasePower:basePower}:{}),...(projectedAhead?{motionAhead:{seconds:predictionSeconds,movingPresence:aheadPresence,target:projectedAhead[i].target,motionUV:projectedAhead[i].motionUV,motionFocus:projectedAhead[i].motionFocus}}:{}),color:`rgb(${color.join(',')})`,power});
         if(projected)setStyle(i,'--head-position',String((projected[i].position.x/getLayout().width+.5)*100));
         setStyle(i,'--head-pan',`${pan.toFixed(2)}deg`);
         setStyle(i,'--head-tilt',tilt.toFixed(3));

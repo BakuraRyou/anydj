@@ -1,0 +1,19 @@
+{
+  "source": "dmx-test.mp3, existing full analysis",
+  "method": "Offline 15 Hz preset replay with four representative source roles and static support; room targets, zones and motors. No saved UI overrides, source follow filter, prediction, GPU rendering or acoustic listening assessment.",
+  "summary": {
+    "interval": [
+      0,
+      216
+    ],
+    "sampleHz": 15,
+    "heads": 48,
+    "relights": 4832,
+    "maxRelightStep": 0.17362005044882506,
+    "maxStep": 0.43303445794371415,
+    "maxAngle": 3.098643241788023,
+    "maxRelightAngle": 1.211561349461164,
+    "darkTrackingSamples": 129591
+  },
+  "darkPercent": 26.473310706572047
+}

@@ -1,0 +1,1742 @@
+[
+  {
+    "name": "counter-fans",
+    "composition": "curtain",
+    "legacy": true
+  },
+  {
+    "name": "traveling-wave",
+    "composition": "mirror-pairs",
+    "legacy": true
+  },
+  {
+    "name": "opening-arch",
+    "composition": "traveling-group",
+    "legacy": true
+  },
+  {
+    "name": "diagonal-curtain",
+    "composition": "frame-center",
+    "legacy": true
+  },
+  {
+    "name": "braided-pairs",
+    "composition": "question-answer",
+    "legacy": true
+  },
+  {
+    "name": "orbit",
+    "composition": "gather",
+    "legacy": true
+  },
+  {
+    "name": "folding-gates",
+    "composition": "diagonal-sweep",
+    "legacy": true
+  },
+  {
+    "name": "rising-steps",
+    "composition": "depth-wave",
+    "legacy": true
+  },
+  {
+    "name": "ripple",
+    "composition": "rotating-fan",
+    "legacy": true
+  },
+  {
+    "name": "crossing-ribbons",
+    "composition": "crossed-banks",
+    "legacy": true
+  },
+  {
+    "name": "unison-sweep",
+    "composition": "parallel-sweep",
+    "legacy": true
+  },
+  {
+    "name": "breathing-arch",
+    "composition": "breathing-arch",
+    "legacy": true
+  },
+  {
+    "name": "hinged-lines",
+    "composition": "hinged-lines",
+    "legacy": true
+  },
+  {
+    "name": "opening-lines",
+    "composition": "opening-lines",
+    "legacy": true
+  },
+  {
+    "name": "rising-fan",
+    "composition": "rising-fan",
+    "legacy": true
+  },
+  {
+    "name": "side-columns",
+    "composition": "side-columns",
+    "legacy": true
+  },
+  {
+    "name": "split-levels",
+    "composition": "split-levels",
+    "legacy": true
+  },
+  {
+    "name": "wide-ribbons",
+    "composition": "wide-ribbons",
+    "legacy": true
+  },
+  {
+    "name": "edge-ladder",
+    "composition": "edge-ladder",
+    "legacy": true
+  },
+  {
+    "name": "stacked-fans",
+    "composition": "stacked-fans",
+    "legacy": true
+  },
+  {
+    "name": "staggered-columns",
+    "composition": "staggered-columns",
+    "legacy": true
+  },
+  {
+    "name": "diamond-frame",
+    "composition": "diamond-frame",
+    "legacy": true
+  },
+  {
+    "name": "box-frame",
+    "composition": "box-frame",
+    "legacy": true
+  },
+  {
+    "name": "chevron",
+    "composition": "chevron",
+    "legacy": true
+  },
+  {
+    "name": "inverted-chevron",
+    "composition": "inverted-chevron",
+    "legacy": true
+  },
+  {
+    "name": "double-arch",
+    "composition": "double-arch",
+    "legacy": true
+  },
+  {
+    "name": "scallops",
+    "composition": "scallops",
+    "legacy": true
+  },
+  {
+    "name": "zipper",
+    "composition": "zipper",
+    "legacy": true
+  },
+  {
+    "name": "scissors",
+    "composition": "scissors",
+    "legacy": true
+  },
+  {
+    "name": "bow-tie",
+    "composition": "bow-tie",
+    "legacy": true
+  },
+  {
+    "name": "ripple-fan",
+    "composition": "ripple-fan",
+    "legacy": true
+  },
+  {
+    "name": "pendulum-lines",
+    "composition": "pendulum-lines",
+    "legacy": true
+  },
+  {
+    "name": "slanted-bands",
+    "composition": "slanted-bands",
+    "legacy": true
+  },
+  {
+    "name": "horizon-sweep",
+    "composition": "horizon-sweep",
+    "legacy": true
+  },
+  {
+    "name": "rising-columns",
+    "composition": "rising-columns",
+    "legacy": true
+  },
+  {
+    "name": "orbit-pairs",
+    "composition": "orbit-pairs",
+    "legacy": true
+  },
+  {
+    "name": "ellipse-frame",
+    "composition": "ellipse-frame",
+    "legacy": true
+  },
+  {
+    "name": "expanding-gates",
+    "composition": "expanding-gates",
+    "legacy": true
+  },
+  {
+    "name": "cascade-bands",
+    "composition": "cascade-bands",
+    "legacy": true
+  },
+  {
+    "name": "nested-frames",
+    "composition": "nested-frames",
+    "legacy": true
+  },
+  {
+    "name": "auto-petals-unison",
+    "composition": "auto-petals-unison",
+    "family": "petals",
+    "layout": "unison",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.3375,
+      0.14249999999999996,
+      0.64,
+      0.5375
+    ]
+  },
+  {
+    "name": "auto-petals-lanes",
+    "composition": "auto-petals-lanes",
+    "family": "petals",
+    "layout": "lanes",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.3625,
+      0.1775,
+      0.6200000000000001,
+      0.5625
+    ]
+  },
+  {
+    "name": "auto-petals-opposed",
+    "composition": "auto-petals-opposed",
+    "family": "petals",
+    "layout": "opposed",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.3875,
+      0.21249999999999997,
+      0.6000000000000001,
+      0.5875
+    ]
+  },
+  {
+    "name": "auto-petals-staggered",
+    "composition": "auto-petals-staggered",
+    "family": "petals",
+    "layout": "staggered",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.4125,
+      0.2475,
+      0.5800000000000001,
+      0.6125
+    ]
+  },
+  {
+    "name": "auto-petals-braided",
+    "composition": "auto-petals-braided",
+    "family": "petals",
+    "layout": "braided",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.4375,
+      0.2825,
+      0.56,
+      0.6375000000000001
+    ]
+  },
+  {
+    "name": "auto-petals-nested",
+    "composition": "auto-petals-nested",
+    "family": "petals",
+    "layout": "nested",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.4625,
+      0.3175,
+      0.54,
+      0.6625
+    ]
+  },
+  {
+    "name": "auto-petals-open",
+    "composition": "auto-petals-open",
+    "family": "petals",
+    "layout": "open",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.48750000000000004,
+      0.3525,
+      0.52,
+      0.6875
+    ]
+  },
+  {
+    "name": "auto-petals-folded",
+    "composition": "auto-petals-folded",
+    "family": "petals",
+    "layout": "folded",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.5125,
+      0.3875,
+      0.5,
+      0.7125
+    ]
+  },
+  {
+    "name": "auto-petals-diagonal",
+    "composition": "auto-petals-diagonal",
+    "family": "petals",
+    "layout": "diagonal",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.5375,
+      0.4225,
+      0.48000000000000004,
+      0.7375
+    ]
+  },
+  {
+    "name": "auto-petals-rings",
+    "composition": "auto-petals-rings",
+    "family": "petals",
+    "layout": "rings",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.5625,
+      0.4575,
+      0.4600000000000001,
+      0.7625000000000001
+    ]
+  },
+  {
+    "name": "auto-vaults-unison",
+    "composition": "auto-vaults-unison",
+    "family": "vaults",
+    "layout": "unison",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.3875,
+      0.19249999999999995,
+      0.74,
+      0.28750000000000003
+    ]
+  },
+  {
+    "name": "auto-vaults-lanes",
+    "composition": "auto-vaults-lanes",
+    "family": "vaults",
+    "layout": "lanes",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.4125,
+      0.22749999999999998,
+      0.72,
+      0.3125
+    ]
+  },
+  {
+    "name": "auto-vaults-opposed",
+    "composition": "auto-vaults-opposed",
+    "family": "vaults",
+    "layout": "opposed",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.4375,
+      0.26249999999999996,
+      0.7000000000000001,
+      0.3375
+    ]
+  },
+  {
+    "name": "auto-vaults-staggered",
+    "composition": "auto-vaults-staggered",
+    "family": "vaults",
+    "layout": "staggered",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.4625,
+      0.2975,
+      0.68,
+      0.36250000000000004
+    ]
+  },
+  {
+    "name": "auto-vaults-braided",
+    "composition": "auto-vaults-braided",
+    "family": "vaults",
+    "layout": "braided",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.4875,
+      0.33249999999999996,
+      0.66,
+      0.3875
+    ]
+  },
+  {
+    "name": "auto-vaults-nested",
+    "composition": "auto-vaults-nested",
+    "family": "vaults",
+    "layout": "nested",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.5125,
+      0.3675,
+      0.64,
+      0.41250000000000003
+    ]
+  },
+  {
+    "name": "auto-vaults-open",
+    "composition": "auto-vaults-open",
+    "family": "vaults",
+    "layout": "open",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.5375,
+      0.40249999999999997,
+      0.62,
+      0.4375
+    ]
+  },
+  {
+    "name": "auto-vaults-folded",
+    "composition": "auto-vaults-folded",
+    "family": "vaults",
+    "layout": "folded",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.5625,
+      0.4375,
+      0.6,
+      0.4625
+    ]
+  },
+  {
+    "name": "auto-vaults-diagonal",
+    "composition": "auto-vaults-diagonal",
+    "family": "vaults",
+    "layout": "diagonal",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.5875,
+      0.4725,
+      0.5800000000000001,
+      0.48750000000000004
+    ]
+  },
+  {
+    "name": "auto-vaults-rings",
+    "composition": "auto-vaults-rings",
+    "family": "vaults",
+    "layout": "rings",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6125,
+      0.5075000000000001,
+      0.56,
+      0.5125000000000001
+    ]
+  },
+  {
+    "name": "auto-gates-unison",
+    "composition": "auto-gates-unison",
+    "family": "gates",
+    "layout": "unison",
+    "gentle": false,
+    "build": true,
+    "affinity": [
+      0.5375,
+      0.3925,
+      0.33999999999999997,
+      0.3375
+    ]
+  },
+  {
+    "name": "auto-gates-lanes",
+    "composition": "auto-gates-lanes",
+    "family": "gates",
+    "layout": "lanes",
+    "gentle": false,
+    "build": true,
+    "affinity": [
+      0.5625,
+      0.42750000000000005,
+      0.32,
+      0.3625
+    ]
+  },
+  {
+    "name": "auto-gates-opposed",
+    "composition": "auto-gates-opposed",
+    "family": "gates",
+    "layout": "opposed",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.5875,
+      0.4625,
+      0.3,
+      0.3875
+    ]
+  },
+  {
+    "name": "auto-gates-staggered",
+    "composition": "auto-gates-staggered",
+    "family": "gates",
+    "layout": "staggered",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6125,
+      0.49750000000000005,
+      0.28,
+      0.4125
+    ]
+  },
+  {
+    "name": "auto-gates-braided",
+    "composition": "auto-gates-braided",
+    "family": "gates",
+    "layout": "braided",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6375000000000001,
+      0.5325000000000001,
+      0.26,
+      0.4375
+    ]
+  },
+  {
+    "name": "auto-gates-nested",
+    "composition": "auto-gates-nested",
+    "family": "gates",
+    "layout": "nested",
+    "gentle": false,
+    "build": true,
+    "affinity": [
+      0.6625,
+      0.5675,
+      0.24,
+      0.4625
+    ]
+  },
+  {
+    "name": "auto-gates-open",
+    "composition": "auto-gates-open",
+    "family": "gates",
+    "layout": "open",
+    "gentle": false,
+    "build": true,
+    "affinity": [
+      0.6875,
+      0.6025,
+      0.22,
+      0.48750000000000004
+    ]
+  },
+  {
+    "name": "auto-gates-folded",
+    "composition": "auto-gates-folded",
+    "family": "gates",
+    "layout": "folded",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7125,
+      0.6375000000000001,
+      0.2,
+      0.5125
+    ]
+  },
+  {
+    "name": "auto-gates-diagonal",
+    "composition": "auto-gates-diagonal",
+    "family": "gates",
+    "layout": "diagonal",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7375,
+      0.6725000000000001,
+      0.18,
+      0.5375
+    ]
+  },
+  {
+    "name": "auto-gates-rings",
+    "composition": "auto-gates-rings",
+    "family": "gates",
+    "layout": "rings",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7625000000000001,
+      0.7075,
+      0.16,
+      0.5625
+    ]
+  },
+  {
+    "name": "auto-terraces-unison",
+    "composition": "auto-terraces-unison",
+    "family": "terraces",
+    "layout": "unison",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.43750000000000006,
+      0.44249999999999995,
+      0.49,
+      0.2375
+    ]
+  },
+  {
+    "name": "auto-terraces-lanes",
+    "composition": "auto-terraces-lanes",
+    "family": "terraces",
+    "layout": "lanes",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.4625,
+      0.4775,
+      0.47000000000000003,
+      0.26249999999999996
+    ]
+  },
+  {
+    "name": "auto-terraces-opposed",
+    "composition": "auto-terraces-opposed",
+    "family": "terraces",
+    "layout": "opposed",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.48750000000000004,
+      0.5125,
+      0.45,
+      0.2875
+    ]
+  },
+  {
+    "name": "auto-terraces-staggered",
+    "composition": "auto-terraces-staggered",
+    "family": "terraces",
+    "layout": "staggered",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.5125000000000001,
+      0.5475,
+      0.43000000000000005,
+      0.3125
+    ]
+  },
+  {
+    "name": "auto-terraces-braided",
+    "composition": "auto-terraces-braided",
+    "family": "terraces",
+    "layout": "braided",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.5375000000000001,
+      0.5825,
+      0.41000000000000003,
+      0.33749999999999997
+    ]
+  },
+  {
+    "name": "auto-terraces-nested",
+    "composition": "auto-terraces-nested",
+    "family": "terraces",
+    "layout": "nested",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.5625,
+      0.6174999999999999,
+      0.39,
+      0.3625
+    ]
+  },
+  {
+    "name": "auto-terraces-open",
+    "composition": "auto-terraces-open",
+    "family": "terraces",
+    "layout": "open",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.5875,
+      0.6525,
+      0.37,
+      0.38749999999999996
+    ]
+  },
+  {
+    "name": "auto-terraces-folded",
+    "composition": "auto-terraces-folded",
+    "family": "terraces",
+    "layout": "folded",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6125,
+      0.6875,
+      0.35000000000000003,
+      0.4125
+    ]
+  },
+  {
+    "name": "auto-terraces-diagonal",
+    "composition": "auto-terraces-diagonal",
+    "family": "terraces",
+    "layout": "diagonal",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6375000000000001,
+      0.7225,
+      0.33,
+      0.4375
+    ]
+  },
+  {
+    "name": "auto-terraces-rings",
+    "composition": "auto-terraces-rings",
+    "family": "terraces",
+    "layout": "rings",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6625000000000001,
+      0.7575000000000001,
+      0.31000000000000005,
+      0.46249999999999997
+    ]
+  },
+  {
+    "name": "auto-polygons-unison",
+    "composition": "auto-polygons-unison",
+    "family": "polygons",
+    "layout": "unison",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.5874999999999999,
+      0.4925,
+      0.39,
+      0.3875
+    ]
+  },
+  {
+    "name": "auto-polygons-lanes",
+    "composition": "auto-polygons-lanes",
+    "family": "polygons",
+    "layout": "lanes",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6124999999999999,
+      0.5275,
+      0.37,
+      0.4125
+    ]
+  },
+  {
+    "name": "auto-polygons-opposed",
+    "composition": "auto-polygons-opposed",
+    "family": "polygons",
+    "layout": "opposed",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6375,
+      0.5625,
+      0.35,
+      0.4375
+    ]
+  },
+  {
+    "name": "auto-polygons-staggered",
+    "composition": "auto-polygons-staggered",
+    "family": "polygons",
+    "layout": "staggered",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6625,
+      0.5975,
+      0.32999999999999996,
+      0.4625
+    ]
+  },
+  {
+    "name": "auto-polygons-braided",
+    "composition": "auto-polygons-braided",
+    "family": "polygons",
+    "layout": "braided",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6875,
+      0.6325000000000001,
+      0.31,
+      0.4875
+    ]
+  },
+  {
+    "name": "auto-polygons-nested",
+    "composition": "auto-polygons-nested",
+    "family": "polygons",
+    "layout": "nested",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7124999999999999,
+      0.6675,
+      0.29,
+      0.5125
+    ]
+  },
+  {
+    "name": "auto-polygons-open",
+    "composition": "auto-polygons-open",
+    "family": "polygons",
+    "layout": "open",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7374999999999999,
+      0.7025,
+      0.27,
+      0.5375
+    ]
+  },
+  {
+    "name": "auto-polygons-folded",
+    "composition": "auto-polygons-folded",
+    "family": "polygons",
+    "layout": "folded",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7625,
+      0.7375,
+      0.25,
+      0.5625
+    ]
+  },
+  {
+    "name": "auto-polygons-diagonal",
+    "composition": "auto-polygons-diagonal",
+    "family": "polygons",
+    "layout": "diagonal",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7875,
+      0.7725000000000001,
+      0.22999999999999998,
+      0.5875
+    ]
+  },
+  {
+    "name": "auto-polygons-rings",
+    "composition": "auto-polygons-rings",
+    "family": "polygons",
+    "layout": "rings",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.8125,
+      0.8075000000000001,
+      0.21,
+      0.6125
+    ]
+  },
+  {
+    "name": "auto-chains-unison",
+    "composition": "auto-chains-unison",
+    "family": "chains",
+    "layout": "unison",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6375,
+      0.6425000000000001,
+      0.29000000000000004,
+      0.4875
+    ]
+  },
+  {
+    "name": "auto-chains-lanes",
+    "composition": "auto-chains-lanes",
+    "family": "chains",
+    "layout": "lanes",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6625,
+      0.6775,
+      0.27,
+      0.5125
+    ]
+  },
+  {
+    "name": "auto-chains-opposed",
+    "composition": "auto-chains-opposed",
+    "family": "chains",
+    "layout": "opposed",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6875,
+      0.7125,
+      0.25,
+      0.5375
+    ]
+  },
+  {
+    "name": "auto-chains-staggered",
+    "composition": "auto-chains-staggered",
+    "family": "chains",
+    "layout": "staggered",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7125,
+      0.7475,
+      0.23,
+      0.5625
+    ]
+  },
+  {
+    "name": "auto-chains-braided",
+    "composition": "auto-chains-braided",
+    "family": "chains",
+    "layout": "braided",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7375,
+      0.7825000000000001,
+      0.21000000000000002,
+      0.5875
+    ]
+  },
+  {
+    "name": "auto-chains-nested",
+    "composition": "auto-chains-nested",
+    "family": "chains",
+    "layout": "nested",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7625,
+      0.8175,
+      0.19,
+      0.6124999999999999
+    ]
+  },
+  {
+    "name": "auto-chains-open",
+    "composition": "auto-chains-open",
+    "family": "chains",
+    "layout": "open",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7875,
+      0.8525,
+      0.17,
+      0.6375
+    ]
+  },
+  {
+    "name": "auto-chains-folded",
+    "composition": "auto-chains-folded",
+    "family": "chains",
+    "layout": "folded",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.8125,
+      0.8875000000000001,
+      0.15000000000000002,
+      0.6625
+    ]
+  },
+  {
+    "name": "auto-chains-diagonal",
+    "composition": "auto-chains-diagonal",
+    "family": "chains",
+    "layout": "diagonal",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.8375,
+      0.9225000000000001,
+      0.13,
+      0.6875
+    ]
+  },
+  {
+    "name": "auto-chains-rings",
+    "composition": "auto-chains-rings",
+    "family": "chains",
+    "layout": "rings",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.8625,
+      0.9575,
+      0.11000000000000001,
+      0.7125
+    ]
+  },
+  {
+    "name": "auto-sails-unison",
+    "composition": "auto-sails-unison",
+    "family": "sails",
+    "layout": "unison",
+    "gentle": true,
+    "build": true,
+    "affinity": [
+      0.3875,
+      0.2425,
+      0.64,
+      0.43750000000000006
+    ]
+  },
+  {
+    "name": "auto-sails-lanes",
+    "composition": "auto-sails-lanes",
+    "family": "sails",
+    "layout": "lanes",
+    "gentle": true,
+    "build": true,
+    "affinity": [
+      0.4125,
+      0.2775,
+      0.6200000000000001,
+      0.4625
+    ]
+  },
+  {
+    "name": "auto-sails-opposed",
+    "composition": "auto-sails-opposed",
+    "family": "sails",
+    "layout": "opposed",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.4375,
+      0.3125,
+      0.6000000000000001,
+      0.48750000000000004
+    ]
+  },
+  {
+    "name": "auto-sails-staggered",
+    "composition": "auto-sails-staggered",
+    "family": "sails",
+    "layout": "staggered",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.4625,
+      0.34750000000000003,
+      0.5800000000000001,
+      0.5125000000000001
+    ]
+  },
+  {
+    "name": "auto-sails-braided",
+    "composition": "auto-sails-braided",
+    "family": "sails",
+    "layout": "braided",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.4875,
+      0.3825,
+      0.56,
+      0.5375000000000001
+    ]
+  },
+  {
+    "name": "auto-sails-nested",
+    "composition": "auto-sails-nested",
+    "family": "sails",
+    "layout": "nested",
+    "gentle": true,
+    "build": true,
+    "affinity": [
+      0.5125,
+      0.41750000000000004,
+      0.54,
+      0.5625
+    ]
+  },
+  {
+    "name": "auto-sails-open",
+    "composition": "auto-sails-open",
+    "family": "sails",
+    "layout": "open",
+    "gentle": true,
+    "build": true,
+    "affinity": [
+      0.5375,
+      0.4525,
+      0.52,
+      0.5875
+    ]
+  },
+  {
+    "name": "auto-sails-folded",
+    "composition": "auto-sails-folded",
+    "family": "sails",
+    "layout": "folded",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.5625,
+      0.48750000000000004,
+      0.5,
+      0.6125
+    ]
+  },
+  {
+    "name": "auto-sails-diagonal",
+    "composition": "auto-sails-diagonal",
+    "family": "sails",
+    "layout": "diagonal",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.5875,
+      0.5225000000000001,
+      0.48000000000000004,
+      0.6375000000000001
+    ]
+  },
+  {
+    "name": "auto-sails-rings",
+    "composition": "auto-sails-rings",
+    "family": "sails",
+    "layout": "rings",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6125,
+      0.5575000000000001,
+      0.4600000000000001,
+      0.6625000000000001
+    ]
+  },
+  {
+    "name": "auto-comets-unison",
+    "composition": "auto-comets-unison",
+    "family": "comets",
+    "layout": "unison",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6875,
+      0.5925,
+      0.29000000000000004,
+      0.5874999999999999
+    ]
+  },
+  {
+    "name": "auto-comets-lanes",
+    "composition": "auto-comets-lanes",
+    "family": "comets",
+    "layout": "lanes",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7125,
+      0.6275,
+      0.27,
+      0.6124999999999999
+    ]
+  },
+  {
+    "name": "auto-comets-opposed",
+    "composition": "auto-comets-opposed",
+    "family": "comets",
+    "layout": "opposed",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7375,
+      0.6625,
+      0.25,
+      0.6375
+    ]
+  },
+  {
+    "name": "auto-comets-staggered",
+    "composition": "auto-comets-staggered",
+    "family": "comets",
+    "layout": "staggered",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7625000000000001,
+      0.6975,
+      0.23,
+      0.6625
+    ]
+  },
+  {
+    "name": "auto-comets-braided",
+    "composition": "auto-comets-braided",
+    "family": "comets",
+    "layout": "braided",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7875000000000001,
+      0.7325,
+      0.21000000000000002,
+      0.6875
+    ]
+  },
+  {
+    "name": "auto-comets-nested",
+    "composition": "auto-comets-nested",
+    "family": "comets",
+    "layout": "nested",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.8125,
+      0.7675,
+      0.19,
+      0.7124999999999999
+    ]
+  },
+  {
+    "name": "auto-comets-open",
+    "composition": "auto-comets-open",
+    "family": "comets",
+    "layout": "open",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.8375,
+      0.8025,
+      0.17,
+      0.7374999999999999
+    ]
+  },
+  {
+    "name": "auto-comets-folded",
+    "composition": "auto-comets-folded",
+    "family": "comets",
+    "layout": "folded",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.8625,
+      0.8375,
+      0.15000000000000002,
+      0.7625
+    ]
+  },
+  {
+    "name": "auto-comets-diagonal",
+    "composition": "auto-comets-diagonal",
+    "family": "comets",
+    "layout": "diagonal",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.8875000000000001,
+      0.8725,
+      0.13,
+      0.7875
+    ]
+  },
+  {
+    "name": "auto-comets-rings",
+    "composition": "auto-comets-rings",
+    "family": "comets",
+    "layout": "rings",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.9125000000000001,
+      0.9075,
+      0.11000000000000001,
+      0.8125
+    ]
+  },
+  {
+    "name": "auto-lattice-unison",
+    "composition": "auto-lattice-unison",
+    "family": "lattice",
+    "layout": "unison",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6875,
+      0.6924999999999999,
+      0.29000000000000004,
+      0.28750000000000003
+    ]
+  },
+  {
+    "name": "auto-lattice-lanes",
+    "composition": "auto-lattice-lanes",
+    "family": "lattice",
+    "layout": "lanes",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7125,
+      0.7274999999999999,
+      0.27,
+      0.3125
+    ]
+  },
+  {
+    "name": "auto-lattice-opposed",
+    "composition": "auto-lattice-opposed",
+    "family": "lattice",
+    "layout": "opposed",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7375,
+      0.7625,
+      0.25,
+      0.3375
+    ]
+  },
+  {
+    "name": "auto-lattice-staggered",
+    "composition": "auto-lattice-staggered",
+    "family": "lattice",
+    "layout": "staggered",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7625000000000001,
+      0.7975,
+      0.23,
+      0.36250000000000004
+    ]
+  },
+  {
+    "name": "auto-lattice-braided",
+    "composition": "auto-lattice-braided",
+    "family": "lattice",
+    "layout": "braided",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7875000000000001,
+      0.8325,
+      0.21000000000000002,
+      0.3875
+    ]
+  },
+  {
+    "name": "auto-lattice-nested",
+    "composition": "auto-lattice-nested",
+    "family": "lattice",
+    "layout": "nested",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.8125,
+      0.8674999999999999,
+      0.19,
+      0.41250000000000003
+    ]
+  },
+  {
+    "name": "auto-lattice-open",
+    "composition": "auto-lattice-open",
+    "family": "lattice",
+    "layout": "open",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.8375,
+      0.9025,
+      0.17,
+      0.4375
+    ]
+  },
+  {
+    "name": "auto-lattice-folded",
+    "composition": "auto-lattice-folded",
+    "family": "lattice",
+    "layout": "folded",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.8625,
+      0.9375,
+      0.15000000000000002,
+      0.4625
+    ]
+  },
+  {
+    "name": "auto-lattice-diagonal",
+    "composition": "auto-lattice-diagonal",
+    "family": "lattice",
+    "layout": "diagonal",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.8875000000000001,
+      0.9725,
+      0.13,
+      0.48750000000000004
+    ]
+  },
+  {
+    "name": "auto-lattice-rings",
+    "composition": "auto-lattice-rings",
+    "family": "lattice",
+    "layout": "rings",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.9125000000000001,
+      1,
+      0.11000000000000001,
+      0.5125000000000001
+    ]
+  },
+  {
+    "name": "auto-crowns-unison",
+    "composition": "auto-crowns-unison",
+    "family": "crowns",
+    "layout": "unison",
+    "gentle": true,
+    "build": true,
+    "affinity": [
+      0.4875,
+      0.2925,
+      0.49,
+      0.5874999999999999
+    ]
+  },
+  {
+    "name": "auto-crowns-lanes",
+    "composition": "auto-crowns-lanes",
+    "family": "crowns",
+    "layout": "lanes",
+    "gentle": true,
+    "build": true,
+    "affinity": [
+      0.5125,
+      0.3275,
+      0.47000000000000003,
+      0.6124999999999999
+    ]
+  },
+  {
+    "name": "auto-crowns-opposed",
+    "composition": "auto-crowns-opposed",
+    "family": "crowns",
+    "layout": "opposed",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.5375,
+      0.3625,
+      0.45,
+      0.6375
+    ]
+  },
+  {
+    "name": "auto-crowns-staggered",
+    "composition": "auto-crowns-staggered",
+    "family": "crowns",
+    "layout": "staggered",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.5625,
+      0.3975,
+      0.43000000000000005,
+      0.6625
+    ]
+  },
+  {
+    "name": "auto-crowns-braided",
+    "composition": "auto-crowns-braided",
+    "family": "crowns",
+    "layout": "braided",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.5875,
+      0.4325,
+      0.41000000000000003,
+      0.6875
+    ]
+  },
+  {
+    "name": "auto-crowns-nested",
+    "composition": "auto-crowns-nested",
+    "family": "crowns",
+    "layout": "nested",
+    "gentle": true,
+    "build": true,
+    "affinity": [
+      0.6124999999999999,
+      0.4675,
+      0.39,
+      0.7124999999999999
+    ]
+  },
+  {
+    "name": "auto-crowns-open",
+    "composition": "auto-crowns-open",
+    "family": "crowns",
+    "layout": "open",
+    "gentle": true,
+    "build": true,
+    "affinity": [
+      0.6375,
+      0.5025000000000001,
+      0.37,
+      0.7374999999999999
+    ]
+  },
+  {
+    "name": "auto-crowns-folded",
+    "composition": "auto-crowns-folded",
+    "family": "crowns",
+    "layout": "folded",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.6625,
+      0.5375,
+      0.35000000000000003,
+      0.7625
+    ]
+  },
+  {
+    "name": "auto-crowns-diagonal",
+    "composition": "auto-crowns-diagonal",
+    "family": "crowns",
+    "layout": "diagonal",
+    "gentle": true,
+    "build": false,
+    "affinity": [
+      0.6875,
+      0.5725,
+      0.33,
+      0.7875
+    ]
+  },
+  {
+    "name": "auto-crowns-rings",
+    "composition": "auto-crowns-rings",
+    "family": "crowns",
+    "layout": "rings",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7125,
+      0.6075,
+      0.31000000000000005,
+      0.8125
+    ]
+  },
+  {
+    "name": "auto-helices-unison",
+    "composition": "auto-helices-unison",
+    "family": "helices",
+    "layout": "unison",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.5874999999999999,
+      0.5425,
+      0.43999999999999995,
+      0.4875
+    ]
+  },
+  {
+    "name": "auto-helices-lanes",
+    "composition": "auto-helices-lanes",
+    "family": "helices",
+    "layout": "lanes",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6124999999999999,
+      0.5774999999999999,
+      0.42,
+      0.5125
+    ]
+  },
+  {
+    "name": "auto-helices-opposed",
+    "composition": "auto-helices-opposed",
+    "family": "helices",
+    "layout": "opposed",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6375,
+      0.6124999999999999,
+      0.39999999999999997,
+      0.5375
+    ]
+  },
+  {
+    "name": "auto-helices-staggered",
+    "composition": "auto-helices-staggered",
+    "family": "helices",
+    "layout": "staggered",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6625,
+      0.6475,
+      0.38,
+      0.5625
+    ]
+  },
+  {
+    "name": "auto-helices-braided",
+    "composition": "auto-helices-braided",
+    "family": "helices",
+    "layout": "braided",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.6875,
+      0.6825,
+      0.36,
+      0.5875
+    ]
+  },
+  {
+    "name": "auto-helices-nested",
+    "composition": "auto-helices-nested",
+    "family": "helices",
+    "layout": "nested",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7124999999999999,
+      0.7174999999999999,
+      0.33999999999999997,
+      0.6124999999999999
+    ]
+  },
+  {
+    "name": "auto-helices-open",
+    "composition": "auto-helices-open",
+    "family": "helices",
+    "layout": "open",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7374999999999999,
+      0.7525,
+      0.31999999999999995,
+      0.6375
+    ]
+  },
+  {
+    "name": "auto-helices-folded",
+    "composition": "auto-helices-folded",
+    "family": "helices",
+    "layout": "folded",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7625,
+      0.7875,
+      0.3,
+      0.6625
+    ]
+  },
+  {
+    "name": "auto-helices-diagonal",
+    "composition": "auto-helices-diagonal",
+    "family": "helices",
+    "layout": "diagonal",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.7875,
+      0.8225,
+      0.27999999999999997,
+      0.6875
+    ]
+  },
+  {
+    "name": "auto-helices-rings",
+    "composition": "auto-helices-rings",
+    "family": "helices",
+    "layout": "rings",
+    "gentle": false,
+    "build": false,
+    "affinity": [
+      0.8125,
+      0.8574999999999999,
+      0.26,
+      0.7125
+    ]
+  }
+]

@@ -488,7 +488,6 @@ async function checkMusicConnection() {
     if (result.device) { $('musicLamp').value = result.device.ip; try { localStorage.setItem('wiz-selected', result.device.ip); } catch {} }
     ready = result.state === 'ready';
     message(ready ? 'Lampe verbunden. Wähle eine MP3 oder starte Rechner-Audio.' : result.message, !ready);
-    if (result.setupUrl) { const link = document.createElement('a'); link.href = result.setupUrl; link.textContent = ' WLAN-Einrichtung öffnen'; $('musicStatus').append(link); }
   } catch (error) { message(error.message, true); }
   finally { connectionChecking = false; controls(); }
 }

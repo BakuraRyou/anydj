@@ -6,7 +6,7 @@ import {movingHeadTargets,advanceMovingHeads,restingHeads,motionTangent,motionHe
 import {movingCues,movingCueAt,movingCueExposure} from './dmx-moving-cues.js';
 
 export const MOVING_STEP=.05;
-const modes=mode=>['wash','follow','alternate'].includes(mode)?mode:'auto';
+const modes=mode=>['wash','follow','alternate','strobe'].includes(mode)?mode:'auto';
 const blend=(a,b,t)=>a.map((pose,i)=>({pan:pose.pan+(b[i].pan-pose.pan)*t,tilt:pose.tilt+(b[i].tilt-pose.tilt)*t}));
 // A bounded cooperative job: no audio decoding and no full-song work in a frame.
 export function movingPlanJob(plan,mode='auto',mood='balanced'){

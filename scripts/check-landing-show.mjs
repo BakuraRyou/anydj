@@ -1,0 +1,75 @@
+import assert from 'node:assert/strict';
+import {spawn} from 'node:child_process';
+import {once} from 'node:events';
+import {mkdtemp,rm,mkdir,cp,writeFile} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {createHostedServer} from '../builder/hosting/server.mjs';
+const root=await mkdtemp(join(tmpdir(),'anydj-landing-browser-'));
+await cp(new URL('../dist/web/',import.meta.url),join(root,'public'),{recursive:true});
+const server=await createHostedServer({root,watchRestart:false}),requests=[];
+server.on('request',req=>requests.push(req.url));server.listen(0,'127.0.0.1');await once(server,'listening');
+const base=`http://127.0.0.1:${server.address().port}`;
+const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--no-sandbox','--use-angle=swiftshader','--enable-unsafe-swiftshader','--no-first-run','--disable-background-networking','--remote-debugging-port=0',`--user-data-dir=${join(root,'chrome')}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
+let ws;
+try{
+  const endpoint=await new Promise((resolve,reject)=>{let output='';const timer=setTimeout(()=>reject(Error('Chrome startup timeout')),15000);chrome.stderr.on('data',data=>{output+=data;const match=output.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(match){clearTimeout(timer);resolve(match[1]);}});chrome.once('exit',()=>{clearTimeout(timer);reject(Error('Chrome exited'));});});
+  ws=new WebSocket(endpoint);await once(ws,'open');let next=1;const pending=new Map(),errors=[];
+  ws.addEventListener('message',event=>{const m=JSON.parse(event.data);if(m.id){const p=pending.get(m.id);pending.delete(m.id);m.error?p.reject(Error(JSON.stringify(m.error))):p.resolve(m.result);}else if(m.method==='Runtime.exceptionThrown')errors.push(m.params.exceptionDetails);});
+  const command=(method,params={},sessionId)=>new Promise((resolve,reject)=>{const id=next++;pending.set(id,{resolve,reject});ws.send(JSON.stringify({id,method,params,...(sessionId?{sessionId}:{})}));});
+  const {targetId}=await command('Target.createTarget',{url:'about:blank'}),{sessionId}=await command('Target.attachToTarget',{targetId,flatten:true});const c=(method,params)=>command(method,params,sessionId);
+  await c('Runtime.enable');await c('Page.enable');
+  const evaluate=async expression=>{const r=await c('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true,userGesture:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
+  const wait=async expression=>{const end=Date.now()+20000;while(Date.now()<end){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Timeout: '+expression+'; '+await evaluate('document.querySelector("[data-status]")?.textContent'));};
+  await c('Emulation.setDeviceMetricsOverride',{width:1280,height:1000,deviceScaleFactor:1,mobile:false});
+  await c('Page.navigate',{url:base});await wait('document.querySelector("[data-showcase]")');
+  await evaluate('document.documentElement.style.scrollBehavior="auto";document.querySelector("[data-showcase]").scrollIntoView({block:"center"})');
+  await wait('!document.querySelector("[data-play]").disabled && document.querySelector("[data-poster]").hidden');
+  assert.equal(await evaluate('document.querySelectorAll(".show-choice").length'),3);
+  if(process.argv.includes('--update-poster')){
+    const clip=await evaluate('(()=>{const r=document.querySelector("[data-viewport]").getBoundingClientRect();return {x:r.x+scrollX,y:r.y+scrollY,width:r.width,height:r.height,scale:1}})()');
+    await evaluate('document.querySelector(".show-view-tools").style.visibility="hidden"');
+    await writeFile(new URL('../web/landing-show-poster.webp',import.meta.url),Buffer.from((await c('Page.captureScreenshot',{format:'webp',quality:85,clip})).data,'base64'));
+    await evaluate('document.querySelector(".show-view-tools").style.visibility=""');
+  }
+
+  assert.equal(requests.includes('/demo-shows/sunset.json'),false);assert.equal(requests.includes('/demo-shows/electric.wav'),false);
+  await evaluate('document.querySelector("[data-play]").click()');await wait('Number(document.querySelector("[data-seek]").value)>.5');
+  const performanceSample=await evaluate(`(async()=>{const original=CanvasRenderingContext2D.prototype.clearRect;let frames=0;CanvasRenderingContext2D.prototype.clearRect=function(...args){frames++;return original.apply(this,args)};const start=performance.now();await new Promise(r=>setTimeout(r,2000));CanvasRenderingContext2D.prototype.clearRect=original;return {frames,seconds:(performance.now()-start)/1000}})()`);
+  const renderer=await evaluate('document.querySelector("[data-stage]").dataset.renderer');assert.equal(renderer,'webgl');
+  await evaluate('document.querySelector("[data-play]").click()');
+  const stopped=await evaluate('Number(document.querySelector("[data-seek]").value)');await new Promise(r=>setTimeout(r,200));assert.ok(Math.abs(await evaluate('Number(document.querySelector("[data-seek]").value)')-stopped)<.1);
+  await evaluate('const seek=document.querySelector("[data-seek]");seek.value=8;seek.dispatchEvent(new Event("input"))');await wait('document.querySelector("[data-clock]").textContent.startsWith("0:08")');
+  await new Promise(r=>setTimeout(r,200));
+  await mkdir(new URL('../reports/landing-show/',import.meta.url),{recursive:true});
+  await writeFile(new URL('../reports/landing-show/desktop.png',import.meta.url),Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  for(const index of [1,2]){await evaluate(`document.querySelectorAll('.show-choice')[${index}].click()`);await wait('!document.querySelector("[data-play]").disabled');await evaluate('document.querySelector("[data-play]").click()');await wait('Number(document.querySelector("[data-seek]").value)>.2');}
+  await evaluate('window.scrollTo(0,document.body.scrollHeight)');await wait('document.querySelector("[data-play]").getAttribute("aria-pressed")==="false"');
+  await c('Emulation.setDeviceMetricsOverride',{width:390,height:844,deviceScaleFactor:2,mobile:true});
+  await evaluate('document.documentElement.style.scrollBehavior="auto";document.querySelector("[data-showcase]").scrollIntoView({block:"center"})');await new Promise(r=>setTimeout(r,300));
+  assert.equal(await evaluate('document.documentElement.scrollWidth>innerWidth'),false);
+  await wait('document.querySelector("[data-stage]").width<=390');
+  await writeFile(new URL('../reports/landing-show/mobile.png',import.meta.url),Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  await c('Emulation.setEmulatedMedia',{features:[{name:'prefers-reduced-motion',value:'reduce'}]});
+  await evaluate('document.querySelector("[data-play]").click()');await wait('Number(document.querySelector("[data-seek]").value)>.5');
+  assert.match(await evaluate('document.querySelector("[data-status]").textContent'),/bewegungsarme/);
+  const reducedFrames=await evaluate(`(async()=>{const original=CanvasRenderingContext2D.prototype.clearRect;let frames=0;CanvasRenderingContext2D.prototype.clearRect=function(...args){frames++;return original.apply(this,args)};await new Promise(r=>setTimeout(r,600));CanvasRenderingContext2D.prototype.clearRect=original;return frames})()`);
+  assert.ok(reducedFrames<=1,'reduced motion allows one pending redraw, never a continuous loop');
+  await evaluate('document.querySelectorAll(".show-choice")[0].click();document.querySelectorAll(".show-choice")[1].click();document.querySelectorAll(".show-choice")[2].click()');
+  await wait('!document.querySelector("[data-play]").disabled');
+  assert.equal(await evaluate('document.querySelector(".show-choice[aria-pressed=true] strong").textContent'),'Electric Blue');
+  await writeFile(join(root,'public','demo-shows','electric.json'),'{"version":99}');
+  await evaluate('document.querySelectorAll(".show-choice")[2].click()');
+  await wait('document.querySelector("[data-status]").textContent.includes("erneut aus")');
+  assert.equal(await evaluate('document.querySelector("[data-play]").disabled'),true);
+  await evaluate('document.querySelectorAll(".show-choice")[0].click()');await wait('!document.querySelector("[data-play]").disabled');
+  await c('Page.addScriptToEvaluateOnNewDocument',{source:`const originalGetContext=HTMLCanvasElement.prototype.getContext;HTMLCanvasElement.prototype.getContext=function(type,...args){return type.startsWith('webgl')?null:originalGetContext.call(this,type,...args)};`});
+  const oldOrigin=await evaluate('performance.timeOrigin');
+  await c('Page.navigate',{url:base});await wait(`performance.timeOrigin!==${oldOrigin} && document.readyState==='complete' && document.querySelector('[data-showcase]')`);
+  await evaluate('document.documentElement.style.scrollBehavior="auto";document.querySelector("[data-viewport]").scrollIntoView({block:"center"})');
+  await wait('!document.querySelector("[data-play]").disabled && document.querySelector("[data-poster]").hidden');
+  assert.equal(await evaluate('document.querySelector("[data-stage]").dataset.renderer'),'canvas');
+  assert.equal(errors.length,0,JSON.stringify(errors));
+  const result={renderer,performanceSample,performanceNote:'Headless Chrome with SwiftShader; not a physical mobile GPU benchmark.',checks:['Three shows play with hosted CSP','Only selected media loads','Pause and seek','Offscreen pause','Mobile width and render resolution','Reduced motion stops rendering','Rapid selection','Invalid JSON and recovery','Canvas fallback without WebGL','No runtime exceptions'],requests:requests.filter(url=>url.startsWith('/demo-shows/'))};
+  await writeFile(new URL('../reports/landing-show/browser.json',import.meta.url),JSON.stringify(result,null,2)+'\n');console.log(JSON.stringify(result,null,2));
+}finally{ws?.close();chrome.kill('SIGKILL');await new Promise(resolve=>{server.closeAllConnections();server.close(resolve);});await new Promise(resolve=>setTimeout(resolve,200));await rm(root,{recursive:true,force:true,maxRetries:3});}

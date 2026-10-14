@@ -1,3 +1,4 @@
+import {renderStrobe} from './dmx-strobe.js';
 import {lightingSceneAt,lightingScenes} from './dmx-light-scenes.js';
 import {showActionAt} from './show-action.js';
 import {activityAt} from './dmx-activity.js';
@@ -6,6 +7,7 @@ import {stagePatch} from './dmx-model.js';
 export const colorCount=value=>[1,2,3,4].includes(value)?value:2;
 export const STAGE_PRESETS={
   auto:{name:'Automatische Lichtshow',help:'Farben, Bewegung und Lichtpausen folgen der Musik. Gezielte Aufbauten und Rücknahmen gestalten besondere Passagen.'},
+  strobe:{name:'Strobo',help:'120 Animationen passend zum Songabschnitt: sanfte Wellen, Gruppenwechsel, Aufbauten und weiße Blitzfolgen. Maximales Beat-Flackern regelt die Stärke. Ohne Beat-Raster bleibt das Licht konstant.'},
   chase:{name:'Lauflicht',help:'Eine weiche Lichtwelle wandert im Beat von Gerät zu Gerät. Farben und Helligkeit folgen deiner Show.'},
   wash:{name:'Ruhige Farbflächen',help:'Für Warm-up und Hintergrundlicht: Die Helligkeit folgt dem langsamen Verlauf der Show, ohne zusätzliche Beat-Impulse.'},
   follow:{name:'Musikimpulse gemeinsam',help:'Alle Geräte übernehmen die Helligkeit der vorbereiteten Show gleichzeitig, in deinen Bühnenfarben. Keine zusätzliche Blinkkurve.'},
@@ -160,7 +162,15 @@ export function automaticDimming(source){
   return raw+(lifted-raw)*intensity;
 }
 
+// Song profiles take precedence over the stage's default look while audible.
+export function stageModeForStreams(streams,mode='auto'){
+ const active=streams.filter(s=>s.frame&&s.frame.state!==false&&Number.isFinite(s.weight)&&s.weight>0);
+ const main=active.reduce((a,b)=>!a||b.weight>a.weight?b:a,null);
+ return main?.movingPlan?.showProfile==='strobe'?'strobe':mode;
+}
+
 export function automaticStage(streams,count=2,equipment,mode='auto',{movingSource=false}={}){
+  mode=stageModeForStreams(streams,mode);
   const chase=mode==='chase';
   const simple=['wash','follow','alternate'].includes(mode);
   const patch=stagePatch(equipment),units=patch.reduce((n,f)=>n+f.cells,0);
@@ -169,6 +179,7 @@ export function automaticStage(streams,count=2,equipment,mode='auto',{movingSour
   const total=active.reduce((sum,s)=>sum+s.weight,0);
   if(!total||!units)return {frames:patch.map(f=>Array.from({length:f.cells},()=>null)),palette:[],description:'Wartet auf Musik oder Demo.'};
   const main=active.reduce((a,b)=>a.weight>=b.weight?a:b),beat=Number.isFinite(main.motionBeat)?main.motionBeat:Number.isFinite(main.beat)?main.beat:null;
+  if(mode==='strobe')return renderStrobe(active,patch,{movingSource});
   const requested=count;
   const counts=active.map(s=>automaticColorCount(requested,s.look,s.sectionProgress));
   // Each deck may deliberately repeat colors. Preserve both shows in a transition.

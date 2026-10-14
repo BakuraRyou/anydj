@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="de">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="DJ-Mix, Übergangsmanager und automatische Lichtshows in AnyDj. Plane deinen Raum und erlebe deine Beleuchtung aus deiner Wunschposition in der 3D-Bühne."><meta name="color-scheme" content="dark"><title>AnyDj · Musik mixen. Licht gestalten.</title><link rel="stylesheet" href="./web.css"><link rel="stylesheet" href="./brand.css"></head>
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="DJ-Mix, Übergangsmanager und automatische Lichtshows in AnyDj. Plane deinen Raum und erlebe deine Beleuchtung aus deiner Wunschposition in der 3D-Bühne."><meta name="color-scheme" content="dark"><title>AnyDj · Musik mixen. Licht gestalten.</title><link rel="stylesheet" href="./web.css"><link rel="stylesheet" href="./brand.css"><link rel="stylesheet" href="./landing-show.css"><script type="module" src="./landing-show.js"></script></head>
 <body>
 <a class="skip-link" href="#inhalt">Zum Inhalt</a>
 <!-- SITE_HEADER -->
@@ -9,7 +9,23 @@
  <div class="hero-heading"><p class="eyebrow"><span class="status-dot"></span> DEIN DJ-PULT. DEINE LICHTSHOW.</p><h1>Deine Musik.<br>Dein Licht.<br><em>Dein Abend.</em></h1></div>
  <div class="hero-copy"><span class="section-index" aria-hidden="true">A / B</span><p class="lead">Bring deinen Mix und deine Lichtshow zusammen.</p><p>AnyDj verbindet zwei Decks, musikalische Übergänge und Licht, das deiner Musik folgt. Für deinen nächsten Mix, deine Party und den Moment, in dem alles zusammenpasst.</p><div class="actions"><a class="button button-primary" href="./dj.html">Im Browser starten <span aria-hidden="true">↗</span></a><a class="text-link" href="./downloads.html">Desktop-App herunterladen <span aria-hidden="true">↓</span></a></div><p class="micro">Die Web-Demo läuft ohne Installation. Eigene Dateien bleiben auf deinem Gerät.</p></div>
 </section>
-<figure class="product-preview"><div class="preview-caption"><span><i class="status-dot"></i> ANYDJ / DJ-PULT</span><span>ZWEI DECKS. EIN GEMEINSAMER MIX.</span></div><img src="./product-preview.webp" width="1440" height="920" fetchpriority="high" alt="AnyDj DJ-Pult mit zwei geladenen Demo-Tracks, Mixer, Lichtvorschau und Musikbibliothek"><figcaption>Dein Mix, deine Musikbibliothek und dein Licht an einem Ort. <a href="./dj.html">Selbst ausprobieren ↗</a></figcaption></figure>
+<section class="showcase" data-showcase aria-labelledby="showcase-title">
+ <header class="showcase-heading"><h2 id="showcase-title">Dein Platz vor der Bühne.</h2><p>4 MOVING HEADS · 4 SCHEINWERFER</p></header>
+ <div class="show-viewport" data-viewport>
+  <img class="show-poster" data-poster src="./landing-show-poster.webp" width="1166" height="510" alt="3D-Bühne mit vier Moving Heads und vier Scheinwerfern" fetchpriority="high">
+  <canvas data-stage tabindex="0" role="img" aria-label="Interaktive 3D-Lichtbühne. Mit Ziehen oder Pfeiltasten drehen, mit Plus und Minus zoomen."></canvas>
+  <div class="show-view-tools" aria-label="Bühnenansicht"><button type="button" data-zoom-out aria-label="Herauszoomen">−</button><button type="button" data-zoom-in aria-label="Hineinzoomen">+</button><button type="button" data-reset>Ansicht zurücksetzen</button></div>
+ </div>
+ <div class="show-controls">
+  <button type="button" class="button button-primary" data-play disabled aria-pressed="false">Show abspielen</button>
+  <div class="show-progress"><input data-seek type="range" min="0" max="1" value="0" step="0.05" aria-label="Wiedergabeposition" disabled><output data-clock>0:00 / 0:00</output></div>
+  <label class="show-volume">Lautstärke <input data-volume type="range" min="0" max="1" step="0.01" value="0.55"></label>
+ </div>
+ <div class="show-choices" data-shows role="group" aria-label="Drei Demo-Shows zur Auswahl"></div>
+ <button class="button show-retry" type="button" data-retry hidden>Erneut laden</button>
+ <div class="showcase-footer"><p data-status role="status">Drei kurze Demo-Tracks mit vorberechneten Lichtshows. Wähle deinen Sound.</p><a class="text-link" href="./dj.html">Deine eigene Show gestalten ↗</a></div>
+ <noscript><p class="show-noscript">Die interaktive Lichtvorschau benötigt JavaScript. <a href="./dj.html">AnyDj entdecken ↗</a></p></noscript>
+</section>
 <div class="product-strip" aria-label="Die drei Bereiche von AnyDj"><span><b>01</b> Musik mixen</span><span><b>02</b> Licht gestalten</span><span><b>03</b> Bühne erleben</span></div>
 <section id="funktionen" class="section feature-section">
  <div class="section-heading"><p class="eyebrow">VOM ERSTEN TRACK BIS ZUM LETZTEN LICHT</p><h2>Ein Pult.<br>Viele Möglichkeiten.</h2><p>Du entscheidest, wie viel du selbst steuerst und wo dich AnyDj unterstützen soll.</p></div>

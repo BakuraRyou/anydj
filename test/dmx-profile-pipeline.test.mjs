@@ -17,23 +17,26 @@ function music({period=.5,barsize=4,energy=.82,vocals=0,drive=.9,duration=96}={}
 
 for(const profile of SHOW_PROFILES)test(`${profile}: source, presence and room preserve limits, blackouts and deterministic movement`,()=>{
  const original=music(),saved=structuredClone(original),plan=applyShowProfile(original,profile),mood=movingMoodForProfile(profile);
- const cues=movingCues(plan,'auto',mood),equipment={devices:Array.from({length:8},(_,i)=>({id:'h'+i,type:'moving',cells:1}))};
+ const mode=profile==='strobe'?'strobe':'auto',cues=movingCues(plan,mode,mood),equipment={devices:Array.from({length:8},(_,i)=>({id:'h'+i,type:'moving',cells:1}))};
  function frame(t,zero=false){
   const value=showFrameAt(plan,t),source={movingPlan:plan,songTime:t,look:'peak',weight:1,frame:zero?{...value,dimming:0}:value};
-  const colors=automaticStage([source],2,equipment).frames;
-  const pose=movingCueAt(cues,t),presence=movingPresenceAt({...source,movingMood:mood}),shutter=movingCueExposure(cues,t).level;
+  const colors=automaticStage([source],2,equipment,mode).frames;
+  const pose=movingCueAt(cues,t),presence=movingPresenceAt({...source,movingMood:mood}),shutter=profile==='strobe'?1:movingCueExposure(cues,t).level;
   return {layout:{width:8,depth:6,positions:{}},lights:colors.map((cells,i)=>{
    const f=cells[0],p=pose[i%pose.length];
-   return {id:'h'+i,type:'moving',position:{x:i-3.5,y:4,height:3},target:{x:p.pan/10,y:1+p.tilt*4},motionUV:{x:p.pan/90+.5,y:p.tilt},motionPresentation:mood==='balanced'?'auto':mood==='show'?'show':undefined,
+   return {id:'h'+i,type:'moving',position:{x:i-3.5,y:4,height:3},target:{x:p.pan/10,y:1+p.tilt*4},motionUV:{x:p.pan/90+.5,y:p.tilt},motionPresentation:profile==='strobe'?'strobe':mood==='balanced'?'auto':mood==='show'?'show':undefined,
     color:`rgb(${f.r},${f.g},${f.b})`,power:f.dimming/100,movingPresenceBasePower:f.dimming/100,movingPresence:presence,movingShutter:shutter};
   })};
  }
  const small=newRoomPlan(8,6,4);frame(4).lights.forEach(l=>small.positions[l.id]={...l.position,type:'moving',rotation:0});
  for(const room of [small,largeClubRoom()]){
   const render=(t,zero=false)=>applyRoomPlan(frame(t,zero),room).lights.filter(l=>l.type==='moving');
-  const snapshots=[4,12,25,46].map(t=>render(t));
+  // A rhythmic shutter can be dark at every isolated probe. Sample each
+ // inspection window densely enough to include both open and closed phases.
+ const times=profile==='strobe'?[4,12,25,46].flatMap(t=>Array.from({length:20},(_,i)=>t+i*.05)):[4,12,25,46];
+ const snapshots=times.map(t=>render(t));
   assert.ok(snapshots.some(ls=>ls.some(l=>l.power>0)),`${profile} cannot silently black out the whole rig`);
-  assert.ok(new Set(snapshots.map(ls=>JSON.stringify(ls.map(l=>l.target)))).size>1,'an active song retains motion through room mapping');
+  assert.ok(new Set(snapshots.map(ls=>JSON.stringify(ls.map(l=>profile==='strobe'?[l.target,l.power]:l.target)))).size>1,'an active song retains its animation through room mapping');
   for(const ls of snapshots){
    assert.ok(ls.every(l=>Number.isFinite(l.power)&&l.power>=0&&l.power<=l.movingPresenceBasePower+1e-9));
    assert.ok(ls.every(l=>Number.isFinite(l.target.x)&&Number.isFinite(l.target.y)));

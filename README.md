@@ -640,7 +640,7 @@ Verfahren und Lizenz: [Beat This! – offizielles Repository](https://github.com
 
 Eine lokale Webapp für AnyDj-WLAN-Lampen: Node.js-Backend, Browser-Frontend, keine npm-Abhängigkeiten und keine Cloud-Anbindung der Webapp.
 
-**Voraussetzung:** Die Lampe ist bereits im WLAN und akzeptiert ungesicherte lokale AnyDj-Befehle. Diese Version unterstützt **nicht** „Only verified controls / Nur verifizierte Steuerungen“ mit dem AnyDj Home Security Key. Für die WLAN-Ersteinrichtung gibt es einen [experimentellen lokalen Ablauf](SETUP.md), bisher ausschließlich für ESP03_SHRGB1C_01 mit Firmware 1.32.0. Sicherheitseinstellungen werden nicht umgangen. AnyDj beschreibt diese Unterscheidung in seinen lokalen Integrations- und Sicherheitshinweisen [1, 2].
+**Voraussetzung:** Die Lampe ist bereits im WLAN und akzeptiert ungesicherte lokale AnyDj-Befehle. Diese Version unterstützt **nicht** „Only verified controls / Nur verifizierte Steuerungen“ mit dem AnyDj Home Security Key. Die WLAN-Ersteinrichtung erfolgt außerhalb von AnyDj. Sicherheitseinstellungen werden nicht umgangen. AnyDj beschreibt diese Unterscheidung in seinen lokalen Integrations- und Sicherheitshinweisen [1, 2].
 
 ## Start auf Kubuntu / Ubuntu
 
@@ -868,7 +868,7 @@ Haupt- und Musikseite prüfen die gespeicherte Lampe beim Laden. Bei ausbleibend
 
 Die Musiksteuerung und die normalen Lichtknöpfe werden erst bei bestätigter Verbindung freigegeben. Während einer bestehenden Musiksitzung werden Statuswerte aus dem gekennzeichneten Cache genutzt. Eine IP, die nun einem anderen Gerät gehört, wird nicht stillschweigend übernommen.
 
-Auf dem lokalen Linux-Rechner prüft die App bei fehlender Lampe außerdem die von NetworkManager sichtbaren WLAN-Namen. Ein passendes AnyDjConfig-Netz führt zum Hinweis auf erneute WLAN-Einrichtung mit Link zur Einrichtungsseite. Es werden weder WLAN-Zugangsdaten dauerhaft gespeichert noch beim Seitenaufruf Netzwerke umgeschaltet. Ein ausgeschaltetes Gerät, verlorene WLAN-Einrichtung oder ein Firmwarefehler können durch eine Webseite nicht verhindert werden; in diesen Fällen zeigt sie den erkannten Zustand an und gibt keine vermeintlich betriebsbereite Steuerung frei.
+AnyDj prüft Lampen ausschließlich im vorhandenen IP-Netzwerk. WLAN-Scans, automatische WLAN-Einrichtung und Netzwechsel sind entfernt; die App legt keine Netzwerkprofile an.
 
 ## Lichtshow vorab erstellen
 
@@ -988,28 +988,13 @@ Suchrunden bis zu 90 Sekunden. Bei Suche über alle Netzwerke werden zusätzlich
 bis zu zwölf bekannte IP-Adressen direkt geprüft. Statusfehler werden nur fünf
 Sekunden zwischengespeichert; „Status neu lesen“ erzwingt eine frische Prüfung.
 Beim Zurückkehren zum Browser-Tab wird erneut geprüft. Neue DHCP-Adressen werden
-weiterhin über die MAC zugeordnet. Ein tatsächlich sichtbares AnyDjConfig-Netz
-weist dagegen auf Einrichtungsmodus hin; dazu zeigt die App die WLAN-Einrichtung.
+weiterhin über die MAC zugeordnet.
 
-**Automatische WLAN-Wiederherstellung:** Für die bekannte Lampe kann der lokale
-Server eine private Konfiguration in `data/recovery.json` verwenden. Bei einem
-passenden AnyDjConfig-Netz verbindet er die konfigurierte WLAN-Schnittstelle
-vorübergehend mit der Lampe, prüft vollständige MAC/Modell/Firmware, überträgt die
-hinterlegten WLAN-Daten, wartet auf den bestätigten Beitritt und schließt die
-Einrichtung ab. Erst eine MAC-geprüfte UDP-Antwort im Heimnetz bestätigt Erfolg.
-Die temporäre Verbindung wird entfernt und eine vorherige WLAN-Verbindung
-wiederhergestellt. Eine parallele LAN-Verbindung ist vorteilhaft.
-
-Die Zugangsdaten liegen nur in der lokalen Datei mit Modus 0600 (Klartext für den
-Serverbenutzer), nicht im Browser oder der Gerätehistorie. Die Datei liegt im
-ignorierten Datenverzeichnis. `GET /api/setup/recovery` zeigt ausschließlich den
-Status; die lokale, geschützte POST-Route konfiguriert/deaktiviert die Automatik.
-Ein persistentes Auftragsjournal verhindert erneutes Senden nach unklarem
-HTTP-Timeout, auch nach Serverneustart. Ein positiv bestätigter Auftrag darf nach
-weiterhin bestätigtem Gerätestatus 0 einmal wiederholt werden. Fehler führen zu
-einer zweiminütigen Pause zwischen automatischen Versuchen. Die Automatik läuft
-nur für die konfigurierte bekannte MAC, bei lokaler Verbindungsprüfung und ohne
-aktive Musiksitzung. Rechner und App-Server müssen eingeschaltet bleiben.
+WLAN-Suche und automatische WLAN-Wiederherstellung sind entfernt. Alte
+Recovery-Konfigurationen werden nicht mehr gelesen; `/setup` und
+`/api/setup/*` sind nicht mehr verfügbar. Bereits im Betriebssystem vorhandene
+Netzwerkprofile werden durch das Update nicht gelöscht. Nach dem Update den
+App-Server neu starten.
 
 ## Lichtshow-Editor
 

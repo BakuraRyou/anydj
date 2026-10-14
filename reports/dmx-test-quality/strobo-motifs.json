@@ -1,0 +1,16 @@
+{
+  "interval": [
+    0,
+    216
+  ],
+  "sampleHz": 15,
+  "heads": 48,
+  "relights": 3284,
+  "maxRelightStep": 0.16599040042117497,
+  "maxStep": 0.552199164245734,
+  "maxAngle": 3.932841077221342,
+  "maxRelightAngle": 1.1615212103685342,
+  "darkTrackingSamples": 130068,
+  "method": "Offline 15 Hz preset replay with four representative source roles and static support; room targets, zones and motors. No saved UI overrides, source follow filter, prediction, GPU rendering or acoustic listening assessment.",
+  "allDarkSampleFraction": 0.0601666152422092
+}

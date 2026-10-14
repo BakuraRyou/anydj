@@ -1,3 +1,5 @@
+import {strobeSpaceTarget} from './dmx-strobe-space.js';
+import {strobeRole,strobeRoleColor} from './dmx-strobe-motifs.js';
 import {sceneReadability} from './dmx-scene-readability.js';
 import {presenceGroupOffset,presenceComposition,automaticFixtureGroups} from './dmx-group-motion.js';
 import {applyMovingPresence} from './dmx-activity.js';
@@ -162,7 +164,7 @@ export function applyRoomPlan(scene, plan, ar=false) {
       let nx=Math.max(0,Math.min(1,Number.isFinite(light.motionUV?.x)?light.motionUV.x:light.target.x/(scene.layout.width*.9)+.5));
       let ny=Math.max(0,Math.min(1,Number.isFinite(light.motionUV?.y)?light.motionUV.y:(light.target.y/scene.layout.depth-.1)/.65));
       const row=rowById.get(light.id);
-      if(row&&!p.wallTarget){
+      if(row&&(!p.wallTarget||light.motionPresentation==='auto')){
         const clamp=v=>Math.max(0,Math.min(1,v));
         // Focus is an authored gesture, never a timer or a default room center.
         const focus=light.motionPresentation==='show'?clamp(light.motionFocus??0):0;
@@ -175,17 +177,17 @@ export function applyRoomPlan(scene, plan, ar=false) {
       }
       // Wall-enabled heads use the same group gesture before surface routing.
       // Skipping them made the entire stage half ignore automatic choreography.
-      if(light.motionPresentation==='auto'||light.motionPresentation==='show'){
+      if(['auto','show','strobe'].includes(light.motionPresentation)){
         // A held musical picture has no wall request. Do not infer one
         // from its tilt when the group-composition layer is absent.
-        motionWallBlend=Number.isFinite(light.motionWallBlend)?light.motionWallBlend:0;
+        motionWallBlend=light.motionPresentation==='auto'?0:Number.isFinite(light.motionWallBlend)?light.motionWallBlend:0;
         const role=groupRoles.get(light.id);
         if(role){
           const rangeScale=Math.max(0,Math.min(1,light.motionRange??1));
           const composition=presenceComposition(light.movingPresence,role.rank,role.count,role.row,motionGroupCount);
           if(composition){
             const drift=composition.articulation*.5;
-            motionWallBlend=composition.wallBlend*composition.weight;
+            motionWallBlend=light.motionPresentation==='auto'?0:composition.wallBlend*composition.weight;
             motionSymmetry=composition.paired>.999?'paired':undefined;
             const x=Math.max(0,Math.min(1,motionSymmetry==='paired'?.5+(composition.x-.5)*(1+(sourceCenter.x-.5)*drift):composition.x+(sourceCenter.x-.5)*drift));
             const y=Math.max(0,Math.min(1,composition.y+(sourceCenter.y-.5)*drift));
@@ -209,7 +211,10 @@ export function applyRoomPlan(scene, plan, ar=false) {
       }
     }
 
-    return {...light,movingShutter,motionSymmetry,motionWallBlend,...(light.type==='moving'?{motionGroup:p.group??groups.get(light.id)?.[0].motionGroup}:{}),...(motionUV?{motionUV}:{}),...(light.type==='moving'&&p.motionArea?{motionBounds:{left:(p.motionArea.x-.5)*plan.width,right:(p.motionArea.x+p.motionArea.width-.5)*plan.width,bottom:p.motionArea.y*plan.depth,top:(p.motionArea.y+p.motionArea.depth)*plan.depth}}:{}),aimed:light.type==='moving'||!!p.target,target,aimRotation:light.type==='moving'||p.target?roomFixtureRotation(p,target):p.rotation,position:{...p,x:p.x+dx*Math.cos(a)-dy*Math.sin(a),y:p.y+dx*Math.sin(a)+dy*Math.cos(a)},modelSize:p.size,rotation:p.rotation};
+    const colorRole=groupRoles.get(light.id);
+    const color=light.motionPresentation==='strobe'&&light.strobeColor&&colorRole
+      ?`rgb(${strobeRoleColor(light.strobeColor,strobeRole(colorRole.rank,colorRole.count,colorRole.row,motionGroupCount)).join(',')})`:light.color;
+    return {...light,color,movingShutter,motionSymmetry,motionWallBlend,...(light.type==='moving'?{motionGroup:p.group??groups.get(light.id)?.[0].motionGroup}:{}),...(motionUV?{motionUV}:{}),...(light.type==='moving'&&p.motionArea?{motionBounds:{left:(p.motionArea.x-.5)*plan.width,right:(p.motionArea.x+p.motionArea.width-.5)*plan.width,bottom:p.motionArea.y*plan.depth,top:(p.motionArea.y+p.motionArea.depth)*plan.depth}}:{}),aimed:light.type==='moving'||!!p.target,target,aimRotation:light.type==='moving'||p.target?roomFixtureRotation(p,target):p.rotation,position:{...p,x:p.x+dx*Math.cos(a)-dy*Math.sin(a),y:p.y+dx*Math.sin(a)+dy*Math.cos(a)},modelSize:p.size,rotation:p.rotation};
   });
   for(const [id,p] of Object.entries(plan.positions))if(!centers.has(id))lights.push({id,type:p.type||'spot',aimed:!!p.target,position:p,target:roomFixtureTarget(plan,id),color:'#7595a4',power:0,modelSize:p.size,rotation:p.rotation});
   // Virtual room fixtures may clone source roles or reorder the rig. Resolve
@@ -415,6 +420,9 @@ export function roomFixtureHit(matrix,origin,plan) {
 // Analytic ray/surface intersection: one pass over the floor-plan edges, no
 // shadow maps or mesh ray tracing. Routing first supplies a safe floor gesture.
 export function wallChoreography(light,plan){
+ // Automatic develops figures in the room; saved wall/rise intent must not
+ // project them onto a preset wall. Other presentations retain wall staging.
+ if(light.motionPresentation==='auto')return light;
  const config=plan.positions[light.id]?.wallTarget;
  if(light.type!=='moving'||!config||!light.motionUV)return light;
  const clamp=v=>Math.max(0,Math.min(1,v)),smooth=v=>{v=clamp(v);return v*v*(3-2*v);};
@@ -527,6 +535,14 @@ export function roomSurfaceChoreography(light,layout){
  const origin={x:light.position.x,y:light.position.y,z:light.position.height+(light.aimed?light.modelSize?.height||0:0)*.71};
  if(!insideRoom([origin.x,origin.y],boundary))return light;
  if(origin.z<=0||origin.z>=height)return {...light,power:0};
+ if(light.motionPresentation==='strobe'){
+  const target=strobeSpaceTarget(light,layout);
+  const ray=[target.x-origin.x,target.y-origin.y,target.z-origin.z];
+  const hit=roomBeamHit(layout,[origin.x,origin.y,origin.z],ray);
+  if(!hit)return {...light,power:0};
+  const {distance,...surface}=hit;
+  return respectRoomVolumes({...light,...surface,aimed:true,emissionHeight:origin.z,aimRotation:roomFixtureRotation(light.position,hit.target)},layout);
+ }
  if(light.motionPresentation==='show'&&light.motionFocus>0){
   // All participating mounts aim through one world-space point. This remains
   // a true convergence with irregular spacing and several mounting heights.
@@ -561,6 +577,9 @@ export function roomSurfaceChoreography(light,layout){
   // coordinate system. Keep the authored ray whenever its full cone is clear.
   if(!zones.length||respectRoomVolumes({...candidate,power:1},layout).power>0)return candidate;
  }
+ // Keep Automatic's routed target when a direct motor ray is unavailable.
+ // The generic perimeter mapping otherwise recreates wall figures as a fallback.
+ if(light.motionPresentation==='auto')return respectRoomVolumes(light,layout);
  let dx=light.target.x-origin.x,dy=light.target.y-origin.y;
  if(light.motionPresentation==='show'&&!(plan?.zones||layout.zones||[]).length){
   const front=Math.min(...boundary.map(p=>p[1])),back=Math.max(...boundary.map(p=>p[1]));

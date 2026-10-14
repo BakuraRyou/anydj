@@ -1,0 +1,98 @@
+{
+  "summary": {
+    "interval": [
+      0,
+      216
+    ],
+    "sampleHz": 15,
+    "heads": 48,
+    "relights": 2418,
+    "maxRelightStep": 0.19089697533682723,
+    "maxStep": 0.5516472531394492,
+    "maxAngle": 3.9297318488104405,
+    "maxRelightAngle": 1.3263036006574886,
+    "darkTrackingSamples": 110400
+  },
+  "passages": [
+    {
+      "start": 0,
+      "end": 47.18,
+      "motif": "space"
+    },
+    {
+      "start": 47.18,
+      "end": 54.36,
+      "motif": "unfold"
+    },
+    {
+      "start": 54.36,
+      "end": 61.52,
+      "motif": "ribbon"
+    },
+    {
+      "start": 61.52,
+      "end": 72.24,
+      "motif": "unfold"
+    },
+    {
+      "start": 72.24,
+      "end": 77.62,
+      "motif": "space"
+    },
+    {
+      "start": 77.62,
+      "end": 95.54,
+      "motif": "ribbon"
+    },
+    {
+      "start": 95.54,
+      "end": 99.12,
+      "motif": "unfold"
+    },
+    {
+      "start": 99.12,
+      "end": 120.62,
+      "motif": "exchange"
+    },
+    {
+      "start": 120.62,
+      "end": 127.77,
+      "motif": "ribbon"
+    },
+    {
+      "start": 127.77,
+      "end": 155.98,
+      "motif": "space"
+    },
+    {
+      "start": 155.98,
+      "end": 170.75,
+      "motif": "ribbon"
+    },
+    {
+      "start": 170.75,
+      "end": 192.26,
+      "motif": "exchange"
+    },
+    {
+      "start": 192.26,
+      "end": 199.41,
+      "motif": "ribbon"
+    },
+    {
+      "start": 199.41,
+      "end": 202.5,
+      "motif": "space"
+    },
+    {
+      "start": 202.5,
+      "end": 216.111,
+      "motif": "space"
+    }
+  ],
+  "tests": {
+    "passed": 537,
+    "failed": 0
+  },
+  "method": "Offline 15 Hz preset replay with four representative source roles and static support; room targets, zones and motors. No saved UI overrides, source follow filter, prediction, GPU rendering or acoustic listening assessment."
+}

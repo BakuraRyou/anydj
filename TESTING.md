@@ -1,3 +1,8 @@
+> Stand 01.10.2026: WLAN-Suche, Einrichtung und automatische Wiederherstellung
+> wurden entfernt. Frühere Einrichtungs-/Recovery-Ergebnisse unten sind historisch.
+> Aktuelle API-Prüfung: 27 Tests bestanden, einschließlich entfernter
+> Einrichtungsrouten, alter Recovery-Konfiguration und bestehender UDP-Steuerung.
+
 # Teststand – Prototyp 0.1.0
 
 Erstellt und geprüft am 19.09.2026.
