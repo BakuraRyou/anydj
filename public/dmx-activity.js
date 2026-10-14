@@ -1,4 +1,5 @@
 import {strobeScoreAt} from './dmx-strobe-score.js';
+import {fixtureParticipation,fixtureParticipationLevel} from './dmx-participation.js';
 import {automaticGroupMotionAt,showGroupMotionAt,automaticFixtureGroups,groupComposition,presenceRowFocus} from './dmx-group-motion.js';
 import {showScoreAt,showPictureLayers} from './show-score.js';
 import {showActionAt} from './show-action.js';
@@ -241,6 +242,7 @@ export function movingPresenceAt(source){
     const groupMotion=showGroupMotionAt(plan,motionTime,p);
     return {weight,presence:{level,spread:1,
      trackMotion:!['held','silence'].includes(p.role),occupancy:selection.occupancy,selection:selection.index%2,
+     participation:fixtureParticipation(plan,selection,motionTime),
      rowFraction:selection.rowFraction,rowSelection:selection.rowSelection,groupMotion,mask:'show-score',...accent}};
    });
    return layers.length===1?layers[0].presence:mixMovingPresence(layers);
@@ -259,7 +261,7 @@ export function movingPresenceAt(source){
    // Sustained energetic grooves need room too, not only contrast-driven impacts.
    const intensity=section&&section.drive>=.45?smooth((section.energy-.65)/.25):0;
    const rowFraction=section?.kind==='impact'?.67:.34+.33*intensity;
-   return {...p,level:p.level*darkness,groupMotion:manual?null:groupMotion,...(!manual?{rowFraction,rowSelection:section?.groupIndex??0,supportSelection:section?.groupIndex??0,supportLevel:section?.kind==='silence'?0:section?.kind==='impact'?.85:section?.kind==='build'?.65:.5}:{})};
+   return {...p,level:p.level*darkness,groupMotion:manual?null:groupMotion,...(!manual?{participation:fixtureParticipation(plan,section,i===0?section?.end-.001:time),rowFraction,rowSelection:section?.groupIndex??0,supportSelection:section?.groupIndex??0,supportLevel:section?.kind==='silence'?0:section?.kind==='impact'?.85:section?.kind==='build'?.65:.5}:{})};
   })};
  }
  const profiles=plan?presenceSections(plan):[];
@@ -287,6 +289,13 @@ export function movingPresenceLevel(presence,rank,count){
  if(!presence)return 1;
  if(presence.groupMotion?.presentation==='strobe')return presence.level*groupComposition(presence.groupMotion,rank,count).level;
  if(presence.layers)return presence.layers.reduce((sum,p)=>sum+(p.weight??1)*movingPresenceLevel(p,rank,count),0);
+ if(presence.participation){
+  if(presence.occupancy<=0)return 0;
+  const {participation,occupancy,rowFraction,groupMotion,...exposure}=presence;
+  // Geometry's lead/support dimmers must not attenuate membership a second
+  // time. Preserve musical levels and authored Show action shutters.
+  return movingPresenceLevel({...exposure,mask:presence.mask==='show-action'?'show-action':'all'},rank,count)*fixtureParticipationLevel(participation,rank,count);
+ }
  const slots=Math.ceil(count/2),slot=Math.min(rank,count-1-rank);
  if(presence.occupancy!==undefined){
   const n=Math.max(1,Math.ceil(slots*presence.occupancy)),selected=presence.selection?slots-1-slot:slot;
@@ -357,6 +366,13 @@ export function applyMovingPresence(lights){
  function level(presence,light){
   if(presence.layers)return presence.layers.reduce((sum,p)=>sum+level(p,light)*(p.weight??1),0);
   const row=rowById.get(light.id);
+  if(presence.participation){
+   if(row?.count>=2){
+    const p=presence.participation;
+    return movingPresenceLevel({...presence,participation:{...p,selection:p.selection+row.index,previous:p.previous===undefined?undefined:p.previous+row.index}},row.rank,row.count);
+   }
+   return movingPresenceLevel(presence,ranks.get(light.id),ordered.length);
+  }
   if(row&&Number.isFinite(presence.rowFraction)){
    const budget=Math.max(1,Math.ceil(groupCount*presence.rowFraction));
    const offset=(presence.rowSelection??0)%groupCount;

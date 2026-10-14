@@ -76,13 +76,13 @@ test('shortened and staggered moves remain within velocity, acceleration and jer
  }
 });
 
-test('leading roles change their emphasis without concealing every supporting head',()=>{
+test('leading roles retain a lit majority while supporting members can rest',()=>{
  const plan=song(),gestures=lightingGestures(plan);
  const groups=new Set();
  for(const gesture of gestures){
   const time=gesture.time+(gesture.time===0?1:.3),p=movingPresenceAt({movingPlan:plan,songTime:time,look:'flow'});
   const levels=Array.from({length:7},(_,i)=>movingPresenceLevel(p,i,7));
-  assert.ok(levels.every(v=>v>=.4));
+  assert.ok(levels.filter(v=>v>0).length>=4);
   if(gesture.kind!=='entry')assert.ok(Math.max(...levels)-Math.min(...levels)>.15);
   groups.add(gesture.group);
  }

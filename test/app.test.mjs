@@ -56,6 +56,7 @@ test('DJ-Seite liefert Styles und den statischen lokalen Modulbaum aus', async t
   }
   assert.ok(visited.has(`${base}/dj-full.js`));
   assert.ok(visited.has(`${base}/dj-full.css`));
+  assert.ok(visited.has(`${base}/dmx-participation.js`));
 });
 
 test('Berechnet Broadcast-Adressen auch außerhalb eines /24-Netzes', () => {

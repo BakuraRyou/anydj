@@ -1,0 +1,93 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {fixtureParticipation,fixtureParticipationLevel} from '../public/dmx-participation.js';
+import {movingPresenceAt,applyMovingPresence,mixMovingPresence} from '../public/dmx-activity.js';
+import {planSongMovement} from '../public/song-movement-plan.js';
+import {applyRoomPlan,newRoomPlan} from '../public/dmx-ar-model.js';
+
+test('membership scales to arbitrary rigs, stays bright and transfers without a blackout',()=>{
+ for(const count of [1,2,3,4,5,7,8,16,31,72,128])for(const fraction of [.65,.85,1]){
+  for(let selection=0;selection<Math.ceil(count/2)+2;selection++)for(const blend of [0,.1,.5,.9,1]){
+   const policy={fraction,selection,previous:selection-1,blend};
+   const levels=Array.from({length:count},(_,rank)=>fixtureParticipationLevel(policy,rank,count));
+   assert.ok(levels.every(v=>v>=0&&v<=1));
+   assert.ok(levels.reduce((a,b)=>a+b,0)>=Math.ceil(count/2)-1e-9,`${count} retains at least half the rig`);
+   if(fraction===1)assert.ok(levels.every(v=>v===1));
+   if(count>2&&count%2===0)levels.forEach((v,i)=>assert.equal(v,levels[count-1-i]));
+  }
+ }
+});
+function song(){
+ const p={duration:48,sections:[{start:0,end:48,look:'flow',intensity:.6}],beatGrid:{downbeats:Array.from({length:24},(_,i)=>i*2)},arrangement:{times:[],patterns:{phrases:Array.from({length:6},(_,i)=>({start:i*8,end:(i+1)*8,energy:.6,tone:.45,movement:{driving:.6}}))}}};
+ p.songMovement=planSongMovement(p);return p;
+}
+test('Show and Automatic expose different physical members, including a single row and two heads',()=>{
+ const plan=song();
+ for(const mood of ['balanced','show'])for(const count of [1,2,3,4,8,31,72]){
+  const selections=new Set();
+  const render=time=>applyMovingPresence(Array.from({length:count},(_,i)=>({id:`h${i}`,type:'moving',position:{x:i,y:0},power:1,movingPresenceBasePower:1,movingPresence:movingPresenceAt({movingPlan:plan,songTime:time,movingMood:mood,stageMode:'auto'})})));
+  for(const time of [4,12,20,28,36,44]){
+   const frame=render(time),active=frame.filter(l=>l.power>1e-9);
+   assert.ok(active.length>=Math.ceil(count/2),`${mood}/${count} remains illuminated`);
+   if(count>1)assert.ok(active.length<count,`${mood}/${count} has resting members`);
+   selections.add(active.map(l=>l.id).join(','));
+   assert.ok(applyMovingPresence(frame.map(l=>({...l,movingPresenceBasePower:0}))).every(l=>l.power===0));
+   assert.deepEqual(applyMovingPresence(frame),frame);
+  }
+  if(count>1)assert.ok(selections.size>1,`${mood}/${count} transfers membership`);
+  const before=render(8-1e-5),after=render(8+1e-5);
+  before.forEach((l,i)=>assert.ok(Math.abs(l.power-after[i].power)<.001));
+  const saved=render(12);render(40);assert.deepEqual(render(12),saved,'seeks use only song time');
+ }
+});
+test('crossfades retain membership layers and manual rhythms and silence keep precedence',()=>{
+ const plan=song(),scene={start:0,end:48,index:0,energy:.6};
+ const a={level:1,mask:'all',participation:fixtureParticipation(plan,scene,4)};
+ const b={level:1,mask:'all',participation:fixtureParticipation(plan,scene,12)};
+ for(const weight of [0,.25,.5,.75,1]){
+  const presence=mixMovingPresence([{presence:a,weight},{presence:b,weight:1-weight}]);
+  const lights=applyMovingPresence(Array.from({length:4},(_,i)=>({id:`h${i}`,type:'moving',position:{x:i},movingPresenceBasePower:.8,movingPresence:presence})));
+  assert.ok(lights.reduce((sum,l)=>sum+l.power,0)>=1.6-1e-9);
+  assert.ok(lights.every(l=>l.power<=.8));
+ }
+ for(const mood of ['balanced','show']){
+  const manual={...plan,sectionLighting:[{start:0,end:48,rhythm:'pulse'}]};
+  const p=movingPresenceAt({movingPlan:manual,songTime:12,movingMood:mood});
+  assert.ok((p.layers||[p]).every(l=>!l.participation));
+ }
+ assert.equal(fixtureParticipationLevel({fraction:.65,selection:0},0,1),1);
+});
+test('builds introduce members smoothly and climax uses the complete rig',()=>{
+ const plan=song(),scene={start:0,end:48,index:0,energy:.6,kind:'build'};
+ for(const count of [2,3,4,8,31,72]){
+  let previous;
+  for(let time=0;time<8;time+=.01){
+   const policy=fixtureParticipation(plan,scene,time);
+   const levels=Array.from({length:count},(_,i)=>fixtureParticipationLevel(policy,i,count));
+   if(previous)levels.forEach((v,i)=>assert.ok(Math.abs(v-previous[i])<.01));
+   previous=levels;
+  }
+  const peak=fixtureParticipation(plan,{...scene,climax:true},4);
+  assert.ok(Array.from({length:count},(_,i)=>fixtureParticipationLevel(peak,i,count)).every(v=>v===1));
+ }
+});
+test('room expansion reselects the physical rig instead of cloning source shutters',()=>{
+ const plan=song();
+ for(const mood of ['balanced','show'])for(const count of [2,3,4,8,31,72]){
+  const room=newRoomPlan(12,10,4);
+  for(let i=0;i<count;i++)room.positions[`room-${i}`]={type:'moving',x:-5+10*i/Math.max(1,count-1),y:8,height:3,rotation:0};
+  const render=time=>{
+   const presence=movingPresenceAt({movingPlan:plan,songTime:time,movingMood:mood});
+   const lights=Array.from({length:4},(_,i)=>({id:`source-${i}`,type:'moving',position:{x:i-1.5,y:4,height:3},target:{x:0,y:3},motionUV:{x:.5,y:.5},motionPresentation:mood==='show'?'show':'auto',movingPresence:presence,movingPresenceBasePower:.8,power:.8,color:'#4488ff'}));
+   return applyRoomPlan({layout:{width:12,depth:10,positions:{}},lights,crowd:[]},room).lights;
+  };
+  const a=render(4),b=render(12);
+  assert.equal(a.length,count);
+  for(const lights of [a,b]){
+   assert.ok(lights.filter(l=>l.power>0).length>=Math.ceil(count/2));
+   assert.ok(lights.some(l=>l.power===0));
+   assert.ok(lights.every(l=>l.power<=.8));
+  }
+  assert.notDeepEqual(a.map(l=>l.power),b.map(l=>l.power));
+ }
+});

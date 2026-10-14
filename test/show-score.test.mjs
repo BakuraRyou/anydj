@@ -64,12 +64,13 @@ test('three-beat bars, off-grid arrivals, manual holds and no-grid material rema
  const free=music({drive:0});delete free.beatGrid;
  assert.equal(movingCues(applyShowProfile(free,'show'),'auto','show').length,1);
 });
-test('phrase occupancy is symmetric for any head count and manual rhythm wins',()=>{
+test('phrase occupancy keeps even pairs and a lit majority for any head count; manual rhythm wins',()=>{
  const plan=applyShowProfile(music({vocals:.8}),'show'),time=4.8;
  const presence=movingPresenceAt({movingPlan:plan,movingMood:'show',songTime:time});
  for(const n of [1,2,7,8,20]){
   const levels=Array.from({length:n},(_,i)=>movingPresenceLevel(presence,i,n));
-  assert.deepEqual(levels,[...levels].reverse());
+  if(n>2&&n%2===0)assert.deepEqual(levels,[...levels].reverse());
+  assert.ok(levels.filter(v=>v>0).length>=Math.ceil(n/2));
   assert.ok(levels.some(v=>v>0));if(n>=7)assert.ok(levels.some(v=>v===0));
  }
  const manual={...plan,sectionLighting:[{start:0,end:96,rhythm:'none',movement:1}]};

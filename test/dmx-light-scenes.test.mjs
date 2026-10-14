@@ -33,11 +33,11 @@ test('labels alone do not dictate the image; measured character and contrast mat
 test('occupancy and movement form the same picture; a groove answers without roaming',()=>{
  const plan=example(),scenes=lightingScenes(plan);
  const levels=time=>Array.from({length:7},(_,i)=>movingPresenceLevel(movingPresenceAt({movingPlan:plan,songTime:time,look:plan.sections.find(s=>time>=s.start&&time<s.end).look}),i,7));
- assert.ok(levels(5).filter(v=>v>0).length<=2);
+ assert.ok(levels(5).filter(v=>v>0).length>=4&&levels(5).some(v=>v===0));
  assert.equal(levels(41).filter(v=>v>0).length,7);
  assert.ok(levels(65).every(v=>v===0));
  const a=levels(12.5),b=levels(14.5);assert.notDeepEqual(a,b);
- assert.ok(a.every((v,i)=>v>0||b[i]>0),'both responses cover all seven heads');
+ assert.ok([a,b].every(levels=>levels.filter(v=>v>0).length>=4),'each response keeps a lit majority; rests can span several beats');
  assert.deepEqual(scenePose(scenes[1],13),scenePose(scenes[1],21));
  const sum=a=>a.reduce((n,v)=>n+v,0);assert.ok(sum(levels(34))>sum(levels(26)));
  assert.notDeepEqual(scenePose(scenes[4],49),scenePose(scenes[4],58));

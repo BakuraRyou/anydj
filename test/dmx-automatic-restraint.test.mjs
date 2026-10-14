@@ -9,12 +9,12 @@ function source(power=1){
  const presence=movingPresenceAt({movingPlan:plan,songTime:10,movingMood:'balanced'});
  return {layout:{width:8,depth:8},lights:['moving','moving','moving','moving','spot','bar'].map((type,i)=>({id:'source'+i,type,position:{x:i-3,y:6,height:3},target:{x:0,y:2},motionUV:{x:i/6,y:.4},power,color:'#20aaff',...(type==='moving'?{motionPresentation:'auto',movingPresence:presence,movingPresenceBasePower:power}:{})}))};
 }
-test('192-fixture automatic room preserves source strength and uses selected moving rows',()=>{
+test('192-fixture automatic room preserves source strength and selects members across the rig',()=>{
  const scene=source(),saved=structuredClone(scene),room=largeClubRoom(),result=applyRoomPlan(scene,room).lights;
  assert.deepEqual(scene,saved);
  const heads=result.filter(l=>l.type==='moving'),wash=result.filter(l=>l.type==='spot'||l.type==='bar');
  assert.equal(heads.length,72);assert.equal(wash.length,120);
- assert.ok(heads.filter(l=>l.power>0).length<=36);
+ assert.ok(heads.filter(l=>l.power>0).length>=36&&heads.filter(l=>l.power>0).length<72);
  assert.ok(wash.every(l=>l.power>0&&l.power<=1),'lead washes retain source strength, supporting washes remain subordinate');
  assert.ok(heads.every(l=>l.power<=1),'selection never boosts a head beyond its source');
  assert.ok(result.filter(l=>l.power>0).every(l=>l.color==='#20aaff'));
