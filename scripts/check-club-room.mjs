@@ -11,7 +11,7 @@ const app={server:createServer(async(req,res)=>{try{if(req.url==='/dj'){res.setH
 app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
 
-const profile=await mkdtemp(join(tmpdir(),'wiz-dj-connection-'));
+const profile=await mkdtemp(join(tmpdir(),'anydj-dj-check-'));
 const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking','--no-first-run','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
 let ws;
 try {

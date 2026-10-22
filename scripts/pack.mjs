@@ -7,31 +7,34 @@ const require=createRequire(import.meta.url);
 const root=fileURLToPath(new URL('../',import.meta.url));
 const args=process.argv.slice(2);
 if(args.includes('--help')) {
-  console.log(`AnyDj Desktop-Paket erstellen\n\nnpm run pack                  Installer für dieses Betriebssystem\nnpm run pack -- --linux        Linux: AppImage und .deb (x64)\nnpm run pack -- --win          Windows: Setup.exe (x64)\nnpm run pack -- --all --lite   Beide Basisversionen (ggf. Wine nötig)\nnpm run pack -- --dir          Nur ausführbaren App-Ordner erstellen\n\nAusgabe: dist/\nEnthält Oberfläche, Node.js, Chromium, lokale Lichtsteuerung und Standardanalyse.\nStandard: vollständiges KI-Paket. Vorher npm run pack:analysis ausführen.\n--lite erstellt ausdrücklich nur die Basisversion.\nBuild-Werkzeuge werden nur auf dem Entwicklerrechner benötigt.`);
+  console.log(`AnyDj Desktop-Paket erstellen\n\nnpm run pack                  Installer für dieses Betriebssystem\nnpm run pack -- --linux        Linux: AppImage und .deb (x64)\nnpm run pack -- --win          Windows: Setup.exe (x64)\nnpm run pack -- --mac          macOS: .dmg (native Architektur)\nnpm run pack -- --all --lite   Beide Basisversionen (ggf. Wine nötig)\nnpm run pack -- --dir          Nur ausführbaren App-Ordner erstellen\n\nAusgabe: dist/\nEnthält Oberfläche, Node.js, Chromium, lokale Lichtsteuerung und Standardanalyse.\nStandard: vollständiges KI-Paket. Vorher npm run pack:analysis ausführen.\n--lite erstellt ausdrücklich nur die Basisversion.\nBuild-Werkzeuge werden nur auf dem Entwicklerrechner benötigt.`);
 } else {
-  const allowed=new Set(['--linux','--win','--all','--dir','--lite']);
+  const allowed=new Set(['--linux','--win','--mac','--all','--dir','--lite','--x64','--arm64']);
   for(const arg of args)if(!allowed.has(arg))throw Error(`Unbekannte Option: ${arg}. Siehe npm run pack -- --help`);
-  const targets=args.filter(arg=>!['--dir','--lite'].includes(arg));
+  const targets=args.filter(arg=>!['--dir','--lite','--x64','--arm64'].includes(arg));
   if(targets.length>1)throw Error('Bitte genau ein Ziel auswählen: --linux, --win oder --all.');
-  const target=targets[0]||(process.platform==='win32'?'--win':process.platform==='linux'?'--linux':null);
-  if(!target)throw Error('Bitte --linux oder --win angeben.');
+  const target=targets[0]||(process.platform==='win32'?'--win':process.platform==='linux'?'--linux':process.platform==='darwin'?'--mac':null);
+  if(!target)throw Error('Bitte --linux, --win oder --mac angeben.');
+  if(args.includes('--x64')&&args.includes('--arm64'))throw Error('Genau eine Architektur wählen.');
+  const arch=args.includes('--arm64')?'arm64':args.includes('--x64')?'x64':target==='--mac'?process.arch:'x64';
+  if(arch==='arm64'&&target!=='--mac')throw Error('arm64 ist hier nur für macOS vorgesehen.');
   const flags=target==='--all'?['--linux','--win']:[target];
   if(args.includes('--dir'))flags.push('--dir');
   let cli;
   try{cli=require.resolve('electron-builder/cli.js');}
   catch{throw Error('Build-Abhängigkeiten fehlen. Zuerst npm ci ausführen.');}
   const full=!args.includes('--lite');
-  const platform=target==='--win'?'win32':target==='--linux'?'linux':null;
+  const platform=target==='--win'?'win32':target==='--linux'?'linux':target==='--mac'?'darwin':null;
   if(full&&!platform)throw Error('Vollständige KI-Pakete getrennt pro Betriebssystem bauen, nicht mit --all.');
-  const bundle=join(root,'.build','analysis',`${platform}-x64`);
+  const bundle=join(root,'.build','analysis',`${platform}-${arch}`);
   if(full){
     let manifest;try{manifest=JSON.parse(await readFile(join(bundle,'manifest.json'),'utf8'));}catch{throw Error('KI-Paket fehlt. Zuerst npm run pack:analysis auf dem Zielbetriebssystem ausführen. Nur für eine bewusste Basisversion: --lite.');}
-    if(manifest.version!==1||manifest.platform!==platform||manifest.arch!=='x64')throw Error('Unpassendes KI-Paket. Bitte neu bauen.');
+    if(manifest.version!==1||manifest.platform!==platform||manifest.arch!==arch)throw Error('Unpassendes KI-Paket. Bitte neu bauen.');
   }
   await mkdir(join(root,'.build'),{recursive:true});
   await writeFile(join(root,'.build','build-flavor.json'),JSON.stringify({analysis:full}));
   console.log(full?'Desktop-Paket inklusive lokaler KI-Laufzeiten und Modelle.':'Bewusste Basisversion ohne KI (--lite).');
-  const child=spawn(process.execPath,[cli,...flags,'--x64','--config','desktop/build-config.cjs','--publish','never'],{cwd:root,stdio:'inherit',env:{...process.env,ANYDJ_ANALYSIS_BUNDLE:full?bundle:''}});
+  const child=spawn(process.execPath,[cli,...flags,'--'+arch,'--config','desktop/build-config.cjs','--publish','never'],{cwd:root,stdio:'inherit',env:{...process.env,ANYDJ_ANALYSIS_BUNDLE:full?bundle:''}});
   child.on('error',error=>{console.error(error.message);process.exitCode=1;});
   child.on('exit',code=>{process.exitCode=code??1;});
 }

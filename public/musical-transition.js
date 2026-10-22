@@ -35,6 +35,7 @@ function activity(plan,time){
 // Short gaps between syllables are not treated as the end of a vocal phrase.
 function activityWindow(plan,start,end){
  if(start<0||end>plan.duration||end<=start)return null;
+ if(plan.transitionRanges&&!plan.transitionRanges.some(([a,b])=>start>=a&&end<=b))return null;
  const samples=Array.from({length:12},(_,i)=>activity(plan,start+(i+.5)/12*(end-start)));
  if(samples.some(v=>!v))return null;
  return {energy:samples.reduce((s,v)=>s+v.energy,0)/12,vocal:samples.reduce((s,v)=>s+v.vocal,0)/12,maxVocal:Math.max(...samples.map(v=>v.vocal))};
@@ -169,20 +170,8 @@ function adaptivePair(a,b,{seconds,rateA,rateB,cue,entry,base,fixedStart,notBefo
    const section=(a.sections||[]).some(s=>s.start>0&&Math.abs(s.start-start)<.15);
    const endA=start+length*rateA,endB=next+length*rateB;
    const aligned=(barsA.some(t=>Math.abs(t-endA)<.1)?1:0)+(barsB.some(t=>Math.abs(t-endB)<.1)?1:0);
-   const context=transitionContext(a,b,start,next,length,rateA,rateB);
-   const harmonic=harmonicCompatibility(tonalA,tonalB,start+length*.5*rateA,next+length*.5*rateB);
-   for(const style of ['smooth','bass','handover']){
-    let cost=context.cost+harmonic.cost*Math.min(1,length/8)*(style==='handover'?.4:1),valid=true;
-    for(let i=0;i<24;i++){
-     const p=(i+.5)/24,t=p*length,x=activity(a,start+t*rateA),y=activity(b,next+t*rateB);
-     if(!x||!y){valid=false;break;}
-     const progress=transitionProgress(p,style),gainA=1-progress,gainB=progress;
-     const overlap=4*gainA*gainB;
-     const bassGain=style==='bass'?10**((transitionBassDb(p,false)+transitionBassDb(p,true))/20):1;
-     const drift=Math.abs(rateA/beatA.period-rateB/beatB.period)*length;
-     cost+=overlap*(x.vocal*y.vocal*5+x.bass*y.bass*bassGain*2+x.drums*y.drums*drift*.8+Math.abs(Math.log((x.energy+.01)/(y.energy+.01)))*.15)/24;
-    }
-    if(!valid)continue;
+   for(const {style,cost:blendCost,context,harmonic} of transitionBlendScores(a,b,start,next,length,{rateA,rateB,tonalA,tonalB})){
+    let cost=blendCost;
     // Retain most of the song and avoid always winning by making the overlap
     // tiny. Reward structural boundaries gently: section labels are estimates.
     cost+=Math.max(0,(a.duration-endA)/rateA)*.008+Math.abs(Math.log(length/seconds))*.12+(next-cue)*.02;
@@ -204,6 +193,26 @@ function adaptivePair(a,b,{seconds,rateA,rateB,cue,entry,base,fixedStart,notBefo
  }
  return {...best,alternatives};
 }
+// Shared audio/musical scoring for automatic planning and the editor search.
+export function transitionBlendScores(a,b,start,cue,length,{rateA=1,rateB=1,tonalA=[],tonalB=[],points=null,style:ownStyle='smooth'}={}){
+ const context=transitionContext(a,b,start,cue,length,rateA,rateB);
+ const harmonic=harmonicCompatibility(tonalA,tonalB,start+length*.5*rateA,cue+length*.5*rateB);
+ const beatA=beatPosition(a.beatGrid?.beats,start),beatB=beatPosition(b.beatGrid?.beats,cue);
+ const drift=beatA&&beatB?Math.abs(rateA/beatA.period-rateB/beatB.period)*length:0;
+ const samples=Array.from({length:24},(_,i)=>{const p=(i+.5)/24;return {p,x:activity(a,start+p*length*rateA),y:activity(b,cue+p*length*rateB)};});
+ if(samples.some(s=>!s.x||!s.y))return [];
+ const gain=(curve,p)=>{const i=curve.findIndex(([t])=>t>=p);if(i<=0)return curve[0][1];const [t,v]=curve[i-1],[end,next]=curve[i];return v+(next-v)*(p-t)/(end-t);};
+ return (points?[ownStyle]:['smooth','bass','handover']).map(style=>{
+  let cost=context.cost+harmonic.cost*Math.min(1,length/8)*(style==='handover'?.4:1);
+  for(const {p,x,y} of samples){
+   const progress=transitionProgress(p,style),overlap=points?4*gain(points[0],p)*gain(points[1],p):4*(1-progress)*progress;
+   const bassGain=style==='bass'?10**((transitionBassDb(p,false)+transitionBassDb(p,true))/20):1;
+   cost+=overlap*(x.vocal*y.vocal*5+x.bass*y.bass*bassGain*2+x.drums*y.drums*drift*.8+Math.abs(Math.log((x.energy+.01)/(y.energy+.01)))*.15)/24;
+  }
+  return {style,cost,context,harmonic};
+ });
+}
+
 export function transitionBassDb(progress,incoming){
  const p=clamp01(progress);
  return incoming?-18*(1-clamp01((p-.5)*2)):-18*clamp01(p*2);

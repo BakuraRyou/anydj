@@ -7,14 +7,13 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createApp} from '../server.mjs';
 const projectRoot=fileURLToPath(new URL('../',import.meta.url));
-const fixtures=await mkdtemp(join(tmpdir(),'wiz-queue-audio-'));
+const fixtures=await mkdtemp(join(tmpdir(),'anydj-queue-audio-'));
 const wav=join(fixtures,'test.wav'),mp3=join(fixtures,'test.mp3');
 await promisify(execFile)('ffmpeg',['-v','error','-f','lavfi','-i','sine=frequency=440:duration=12','-ar','16000',wav]);
 await promisify(execFile)('ffmpeg',['-v','error','-i',wav,mp3]);
 const {BeatAnalysis}=await import('../lib/beat-analysis.mjs');const app=await createApp({demo:true,beatAnalysis:new BeatAnalysis({ready:async()=>{throw Error('Test uses builtin analysis');}})});app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
-await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
-const profile=await mkdtemp(join(tmpdir(),'wiz-beat-chrome-'));
+const profile=await mkdtemp(join(tmpdir(),'anydj-beat-chrome-'));
 const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--mute-audio','--autoplay-policy=no-user-gesture-required','--no-sandbox','--disable-gpu','--disable-background-networking','--no-first-run','--no-default-browser-check','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
 let ws;
 try {
@@ -27,7 +26,7 @@ try {
  const evaluate=async expression=>{const r=await c('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true,userGesture:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
  const wait=async(expression,timeout=30000)=>{const start=Date.now();while(Date.now()-start<timeout){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Timed out: '+expression+' '+JSON.stringify(errors)+' '+await evaluate("({queue:document.querySelector('#queueStatus')?.textContent,status:document.querySelector('#djStatus')?.textContent,count:document.querySelector('#queueCount')?.textContent,start:document.querySelector('#queueStart')?.textContent,decks:[...document.querySelectorAll('audio')].map(a=>({time:a.currentTime,paused:a.paused}))})"));};
  await c('Emulation.setDeviceMetricsOverride',{width:1280,height:1000,deviceScaleFactor:1,mobile:false});
- await c('Page.navigate',{url:base+'/dj'});await wait("document.querySelector('#djLamp')?.options.length>1");
+ await c('Page.navigate',{url:base+'/dj'});await wait("typeof document.querySelector('#djFiles')?.onchange==='function'");
 
 
 
@@ -63,7 +62,7 @@ try {
  await c('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<500});
  const layout=await evaluate("(()=>{const library=document.querySelector('#libraryDrop').getBoundingClientRect(),queue=document.querySelector('.dj-queue').getBoundingClientRect();return {width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,sideBySide:library.right<=queue.left&&Math.abs(library.top-queue.top)<1,stacked:library.bottom<=queue.top,bothListsVisible:[...document.querySelectorAll('#trackList,#queueList')].every(list=>list.getBoundingClientRect().height>70&&!list.hidden)};})()");
  if(layout.scrollWidth>width||(width>760?!layout.sideBySide:!layout.stacked)||!layout.bothListsVisible)throw Error('Layout regression '+JSON.stringify(layout));layouts.push(layout);
- if(width===1280||width===390){const shot=await c('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await writeFile(join(tmpdir(),`wiz-dj-containers-${width}.png`),Buffer.from(shot.data,'base64'));}
+ if(width===1280||width===390){const shot=await c('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await writeFile(join(tmpdir(),`anydj-dj-containers-${width}.png`),Buffer.from(shot.data,'base64'));}
 
  }
  if(errors.length)throw Error(JSON.stringify(errors));const result={threeTracks:true,twoAutomaticCrossfades:true,finished:true,reorder:true,remove:true,restored,layouts,browserErrors:0};console.log(JSON.stringify(result,null,2));await writeFile(join(projectRoot,'reports/dj-queue-browser-check.json'),JSON.stringify(result,null,2)+'\n');

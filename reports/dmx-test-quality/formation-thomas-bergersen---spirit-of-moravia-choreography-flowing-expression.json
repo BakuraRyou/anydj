@@ -1,0 +1,5433 @@
+{
+  "method": "Physical room preview, WebGL renderer (SwiftShader), normal playback score, 53 percent flicker, no hardware validation.",
+  "source": "Thomas Bergersen - Spirit of Moravia.mp3, local audio analysis",
+  "interval": [
+    58,
+    74
+  ],
+  "library": {
+    "selectedPreserved": true,
+    "editsPreserved": true,
+    "addedOnce": true,
+    "listed": true,
+    "showAddedOnce": true,
+    "showPreservedSelection": true,
+    "showListed": true
+  },
+  "scenes": [
+    {
+      "start": 0,
+      "end": 0.44,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.8511324995683567,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "horizontal-sheets/ensemble",
+        "shape": "horizontal-sheets",
+        "layout": "ensemble",
+        "name": "horizontal-sheets · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "hold",
+        "source": "lead",
+        "cueSource": "lead",
+        "from": "horizontal-sheets",
+        "to": "horizontal-sheets",
+        "movingOpening": false,
+        "start": 0,
+        "end": 0.44,
+        "cues": [],
+        "clock": [
+          {
+            "time": 0,
+            "position": 0,
+            "velocity": 2.272727272727273
+          },
+          {
+            "time": 0.44,
+            "position": 1,
+            "velocity": 2.272727272727273
+          }
+        ],
+        "overlap": 0.3,
+        "direction": 1,
+        "reason": "Getragenes Lichtbild"
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0,
+        "energy": 0.0075499971223777105,
+        "tone": 0.36492682583719793,
+        "drums": 0.000314278758966971,
+        "bass": 0.0001993427818861141,
+        "voice": 0.07232565126386266,
+        "pitchConfidence": 0,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 0.44,
+      "end": 7.3,
+      "formationId": "split-foci",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.8676503446878276,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "split-foci/ensemble",
+        "shape": "split-foci",
+        "layout": "ensemble",
+        "name": "split-foci · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "hold",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "split-foci",
+        "to": "split-foci",
+        "movingOpening": false,
+        "start": 0.44,
+        "end": 7.3,
+        "cues": [
+          {
+            "time": 0.56,
+            "strength": 0.7,
+            "ordinal": 0,
+            "group": 0
+          },
+          {
+            "time": 1.6,
+            "strength": 0.7,
+            "ordinal": 1,
+            "group": 1
+          },
+          {
+            "time": 2.72,
+            "strength": 0.7,
+            "ordinal": 2,
+            "group": 2
+          },
+          {
+            "time": 4.24,
+            "strength": 0.7,
+            "ordinal": 3,
+            "group": 3
+          },
+          {
+            "time": 5.68,
+            "strength": 0.7,
+            "ordinal": 4,
+            "group": 0
+          },
+          {
+            "time": 6.72,
+            "strength": 0.7,
+            "ordinal": 5,
+            "group": 1
+          }
+        ],
+        "clock": [
+          {
+            "time": 0.44,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 0.56,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 1.6,
+            "position": 0.2,
+            "velocity": 0.1851851851851852
+          },
+          {
+            "time": 2.72,
+            "position": 0.4,
+            "velocity": 0.1515151515151515
+          },
+          {
+            "time": 4.24,
+            "position": 0.6,
+            "velocity": 0.13513513513513517
+          },
+          {
+            "time": 5.68,
+            "position": 0.8,
+            "velocity": 0.1612903225806452
+          },
+          {
+            "time": 6.72,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 7.3,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.2280000000000002,
+        "direction": 1,
+        "reason": "Getragenes Lichtbild",
+        "entry": {
+          "shape": "horizontal-sheets",
+          "progress": 0.6499999999999999
+        },
+        "entryShape": "horizontal-sheets"
+      },
+      "musicalEvidence": {
+        "reason": "Führende Stimme",
+        "texture": "voice",
+        "movementDrive": 0,
+        "energy": 0.1176689645855178,
+        "tone": 0.4430842361155087,
+        "drums": 0.00274903408173177,
+        "bass": 0.00864854861842842,
+        "voice": 0.6616017250555516,
+        "pitchConfidence": 0.3733754291920409,
+        "pitchRise": -0.01226287778098839,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 7.3,
+      "end": 14.7,
+      "formationId": "split-foci",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.8810318357541453,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "split-foci/ensemble",
+        "shape": "split-foci",
+        "layout": "ensemble",
+        "name": "split-foci · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "develop",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "split-foci",
+        "to": "rising-arch",
+        "movingOpening": false,
+        "start": 7.3,
+        "end": 14.7,
+        "cues": [
+          {
+            "time": 8,
+            "strength": 0.7,
+            "ordinal": 6,
+            "group": 2
+          },
+          {
+            "time": 9.52,
+            "strength": 0.7,
+            "ordinal": 7,
+            "group": 3
+          },
+          {
+            "time": 10.48,
+            "strength": 0.7,
+            "ordinal": 8,
+            "group": 0
+          },
+          {
+            "time": 11.6,
+            "strength": 0.7,
+            "ordinal": 9,
+            "group": 1
+          },
+          {
+            "time": 12.56,
+            "strength": 0.7,
+            "ordinal": 10,
+            "group": 2
+          }
+        ],
+        "clock": [
+          {
+            "time": 7.3,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 8,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 9.52,
+            "position": 0.25,
+            "velocity": 0.2016129032258064
+          },
+          {
+            "time": 10.48,
+            "position": 0.5,
+            "velocity": 0.24038461538461536
+          },
+          {
+            "time": 11.6,
+            "position": 0.75,
+            "velocity": 0.24038461538461536
+          },
+          {
+            "time": 12.56,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 14.7,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.7600000000000016,
+        "direction": 1,
+        "reason": "Melodiegeführte Entfaltung",
+        "entry": {
+          "shape": "horizontal-sheets",
+          "progress": 0.6499999999999999
+        },
+        "entryShape": "split-foci",
+        "entryGroup": 1
+      },
+      "musicalEvidence": {
+        "reason": "Führende Stimme",
+        "texture": "voice",
+        "movementDrive": 0,
+        "energy": 0.20687890502763603,
+        "tone": 0.4478498805518364,
+        "drums": 0.0016851503856733245,
+        "bass": 0.026287912385688145,
+        "voice": 0.5539490720460871,
+        "pitchConfidence": 0.2983750827049369,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 14.7,
+      "end": 25.12,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.8920672172391586,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "horizontal-sheets/ensemble",
+        "shape": "horizontal-sheets",
+        "layout": "ensemble",
+        "name": "horizontal-sheets · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "develop",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "horizontal-sheets",
+        "to": "horizontal-sheets",
+        "movingOpening": false,
+        "start": 14.7,
+        "end": 25.12,
+        "cues": [
+          {
+            "time": 14.96,
+            "strength": 0.7,
+            "ordinal": 11,
+            "group": 3
+          },
+          {
+            "time": 16.16,
+            "strength": 0.7,
+            "ordinal": 12,
+            "group": 0
+          },
+          {
+            "time": 17.12,
+            "strength": 0.7,
+            "ordinal": 13,
+            "group": 1
+          },
+          {
+            "time": 18.56,
+            "strength": 0.7,
+            "ordinal": 14,
+            "group": 2
+          },
+          {
+            "time": 19.36,
+            "strength": 0.7,
+            "ordinal": 15,
+            "group": 3
+          },
+          {
+            "time": 20.240000000000002,
+            "strength": 0.7,
+            "ordinal": 16,
+            "group": 0
+          },
+          {
+            "time": 21.68,
+            "strength": 0.7,
+            "ordinal": 17,
+            "group": 1
+          },
+          {
+            "time": 22.56,
+            "strength": 0.7,
+            "ordinal": 18,
+            "group": 2
+          },
+          {
+            "time": 24.080000000000002,
+            "strength": 0.7,
+            "ordinal": 19,
+            "group": 3
+          },
+          {
+            "time": 25.04,
+            "strength": 0.7,
+            "ordinal": 20,
+            "group": 0
+          }
+        ],
+        "clock": [
+          {
+            "time": 14.7,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 14.96,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 16.16,
+            "position": 0.1111111111111111,
+            "velocity": 0.10288065843621398
+          },
+          {
+            "time": 17.12,
+            "position": 0.2222222222222222,
+            "velocity": 0.09259259259259264
+          },
+          {
+            "time": 18.56,
+            "position": 0.3333333333333333,
+            "velocity": 0.09920634920634927
+          },
+          {
+            "time": 19.36,
+            "position": 0.4444444444444444,
+            "velocity": 0.13227513227513205
+          },
+          {
+            "time": 20.240000000000002,
+            "position": 0.5555555555555556,
+            "velocity": 0.0957854406130268
+          },
+          {
+            "time": 21.68,
+            "position": 0.6666666666666666,
+            "velocity": 0.09578544061302693
+          },
+          {
+            "time": 22.56,
+            "position": 0.7777777777777778,
+            "velocity": 0.09259259259259249
+          },
+          {
+            "time": 24.080000000000002,
+            "position": 0.8888888888888888,
+            "velocity": 0.08960573476702506
+          },
+          {
+            "time": 25.04,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 25.12,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.6400000000000006,
+        "direction": 1,
+        "reason": "Melodiegeführte Entfaltung",
+        "entry": {
+          "shape": "rising-arch",
+          "progress": 1
+        },
+        "entryShape": "split-foci",
+        "entryGroup": 2
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0,
+        "energy": 0.28044811492772403,
+        "tone": 0.4388487407980103,
+        "drums": 0.012628980442753224,
+        "bass": 0.0010151336185623627,
+        "voice": 0.3627974959292822,
+        "pitchConfidence": 0.33316956921575286,
+        "pitchRise": 0,
+        "density": 0.03198976327575175,
+        "irregularity": 0,
+        "impulses": 1
+      }
+    },
+    {
+      "start": 25.12,
+      "end": 32.1,
+      "formationId": "portal-rows",
+      "program": "sweep",
+      "story": "weave",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "depth",
+        "gesture": "ribbon",
+        "articulation": "stroke",
+        "key": "depth/ribbon/stroke",
+        "spread": 0.937095758873222,
+        "amplitude": 0.04822553569952589,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "portal-rows/terraces",
+        "shape": "portal-rows",
+        "layout": "terraces",
+        "name": "portal-rows · Drei Höhenebenen",
+        "motions": [
+          "relay",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "crossing",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "portal-rows",
+        "to": "nested-gates",
+        "path": [
+          {
+            "time": 25.12,
+            "shape": "portal-rows"
+          },
+          {
+            "time": 28.64,
+            "shape": "nested-gates"
+          },
+          {
+            "time": 32.1,
+            "shape": "portal-rows"
+          }
+        ],
+        "movingOpening": false,
+        "start": 25.12,
+        "end": 32.1,
+        "cues": [
+          {
+            "time": 25.2,
+            "strength": 0.7,
+            "ordinal": 21,
+            "group": 1
+          },
+          {
+            "time": 27.2,
+            "strength": 0.7,
+            "ordinal": 22,
+            "group": 2
+          },
+          {
+            "time": 28.64,
+            "strength": 0.7,
+            "ordinal": 23,
+            "group": 3
+          },
+          {
+            "time": 29.92,
+            "strength": 0.7,
+            "ordinal": 24,
+            "group": 0
+          },
+          {
+            "time": 31.04,
+            "strength": 0.7,
+            "ordinal": 25,
+            "group": 1
+          }
+        ],
+        "clock": [
+          {
+            "time": 25.12,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 25.2,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 27.2,
+            "position": 0.25,
+            "velocity": 0.14534883720930228
+          },
+          {
+            "time": 28.64,
+            "position": 0.5,
+            "velocity": 0.18382352941176455
+          },
+          {
+            "time": 29.92,
+            "position": 0.75,
+            "velocity": 0.20833333333333345
+          },
+          {
+            "time": 31.04,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 32.1,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.22800000000000153,
+        "direction": -1,
+        "reason": "Gemeinsame Kreuzung zweier Strahlenbilder",
+        "entry": {
+          "shape": "horizontal-sheets",
+          "progress": 1
+        },
+        "entryShape": "horizontal-sheets",
+        "entryGroup": 0
+      },
+      "musicalEvidence": {
+        "reason": "Gemessene Tonhöhenbewegung",
+        "texture": "melody",
+        "movementDrive": 0.3228762836328924,
+        "energy": 0.5806383924881472,
+        "tone": 0.4149157546806352,
+        "drums": 0.446404291000046,
+        "bass": 0.0153993524549165,
+        "voice": 0.0784097232031555,
+        "pitchConfidence": 0.5225717639982577,
+        "pitchRise": -0.12676251009383688,
+        "density": 0.5730659025787965,
+        "irregularity": 0.45381196900309256,
+        "impulses": 12,
+        "sharedSequence": "sweep",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 32.1,
+      "end": 41.38,
+      "formationId": "vaulted-roof",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "depth",
+        "gesture": "orbit",
+        "articulation": "stroke",
+        "key": "depth/orbit/stroke",
+        "spread": 0.9597737154168002,
+        "amplitude": 0.05427299077781341,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "vaulted-roof/ensemble",
+        "shape": "vaulted-roof",
+        "layout": "ensemble",
+        "name": "vaulted-roof · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "handoff",
+        "source": "lead",
+        "cueSource": "lead",
+        "from": "vaulted-roof",
+        "to": "rising-arch",
+        "path": [
+          {
+            "time": 32.1,
+            "shape": "vaulted-roof"
+          },
+          {
+            "time": 41.38,
+            "shape": "rising-arch"
+          }
+        ],
+        "movingOpening": false,
+        "start": 32.1,
+        "end": 41.38,
+        "cues": [
+          {
+            "time": 32.1,
+            "strength": 0.4346061534125394,
+            "ordinal": 0,
+            "group": 0
+          },
+          {
+            "time": 34.42,
+            "strength": 0.452890084320994,
+            "ordinal": 1,
+            "group": 1
+          },
+          {
+            "time": 36.76,
+            "strength": 0.5631823925485661,
+            "ordinal": 2,
+            "group": 2
+          },
+          {
+            "time": 39.04,
+            "strength": 0.5560970319610488,
+            "ordinal": 3,
+            "group": 3
+          }
+        ],
+        "clock": [
+          {
+            "time": 32.1,
+            "position": 0,
+            "velocity": 0.1436781609195402
+          },
+          {
+            "time": 34.42,
+            "position": 0.3333333333333333,
+            "velocity": 0.1430615164520745
+          },
+          {
+            "time": 36.76,
+            "position": 0.6666666666666666,
+            "velocity": 0.14430014430014437
+          },
+          {
+            "time": 39.04,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 41.38,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.3,
+        "direction": 1,
+        "reason": "Übergabe zwischen benachbarten Lichtgruppen",
+        "entry": {
+          "shape": "portal-rows",
+          "progress": 1
+        },
+        "entryShape": "portal-rows"
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0.46763422126194076,
+        "energy": 0.7318247694453353,
+        "tone": 0.4493114432244728,
+        "drums": 0.5820086056209952,
+        "bass": 0.1621323273384305,
+        "voice": 0.12081187856895897,
+        "pitchConfidence": 0.28567078029347687,
+        "pitchRise": 0,
+        "density": 0.4310344827586206,
+        "irregularity": 0.4736612885196004,
+        "impulses": 12,
+        "sharedSequence": "wave",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 41.38,
+      "end": 48.8,
+      "formationId": "open-fan",
+      "program": "dialogue",
+      "story": "dialogue",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "split",
+        "gesture": "orbit",
+        "articulation": "stroke",
+        "key": "split/orbit/stroke",
+        "spread": 0.9369237325226,
+        "amplitude": 0.04817966200602666,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "open-fan/ensemble",
+        "shape": "open-fan",
+        "layout": "ensemble",
+        "name": "open-fan · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "answer",
+        "source": "lead",
+        "cueSource": "lead",
+        "from": "open-fan",
+        "to": "crossed-fans",
+        "path": [
+          {
+            "time": 41.38,
+            "shape": "open-fan"
+          },
+          {
+            "time": 48.8,
+            "shape": "crossed-fans"
+          }
+        ],
+        "movingOpening": false,
+        "start": 41.38,
+        "end": 48.8,
+        "cues": [
+          {
+            "time": 41.38,
+            "strength": 0.6650620658942634,
+            "ordinal": 4,
+            "group": 0
+          },
+          {
+            "time": 43.26,
+            "strength": 0.6090372818604823,
+            "ordinal": 5,
+            "group": 1
+          },
+          {
+            "time": 45.1,
+            "strength": 0.663361929674441,
+            "ordinal": 6,
+            "group": 2
+          },
+          {
+            "time": 46.94,
+            "strength": 0.5671873805369714,
+            "ordinal": 7,
+            "group": 3
+          }
+        ],
+        "clock": [
+          {
+            "time": 41.38,
+            "position": 0,
+            "velocity": 0.17730496453900751
+          },
+          {
+            "time": 43.26,
+            "position": 0.3333333333333333,
+            "velocity": 0.17921146953405023
+          },
+          {
+            "time": 45.1,
+            "position": 0.6666666666666666,
+            "velocity": 0.1811594202898551
+          },
+          {
+            "time": 46.94,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 48.8,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.3,
+        "direction": 1,
+        "reason": "Musikalischer Ruf mit räumlicher Antwort",
+        "entry": {
+          "shape": "rising-arch",
+          "progress": 1
+        },
+        "entryShape": "vaulted-roof",
+        "entryGroup": 3
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0.18550387608595384,
+        "energy": 0.5794915501506666,
+        "tone": 0.45753537450587123,
+        "drums": 0.6067571664562675,
+        "bass": 0.03683494742944703,
+        "voice": 0.010374856776503025,
+        "pitchConfidence": 0.13481741383523457,
+        "pitchRise": 0,
+        "density": 0.31446540880503165,
+        "irregularity": 0.01017419829045281,
+        "impulses": 7,
+        "sharedSequence": "exchange",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 48.8,
+      "end": 58,
+      "formationId": "open-fan",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.9737812976795923,
+        "amplitude": 0.0580083460478913,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "open-fan/ensemble",
+        "shape": "open-fan",
+        "layout": "ensemble",
+        "name": "open-fan · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "opening",
+        "source": "lead",
+        "cueSource": "lead",
+        "from": "converging-lines",
+        "to": "open-fan",
+        "trajectory": {
+          "shape": "open-fan",
+          "start": 48.8,
+          "clock": [
+            {
+              "time": 48.8,
+              "position": 95
+            },
+            {
+              "time": 49.72,
+              "position": 96
+            },
+            {
+              "time": 50.64,
+              "position": 97
+            },
+            {
+              "time": 51.56,
+              "position": 98
+            },
+            {
+              "time": 52.48,
+              "position": 99
+            },
+            {
+              "time": 53.4,
+              "position": 100
+            },
+            {
+              "time": 54.32,
+              "position": 101
+            },
+            {
+              "time": 55.24,
+              "position": 102
+            },
+            {
+              "time": 56.16,
+              "position": 103
+            },
+            {
+              "time": 57.08,
+              "position": 104
+            },
+            {
+              "time": 58,
+              "position": 105
+            }
+          ],
+          "period": 32,
+          "direction": 1,
+          "low": false
+        },
+        "path": [
+          {
+            "time": 48.8,
+            "shape": "open-fan"
+          },
+          {
+            "time": 58,
+            "shape": "crossed-fans"
+          }
+        ],
+        "movingOpening": true,
+        "start": 48.8,
+        "end": 58,
+        "cues": [
+          {
+            "time": 48.8,
+            "strength": 0.657154608353665,
+            "ordinal": 0,
+            "group": 0
+          },
+          {
+            "time": 50.64,
+            "strength": 0.657154608353665,
+            "ordinal": 1,
+            "group": 1
+          },
+          {
+            "time": 52.48,
+            "strength": 0.657154608353665,
+            "ordinal": 2,
+            "group": 2
+          },
+          {
+            "time": 54.32,
+            "strength": 0.657154608353665,
+            "ordinal": 3,
+            "group": 3
+          },
+          {
+            "time": 56.16,
+            "strength": 0.657154608353665,
+            "ordinal": 4,
+            "group": 0
+          }
+        ],
+        "clock": [
+          {
+            "time": 48.8,
+            "position": 0,
+            "velocity": 0.13586956521739105
+          },
+          {
+            "time": 50.64,
+            "position": 0.25,
+            "velocity": 0.13586956521739132
+          },
+          {
+            "time": 52.48,
+            "position": 0.5,
+            "velocity": 0.13586956521739132
+          },
+          {
+            "time": 54.32,
+            "position": 0.75,
+            "velocity": 0.13586956521739132
+          },
+          {
+            "time": 56.16,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 58,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.3,
+        "direction": 1,
+        "reason": "Gemeinsame Entfaltung"
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0.4592410071543959,
+        "energy": 0.8252086511972824,
+        "tone": 0.456425885183624,
+        "drums": 0.5075198113029217,
+        "bass": 0.4975365603859834,
+        "voice": 0.0006416481287879143,
+        "pitchConfidence": 0.14145684220511018,
+        "pitchRise": 0,
+        "density": 0.289855072463768,
+        "irregularity": 0.3513641844631531,
+        "impulses": 8,
+        "sharedSequence": "opening"
+      }
+    },
+    {
+      "start": 58,
+      "end": 70.93,
+      "formationId": "open-fan",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.9737812976795923,
+        "amplitude": 0.0580083460478913,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "open-fan/ensemble",
+        "shape": "open-fan",
+        "layout": "ensemble",
+        "name": "open-fan · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "opening",
+        "source": "lead",
+        "cueSource": "rhythm",
+        "from": "converging-lines",
+        "to": "open-fan",
+        "trajectory": {
+          "shape": "open-fan",
+          "start": 58,
+          "clock": [
+            {
+              "time": 58,
+              "position": 105
+            },
+            {
+              "time": 58.92,
+              "position": 106
+            },
+            {
+              "time": 59.26,
+              "position": 107
+            },
+            {
+              "time": 59.86,
+              "position": 108
+            },
+            {
+              "time": 60.78,
+              "position": 109
+            },
+            {
+              "time": 61.72,
+              "position": 110
+            },
+            {
+              "time": 62.64,
+              "position": 111
+            },
+            {
+              "time": 63.54,
+              "position": 112
+            },
+            {
+              "time": 64.46,
+              "position": 113
+            },
+            {
+              "time": 65.42,
+              "position": 114
+            },
+            {
+              "time": 66.34,
+              "position": 115
+            },
+            {
+              "time": 67.26,
+              "position": 116
+            },
+            {
+              "time": 68.18,
+              "position": 117
+            },
+            {
+              "time": 69.1,
+              "position": 118
+            },
+            {
+              "time": 69.42,
+              "position": 119
+            },
+            {
+              "time": 70.04,
+              "position": 120
+            }
+          ],
+          "period": 32,
+          "direction": 1,
+          "low": false
+        },
+        "path": [
+          {
+            "time": 58,
+            "shape": "open-fan"
+          },
+          {
+            "time": 70.93,
+            "shape": "crossed-fans"
+          }
+        ],
+        "movingOpening": true,
+        "start": 58,
+        "end": 70.93,
+        "cues": [
+          {
+            "time": 58.92,
+            "strength": 0.48335196556596005,
+            "ordinal": 0,
+            "group": 0
+          },
+          {
+            "time": 59.86,
+            "strength": 0.672139789104536,
+            "ordinal": 1,
+            "group": 1
+          },
+          {
+            "time": 61.72,
+            "strength": 0.672139789104536,
+            "ordinal": 2,
+            "group": 2
+          },
+          {
+            "time": 63.54,
+            "strength": 0.672139789104536,
+            "ordinal": 3,
+            "group": 3
+          },
+          {
+            "time": 65.42,
+            "strength": 0.672139789104536,
+            "ordinal": 4,
+            "group": 0
+          },
+          {
+            "time": 67.26,
+            "strength": 0.672139789104536,
+            "ordinal": 5,
+            "group": 1
+          },
+          {
+            "time": 69.1,
+            "strength": 0.672139789104536,
+            "ordinal": 6,
+            "group": 2
+          },
+          {
+            "time": 70.04,
+            "strength": 0.4083931813173081,
+            "ordinal": 7,
+            "group": 3
+          }
+        ],
+        "clock": [
+          {
+            "time": 58,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 58.92,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 59.86,
+            "position": 0.14285714285714285,
+            "velocity": 0.10204081632653071
+          },
+          {
+            "time": 61.72,
+            "position": 0.2857142857142857,
+            "velocity": 0.07763975155279504
+          },
+          {
+            "time": 63.54,
+            "position": 0.42857142857142855,
+            "velocity": 0.07722007722007716
+          },
+          {
+            "time": 65.42,
+            "position": 0.5714285714285714,
+            "velocity": 0.07680491551459283
+          },
+          {
+            "time": 67.26,
+            "position": 0.7142857142857143,
+            "velocity": 0.07763975155279519
+          },
+          {
+            "time": 69.1,
+            "position": 0.8571428571428571,
+            "velocity": 0.10277492291880776
+          },
+          {
+            "time": 70.04,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 70.93,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.12,
+        "direction": 1,
+        "reason": "Gemeinsame Entfaltung",
+        "entry": {
+          "orbit": "open-fan",
+          "phase": 3.28125,
+          "low": false
+        },
+        "entryShape": "open-fan",
+        "continueOrbit": true
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0.5787220780346323,
+        "energy": 0.8586439592096038,
+        "tone": 0.4103970299579804,
+        "drums": 0.5550718489117052,
+        "bass": 0.8301973198460848,
+        "voice": 0.0007281449537130367,
+        "pitchConfidence": 0.21281905385544633,
+        "pitchRise": 0,
+        "density": 0.4124774426398554,
+        "irregularity": 0.2661749567967335,
+        "impulses": 16,
+        "sharedSequence": "opening"
+      }
+    },
+    {
+      "start": 70.93,
+      "end": 82.04,
+      "formationId": "chevron-stack",
+      "program": "sweep",
+      "story": "weave",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "depth",
+        "gesture": "orbit",
+        "articulation": "stroke",
+        "key": "depth/orbit/stroke",
+        "spread": 0.9834989928875338,
+        "amplitude": 0.06059973143667569,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "chevron-stack/ensemble",
+        "shape": "chevron-stack",
+        "layout": "ensemble",
+        "name": "chevron-stack · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "crossing",
+        "source": "lead",
+        "cueSource": "lead",
+        "from": "chevron-stack",
+        "to": "layered-steps",
+        "path": [
+          {
+            "time": 70.93,
+            "shape": "chevron-stack"
+          },
+          {
+            "time": 78.34,
+            "shape": "layered-steps"
+          },
+          {
+            "time": 82.04,
+            "shape": "chevron-stack"
+          }
+        ],
+        "movingOpening": false,
+        "start": 70.93,
+        "end": 82.04,
+        "cues": [
+          {
+            "time": 70.94,
+            "strength": 0.6707075266104976,
+            "ordinal": 0,
+            "group": 0
+          },
+          {
+            "time": 72.78,
+            "strength": 0.6707075266104976,
+            "ordinal": 1,
+            "group": 1
+          },
+          {
+            "time": 74.64,
+            "strength": 0.6707075266104976,
+            "ordinal": 2,
+            "group": 2
+          },
+          {
+            "time": 76.48,
+            "strength": 0.6707075266104976,
+            "ordinal": 3,
+            "group": 3
+          },
+          {
+            "time": 78.34,
+            "strength": 0.6707075266104976,
+            "ordinal": 4,
+            "group": 0
+          },
+          {
+            "time": 80.18,
+            "strength": 0.6707075266104976,
+            "ordinal": 5,
+            "group": 1
+          }
+        ],
+        "clock": [
+          {
+            "time": 70.93,
+            "position": 0,
+            "velocity": 0.10810810810810845
+          },
+          {
+            "time": 72.78,
+            "position": 0.2,
+            "velocity": 0.10781671159029668
+          },
+          {
+            "time": 74.64,
+            "position": 0.4,
+            "velocity": 0.10810810810810803
+          },
+          {
+            "time": 76.48,
+            "position": 0.6,
+            "velocity": 0.10810810810810803
+          },
+          {
+            "time": 78.34,
+            "position": 0.8,
+            "velocity": 0.10810810810810803
+          },
+          {
+            "time": 80.18,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 82.04,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.3,
+        "direction": 1,
+        "reason": "Gemeinsame Kreuzung zweier Strahlenbilder",
+        "entry": {
+          "orbit": "open-fan",
+          "phase": 3.7948588709677415,
+          "low": false
+        },
+        "entryShape": "open-fan"
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0.43949377888293395,
+        "energy": 0.8899932859168923,
+        "tone": 0.45728483074889253,
+        "drums": 0.5170811953848704,
+        "bass": 0.8751006102360648,
+        "voice": 0.007301285310164326,
+        "pitchConfidence": 0.10006118303215238,
+        "pitchRise": 0,
+        "density": 0.42004200420042004,
+        "irregularity": 0.24573204417901362,
+        "impulses": 14,
+        "sharedSequence": "sweep",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 82.04,
+      "end": 87.57,
+      "formationId": "twin-fans",
+      "program": "dialogue",
+      "story": "dialogue",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "split",
+        "gesture": "orbit",
+        "articulation": "stroke",
+        "key": "split/orbit/stroke",
+        "spread": 0.9806737880374546,
+        "amplitude": 0.05984634347665458,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "twin-fans/ensemble",
+        "shape": "twin-fans",
+        "layout": "ensemble",
+        "name": "twin-fans · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "answer",
+        "source": "lead",
+        "cueSource": "rhythm",
+        "from": "twin-fans",
+        "to": "split-wings",
+        "path": [
+          {
+            "time": 82.04,
+            "shape": "twin-fans"
+          },
+          {
+            "time": 83.88,
+            "shape": "split-wings"
+          },
+          {
+            "time": 85.72,
+            "shape": "twin-fans"
+          },
+          {
+            "time": 87.57,
+            "shape": "split-wings"
+          }
+        ],
+        "movingOpening": false,
+        "start": 82.04,
+        "end": 87.57,
+        "cues": [
+          {
+            "time": 82.04,
+            "strength": 0.7,
+            "ordinal": 0,
+            "group": 0
+          },
+          {
+            "time": 83.28,
+            "strength": 0.4840776423735589,
+            "ordinal": 1,
+            "group": 1
+          },
+          {
+            "time": 83.88,
+            "strength": 0.7,
+            "ordinal": 2,
+            "group": 2
+          },
+          {
+            "time": 84.8,
+            "strength": 0.7,
+            "ordinal": 3,
+            "group": 3
+          },
+          {
+            "time": 86.64,
+            "strength": 0.7,
+            "ordinal": 4,
+            "group": 0
+          }
+        ],
+        "clock": [
+          {
+            "time": 82.04,
+            "position": 0,
+            "velocity": 0.20161290322580727
+          },
+          {
+            "time": 83.28,
+            "position": 0.25,
+            "velocity": 0.2717391304347842
+          },
+          {
+            "time": 83.88,
+            "position": 0.5,
+            "velocity": 0.3289473684210535
+          },
+          {
+            "time": 84.8,
+            "position": 0.75,
+            "velocity": 0.18115942028985474
+          },
+          {
+            "time": 86.64,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 87.57,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.12,
+        "direction": 1,
+        "reason": "Musikalischer Ruf mit räumlicher Antwort",
+        "entry": {
+          "shape": "chevron-stack",
+          "progress": 1
+        },
+        "entryShape": "chevron-stack"
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0.6393078857446057,
+        "energy": 0.8711585869163645,
+        "tone": 0.4141003596118717,
+        "drums": 0.6707439963178772,
+        "bass": 0.6582830971823891,
+        "voice": 0.00124806337873704,
+        "pitchConfidence": 0.287121183504075,
+        "pitchRise": 0,
+        "density": 0.6027727546714903,
+        "irregularity": 0.4632650784946141,
+        "impulses": 10,
+        "sharedSequence": "exchange",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 87.57,
+      "end": 96.74,
+      "formationId": "converging-lines",
+      "program": "resolve",
+      "story": "gather",
+      "act": "resolve",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "hinge",
+        "articulation": "stroke",
+        "key": "radial/hinge/stroke",
+        "spread": 0.9363450182814386,
+        "amplitude": 0.04802533820838363,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "converging-lines/ensemble",
+        "shape": "converging-lines",
+        "layout": "ensemble",
+        "name": "converging-lines · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "closing",
+        "source": "lead",
+        "cueSource": "lead",
+        "from": "converging-lines",
+        "to": "converging-lines",
+        "movingOpening": false,
+        "start": 87.57,
+        "end": 96.74,
+        "cues": [
+          {
+            "time": 87.74,
+            "strength": 0.3835438007156782,
+            "ordinal": 0,
+            "group": 0
+          }
+        ],
+        "clock": [
+          {
+            "time": 87.57,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 87.74,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 96.74,
+            "position": 1,
+            "velocity": 0.1111111111111111
+          }
+        ],
+        "overlap": 0.3,
+        "direction": 1,
+        "reason": "Gemeinsame Zusammenführung",
+        "entry": {
+          "shape": "split-wings",
+          "progress": 1
+        },
+        "entryShape": "twin-fans"
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0.04736952742426068,
+        "energy": 0.5756334552095906,
+        "tone": 0.5004810837153882,
+        "drums": 0.12410433564214865,
+        "bass": 0.013325390212445339,
+        "voice": 0.13614110243626082,
+        "pitchConfidence": 0.32922270775818196,
+        "pitchRise": 0,
+        "density": 0.07270083605961468,
+        "irregularity": 0,
+        "impulses": 2,
+        "sharedSequence": "settle"
+      }
+    },
+    {
+      "start": 96.74,
+      "end": 106.02,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9729797092721042,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "horizontal-sheets/ensemble",
+        "shape": "horizontal-sheets",
+        "layout": "ensemble",
+        "name": "horizontal-sheets · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "develop",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "horizontal-sheets",
+        "to": "rising-arch",
+        "movingOpening": false,
+        "start": 96.74,
+        "end": 106.02,
+        "cues": [
+          {
+            "time": 96.8,
+            "strength": 0.7,
+            "ordinal": 0,
+            "group": 0
+          },
+          {
+            "time": 99.76,
+            "strength": 0.7,
+            "ordinal": 1,
+            "group": 1
+          },
+          {
+            "time": 101.44,
+            "strength": 0.7,
+            "ordinal": 2,
+            "group": 2
+          },
+          {
+            "time": 102.96000000000001,
+            "strength": 0.7,
+            "ordinal": 3,
+            "group": 3
+          },
+          {
+            "time": 104.88,
+            "strength": 0.7,
+            "ordinal": 4,
+            "group": 0
+          }
+        ],
+        "clock": [
+          {
+            "time": 96.74,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 96.8,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 99.76,
+            "position": 0.25,
+            "velocity": 0.10775862068965517
+          },
+          {
+            "time": 101.44,
+            "position": 0.5,
+            "velocity": 0.15624999999999986
+          },
+          {
+            "time": 102.96000000000001,
+            "position": 0.75,
+            "velocity": 0.14534883720930242
+          },
+          {
+            "time": 104.88,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 106.02,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.85,
+        "direction": 1,
+        "reason": "Melodiegeführte Entfaltung",
+        "entry": {
+          "a": {
+            "shape": "split-wings",
+            "progress": 1
+          },
+          "b": {
+            "shape": "converging-lines",
+            "progress": 1
+          },
+          "join": 1,
+          "closing": 1
+        },
+        "entryShape": "converging-lines"
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 1.5504478586171416e-19,
+        "energy": 0.8198647284806949,
+        "tone": 0.5351788321109389,
+        "drums": 0.034090780596373334,
+        "bass": 0.004167498000927956,
+        "voice": 0.001989174081808629,
+        "pitchConfidence": 0.3101866275695776,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0,
+        "sharedSequence": "breath"
+      }
+    },
+    {
+      "start": 106.02,
+      "end": 107,
+      "formationId": "vertical-curtain",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.9560446976736632,
+        "amplitude": 0.05327858604631018,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "vertical-curtain/ensemble",
+        "shape": "vertical-curtain",
+        "layout": "ensemble",
+        "name": "vertical-curtain · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "hold",
+        "source": "drums",
+        "cueSource": "drums",
+        "from": "vertical-curtain",
+        "to": "vertical-curtain",
+        "heightBand": {
+          "floor": 0.08,
+          "span": 0.7
+        },
+        "grouping": "mirrored",
+        "movingOpening": false,
+        "start": 106.02,
+        "end": 107,
+        "cues": [
+          {
+            "time": 106.02,
+            "strength": 1,
+            "ordinal": 0,
+            "group": 0
+          }
+        ],
+        "clock": [
+          {
+            "time": 106.02,
+            "position": 0,
+            "velocity": 1.020408163265302
+          },
+          {
+            "time": 107,
+            "position": 1,
+            "velocity": 1.020408163265302
+          }
+        ],
+        "overlap": 0.3,
+        "direction": 1,
+        "reason": "Getragenes Lichtbild",
+        "entry": {
+          "shape": "rising-arch",
+          "progress": 1
+        },
+        "entryShape": "horizontal-sheets"
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "movementDrive": 0.2589217238152025,
+        "energy": 0.7069646511577545,
+        "tone": 0.43420874995422964,
+        "drums": 0.851572743282009,
+        "bass": 0.004541696370237228,
+        "voice": 0.0017402832078220708,
+        "pitchConfidence": 0.09739638886035921,
+        "pitchRise": 0,
+        "density": 0.3401360544217673,
+        "irregularity": 0,
+        "impulses": 1,
+        "sharedSequence": "wave"
+      }
+    },
+    {
+      "start": 107,
+      "end": 110.3769375,
+      "formationId": "parallel-lines",
+      "program": "rest",
+      "story": "rest",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": null,
+      "scene": null,
+      "action": {
+        "kind": "rest",
+        "source": "lead",
+        "cueSource": "lead",
+        "from": "parallel-lines",
+        "to": "parallel-lines",
+        "movingOpening": false,
+        "start": 107,
+        "end": 110.3769375,
+        "cues": [],
+        "clock": [
+          {
+            "time": 107,
+            "position": 0,
+            "velocity": 0.29612629786604017
+          },
+          {
+            "time": 110.3769375,
+            "position": 1,
+            "velocity": 0.29612629786604017
+          }
+        ],
+        "overlap": 0.3,
+        "direction": 1,
+        "reason": "Getragenes Lichtbild"
+      },
+      "musicalEvidence": {
+        "reason": "Musikalische Pause",
+        "texture": "sustain",
+        "movementDrive": 0.015983446477932366,
+        "energy": 0.03279554771001325,
+        "tone": 0.2758009313286594,
+        "drums": 0.05956857112982663,
+        "bass": 0.0010763943397173743,
+        "voice": 0.0002980144190470529,
+        "pitchConfidence": 0.07019471284232333,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    }
+  ],
+  "states": [
+    {
+      "time": 10,
+      "targets": [
+        [
+          -117000,
+          0,
+          696
+        ],
+        [
+          -99000,
+          0,
+          696
+        ],
+        [
+          -81000,
+          0,
+          696
+        ],
+        [
+          -63000,
+          0,
+          696
+        ],
+        [
+          -45000,
+          0,
+          696
+        ],
+        [
+          -27000,
+          0,
+          696
+        ],
+        [
+          -9000,
+          0,
+          696
+        ],
+        [
+          9000,
+          0,
+          696
+        ],
+        [
+          27000,
+          0,
+          696
+        ],
+        [
+          45000,
+          0,
+          696
+        ],
+        [
+          63000,
+          0,
+          696
+        ],
+        [
+          81000,
+          0,
+          696
+        ],
+        [
+          99000,
+          0,
+          696
+        ],
+        [
+          117000,
+          0,
+          696
+        ],
+        [
+          -117000,
+          0,
+          57757
+        ],
+        [
+          -99000,
+          0,
+          57757
+        ],
+        [
+          -81000,
+          0,
+          57757
+        ],
+        [
+          -63000,
+          0,
+          57757
+        ],
+        [
+          -45000,
+          0,
+          57757
+        ],
+        [
+          -27000,
+          0,
+          57757
+        ],
+        [
+          -9000,
+          0,
+          57757
+        ],
+        [
+          9000,
+          0,
+          57757
+        ],
+        [
+          27000,
+          0,
+          57757
+        ],
+        [
+          45000,
+          0,
+          57757
+        ],
+        [
+          63000,
+          0,
+          57757
+        ],
+        [
+          81000,
+          0,
+          57757
+        ],
+        [
+          99000,
+          0,
+          57757
+        ],
+        [
+          117000,
+          0,
+          57757
+        ],
+        [
+          -117000,
+          0,
+          117259
+        ],
+        [
+          -99000,
+          0,
+          117259
+        ],
+        [
+          -81000,
+          0,
+          117259
+        ],
+        [
+          -63000,
+          0,
+          117259
+        ],
+        [
+          -45000,
+          0,
+          117259
+        ],
+        [
+          -27000,
+          0,
+          117259
+        ],
+        [
+          -9000,
+          0,
+          117259
+        ],
+        [
+          9000,
+          0,
+          117259
+        ],
+        [
+          27000,
+          0,
+          117259
+        ],
+        [
+          45000,
+          0,
+          117259
+        ],
+        [
+          63000,
+          0,
+          117259
+        ],
+        [
+          81000,
+          0,
+          117259
+        ],
+        [
+          99000,
+          0,
+          117259
+        ],
+        [
+          117000,
+          0,
+          117259
+        ],
+        [
+          -115771,
+          0,
+          19320
+        ],
+        [
+          -106312,
+          0,
+          21287
+        ],
+        [
+          -96853,
+          0,
+          22972
+        ],
+        [
+          -87394,
+          0,
+          24377
+        ],
+        [
+          -77935,
+          0,
+          25500
+        ],
+        [
+          -68476,
+          0,
+          26343
+        ],
+        [
+          -59017,
+          0,
+          26905
+        ],
+        [
+          -49558,
+          0,
+          27186
+        ],
+        [
+          76460,
+          0,
+          27186
+        ],
+        [
+          85919,
+          0,
+          26905
+        ],
+        [
+          95378,
+          0,
+          26343
+        ],
+        [
+          104837,
+          0,
+          25500
+        ],
+        [
+          114296,
+          0,
+          24377
+        ],
+        [
+          123755,
+          0,
+          22972
+        ],
+        [
+          133214,
+          0,
+          21287
+        ],
+        [
+          140000,
+          19873,
+          19655
+        ],
+        [
+          -133517,
+          0,
+          52281
+        ],
+        [
+          -122888,
+          0,
+          54478
+        ],
+        [
+          -112259,
+          0,
+          56362
+        ],
+        [
+          -101630,
+          0,
+          57931
+        ],
+        [
+          -91001,
+          0,
+          59186
+        ],
+        [
+          -80372,
+          0,
+          60128
+        ],
+        [
+          -69743,
+          0,
+          60756
+        ],
+        [
+          -59114,
+          0,
+          61070
+        ],
+        [
+          89835,
+          0,
+          61070
+        ],
+        [
+          100464,
+          0,
+          60756
+        ],
+        [
+          111093,
+          0,
+          60128
+        ],
+        [
+          121722,
+          0,
+          59186
+        ],
+        [
+          132351,
+          0,
+          57931
+        ],
+        [
+          140000,
+          39851,
+          56644
+        ],
+        [
+          140000,
+          135644,
+          56215
+        ],
+        [
+          140000,
+          192561,
+          56029
+        ],
+        [
+          -132569,
+          0,
+          93370
+        ],
+        [
+          -120563,
+          0,
+          95846
+        ],
+        [
+          -108557,
+          0,
+          97969
+        ],
+        [
+          -96550,
+          0,
+          99737
+        ],
+        [
+          -84544,
+          0,
+          101152
+        ],
+        [
+          -72538,
+          0,
+          102214
+        ],
+        [
+          -60531,
+          0,
+          102921
+        ],
+        [
+          -48525,
+          0,
+          103275
+        ],
+        [
+          83786,
+          0,
+          103275
+        ],
+        [
+          95792,
+          0,
+          102921
+        ],
+        [
+          107798,
+          0,
+          102214
+        ],
+        [
+          119805,
+          0,
+          101152
+        ],
+        [
+          131811,
+          0,
+          99737
+        ],
+        [
+          140000,
+          38629,
+          98226
+        ],
+        [
+          140000,
+          128920,
+          97374
+        ],
+        [
+          140000,
+          189761,
+          96764
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.4510285476408243,
+      "rows": [
+        {
+          "y": 31,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 36,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 43,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 26,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 41,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 43,
+      "targets": [
+        [
+          -117000,
+          0,
+          696
+        ],
+        [
+          -99000,
+          0,
+          696
+        ],
+        [
+          -81000,
+          0,
+          696
+        ],
+        [
+          -63000,
+          0,
+          696
+        ],
+        [
+          -45000,
+          0,
+          696
+        ],
+        [
+          -27000,
+          0,
+          696
+        ],
+        [
+          -9000,
+          0,
+          696
+        ],
+        [
+          9000,
+          0,
+          696
+        ],
+        [
+          27000,
+          0,
+          696
+        ],
+        [
+          45000,
+          0,
+          696
+        ],
+        [
+          63000,
+          0,
+          696
+        ],
+        [
+          81000,
+          0,
+          696
+        ],
+        [
+          99000,
+          0,
+          696
+        ],
+        [
+          117000,
+          0,
+          696
+        ],
+        [
+          -117000,
+          0,
+          57757
+        ],
+        [
+          -99000,
+          0,
+          57757
+        ],
+        [
+          -81000,
+          0,
+          57757
+        ],
+        [
+          -63000,
+          0,
+          57757
+        ],
+        [
+          -45000,
+          0,
+          57757
+        ],
+        [
+          -27000,
+          0,
+          57757
+        ],
+        [
+          -9000,
+          0,
+          57757
+        ],
+        [
+          9000,
+          0,
+          57757
+        ],
+        [
+          27000,
+          0,
+          57757
+        ],
+        [
+          45000,
+          0,
+          57757
+        ],
+        [
+          63000,
+          0,
+          57757
+        ],
+        [
+          81000,
+          0,
+          57757
+        ],
+        [
+          99000,
+          0,
+          57757
+        ],
+        [
+          117000,
+          0,
+          57757
+        ],
+        [
+          -117000,
+          0,
+          117259
+        ],
+        [
+          -99000,
+          0,
+          117259
+        ],
+        [
+          -81000,
+          0,
+          117259
+        ],
+        [
+          -63000,
+          0,
+          117259
+        ],
+        [
+          -45000,
+          0,
+          117259
+        ],
+        [
+          -27000,
+          0,
+          117259
+        ],
+        [
+          -9000,
+          0,
+          117259
+        ],
+        [
+          9000,
+          0,
+          117259
+        ],
+        [
+          27000,
+          0,
+          117259
+        ],
+        [
+          45000,
+          0,
+          117259
+        ],
+        [
+          63000,
+          0,
+          117259
+        ],
+        [
+          81000,
+          0,
+          117259
+        ],
+        [
+          99000,
+          0,
+          117259
+        ],
+        [
+          117000,
+          0,
+          117259
+        ],
+        [
+          -140000,
+          143397,
+          30373
+        ],
+        [
+          -140000,
+          74111,
+          44956
+        ],
+        [
+          -127787,
+          0,
+          66162
+        ],
+        [
+          -101819,
+          0,
+          76772
+        ],
+        [
+          -75851,
+          0,
+          85261
+        ],
+        [
+          -49883,
+          0,
+          91627
+        ],
+        [
+          -23915,
+          0,
+          95871
+        ],
+        [
+          2053,
+          0,
+          97993
+        ],
+        [
+          -2053,
+          0,
+          97993
+        ],
+        [
+          23915,
+          0,
+          95871
+        ],
+        [
+          49883,
+          0,
+          91627
+        ],
+        [
+          75851,
+          0,
+          85261
+        ],
+        [
+          101819,
+          0,
+          76772
+        ],
+        [
+          127787,
+          0,
+          66162
+        ],
+        [
+          140000,
+          74111,
+          44956
+        ],
+        [
+          140000,
+          143397,
+          30373
+        ],
+        [
+          -140000,
+          221682,
+          50902
+        ],
+        [
+          -140000,
+          113634,
+          52529
+        ],
+        [
+          -125077,
+          0,
+          61588
+        ],
+        [
+          -99912,
+          0,
+          71840
+        ],
+        [
+          -74747,
+          0,
+          80042
+        ],
+        [
+          -49582,
+          0,
+          86193
+        ],
+        [
+          -24418,
+          0,
+          90294
+        ],
+        [
+          747,
+          0,
+          92344
+        ],
+        [
+          -747,
+          0,
+          92344
+        ],
+        [
+          24418,
+          0,
+          90294
+        ],
+        [
+          49582,
+          0,
+          86193
+        ],
+        [
+          74747,
+          0,
+          80042
+        ],
+        [
+          99912,
+          0,
+          71840
+        ],
+        [
+          125077,
+          0,
+          61588
+        ],
+        [
+          140000,
+          113634,
+          52529
+        ],
+        [
+          140000,
+          221682,
+          50902
+        ],
+        [
+          -140000,
+          215035,
+          68312
+        ],
+        [
+          -140000,
+          99185,
+          59684
+        ],
+        [
+          -126394,
+          0,
+          58602
+        ],
+        [
+          -101778,
+          0,
+          68609
+        ],
+        [
+          -77162,
+          0,
+          76614
+        ],
+        [
+          -52546,
+          0,
+          82619
+        ],
+        [
+          -27931,
+          0,
+          86621
+        ],
+        [
+          -3315,
+          0,
+          88623
+        ],
+        [
+          3315,
+          0,
+          88623
+        ],
+        [
+          27931,
+          0,
+          86621
+        ],
+        [
+          52546,
+          0,
+          82619
+        ],
+        [
+          77162,
+          0,
+          76614
+        ],
+        [
+          101778,
+          0,
+          68609
+        ],
+        [
+          126394,
+          0,
+          58602
+        ],
+        [
+          140000,
+          99185,
+          59684
+        ],
+        [
+          140000,
+          215035,
+          68312
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.766304622353414,
+      "rows": [
+        {
+          "y": 31,
+          "visible": 0,
+          "colors": [
+            "rgb(255,166,0)"
+          ]
+        },
+        {
+          "y": 36,
+          "visible": 0,
+          "colors": [
+            "rgb(255,166,0)"
+          ]
+        },
+        {
+          "y": 43,
+          "visible": 0,
+          "colors": [
+            "rgb(255,166,0)"
+          ]
+        },
+        {
+          "y": 26,
+          "visible": 0,
+          "colors": [
+            "rgb(255,166,0)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 0,
+          "colors": [
+            "rgb(255,166,0)"
+          ]
+        },
+        {
+          "y": 41,
+          "visible": 0,
+          "colors": [
+            "rgb(255,166,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 65,
+      "targets": [
+        [
+          -117000,
+          0,
+          696
+        ],
+        [
+          -99000,
+          0,
+          696
+        ],
+        [
+          -81000,
+          0,
+          696
+        ],
+        [
+          -63000,
+          0,
+          696
+        ],
+        [
+          -45000,
+          0,
+          696
+        ],
+        [
+          -27000,
+          0,
+          696
+        ],
+        [
+          -9000,
+          0,
+          696
+        ],
+        [
+          9000,
+          0,
+          696
+        ],
+        [
+          27000,
+          0,
+          696
+        ],
+        [
+          45000,
+          0,
+          696
+        ],
+        [
+          63000,
+          0,
+          696
+        ],
+        [
+          81000,
+          0,
+          696
+        ],
+        [
+          99000,
+          0,
+          696
+        ],
+        [
+          117000,
+          0,
+          696
+        ],
+        [
+          -117000,
+          0,
+          57757
+        ],
+        [
+          -99000,
+          0,
+          57757
+        ],
+        [
+          -81000,
+          0,
+          57757
+        ],
+        [
+          -63000,
+          0,
+          57757
+        ],
+        [
+          -45000,
+          0,
+          57757
+        ],
+        [
+          -27000,
+          0,
+          57757
+        ],
+        [
+          -9000,
+          0,
+          57757
+        ],
+        [
+          9000,
+          0,
+          57757
+        ],
+        [
+          27000,
+          0,
+          57757
+        ],
+        [
+          45000,
+          0,
+          57757
+        ],
+        [
+          63000,
+          0,
+          57757
+        ],
+        [
+          81000,
+          0,
+          57757
+        ],
+        [
+          99000,
+          0,
+          57757
+        ],
+        [
+          117000,
+          0,
+          57757
+        ],
+        [
+          -117000,
+          0,
+          117259
+        ],
+        [
+          -99000,
+          0,
+          117259
+        ],
+        [
+          -81000,
+          0,
+          117259
+        ],
+        [
+          -63000,
+          0,
+          117259
+        ],
+        [
+          -45000,
+          0,
+          117259
+        ],
+        [
+          -27000,
+          0,
+          117259
+        ],
+        [
+          -9000,
+          0,
+          117259
+        ],
+        [
+          9000,
+          0,
+          117259
+        ],
+        [
+          27000,
+          0,
+          117259
+        ],
+        [
+          45000,
+          0,
+          117259
+        ],
+        [
+          63000,
+          0,
+          117259
+        ],
+        [
+          81000,
+          0,
+          117259
+        ],
+        [
+          99000,
+          0,
+          117259
+        ],
+        [
+          117000,
+          0,
+          117259
+        ],
+        [
+          -93949,
+          0,
+          49962
+        ],
+        [
+          -79418,
+          0,
+          51555
+        ],
+        [
+          -64886,
+          0,
+          53149
+        ],
+        [
+          -50355,
+          0,
+          54742
+        ],
+        [
+          -35823,
+          0,
+          56336
+        ],
+        [
+          -21292,
+          0,
+          57929
+        ],
+        [
+          -6761,
+          0,
+          59523
+        ],
+        [
+          7771,
+          0,
+          61116
+        ],
+        [
+          -7771,
+          0,
+          61116
+        ],
+        [
+          6761,
+          0,
+          59523
+        ],
+        [
+          21292,
+          0,
+          57929
+        ],
+        [
+          35823,
+          0,
+          56336
+        ],
+        [
+          50355,
+          0,
+          54742
+        ],
+        [
+          64886,
+          0,
+          53149
+        ],
+        [
+          79418,
+          0,
+          51555
+        ],
+        [
+          93949,
+          0,
+          49962
+        ],
+        [
+          -92531,
+          0,
+          46991
+        ],
+        [
+          -78416,
+          0,
+          48531
+        ],
+        [
+          -64302,
+          0,
+          50070
+        ],
+        [
+          -50187,
+          0,
+          51610
+        ],
+        [
+          -36072,
+          0,
+          53150
+        ],
+        [
+          -21957,
+          0,
+          54689
+        ],
+        [
+          -7843,
+          0,
+          56229
+        ],
+        [
+          6272,
+          0,
+          57769
+        ],
+        [
+          -6272,
+          0,
+          57769
+        ],
+        [
+          7843,
+          0,
+          56229
+        ],
+        [
+          21957,
+          0,
+          54689
+        ],
+        [
+          36072,
+          0,
+          53150
+        ],
+        [
+          50187,
+          0,
+          51610
+        ],
+        [
+          64302,
+          0,
+          50070
+        ],
+        [
+          78416,
+          0,
+          48531
+        ],
+        [
+          92531,
+          0,
+          46991
+        ],
+        [
+          -94731,
+          0,
+          45384
+        ],
+        [
+          -80901,
+          0,
+          46887
+        ],
+        [
+          -67072,
+          0,
+          48390
+        ],
+        [
+          -53242,
+          0,
+          49892
+        ],
+        [
+          -39412,
+          0,
+          51395
+        ],
+        [
+          -25582,
+          0,
+          52898
+        ],
+        [
+          -11752,
+          0,
+          54401
+        ],
+        [
+          2078,
+          0,
+          55904
+        ],
+        [
+          -2078,
+          0,
+          55904
+        ],
+        [
+          11752,
+          0,
+          54401
+        ],
+        [
+          25582,
+          0,
+          52898
+        ],
+        [
+          39412,
+          0,
+          51395
+        ],
+        [
+          53242,
+          0,
+          49892
+        ],
+        [
+          67072,
+          0,
+          48390
+        ],
+        [
+          80901,
+          0,
+          46887
+        ],
+        [
+          94731,
+          0,
+          45384
+        ]
+      ],
+      "visible": 12,
+      "maximum": 0.9636573250531639,
+      "rows": [
+        {
+          "y": 31,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 36,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 43,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 26,
+          "visible": 4,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 4,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 41,
+          "visible": 4,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 89,
+      "targets": [
+        [
+          -117000,
+          0,
+          696
+        ],
+        [
+          -99000,
+          0,
+          696
+        ],
+        [
+          -81000,
+          0,
+          696
+        ],
+        [
+          -63000,
+          0,
+          696
+        ],
+        [
+          -45000,
+          0,
+          696
+        ],
+        [
+          -27000,
+          0,
+          696
+        ],
+        [
+          -9000,
+          0,
+          696
+        ],
+        [
+          9000,
+          0,
+          696
+        ],
+        [
+          27000,
+          0,
+          696
+        ],
+        [
+          45000,
+          0,
+          696
+        ],
+        [
+          63000,
+          0,
+          696
+        ],
+        [
+          81000,
+          0,
+          696
+        ],
+        [
+          99000,
+          0,
+          696
+        ],
+        [
+          117000,
+          0,
+          696
+        ],
+        [
+          -117000,
+          0,
+          57757
+        ],
+        [
+          -99000,
+          0,
+          57757
+        ],
+        [
+          -81000,
+          0,
+          57757
+        ],
+        [
+          -63000,
+          0,
+          57757
+        ],
+        [
+          -45000,
+          0,
+          57757
+        ],
+        [
+          -27000,
+          0,
+          57757
+        ],
+        [
+          -9000,
+          0,
+          57757
+        ],
+        [
+          9000,
+          0,
+          57757
+        ],
+        [
+          27000,
+          0,
+          57757
+        ],
+        [
+          45000,
+          0,
+          57757
+        ],
+        [
+          63000,
+          0,
+          57757
+        ],
+        [
+          81000,
+          0,
+          57757
+        ],
+        [
+          99000,
+          0,
+          57757
+        ],
+        [
+          117000,
+          0,
+          57757
+        ],
+        [
+          -117000,
+          0,
+          117259
+        ],
+        [
+          -99000,
+          0,
+          117259
+        ],
+        [
+          -81000,
+          0,
+          117259
+        ],
+        [
+          -63000,
+          0,
+          117259
+        ],
+        [
+          -45000,
+          0,
+          117259
+        ],
+        [
+          -27000,
+          0,
+          117259
+        ],
+        [
+          -9000,
+          0,
+          117259
+        ],
+        [
+          9000,
+          0,
+          117259
+        ],
+        [
+          27000,
+          0,
+          117259
+        ],
+        [
+          45000,
+          0,
+          117259
+        ],
+        [
+          63000,
+          0,
+          117259
+        ],
+        [
+          81000,
+          0,
+          117259
+        ],
+        [
+          99000,
+          0,
+          117259
+        ],
+        [
+          117000,
+          0,
+          117259
+        ],
+        [
+          18287,
+          0,
+          55702
+        ],
+        [
+          17528,
+          0,
+          55634
+        ],
+        [
+          16768,
+          0,
+          55567
+        ],
+        [
+          16009,
+          0,
+          55499
+        ],
+        [
+          15249,
+          0,
+          55431
+        ],
+        [
+          14490,
+          0,
+          55364
+        ],
+        [
+          13730,
+          0,
+          55296
+        ],
+        [
+          12971,
+          0,
+          55228
+        ],
+        [
+          -12971,
+          0,
+          55228
+        ],
+        [
+          -13730,
+          0,
+          55296
+        ],
+        [
+          -14490,
+          0,
+          55364
+        ],
+        [
+          -15249,
+          0,
+          55431
+        ],
+        [
+          -16009,
+          0,
+          55499
+        ],
+        [
+          -16768,
+          0,
+          55567
+        ],
+        [
+          -17528,
+          0,
+          55634
+        ],
+        [
+          -18287,
+          0,
+          55702
+        ],
+        [
+          15913,
+          0,
+          51095
+        ],
+        [
+          15253,
+          0,
+          51029
+        ],
+        [
+          14594,
+          0,
+          50964
+        ],
+        [
+          13934,
+          0,
+          50899
+        ],
+        [
+          13275,
+          0,
+          50833
+        ],
+        [
+          12615,
+          0,
+          50768
+        ],
+        [
+          11956,
+          0,
+          50703
+        ],
+        [
+          11296,
+          0,
+          50637
+        ],
+        [
+          -11296,
+          0,
+          50637
+        ],
+        [
+          -11956,
+          0,
+          50703
+        ],
+        [
+          -12615,
+          0,
+          50768
+        ],
+        [
+          -13275,
+          0,
+          50833
+        ],
+        [
+          -13934,
+          0,
+          50899
+        ],
+        [
+          -14594,
+          0,
+          50964
+        ],
+        [
+          -15253,
+          0,
+          51029
+        ],
+        [
+          -15913,
+          0,
+          51095
+        ],
+        [
+          11120,
+          0,
+          47982
+        ],
+        [
+          10529,
+          0,
+          47918
+        ],
+        [
+          9938,
+          0,
+          47854
+        ],
+        [
+          9347,
+          0,
+          47790
+        ],
+        [
+          8755,
+          0,
+          47727
+        ],
+        [
+          8164,
+          0,
+          47663
+        ],
+        [
+          7573,
+          0,
+          47599
+        ],
+        [
+          6982,
+          0,
+          47535
+        ],
+        [
+          -6982,
+          0,
+          47535
+        ],
+        [
+          -7573,
+          0,
+          47599
+        ],
+        [
+          -8164,
+          0,
+          47663
+        ],
+        [
+          -8755,
+          0,
+          47727
+        ],
+        [
+          -9347,
+          0,
+          47790
+        ],
+        [
+          -9938,
+          0,
+          47854
+        ],
+        [
+          -10529,
+          0,
+          47918
+        ],
+        [
+          -11120,
+          0,
+          47982
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.5227344487755933,
+      "rows": [
+        {
+          "y": 31,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,54)"
+          ]
+        },
+        {
+          "y": 36,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,54)"
+          ]
+        },
+        {
+          "y": 43,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,54)"
+          ]
+        },
+        {
+          "y": 26,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,54)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,54)"
+          ]
+        },
+        {
+          "y": 41,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,54)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 110,
+      "targets": [
+        [
+          -42835,
+          0,
+          16920
+        ],
+        [
+          -24835,
+          0,
+          16920
+        ],
+        [
+          -6835,
+          0,
+          16920
+        ],
+        [
+          11165,
+          0,
+          16920
+        ],
+        [
+          29165,
+          0,
+          16920
+        ],
+        [
+          47165,
+          0,
+          16920
+        ],
+        [
+          65165,
+          0,
+          16920
+        ],
+        [
+          83165,
+          0,
+          16920
+        ],
+        [
+          101165,
+          0,
+          16920
+        ],
+        [
+          119165,
+          0,
+          16920
+        ],
+        [
+          137165,
+          0,
+          16920
+        ],
+        [
+          140000,
+          63387,
+          16612
+        ],
+        [
+          140000,
+          138625,
+          16247
+        ],
+        [
+          140000,
+          213863,
+          15881
+        ],
+        [
+          -30873,
+          0,
+          60163
+        ],
+        [
+          -12873,
+          0,
+          60163
+        ],
+        [
+          5127,
+          0,
+          60163
+        ],
+        [
+          23127,
+          0,
+          60163
+        ],
+        [
+          41127,
+          0,
+          60163
+        ],
+        [
+          59127,
+          0,
+          60163
+        ],
+        [
+          77127,
+          0,
+          60163
+        ],
+        [
+          95127,
+          0,
+          60163
+        ],
+        [
+          113127,
+          0,
+          60163
+        ],
+        [
+          131127,
+          0,
+          60163
+        ],
+        [
+          140000,
+          38149,
+          59978
+        ],
+        [
+          140000,
+          113387,
+          59612
+        ],
+        [
+          140000,
+          188625,
+          59247
+        ],
+        [
+          140000,
+          263863,
+          58881
+        ],
+        [
+          -14126,
+          0,
+          100503
+        ],
+        [
+          3874,
+          0,
+          100503
+        ],
+        [
+          21874,
+          0,
+          100503
+        ],
+        [
+          39874,
+          0,
+          100503
+        ],
+        [
+          57874,
+          0,
+          100503
+        ],
+        [
+          75874,
+          0,
+          100503
+        ],
+        [
+          93874,
+          0,
+          100503
+        ],
+        [
+          111874,
+          0,
+          100503
+        ],
+        [
+          129874,
+          0,
+          100503
+        ],
+        [
+          140000,
+          32912,
+          100343
+        ],
+        [
+          140000,
+          108149,
+          99978
+        ],
+        [
+          140000,
+          183387,
+          99612
+        ],
+        [
+          140000,
+          258625,
+          99247
+        ],
+        [
+          140000,
+          333863,
+          98881
+        ],
+        [
+          -107700,
+          0,
+          11360
+        ],
+        [
+          -105500,
+          0,
+          11360
+        ],
+        [
+          -103300,
+          0,
+          11360
+        ],
+        [
+          -101100,
+          0,
+          11360
+        ],
+        [
+          -98900,
+          0,
+          11360
+        ],
+        [
+          -96700,
+          0,
+          11360
+        ],
+        [
+          -94500,
+          0,
+          11360
+        ],
+        [
+          -92300,
+          0,
+          11360
+        ],
+        [
+          92300,
+          0,
+          11360
+        ],
+        [
+          94500,
+          0,
+          11360
+        ],
+        [
+          96700,
+          0,
+          11360
+        ],
+        [
+          98900,
+          0,
+          11360
+        ],
+        [
+          101100,
+          0,
+          11360
+        ],
+        [
+          103300,
+          0,
+          11360
+        ],
+        [
+          105500,
+          0,
+          11360
+        ],
+        [
+          107700,
+          0,
+          11360
+        ],
+        [
+          -122700,
+          0,
+          58101
+        ],
+        [
+          -120500,
+          0,
+          58101
+        ],
+        [
+          -118300,
+          0,
+          58101
+        ],
+        [
+          -116100,
+          0,
+          58101
+        ],
+        [
+          -113900,
+          0,
+          58101
+        ],
+        [
+          -111700,
+          0,
+          58101
+        ],
+        [
+          -109500,
+          0,
+          58101
+        ],
+        [
+          -107300,
+          0,
+          58101
+        ],
+        [
+          107300,
+          0,
+          58101
+        ],
+        [
+          109500,
+          0,
+          58101
+        ],
+        [
+          111700,
+          0,
+          58101
+        ],
+        [
+          113900,
+          0,
+          58101
+        ],
+        [
+          116100,
+          0,
+          58101
+        ],
+        [
+          118300,
+          0,
+          58101
+        ],
+        [
+          120500,
+          0,
+          58101
+        ],
+        [
+          122700,
+          0,
+          58101
+        ],
+        [
+          -107700,
+          0,
+          118673
+        ],
+        [
+          -105500,
+          0,
+          118673
+        ],
+        [
+          -103300,
+          0,
+          118673
+        ],
+        [
+          -101100,
+          0,
+          118673
+        ],
+        [
+          -98900,
+          0,
+          118673
+        ],
+        [
+          -96700,
+          0,
+          118673
+        ],
+        [
+          -94500,
+          0,
+          118673
+        ],
+        [
+          -92300,
+          0,
+          118673
+        ],
+        [
+          92300,
+          0,
+          118673
+        ],
+        [
+          94500,
+          0,
+          118673
+        ],
+        [
+          96700,
+          0,
+          118673
+        ],
+        [
+          98900,
+          0,
+          118673
+        ],
+        [
+          101100,
+          0,
+          118673
+        ],
+        [
+          103300,
+          0,
+          118673
+        ],
+        [
+          105500,
+          0,
+          118673
+        ],
+        [
+          107700,
+          0,
+          118673
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0,
+      "rows": [
+        {
+          "y": 31,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 36,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 43,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 26,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        },
+        {
+          "y": 41,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,73)"
+          ]
+        }
+      ]
+    }
+  ],
+  "frames": 165,
+  "videoBytes": 820198,
+  "motionSamples": [
+    {
+      "time": 58.09739999999106,
+      "meanDegreesPerSecond": 1.3947638195399255,
+      "visible": 60
+    },
+    {
+      "time": 58.1785,
+      "meanDegreesPerSecond": 1.2444682200901094,
+      "visible": 60
+    },
+    {
+      "time": 58.25229999999702,
+      "meanDegreesPerSecond": 1.1746665269155192,
+      "visible": 60
+    },
+    {
+      "time": 58.34009999999404,
+      "meanDegreesPerSecond": 1.1953727270365517,
+      "visible": 60
+    },
+    {
+      "time": 58.42359999999404,
+      "meanDegreesPerSecond": 1.1594234122760816,
+      "visible": 60
+    },
+    {
+      "time": 58.503899999991056,
+      "meanDegreesPerSecond": 1.1444097666515431,
+      "visible": 60
+    },
+    {
+      "time": 58.59,
+      "meanDegreesPerSecond": 1.162290575971326,
+      "visible": 60
+    },
+    {
+      "time": 58.683,
+      "meanDegreesPerSecond": 1.1739659151783348,
+      "visible": 60
+    },
+    {
+      "time": 58.7805,
+      "meanDegreesPerSecond": 1.172770156759985,
+      "visible": 60
+    },
+    {
+      "time": 58.883399999991056,
+      "meanDegreesPerSecond": 1.1760748242340575,
+      "visible": 60
+    },
+    {
+      "time": 58.99429999999702,
+      "meanDegreesPerSecond": 2.746859422493818,
+      "visible": 60
+    },
+    {
+      "time": 59.10209999999404,
+      "meanDegreesPerSecond": 3.429530139113775,
+      "visible": 60
+    },
+    {
+      "time": 59.195899999991056,
+      "meanDegreesPerSecond": 3.1914104472185145,
+      "visible": 60
+    },
+    {
+      "time": 59.3095,
+      "meanDegreesPerSecond": 2.500810928835111,
+      "visible": 60
+    },
+    {
+      "time": 59.42509999999404,
+      "meanDegreesPerSecond": 1.5509840516680196,
+      "visible": 60
+    },
+    {
+      "time": 59.53559999999404,
+      "meanDegreesPerSecond": 1.5986529366108235,
+      "visible": 60
+    },
+    {
+      "time": 59.63989999999106,
+      "meanDegreesPerSecond": 1.6090014835304245,
+      "visible": 60
+    },
+    {
+      "time": 59.74620000000298,
+      "meanDegreesPerSecond": 1.6372955722893017,
+      "visible": 60
+    },
+    {
+      "time": 59.8335,
+      "meanDegreesPerSecond": 1.5577495885761485,
+      "visible": 60
+    },
+    {
+      "time": 59.95359999999404,
+      "meanDegreesPerSecond": 1.1425085546757403,
+      "visible": 60
+    },
+    {
+      "time": 60.04429999999702,
+      "meanDegreesPerSecond": 0.9037227983093907,
+      "visible": 60
+    },
+    {
+      "time": 60.1475,
+      "meanDegreesPerSecond": 1.0043626978487545,
+      "visible": 60
+    },
+    {
+      "time": 60.22729999999702,
+      "meanDegreesPerSecond": 0.9550742419530105,
+      "visible": 60
+    },
+    {
+      "time": 60.30189999999106,
+      "meanDegreesPerSecond": 0.9705373551664739,
+      "visible": 60
+    },
+    {
+      "time": 60.38879999999702,
+      "meanDegreesPerSecond": 1.0159453321919532,
+      "visible": 60
+    },
+    {
+      "time": 60.46420000000298,
+      "meanDegreesPerSecond": 0.978717760548862,
+      "visible": 60
+    },
+    {
+      "time": 60.54079999999702,
+      "meanDegreesPerSecond": 0.9854073635620111,
+      "visible": 60
+    },
+    {
+      "time": 60.64439999999106,
+      "meanDegreesPerSecond": 1.0388968439710797,
+      "visible": 60
+    },
+    {
+      "time": 60.751700000002984,
+      "meanDegreesPerSecond": 1.004771104896137,
+      "visible": 60
+    },
+    {
+      "time": 60.87829999999702,
+      "meanDegreesPerSecond": 0.989945370077533,
+      "visible": 60
+    },
+    {
+      "time": 60.98870000000298,
+      "meanDegreesPerSecond": 0.9095180973013192,
+      "visible": 60
+    },
+    {
+      "time": 61.10389999999106,
+      "meanDegreesPerSecond": 0.9149858343484732,
+      "visible": 60
+    },
+    {
+      "time": 61.20709999999404,
+      "meanDegreesPerSecond": 0.8707953235179081,
+      "visible": 60
+    },
+    {
+      "time": 61.31320000000298,
+      "meanDegreesPerSecond": 0.8800072456410795,
+      "visible": 60
+    },
+    {
+      "time": 61.413,
+      "meanDegreesPerSecond": 0.8546591982156762,
+      "visible": 60
+    },
+    {
+      "time": 61.51129999999702,
+      "meanDegreesPerSecond": 0.8489927626838709,
+      "visible": 60
+    },
+    {
+      "time": 61.60720000000298,
+      "meanDegreesPerSecond": 0.8380366661654602,
+      "visible": 60
+    },
+    {
+      "time": 61.71820000000298,
+      "meanDegreesPerSecond": 0.8597516297794736,
+      "visible": 60
+    },
+    {
+      "time": 61.82479999999702,
+      "meanDegreesPerSecond": 0.8440924129088603,
+      "visible": 60
+    },
+    {
+      "time": 61.93529999999702,
+      "meanDegreesPerSecond": 0.8333957044524494,
+      "visible": 60
+    },
+    {
+      "time": 62.041,
+      "meanDegreesPerSecond": 0.8023552571669416,
+      "visible": 60
+    },
+    {
+      "time": 62.141,
+      "meanDegreesPerSecond": 0.778651489089375,
+      "visible": 60
+    },
+    {
+      "time": 62.24220000000298,
+      "meanDegreesPerSecond": 0.776080145980943,
+      "visible": 60
+    },
+    {
+      "time": 62.338,
+      "meanDegreesPerSecond": 0.755015819897752,
+      "visible": 60
+    },
+    {
+      "time": 62.44039999999106,
+      "meanDegreesPerSecond": 0.7598732158524559,
+      "visible": 60
+    },
+    {
+      "time": 62.54939999999106,
+      "meanDegreesPerSecond": 0.7537702630230586,
+      "visible": 60
+    },
+    {
+      "time": 62.65670000000298,
+      "meanDegreesPerSecond": 0.7304988018037405,
+      "visible": 60
+    },
+    {
+      "time": 62.76259999999404,
+      "meanDegreesPerSecond": 0.7279107932036823,
+      "visible": 60
+    },
+    {
+      "time": 62.85779999999702,
+      "meanDegreesPerSecond": 0.6928880036092716,
+      "visible": 60
+    },
+    {
+      "time": 62.95139999999106,
+      "meanDegreesPerSecond": 0.6876203974772807,
+      "visible": 60
+    },
+    {
+      "time": 63.05839999999106,
+      "meanDegreesPerSecond": 0.7014135923060169,
+      "visible": 60
+    },
+    {
+      "time": 63.16089999999106,
+      "meanDegreesPerSecond": 0.6696855304619536,
+      "visible": 60
+    },
+    {
+      "time": 63.26270000000298,
+      "meanDegreesPerSecond": 0.655117697559407,
+      "visible": 60
+    },
+    {
+      "time": 63.35889999999106,
+      "meanDegreesPerSecond": 0.6342116106343182,
+      "visible": 60
+    },
+    {
+      "time": 63.46809999999404,
+      "meanDegreesPerSecond": 0.646260787145026,
+      "visible": 60
+    },
+    {
+      "time": 63.56920000000298,
+      "meanDegreesPerSecond": 0.6057612195652797,
+      "visible": 60
+    },
+    {
+      "time": 63.68059999999404,
+      "meanDegreesPerSecond": 0.6008792764587871,
+      "visible": 60
+    },
+    {
+      "time": 63.77559999999404,
+      "meanDegreesPerSecond": 0.5587419919132043,
+      "visible": 60
+    },
+    {
+      "time": 63.87979999999702,
+      "meanDegreesPerSecond": 0.5716964872518154,
+      "visible": 60
+    },
+    {
+      "time": 63.98859999999404,
+      "meanDegreesPerSecond": 0.5643415505023893,
+      "visible": 60
+    },
+    {
+      "time": 64.10039999999105,
+      "meanDegreesPerSecond": 0.5519474285959941,
+      "visible": 60
+    },
+    {
+      "time": 64.19759999999404,
+      "meanDegreesPerSecond": 0.5164565341845131,
+      "visible": 60
+    },
+    {
+      "time": 64.30420000000298,
+      "meanDegreesPerSecond": 0.5289327874728308,
+      "visible": 60
+    },
+    {
+      "time": 64.38879999999702,
+      "meanDegreesPerSecond": 0.489474987713307,
+      "visible": 60
+    },
+    {
+      "time": 64.51129999999702,
+      "meanDegreesPerSecond": 0.5244214470401306,
+      "visible": 60
+    },
+    {
+      "time": 64.59920000000298,
+      "meanDegreesPerSecond": 0.44341465574103167,
+      "visible": 60
+    },
+    {
+      "time": 64.70720000000298,
+      "meanDegreesPerSecond": 0.4764349823012411,
+      "visible": 60
+    },
+    {
+      "time": 64.80409999999404,
+      "meanDegreesPerSecond": 0.45224454187150825,
+      "visible": 60
+    },
+    {
+      "time": 64.89439999999107,
+      "meanDegreesPerSecond": 0.44535526473842685,
+      "visible": 60
+    },
+    {
+      "time": 64.98979999999702,
+      "meanDegreesPerSecond": 0.45082475287170654,
+      "visible": 60
+    },
+    {
+      "time": 65.10009999999404,
+      "meanDegreesPerSecond": 0.46076113908161764,
+      "visible": 60
+    },
+    {
+      "time": 65.20139999999105,
+      "meanDegreesPerSecond": 0.4367333934514979,
+      "visible": 60
+    },
+    {
+      "time": 65.29970000000299,
+      "meanDegreesPerSecond": 0.43104814757105003,
+      "visible": 60
+    },
+    {
+      "time": 65.39239999999106,
+      "meanDegreesPerSecond": 0.42482143928439237,
+      "visible": 60
+    },
+    {
+      "time": 65.51370000000298,
+      "meanDegreesPerSecond": 0.4698742082956372,
+      "visible": 60
+    },
+    {
+      "time": 65.60389999999106,
+      "meanDegreesPerSecond": 0.42406657718210483,
+      "visible": 60
+    },
+    {
+      "time": 65.7145,
+      "meanDegreesPerSecond": 0.4531240499781189,
+      "visible": 60
+    },
+    {
+      "time": 65.81589999999106,
+      "meanDegreesPerSecond": 0.4344991518399377,
+      "visible": 60
+    },
+    {
+      "time": 65.9345,
+      "meanDegreesPerSecond": 0.4535340692477318,
+      "visible": 60
+    },
+    {
+      "time": 66.03439999999105,
+      "meanDegreesPerSecond": 0.42383468654067047,
+      "visible": 60
+    },
+    {
+      "time": 66.13379999999702,
+      "meanDegreesPerSecond": 0.4312308709683348,
+      "visible": 60
+    },
+    {
+      "time": 66.23209999999403,
+      "meanDegreesPerSecond": 0.4343065702249969,
+      "visible": 60
+    },
+    {
+      "time": 66.33820000000298,
+      "meanDegreesPerSecond": 0.44582836080167987,
+      "visible": 60
+    },
+    {
+      "time": 66.45320000000298,
+      "meanDegreesPerSecond": 0.452419319178629,
+      "visible": 60
+    },
+    {
+      "time": 66.55879999999702,
+      "meanDegreesPerSecond": 0.4379149203600808,
+      "visible": 60
+    },
+    {
+      "time": 66.6635,
+      "meanDegreesPerSecond": 0.4419027554140002,
+      "visible": 60
+    },
+    {
+      "time": 66.75559999999405,
+      "meanDegreesPerSecond": 0.4327493216236097,
+      "visible": 60
+    },
+    {
+      "time": 66.86470000000298,
+      "meanDegreesPerSecond": 0.4608265146073814,
+      "visible": 60
+    },
+    {
+      "time": 66.98089999999107,
+      "meanDegreesPerSecond": 0.4655026544910969,
+      "visible": 60
+    },
+    {
+      "time": 67.0925,
+      "meanDegreesPerSecond": 0.4582528133625522,
+      "visible": 60
+    },
+    {
+      "time": 67.20239999999106,
+      "meanDegreesPerSecond": 0.46034210712691304,
+      "visible": 60
+    },
+    {
+      "time": 67.307,
+      "meanDegreesPerSecond": 0.45935334499599245,
+      "visible": 60
+    },
+    {
+      "time": 67.40509999999404,
+      "meanDegreesPerSecond": 0.4596204264171766,
+      "visible": 60
+    },
+    {
+      "time": 67.51650000000001,
+      "meanDegreesPerSecond": 0.4852678240395097,
+      "visible": 60
+    },
+    {
+      "time": 67.59759999999405,
+      "meanDegreesPerSecond": 0.4489122638355443,
+      "visible": 60
+    },
+    {
+      "time": 67.69670000000298,
+      "meanDegreesPerSecond": 0.4875551684485378,
+      "visible": 60
+    },
+    {
+      "time": 67.81789999999106,
+      "meanDegreesPerSecond": 0.5138034175877847,
+      "visible": 60
+    },
+    {
+      "time": 67.91109999999404,
+      "meanDegreesPerSecond": 0.47304966223460454,
+      "visible": 60
+    },
+    {
+      "time": 68.01620000000298,
+      "meanDegreesPerSecond": 0.503835274388757,
+      "visible": 60
+    },
+    {
+      "time": 68.10709999999403,
+      "meanDegreesPerSecond": 0.4904209052643,
+      "visible": 60
+    },
+    {
+      "time": 68.20370000000298,
+      "meanDegreesPerSecond": 0.5097131185576349,
+      "visible": 60
+    },
+    {
+      "time": 68.30289999999106,
+      "meanDegreesPerSecond": 0.5188628093927653,
+      "visible": 60
+    },
+    {
+      "time": 68.377,
+      "meanDegreesPerSecond": 0.4919700674138069,
+      "visible": 60
+    },
+    {
+      "time": 68.45739999999105,
+      "meanDegreesPerSecond": 0.5180458108890873,
+      "visible": 60
+    },
+    {
+      "time": 68.53929999999701,
+      "meanDegreesPerSecond": 0.528868600108539,
+      "visible": 60
+    },
+    {
+      "time": 68.61929999999703,
+      "meanDegreesPerSecond": 0.5324794659105213,
+      "visible": 60
+    },
+    {
+      "time": 68.7,
+      "meanDegreesPerSecond": 0.5403038898941637,
+      "visible": 60
+    },
+    {
+      "time": 68.78320000000298,
+      "meanDegreesPerSecond": 0.5495820227805184,
+      "visible": 60
+    },
+    {
+      "time": 68.87459999999405,
+      "meanDegreesPerSecond": 0.5639211595970682,
+      "visible": 60
+    },
+    {
+      "time": 68.99039999999106,
+      "meanDegreesPerSecond": 0.5928775429133305,
+      "visible": 60
+    },
+    {
+      "time": 69.08659999999404,
+      "meanDegreesPerSecond": 0.5562491135656026,
+      "visible": 60
+    },
+    {
+      "time": 69.18729999999702,
+      "meanDegreesPerSecond": 1.7456392133781,
+      "visible": 60
+    },
+    {
+      "time": 69.27120000000298,
+      "meanDegreesPerSecond": 1.8356961595987973,
+      "visible": 60
+    },
+    {
+      "time": 69.35249999999999,
+      "meanDegreesPerSecond": 1.8343838426885168,
+      "visible": 60
+    },
+    {
+      "time": 69.43020000000298,
+      "meanDegreesPerSecond": 1.7148413679422996,
+      "visible": 60
+    },
+    {
+      "time": 69.50879999999702,
+      "meanDegreesPerSecond": 0.7946195161014915,
+      "visible": 60
+    },
+    {
+      "time": 69.58929999999702,
+      "meanDegreesPerSecond": 0.8993029350294137,
+      "visible": 60
+    },
+    {
+      "time": 69.67039999999106,
+      "meanDegreesPerSecond": 0.9593872913917012,
+      "visible": 60
+    },
+    {
+      "time": 69.74859999999404,
+      "meanDegreesPerSecond": 0.9896798553520129,
+      "visible": 60
+    },
+    {
+      "time": 69.82839999999106,
+      "meanDegreesPerSecond": 1.02441615086652,
+      "visible": 60
+    },
+    {
+      "time": 69.90459999999403,
+      "meanDegreesPerSecond": 1.0382682170253428,
+      "visible": 60
+    },
+    {
+      "time": 69.98009999999404,
+      "meanDegreesPerSecond": 1.0605102977146788,
+      "visible": 60
+    },
+    {
+      "time": 70.0615,
+      "meanDegreesPerSecond": 1.0977798414222195,
+      "visible": 60
+    },
+    {
+      "time": 70.14529999999702,
+      "meanDegreesPerSecond": 1.1191688689842068,
+      "visible": 60
+    },
+    {
+      "time": 70.23959999999404,
+      "meanDegreesPerSecond": 1.1598360113452213,
+      "visible": 60
+    },
+    {
+      "time": 70.325,
+      "meanDegreesPerSecond": 1.1441515284251313,
+      "visible": 60
+    },
+    {
+      "time": 70.42179999999702,
+      "meanDegreesPerSecond": 1.1985737693775798,
+      "visible": 60
+    },
+    {
+      "time": 70.52270000000298,
+      "meanDegreesPerSecond": 1.2210984794016186,
+      "visible": 60
+    },
+    {
+      "time": 70.61879999999702,
+      "meanDegreesPerSecond": 1.221519808880832,
+      "visible": 60
+    },
+    {
+      "time": 70.7145,
+      "meanDegreesPerSecond": 1.2457528530700677,
+      "visible": 60
+    },
+    {
+      "time": 70.82729999999702,
+      "meanDegreesPerSecond": 1.3171901233932095,
+      "visible": 60
+    },
+    {
+      "time": 70.9455,
+      "meanDegreesPerSecond": 1.3344291929300176,
+      "visible": 60
+    },
+    {
+      "time": 71.03429999999702,
+      "meanDegreesPerSecond": 1.088996756416263,
+      "visible": 60
+    },
+    {
+      "time": 71.11520000000299,
+      "meanDegreesPerSecond": 0.9251805068358265,
+      "visible": 60
+    },
+    {
+      "time": 71.22070000000298,
+      "meanDegreesPerSecond": 0.8492917198155201,
+      "visible": 60
+    },
+    {
+      "time": 71.32870000000298,
+      "meanDegreesPerSecond": 0.6897107405211979,
+      "visible": 60
+    },
+    {
+      "time": 71.42289999999106,
+      "meanDegreesPerSecond": 0.5475610486515496,
+      "visible": 60
+    },
+    {
+      "time": 71.51509999999404,
+      "meanDegreesPerSecond": 0.48449739329571107,
+      "visible": 60
+    },
+    {
+      "time": 71.61889999999106,
+      "meanDegreesPerSecond": 0.45241584627468684,
+      "visible": 60
+    },
+    {
+      "time": 71.71279999999702,
+      "meanDegreesPerSecond": 0.40564793355497386,
+      "visible": 60
+    },
+    {
+      "time": 71.79599999999999,
+      "meanDegreesPerSecond": 0.39091789020251555,
+      "visible": 60
+    },
+    {
+      "time": 71.88,
+      "meanDegreesPerSecond": 0.4045598612705165,
+      "visible": 60
+    },
+    {
+      "time": 71.97409999999404,
+      "meanDegreesPerSecond": 0.43736807527359073,
+      "visible": 60
+    },
+    {
+      "time": 72.06009999999404,
+      "meanDegreesPerSecond": 0.46081745520535067,
+      "visible": 60
+    },
+    {
+      "time": 72.13889999999105,
+      "meanDegreesPerSecond": 0.49917267236340485,
+      "visible": 60
+    },
+    {
+      "time": 72.23459999999403,
+      "meanDegreesPerSecond": 0.5849253880340718,
+      "visible": 60
+    },
+    {
+      "time": 72.31229999999702,
+      "meanDegreesPerSecond": 0.6284145884032568,
+      "visible": 60
+    },
+    {
+      "time": 72.42220000000299,
+      "meanDegreesPerSecond": 0.7806305114940161,
+      "visible": 60
+    },
+    {
+      "time": 72.53120000000298,
+      "meanDegreesPerSecond": 0.9025785780848942,
+      "visible": 60
+    },
+    {
+      "time": 72.6305,
+      "meanDegreesPerSecond": 1.0322337874361043,
+      "visible": 60
+    },
+    {
+      "time": 72.71839999999106,
+      "meanDegreesPerSecond": 1.1699123178531876,
+      "visible": 60
+    },
+    {
+      "time": 72.81159999999404,
+      "meanDegreesPerSecond": 1.3064666913752625,
+      "visible": 60
+    },
+    {
+      "time": 72.90939999999105,
+      "meanDegreesPerSecond": 1.3408580141555604,
+      "visible": 60
+    },
+    {
+      "time": 72.99370000000297,
+      "meanDegreesPerSecond": 1.3235846503423625,
+      "visible": 60
+    },
+    {
+      "time": 73.08079999999703,
+      "meanDegreesPerSecond": 1.3765202700545056,
+      "visible": 60
+    },
+    {
+      "time": 73.16939999999106,
+      "meanDegreesPerSecond": 1.4154327913605627,
+      "visible": 60
+    },
+    {
+      "time": 73.27259999999404,
+      "meanDegreesPerSecond": 1.4905124060551116,
+      "visible": 60
+    },
+    {
+      "time": 73.36889999999106,
+      "meanDegreesPerSecond": 1.4760383850403924,
+      "visible": 60
+    },
+    {
+      "time": 73.45389999999105,
+      "meanDegreesPerSecond": 1.466617456408204,
+      "visible": 60
+    },
+    {
+      "time": 73.55529999999702,
+      "meanDegreesPerSecond": 1.5628978579006458,
+      "visible": 60
+    },
+    {
+      "time": 73.65079999999702,
+      "meanDegreesPerSecond": 1.5496425855705749,
+      "visible": 60
+    },
+    {
+      "time": 73.74339999999106,
+      "meanDegreesPerSecond": 1.5632049412811744,
+      "visible": 60
+    },
+    {
+      "time": 73.84959999999404,
+      "meanDegreesPerSecond": 1.6333861145482704,
+      "visible": 60
+    },
+    {
+      "time": 73.92689999999106,
+      "meanDegreesPerSecond": 1.5222175346635287,
+      "visible": 60
+    }
+  ]
+}

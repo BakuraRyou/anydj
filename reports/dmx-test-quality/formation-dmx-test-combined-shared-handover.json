@@ -1,0 +1,9319 @@
+{
+  "method": "Physical room preview, WebGL renderer (SwiftShader), normal playback score, 53 percent flicker, no hardware validation.",
+  "source": "dmx-test.mp3, local audio analysis",
+  "interval": [
+    142,
+    173
+  ],
+  "library": {
+    "selectedPreserved": true,
+    "editsPreserved": true,
+    "addedOnce": true,
+    "listed": true
+  },
+  "scenes": [
+    {
+      "start": 0,
+      "end": 3.79,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.850099582385179,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "energy": 0.0006638825678601545,
+        "tone": 0.5103026076651979,
+        "drums": 0.0000948699570243131,
+        "bass": 0.00008770237407268798,
+        "voice": 0,
+        "pitchConfidence": 0,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 3.79,
+      "end": 14.06,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9018298557477732,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "energy": 0.3455323716518215,
+        "tone": 0.445350677874199,
+        "drums": 0.17265155105441468,
+        "bass": 0.2640143014646716,
+        "voice": 0.034197493621758626,
+        "pitchConfidence": 0.35329556025316544,
+        "pitchRise": -0.1693707444423082,
+        "density": 0.03245699448231094,
+        "irregularity": 0,
+        "impulses": 1
+      }
+    },
+    {
+      "start": 14.06,
+      "end": 25.69,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9232582800705162,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "energy": 0.4883885338034415,
+        "tone": 0.43446487801208994,
+        "drums": 0.25900982709367,
+        "bass": 0.24139729270204097,
+        "voice": 0.12292947558211378,
+        "pitchConfidence": 0.1898633316566282,
+        "pitchRise": 0,
+        "density": 0.08598452278589853,
+        "irregularity": 0,
+        "impulses": 3,
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 25.69,
+      "end": 32.88,
+      "formationId": "converging-lines",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9398874178161067,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "energy": 0.5992494521073782,
+        "tone": 0.38609263285290063,
+        "drums": 0.1026006807713167,
+        "bass": 0.6743164969181348,
+        "voice": 0.010168472995436599,
+        "pitchConfidence": 0.3607606182781621,
+        "pitchRise": -0.0332663945147717,
+        "density": 0.23180343069077416,
+        "irregularity": 0.018737993165847486,
+        "impulses": 5,
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 32.88,
+      "end": 40.01,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "answer",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9394961552347761,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "energy": 0.5966410348985077,
+        "tone": 0.39365725279087305,
+        "drums": 0.09712607966061199,
+        "bass": 0.6397960337470379,
+        "voice": 0.0006020741090550503,
+        "pitchConfidence": 0.2723194855397286,
+        "pitchRise": 0,
+        "density": 0.23375409069658734,
+        "irregularity": 0.5422903829445728,
+        "impulses": 5,
+        "phrase": 1,
+        "development": "Antwort der nächsten Phrase"
+      }
+    },
+    {
+      "start": 40.01,
+      "end": 47.18,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9441374270160144,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessene Rücknahme",
+        "texture": "sustain",
+        "energy": 0.6275828467734296,
+        "tone": 0.28868829016827285,
+        "drums": 0.3818964060864998,
+        "bass": 0.30988533519845457,
+        "voice": 0.004616712643930315,
+        "pitchConfidence": 0.25874112366572466,
+        "pitchRise": 0,
+        "density": 0.3254300325430032,
+        "irregularity": 0.03337414891790423,
+        "impulses": 7,
+        "sharedSequence": "breath",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 47.18,
+      "end": 54.36,
+      "formationId": "open-fan",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.9687446181938669,
+        "amplitude": 0.09541415515713791,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessener Aufbau",
+        "texture": "drums",
+        "energy": 0.791630787959113,
+        "tone": 0.23264730469057518,
+        "drums": 0.6078683625271359,
+        "bass": 0.5306566477861232,
+        "voice": 0.0006022521254637255,
+        "pitchConfidence": 0.5482383895548,
+        "pitchRise": -0.14320422356788062,
+        "density": 0.7428040854224699,
+        "irregularity": 0.1239325167479604,
+        "impulses": 16,
+        "sharedSequence": "opening"
+      }
+    },
+    {
+      "start": 54.36,
+      "end": 61.52,
+      "formationId": "converging-lines",
+      "program": "resolve",
+      "story": "gather",
+      "act": "resolve",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "hinge",
+        "articulation": "stroke",
+        "key": "radial/hinge/stroke",
+        "spread": 0.9338723029230983,
+        "amplitude": 0.07914040803077922,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessene Rücknahme",
+        "texture": "sustain",
+        "energy": 0.5591486861539888,
+        "tone": 0.41032688178621374,
+        "drums": 0.3858854134099554,
+        "bass": 0.38250429670931063,
+        "voice": 0.0007437534247580793,
+        "pitchConfidence": 0.28381286598933453,
+        "pitchRise": 0,
+        "density": 0.7448789571694596,
+        "irregularity": 0.021107665110047236,
+        "impulses": 16,
+        "sharedSequence": "settle"
+      }
+    },
+    {
+      "start": 61.52,
+      "end": 65.04,
+      "formationId": "nested-gates",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.9360754882522845,
+        "amplitude": 0.08016856118439947,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessener Aufbau",
+        "texture": "bass",
+        "energy": 0.5738365883485637,
+        "tone": 0.43425049470267496,
+        "drums": 0.1848149404914135,
+        "bass": 0.5540352133856784,
+        "voice": 0.005946580901848738,
+        "pitchConfidence": 0.03576858096774535,
+        "pitchRise": 0,
+        "density": 0.4734848484848481,
+        "irregularity": 0.019461245028866897,
+        "impulses": 5,
+        "sharedSequence": "opening"
+      }
+    },
+    {
+      "start": 65.04,
+      "end": 72.24,
+      "formationId": "open-fan",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.9430403798418255,
+        "amplitude": 0.08341884392618526,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessener Aufbau",
+        "texture": "voice",
+        "energy": 0.6202691989455036,
+        "tone": 0.4260156203534462,
+        "drums": 0.06039973088405074,
+        "bass": 0.4971863261585715,
+        "voice": 0.49619059460255954,
+        "pitchConfidence": 0.273832144195266,
+        "pitchRise": 0,
+        "density": 0.09259259259259274,
+        "irregularity": 0,
+        "impulses": 2,
+        "sharedSequence": "opening"
+      }
+    },
+    {
+      "start": 72.24,
+      "end": 77.62,
+      "formationId": "split-foci",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9316020491450905,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Führende Stimme",
+        "texture": "voice",
+        "energy": 0.5440136609672699,
+        "tone": 0.5375118952720181,
+        "drums": 0.04607477996999191,
+        "bass": 0.44451165696621303,
+        "voice": 0.6065027179440372,
+        "pitchConfidence": 0.2653081231666527,
+        "pitchRise": 0,
+        "density": 0.06195786864931835,
+        "irregularity": 0,
+        "impulses": 1
+      }
+    },
+    {
+      "start": 77.62,
+      "end": 84.8,
+      "formationId": "braided-ribbons",
+      "program": "sweep",
+      "story": "weave",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.9522967844245379,
+        "amplitude": 0.08773849939811772,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.681978562830253,
+        "tone": 0.3589480069411498,
+        "drums": 0.48229057703241957,
+        "bass": 0.5422023546274068,
+        "voice": 0.013186951918562648,
+        "pitchConfidence": 0.40869210919214194,
+        "pitchRise": 0.06336426483207905,
+        "density": 0.7428040854224706,
+        "irregularity": 0.021870444131994356,
+        "impulses": 16,
+        "sharedSequence": "sweep",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 84.8,
+      "end": 93.74,
+      "formationId": "twin-fans",
+      "program": "sweep",
+      "story": "weave",
+      "act": "answer",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.9515437811850882,
+        "amplitude": 0.08738709788637451,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.6769585412339215,
+        "tone": 0.3751453764928296,
+        "drums": 0.44849115441932114,
+        "bass": 0.5574232353830259,
+        "voice": 0.11826141434809015,
+        "pitchConfidence": 0.5464521941606683,
+        "pitchRise": 0.045643744872241154,
+        "density": 0.7457121551081284,
+        "irregularity": 0.12494981691625275,
+        "impulses": 20,
+        "sharedSequence": "sweep",
+        "phrase": 1,
+        "development": "Antwort der nächsten Phrase"
+      }
+    },
+    {
+      "start": 93.74,
+      "end": 99.12,
+      "formationId": "open-fan",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.9345519491235096,
+        "amplitude": 0.07945757625763782,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessener Aufbau",
+        "texture": "drums",
+        "energy": 0.5636796608233973,
+        "tone": 0.4327180199473493,
+        "drums": 0.5807737634684844,
+        "bass": 0.09983367694108294,
+        "voice": 0.00518028899823312,
+        "pitchConfidence": 0.5311683973281067,
+        "pitchRise": -0.04084587287656116,
+        "density": 0.7434944237918203,
+        "irregularity": 0.022175002328140965,
+        "impulses": 12,
+        "sharedSequence": "opening"
+      }
+    },
+    {
+      "start": 99.12,
+      "end": 106.28,
+      "formationId": "lattice",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.9753404904534475,
+        "amplitude": 0.0984922288782755,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.8356032696896499,
+        "tone": 0.2420269128844407,
+        "drums": 0.5940305268962854,
+        "bass": 0.6028241660278881,
+        "voice": 0.0005066827220028636,
+        "pitchConfidence": 0.28456164953642255,
+        "pitchRise": 0,
+        "density": 0.7448789571694604,
+        "irregularity": 0.021870444131990043,
+        "impulses": 16,
+        "sharedSequence": "wave",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 106.28,
+      "end": 113.44,
+      "formationId": "split-foci",
+      "program": "dialogue",
+      "story": "dialogue",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "split",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "split/sweep/stroke",
+        "spread": 0.9661932723992382,
+        "amplitude": 0.09422352711964452,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.7746218159949215,
+        "tone": 0.3371658643874673,
+        "drums": 0.5086539162552504,
+        "bass": 0.5129443640824666,
+        "voice": 0.0035782948119655036,
+        "pitchConfidence": 0.33499095153662883,
+        "pitchRise": 0,
+        "density": 0.698324022346369,
+        "irregularity": 0.24346620638354535,
+        "impulses": 15,
+        "sharedSequence": "exchange",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 113.44,
+      "end": 120.62,
+      "formationId": "split-wings",
+      "program": "dialogue",
+      "story": "dialogue",
+      "act": "answer",
+      "chapter": 0,
+      "variation": {
+        "path": "split",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "split/sweep/stroke",
+        "spread": 0.9720438412499257,
+        "amplitude": 0.09695379258329867,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.8136256083328381,
+        "tone": 0.33930671139751245,
+        "drums": 0.6011873685431794,
+        "bass": 0.5722735780755226,
+        "voice": 0.0006496324755336533,
+        "pitchConfidence": 0.2513769516711115,
+        "pitchRise": 0,
+        "density": 0.7428040854224691,
+        "irregularity": 0.021107665110049485,
+        "impulses": 16,
+        "sharedSequence": "exchange",
+        "phrase": 1,
+        "development": "Antwort der nächsten Phrase"
+      }
+    },
+    {
+      "start": 120.62,
+      "end": 127.77,
+      "formationId": "vertical-curtain",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "hinge",
+        "articulation": "stroke",
+        "key": "radial/hinge/stroke",
+        "spread": 0.965278276003269,
+        "amplitude": 0.09379652880152556,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "energy": 0.7685218400217937,
+        "tone": 0.3606099170602939,
+        "drums": 0.4722146017668532,
+        "bass": 0.617517097450076,
+        "voice": 0.05707425855268366,
+        "pitchConfidence": 0.264567327107388,
+        "pitchRise": 0,
+        "density": 0.6993006993007002,
+        "irregularity": 0.26068438619593076,
+        "impulses": 15,
+        "sharedSequence": "wave",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 127.77,
+      "end": 134.96,
+      "formationId": "converging-lines",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9242797133445297,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessene Rücknahme",
+        "texture": "bass",
+        "energy": 0.495198088963532,
+        "tone": 0.4117957636268079,
+        "drums": 0.1108084845013483,
+        "bass": 0.5758558596004194,
+        "voice": 0.012129089962996518,
+        "pitchConfidence": 0.41712557048283055,
+        "pitchRise": 0.22912505562700808,
+        "density": 0.04636068613815477,
+        "irregularity": 0,
+        "impulses": 1
+      }
+    },
+    {
+      "start": 134.96,
+      "end": 142.1,
+      "formationId": "split-foci",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9230045045001469,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Führende Stimme",
+        "texture": "voice",
+        "energy": 0.4866966966676461,
+        "tone": 0.5311383162380062,
+        "drums": 0.07900670192060896,
+        "bass": 0.36181401792301876,
+        "voice": 0.4848047538681044,
+        "pitchConfidence": 0.22185340543398546,
+        "pitchRise": 0,
+        "density": 0.04668534080298795,
+        "irregularity": 0,
+        "impulses": 1
+      }
+    },
+    {
+      "start": 142.1,
+      "end": 147.42,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9410420016486252,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "energy": 0.606946677657501,
+        "tone": 0.4259573529475482,
+        "drums": 0.21876167158553517,
+        "bass": 0.5034111993511261,
+        "voice": 0.057174572774078745,
+        "pitchConfidence": 0.2726523915786322,
+        "pitchRise": 0,
+        "density": 0.4385964912280707,
+        "irregularity": 0.36693606817550944,
+        "impulses": 7,
+        "sharedSequence": "breath",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 147.42,
+      "end": 152.84,
+      "formationId": "converging-lines",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9416900192685003,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "energy": 0.611266795123335,
+        "tone": 0.411221015191101,
+        "drums": 0.17589026512577133,
+        "bass": 0.5776115139345711,
+        "voice": 0.05329151433216754,
+        "pitchConfidence": 0.2524579196830515,
+        "pitchRise": 0,
+        "density": 0.4305043050430492,
+        "irregularity": 0.4904927016572308,
+        "impulses": 7,
+        "sharedSequence": "breath",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 152.84,
+      "end": 155.98,
+      "formationId": "braided-ribbons",
+      "program": "sweep",
+      "story": "weave",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "depth",
+        "gesture": "orbit",
+        "articulation": "stroke",
+        "key": "depth/orbit/stroke",
+        "spread": 0.9271527950329821,
+        "amplitude": 0.07600463768205831,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "energy": 0.5143519668865474,
+        "tone": 0.38238259913376815,
+        "drums": 0.22009284610625407,
+        "bass": 0.371501482982503,
+        "voice": 0.07192452002064702,
+        "pitchConfidence": 0.24354196163883826,
+        "pitchRise": 0,
+        "density": 0.7430997876857782,
+        "irregularity": 0.022222222222223156,
+        "impulses": 7,
+        "sharedSequence": "sweep",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 155.98,
+      "end": 163.62,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.937888510788281,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "energy": 0.5859234052552067,
+        "tone": 0.38383162285315453,
+        "drums": 0.35297141933725346,
+        "bass": 0.5357469113999689,
+        "voice": 0.25053312183240584,
+        "pitchConfidence": 0.258295414338399,
+        "pitchRise": 0,
+        "density": 0.6980802792321104,
+        "irregularity": 0.16397385610546616,
+        "impulses": 16,
+        "sharedSequence": "breath",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 163.62,
+      "end": 170.75,
+      "formationId": "open-fan",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.945314656244358,
+        "amplitude": 0.08448017291403376,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.6354310416290535,
+        "tone": 0.38195432428643655,
+        "drums": 0.6120240174258822,
+        "bass": 0.3221344451956934,
+        "voice": 0.21893630552162027,
+        "pitchConfidence": 0.2762831682388045,
+        "pitchRise": 0,
+        "density": 0.7480130902290795,
+        "irregularity": 0.021107665110042025,
+        "impulses": 16,
+        "sharedSequence": "opening"
+      }
+    },
+    {
+      "start": 170.75,
+      "end": 177.92,
+      "formationId": "crossed-fans",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.9808541881177905,
+        "amplitude": 0.10106528778830223,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.8723612541186033,
+        "tone": 0.2131637805872837,
+        "drums": 0.6655129951382971,
+        "bass": 0.5785455406719356,
+        "voice": 0.04233523019392601,
+        "pitchConfidence": 0.3840679489478542,
+        "pitchRise": 0.053090441195567106,
+        "density": 0.7438400743840088,
+        "irregularity": 0.02187044413199004,
+        "impulses": 16,
+        "sharedSequence": "wave",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 177.92,
+      "end": 185.08,
+      "formationId": "split-foci",
+      "program": "dialogue",
+      "story": "dialogue",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "split",
+        "gesture": "scissor",
+        "articulation": "echo",
+        "key": "split/scissor/echo",
+        "spread": 0.9634148617954256,
+        "amplitude": 0.09292693550453196,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.7560990786361709,
+        "tone": 0.3032994739344332,
+        "drums": 0.5231936795230414,
+        "bass": 0.4772574051855054,
+        "voice": 0.23964074108192496,
+        "pitchConfidence": 0.340957436342063,
+        "pitchRise": 0,
+        "density": 0.6517690875232752,
+        "irregularity": 0.4600116150066547,
+        "impulses": 14,
+        "sharedSequence": "exchange",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 185.08,
+      "end": 192.26,
+      "formationId": "open-fan",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.9723116719160594,
+        "amplitude": 0.09707878022749439,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.8154111461070624,
+        "tone": 0.27360217922054675,
+        "drums": 0.6217340163779919,
+        "bass": 0.5365032794469132,
+        "voice": 0.06795470722585159,
+        "pitchConfidence": 0.3912002895187099,
+        "pitchRise": 0.06505701741564629,
+        "density": 0.7428040854224721,
+        "irregularity": 0.021107665110056937,
+        "impulses": 16,
+        "sharedSequence": "opening"
+      }
+    },
+    {
+      "start": 192.26,
+      "end": 199.41,
+      "formationId": "braided-ribbons",
+      "program": "sweep",
+      "story": "weave",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "zigzag",
+        "gesture": "scissor",
+        "articulation": "echo",
+        "key": "zigzag/scissor/echo",
+        "spread": 0.9673305679467264,
+        "amplitude": 0.09475426504180567,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.7822037863115096,
+        "tone": 0.3728394695981681,
+        "drums": 0.5064196420565523,
+        "bass": 0.48508968616710746,
+        "voice": 0.18866366277547297,
+        "pitchConfidence": 0.34181848428409634,
+        "pitchRise": 0,
+        "density": 0.6526806526806522,
+        "irregularity": 0.6471012633565333,
+        "impulses": 14,
+        "sharedSequence": "sweep",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 199.41,
+      "end": 202.5,
+      "formationId": "converging-lines",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.928934894283829,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "energy": 0.5262326285588601,
+        "tone": 0.15523777284180965,
+        "drums": 0.31727737985890847,
+        "bass": 0.6646584944140957,
+        "voice": 0.09411470402088569,
+        "pitchConfidence": 0.7746445198323287,
+        "pitchRise": 0.014771526252869982,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 202.5,
+      "end": 216.11102040816326,
+      "formationId": "parallel-lines",
+      "program": "rest",
+      "story": "rest",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": null,
+      "musicalEvidence": {
+        "reason": "Musikalische Pause",
+        "texture": "sustain",
+        "energy": 0.0072782222098738475,
+        "tone": 0.47189473528772685,
+        "drums": 0.0012190195253510728,
+        "bass": 0.014254259662712286,
+        "voice": 0.0025036129062992254,
+        "pitchConfidence": 0.05297791269227163,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    }
+  ],
+  "states": [
+    {
+      "time": 10,
+      "targets": [
+        [
+          -118972,
+          0,
+          9215
+        ],
+        [
+          -104972,
+          0,
+          9215
+        ],
+        [
+          -90972,
+          0,
+          9215
+        ],
+        [
+          -76972,
+          0,
+          9215
+        ],
+        [
+          -62972,
+          0,
+          9215
+        ],
+        [
+          -48972,
+          0,
+          9215
+        ],
+        [
+          -34972,
+          0,
+          9215
+        ],
+        [
+          -20972,
+          0,
+          9215
+        ],
+        [
+          -6972,
+          0,
+          9215
+        ],
+        [
+          7028,
+          0,
+          9215
+        ],
+        [
+          21028,
+          0,
+          9215
+        ],
+        [
+          35028,
+          0,
+          9215
+        ],
+        [
+          49028,
+          0,
+          9215
+        ],
+        [
+          63028,
+          0,
+          9215
+        ],
+        [
+          77028,
+          0,
+          9215
+        ],
+        [
+          91028,
+          0,
+          9215
+        ],
+        [
+          -120000,
+          10128,
+          53648
+        ],
+        [
+          -106524,
+          0,
+          53676
+        ],
+        [
+          -92524,
+          0,
+          53676
+        ],
+        [
+          -78524,
+          0,
+          53676
+        ],
+        [
+          -64524,
+          0,
+          53676
+        ],
+        [
+          -50524,
+          0,
+          53676
+        ],
+        [
+          -36524,
+          0,
+          53676
+        ],
+        [
+          -22524,
+          0,
+          53676
+        ],
+        [
+          -8524,
+          0,
+          53676
+        ],
+        [
+          5476,
+          0,
+          53676
+        ],
+        [
+          19476,
+          0,
+          53676
+        ],
+        [
+          33476,
+          0,
+          53676
+        ],
+        [
+          47476,
+          0,
+          53676
+        ],
+        [
+          61476,
+          0,
+          53676
+        ],
+        [
+          75476,
+          0,
+          53676
+        ],
+        [
+          89476,
+          0,
+          53676
+        ],
+        [
+          -120000,
+          40128,
+          93347
+        ],
+        [
+          -108077,
+          0,
+          94109
+        ],
+        [
+          -94077,
+          0,
+          94109
+        ],
+        [
+          -80077,
+          0,
+          94109
+        ],
+        [
+          -66077,
+          0,
+          94109
+        ],
+        [
+          -52077,
+          0,
+          94109
+        ],
+        [
+          -38077,
+          0,
+          94109
+        ],
+        [
+          -24077,
+          0,
+          94109
+        ],
+        [
+          -10077,
+          0,
+          94109
+        ],
+        [
+          3923,
+          0,
+          94109
+        ],
+        [
+          17923,
+          0,
+          94109
+        ],
+        [
+          31923,
+          0,
+          94109
+        ],
+        [
+          45923,
+          0,
+          94109
+        ],
+        [
+          59923,
+          0,
+          94109
+        ],
+        [
+          73923,
+          0,
+          94109
+        ],
+        [
+          87923,
+          0,
+          94109
+        ],
+        [
+          -101780,
+          0,
+          4439
+        ],
+        [
+          -99980,
+          0,
+          4439
+        ],
+        [
+          -98180,
+          0,
+          4439
+        ],
+        [
+          -96380,
+          0,
+          4439
+        ],
+        [
+          -94580,
+          0,
+          4439
+        ],
+        [
+          -92780,
+          0,
+          4439
+        ],
+        [
+          -90980,
+          0,
+          4439
+        ],
+        [
+          -89180,
+          0,
+          4439
+        ],
+        [
+          -87380,
+          0,
+          4439
+        ],
+        [
+          -85580,
+          0,
+          4439
+        ],
+        [
+          -83780,
+          0,
+          4439
+        ],
+        [
+          -81980,
+          0,
+          4439
+        ],
+        [
+          -80180,
+          0,
+          4439
+        ],
+        [
+          -78380,
+          0,
+          4439
+        ],
+        [
+          -76580,
+          0,
+          4439
+        ],
+        [
+          -74780,
+          0,
+          4439
+        ],
+        [
+          58220,
+          0,
+          4439
+        ],
+        [
+          60020,
+          0,
+          4439
+        ],
+        [
+          61820,
+          0,
+          4439
+        ],
+        [
+          63620,
+          0,
+          4439
+        ],
+        [
+          65420,
+          0,
+          4439
+        ],
+        [
+          67220,
+          0,
+          4439
+        ],
+        [
+          69020,
+          0,
+          4439
+        ],
+        [
+          70820,
+          0,
+          4439
+        ],
+        [
+          72620,
+          0,
+          4439
+        ],
+        [
+          74420,
+          0,
+          4439
+        ],
+        [
+          76220,
+          0,
+          4439
+        ],
+        [
+          78020,
+          0,
+          4439
+        ],
+        [
+          79820,
+          0,
+          4439
+        ],
+        [
+          81620,
+          0,
+          4439
+        ],
+        [
+          83420,
+          0,
+          4439
+        ],
+        [
+          85220,
+          0,
+          4439
+        ],
+        [
+          -120000,
+          94389,
+          46052
+        ],
+        [
+          -120000,
+          59604,
+          45021
+        ],
+        [
+          -120000,
+          24820,
+          43991
+        ],
+        [
+          -119484,
+          0,
+          43255
+        ],
+        [
+          -117684,
+          0,
+          43255
+        ],
+        [
+          -115884,
+          0,
+          43255
+        ],
+        [
+          -114084,
+          0,
+          43255
+        ],
+        [
+          -112284,
+          0,
+          43255
+        ],
+        [
+          -110484,
+          0,
+          43255
+        ],
+        [
+          -108684,
+          0,
+          43255
+        ],
+        [
+          -106884,
+          0,
+          43255
+        ],
+        [
+          -105084,
+          0,
+          43255
+        ],
+        [
+          -103284,
+          0,
+          43255
+        ],
+        [
+          -101484,
+          0,
+          43255
+        ],
+        [
+          -99684,
+          0,
+          43255
+        ],
+        [
+          -97884,
+          0,
+          43255
+        ],
+        [
+          75116,
+          0,
+          43255
+        ],
+        [
+          76916,
+          0,
+          43255
+        ],
+        [
+          78716,
+          0,
+          43255
+        ],
+        [
+          80516,
+          0,
+          43255
+        ],
+        [
+          82316,
+          0,
+          43255
+        ],
+        [
+          84116,
+          0,
+          43255
+        ],
+        [
+          85916,
+          0,
+          43255
+        ],
+        [
+          87716,
+          0,
+          43255
+        ],
+        [
+          89516,
+          0,
+          43255
+        ],
+        [
+          91316,
+          0,
+          43255
+        ],
+        [
+          93116,
+          0,
+          43255
+        ],
+        [
+          94916,
+          0,
+          43255
+        ],
+        [
+          96716,
+          0,
+          43255
+        ],
+        [
+          98516,
+          0,
+          43255
+        ],
+        [
+          100316,
+          0,
+          43255
+        ],
+        [
+          102116,
+          0,
+          43255
+        ],
+        [
+          -111353,
+          0,
+          96922
+        ],
+        [
+          -109553,
+          0,
+          96922
+        ],
+        [
+          -107753,
+          0,
+          96922
+        ],
+        [
+          -105953,
+          0,
+          96922
+        ],
+        [
+          -104153,
+          0,
+          96922
+        ],
+        [
+          -102353,
+          0,
+          96922
+        ],
+        [
+          -100553,
+          0,
+          96922
+        ],
+        [
+          -98753,
+          0,
+          96922
+        ],
+        [
+          -96953,
+          0,
+          96922
+        ],
+        [
+          -95153,
+          0,
+          96922
+        ],
+        [
+          -93353,
+          0,
+          96922
+        ],
+        [
+          -91553,
+          0,
+          96922
+        ],
+        [
+          -89753,
+          0,
+          96922
+        ],
+        [
+          -87953,
+          0,
+          96922
+        ],
+        [
+          -86153,
+          0,
+          96922
+        ],
+        [
+          -84353,
+          0,
+          96922
+        ],
+        [
+          48647,
+          0,
+          96922
+        ],
+        [
+          50447,
+          0,
+          96922
+        ],
+        [
+          52247,
+          0,
+          96922
+        ],
+        [
+          54047,
+          0,
+          96922
+        ],
+        [
+          55847,
+          0,
+          96922
+        ],
+        [
+          57647,
+          0,
+          96922
+        ],
+        [
+          59447,
+          0,
+          96922
+        ],
+        [
+          61247,
+          0,
+          96922
+        ],
+        [
+          63047,
+          0,
+          96922
+        ],
+        [
+          64847,
+          0,
+          96922
+        ],
+        [
+          66647,
+          0,
+          96922
+        ],
+        [
+          68447,
+          0,
+          96922
+        ],
+        [
+          70247,
+          0,
+          96922
+        ],
+        [
+          72047,
+          0,
+          96922
+        ],
+        [
+          73847,
+          0,
+          96922
+        ],
+        [
+          75647,
+          0,
+          96922
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.5662174772175603,
+      "rows": [
+        {
+          "y": 27,
+          "visible": 0,
+          "colors": [
+            "rgb(255,234,0)"
+          ]
+        },
+        {
+          "y": 30,
+          "visible": 0,
+          "colors": [
+            "rgb(255,234,0)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 0,
+          "colors": [
+            "rgb(255,234,0)"
+          ]
+        },
+        {
+          "y": 16,
+          "visible": 0,
+          "colors": [
+            "rgb(255,234,0)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 0,
+          "colors": [
+            "rgb(255,234,0)"
+          ]
+        },
+        {
+          "y": 34.5,
+          "visible": 0,
+          "colors": [
+            "rgb(255,234,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 43,
+      "targets": [
+        [
+          -109592,
+          0,
+          7850
+        ],
+        [
+          -95592,
+          0,
+          7850
+        ],
+        [
+          -81592,
+          0,
+          7850
+        ],
+        [
+          -67592,
+          0,
+          7850
+        ],
+        [
+          -53592,
+          0,
+          7850
+        ],
+        [
+          -39592,
+          0,
+          7850
+        ],
+        [
+          -25592,
+          0,
+          7850
+        ],
+        [
+          -11592,
+          0,
+          7850
+        ],
+        [
+          2408,
+          0,
+          7850
+        ],
+        [
+          16408,
+          0,
+          7850
+        ],
+        [
+          30408,
+          0,
+          7850
+        ],
+        [
+          44408,
+          0,
+          7850
+        ],
+        [
+          58408,
+          0,
+          7850
+        ],
+        [
+          72408,
+          0,
+          7850
+        ],
+        [
+          86408,
+          0,
+          7850
+        ],
+        [
+          100408,
+          0,
+          7850
+        ],
+        [
+          -110102,
+          0,
+          52536
+        ],
+        [
+          -96102,
+          0,
+          52536
+        ],
+        [
+          -82102,
+          0,
+          52536
+        ],
+        [
+          -68102,
+          0,
+          52536
+        ],
+        [
+          -54102,
+          0,
+          52536
+        ],
+        [
+          -40102,
+          0,
+          52536
+        ],
+        [
+          -26102,
+          0,
+          52536
+        ],
+        [
+          -12102,
+          0,
+          52536
+        ],
+        [
+          1898,
+          0,
+          52536
+        ],
+        [
+          15898,
+          0,
+          52536
+        ],
+        [
+          29898,
+          0,
+          52536
+        ],
+        [
+          43898,
+          0,
+          52536
+        ],
+        [
+          57898,
+          0,
+          52536
+        ],
+        [
+          71898,
+          0,
+          52536
+        ],
+        [
+          85898,
+          0,
+          52536
+        ],
+        [
+          99898,
+          0,
+          52536
+        ],
+        [
+          -110612,
+          0,
+          93270
+        ],
+        [
+          -96612,
+          0,
+          93270
+        ],
+        [
+          -82612,
+          0,
+          93270
+        ],
+        [
+          -68612,
+          0,
+          93270
+        ],
+        [
+          -54612,
+          0,
+          93270
+        ],
+        [
+          -40612,
+          0,
+          93270
+        ],
+        [
+          -26612,
+          0,
+          93270
+        ],
+        [
+          -12612,
+          0,
+          93270
+        ],
+        [
+          1388,
+          0,
+          93270
+        ],
+        [
+          15388,
+          0,
+          93270
+        ],
+        [
+          29388,
+          0,
+          93270
+        ],
+        [
+          43388,
+          0,
+          93270
+        ],
+        [
+          57388,
+          0,
+          93270
+        ],
+        [
+          71388,
+          0,
+          93270
+        ],
+        [
+          85388,
+          0,
+          93270
+        ],
+        [
+          99388,
+          0,
+          93270
+        ],
+        [
+          -96221,
+          0,
+          3228
+        ],
+        [
+          -94421,
+          0,
+          3228
+        ],
+        [
+          -92621,
+          0,
+          3228
+        ],
+        [
+          -90821,
+          0,
+          3228
+        ],
+        [
+          -89021,
+          0,
+          3228
+        ],
+        [
+          -87221,
+          0,
+          3228
+        ],
+        [
+          -85421,
+          0,
+          3228
+        ],
+        [
+          -83621,
+          0,
+          3228
+        ],
+        [
+          -81821,
+          0,
+          3228
+        ],
+        [
+          -80021,
+          0,
+          3228
+        ],
+        [
+          -78221,
+          0,
+          3228
+        ],
+        [
+          -76421,
+          0,
+          3228
+        ],
+        [
+          -74621,
+          0,
+          3228
+        ],
+        [
+          -72821,
+          0,
+          3228
+        ],
+        [
+          -71021,
+          0,
+          3228
+        ],
+        [
+          -69221,
+          0,
+          3228
+        ],
+        [
+          63779,
+          0,
+          3228
+        ],
+        [
+          65579,
+          0,
+          3228
+        ],
+        [
+          67379,
+          0,
+          3228
+        ],
+        [
+          69179,
+          0,
+          3228
+        ],
+        [
+          70979,
+          0,
+          3228
+        ],
+        [
+          72779,
+          0,
+          3228
+        ],
+        [
+          74579,
+          0,
+          3228
+        ],
+        [
+          76379,
+          0,
+          3228
+        ],
+        [
+          78179,
+          0,
+          3228
+        ],
+        [
+          79979,
+          0,
+          3228
+        ],
+        [
+          81779,
+          0,
+          3228
+        ],
+        [
+          83579,
+          0,
+          3228
+        ],
+        [
+          85379,
+          0,
+          3228
+        ],
+        [
+          87179,
+          0,
+          3228
+        ],
+        [
+          88979,
+          0,
+          3228
+        ],
+        [
+          90779,
+          0,
+          3228
+        ],
+        [
+          -117241,
+          0,
+          41866
+        ],
+        [
+          -115441,
+          0,
+          41866
+        ],
+        [
+          -113641,
+          0,
+          41866
+        ],
+        [
+          -111841,
+          0,
+          41866
+        ],
+        [
+          -110041,
+          0,
+          41866
+        ],
+        [
+          -108241,
+          0,
+          41866
+        ],
+        [
+          -106441,
+          0,
+          41866
+        ],
+        [
+          -104641,
+          0,
+          41866
+        ],
+        [
+          -102841,
+          0,
+          41866
+        ],
+        [
+          -101041,
+          0,
+          41866
+        ],
+        [
+          -99241,
+          0,
+          41866
+        ],
+        [
+          -97441,
+          0,
+          41866
+        ],
+        [
+          -95641,
+          0,
+          41866
+        ],
+        [
+          -93841,
+          0,
+          41866
+        ],
+        [
+          -92041,
+          0,
+          41866
+        ],
+        [
+          -90241,
+          0,
+          41866
+        ],
+        [
+          82759,
+          0,
+          41866
+        ],
+        [
+          84559,
+          0,
+          41866
+        ],
+        [
+          86359,
+          0,
+          41866
+        ],
+        [
+          88159,
+          0,
+          41866
+        ],
+        [
+          89959,
+          0,
+          41866
+        ],
+        [
+          91759,
+          0,
+          41866
+        ],
+        [
+          93559,
+          0,
+          41866
+        ],
+        [
+          95359,
+          0,
+          41866
+        ],
+        [
+          97159,
+          0,
+          41866
+        ],
+        [
+          98959,
+          0,
+          41866
+        ],
+        [
+          100759,
+          0,
+          41866
+        ],
+        [
+          102559,
+          0,
+          41866
+        ],
+        [
+          104359,
+          0,
+          41866
+        ],
+        [
+          106159,
+          0,
+          41866
+        ],
+        [
+          107959,
+          0,
+          41866
+        ],
+        [
+          109759,
+          0,
+          41866
+        ],
+        [
+          -99367,
+          0,
+          96478
+        ],
+        [
+          -97567,
+          0,
+          96478
+        ],
+        [
+          -95767,
+          0,
+          96478
+        ],
+        [
+          -93967,
+          0,
+          96478
+        ],
+        [
+          -92167,
+          0,
+          96478
+        ],
+        [
+          -90367,
+          0,
+          96478
+        ],
+        [
+          -88567,
+          0,
+          96478
+        ],
+        [
+          -86767,
+          0,
+          96478
+        ],
+        [
+          -84967,
+          0,
+          96478
+        ],
+        [
+          -83167,
+          0,
+          96478
+        ],
+        [
+          -81367,
+          0,
+          96478
+        ],
+        [
+          -79567,
+          0,
+          96478
+        ],
+        [
+          -77767,
+          0,
+          96478
+        ],
+        [
+          -75967,
+          0,
+          96478
+        ],
+        [
+          -74167,
+          0,
+          96478
+        ],
+        [
+          -72367,
+          0,
+          96478
+        ],
+        [
+          60633,
+          0,
+          96478
+        ],
+        [
+          62433,
+          0,
+          96478
+        ],
+        [
+          64233,
+          0,
+          96478
+        ],
+        [
+          66033,
+          0,
+          96478
+        ],
+        [
+          67833,
+          0,
+          96478
+        ],
+        [
+          69633,
+          0,
+          96478
+        ],
+        [
+          71433,
+          0,
+          96478
+        ],
+        [
+          73233,
+          0,
+          96478
+        ],
+        [
+          75033,
+          0,
+          96478
+        ],
+        [
+          76833,
+          0,
+          96478
+        ],
+        [
+          78633,
+          0,
+          96478
+        ],
+        [
+          80433,
+          0,
+          96478
+        ],
+        [
+          82233,
+          0,
+          96478
+        ],
+        [
+          84033,
+          0,
+          96478
+        ],
+        [
+          85833,
+          0,
+          96478
+        ],
+        [
+          87633,
+          0,
+          96478
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.6178428133022429,
+      "rows": [
+        {
+          "y": 27,
+          "visible": 0,
+          "colors": [
+            "rgb(0,255,230)"
+          ]
+        },
+        {
+          "y": 30,
+          "visible": 0,
+          "colors": [
+            "rgb(0,255,230)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 0,
+          "colors": [
+            "rgb(0,255,230)"
+          ]
+        },
+        {
+          "y": 16,
+          "visible": 0,
+          "colors": [
+            "rgb(0,255,230)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 0,
+          "colors": [
+            "rgb(0,255,230)"
+          ]
+        },
+        {
+          "y": 34.5,
+          "visible": 0,
+          "colors": [
+            "rgb(0,255,230)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 65,
+      "targets": [
+        [
+          -120000,
+          199551,
+          23116
+        ],
+        [
+          -120000,
+          162975,
+          29918
+        ],
+        [
+          -120000,
+          139304,
+          35486
+        ],
+        [
+          -110518,
+          0,
+          63322
+        ],
+        [
+          -112190,
+          0,
+          67022
+        ],
+        [
+          -56876,
+          0,
+          70721
+        ],
+        [
+          -58548,
+          0,
+          74421
+        ],
+        [
+          -60220,
+          0,
+          78121
+        ],
+        [
+          60220,
+          0,
+          78121
+        ],
+        [
+          58548,
+          0,
+          74421
+        ],
+        [
+          56876,
+          0,
+          70721
+        ],
+        [
+          112190,
+          0,
+          67022
+        ],
+        [
+          110518,
+          0,
+          63322
+        ],
+        [
+          120000,
+          139304,
+          35486
+        ],
+        [
+          120000,
+          162975,
+          29918
+        ],
+        [
+          120000,
+          199551,
+          23116
+        ],
+        [
+          -120000,
+          220789,
+          51433
+        ],
+        [
+          -120000,
+          179663,
+          52169
+        ],
+        [
+          -120000,
+          153048,
+          53811
+        ],
+        [
+          -109958,
+          0,
+          58479
+        ],
+        [
+          -111444,
+          0,
+          62135
+        ],
+        [
+          -56618,
+          0,
+          65791
+        ],
+        [
+          -58105,
+          0,
+          69447
+        ],
+        [
+          -59592,
+          0,
+          73103
+        ],
+        [
+          59592,
+          0,
+          73103
+        ],
+        [
+          58105,
+          0,
+          69447
+        ],
+        [
+          56618,
+          0,
+          65791
+        ],
+        [
+          111444,
+          0,
+          62135
+        ],
+        [
+          109958,
+          0,
+          58479
+        ],
+        [
+          120000,
+          153048,
+          53811
+        ],
+        [
+          120000,
+          179663,
+          52169
+        ],
+        [
+          120000,
+          220789,
+          51433
+        ],
+        [
+          -120000,
+          242027,
+          76210
+        ],
+        [
+          -120000,
+          196352,
+          71639
+        ],
+        [
+          -120000,
+          166792,
+          69846
+        ],
+        [
+          -109509,
+          0,
+          55078
+        ],
+        [
+          -110847,
+          0,
+          58699
+        ],
+        [
+          -56412,
+          0,
+          62320
+        ],
+        [
+          -57750,
+          0,
+          65941
+        ],
+        [
+          -59089,
+          0,
+          69562
+        ],
+        [
+          59089,
+          0,
+          69562
+        ],
+        [
+          57750,
+          0,
+          65941
+        ],
+        [
+          56412,
+          0,
+          62320
+        ],
+        [
+          110847,
+          0,
+          58699
+        ],
+        [
+          109509,
+          0,
+          55078
+        ],
+        [
+          120000,
+          166792,
+          69846
+        ],
+        [
+          120000,
+          196352,
+          71639
+        ],
+        [
+          120000,
+          242027,
+          76210
+        ],
+        [
+          -120000,
+          104687,
+          27057
+        ],
+        [
+          -120000,
+          102574,
+          28340
+        ],
+        [
+          -120000,
+          100576,
+          29641
+        ],
+        [
+          -120000,
+          98683,
+          30958
+        ],
+        [
+          -120000,
+          96888,
+          32289
+        ],
+        [
+          -110049,
+          0,
+          65731
+        ],
+        [
+          -110444,
+          0,
+          67681
+        ],
+        [
+          -110839,
+          0,
+          69631
+        ],
+        [
+          -111234,
+          0,
+          71581
+        ],
+        [
+          -111629,
+          0,
+          73531
+        ],
+        [
+          -112024,
+          0,
+          75482
+        ],
+        [
+          -50338,
+          0,
+          77432
+        ],
+        [
+          -50733,
+          0,
+          79382
+        ],
+        [
+          -51128,
+          0,
+          81332
+        ],
+        [
+          -51523,
+          0,
+          83282
+        ],
+        [
+          -51918,
+          0,
+          85233
+        ],
+        [
+          51918,
+          0,
+          85233
+        ],
+        [
+          51523,
+          0,
+          83282
+        ],
+        [
+          51128,
+          0,
+          81332
+        ],
+        [
+          50733,
+          0,
+          79382
+        ],
+        [
+          50338,
+          0,
+          77432
+        ],
+        [
+          112024,
+          0,
+          75482
+        ],
+        [
+          111629,
+          0,
+          73531
+        ],
+        [
+          111234,
+          0,
+          71581
+        ],
+        [
+          110839,
+          0,
+          69631
+        ],
+        [
+          110444,
+          0,
+          67681
+        ],
+        [
+          110049,
+          0,
+          65731
+        ],
+        [
+          120000,
+          96888,
+          32289
+        ],
+        [
+          120000,
+          98683,
+          30958
+        ],
+        [
+          120000,
+          100576,
+          29641
+        ],
+        [
+          120000,
+          102574,
+          28340
+        ],
+        [
+          120000,
+          104687,
+          27057
+        ],
+        [
+          -120000,
+          191001,
+          49509
+        ],
+        [
+          -120000,
+          184463,
+          49747
+        ],
+        [
+          -120000,
+          178432,
+          50089
+        ],
+        [
+          -120000,
+          172850,
+          50526
+        ],
+        [
+          -120000,
+          167670,
+          51046
+        ],
+        [
+          -105593,
+          0,
+          56959
+        ],
+        [
+          -105864,
+          0,
+          58799
+        ],
+        [
+          -106135,
+          0,
+          60639
+        ],
+        [
+          -106406,
+          0,
+          62479
+        ],
+        [
+          -106677,
+          0,
+          64319
+        ],
+        [
+          -106949,
+          0,
+          66159
+        ],
+        [
+          -48645,
+          0,
+          67999
+        ],
+        [
+          -48916,
+          0,
+          69839
+        ],
+        [
+          -49187,
+          0,
+          71679
+        ],
+        [
+          -49458,
+          0,
+          73519
+        ],
+        [
+          -49729,
+          0,
+          75360
+        ],
+        [
+          49729,
+          0,
+          75360
+        ],
+        [
+          49458,
+          0,
+          73519
+        ],
+        [
+          49187,
+          0,
+          71679
+        ],
+        [
+          48916,
+          0,
+          69839
+        ],
+        [
+          48645,
+          0,
+          67999
+        ],
+        [
+          106949,
+          0,
+          66159
+        ],
+        [
+          106677,
+          0,
+          64319
+        ],
+        [
+          106406,
+          0,
+          62479
+        ],
+        [
+          106135,
+          0,
+          60639
+        ],
+        [
+          105864,
+          0,
+          58799
+        ],
+        [
+          105593,
+          0,
+          56959
+        ],
+        [
+          120000,
+          167670,
+          51046
+        ],
+        [
+          120000,
+          172850,
+          50526
+        ],
+        [
+          120000,
+          178432,
+          50089
+        ],
+        [
+          120000,
+          184463,
+          49747
+        ],
+        [
+          120000,
+          191001,
+          49509
+        ],
+        [
+          -120000,
+          211692,
+          69280
+        ],
+        [
+          -120000,
+          206600,
+          69389
+        ],
+        [
+          -120000,
+          201784,
+          69577
+        ],
+        [
+          -120000,
+          197223,
+          69841
+        ],
+        [
+          -120000,
+          192895,
+          70173
+        ],
+        [
+          -107358,
+          0,
+          53399
+        ],
+        [
+          -107522,
+          0,
+          55144
+        ],
+        [
+          -107686,
+          0,
+          56889
+        ],
+        [
+          -107850,
+          0,
+          58634
+        ],
+        [
+          -108014,
+          0,
+          60379
+        ],
+        [
+          -108178,
+          0,
+          62123
+        ],
+        [
+          -52798,
+          0,
+          63868
+        ],
+        [
+          -52962,
+          0,
+          65613
+        ],
+        [
+          -53126,
+          0,
+          67358
+        ],
+        [
+          -53290,
+          0,
+          69103
+        ],
+        [
+          -53454,
+          0,
+          70848
+        ],
+        [
+          53454,
+          0,
+          70848
+        ],
+        [
+          53290,
+          0,
+          69103
+        ],
+        [
+          53126,
+          0,
+          67358
+        ],
+        [
+          52962,
+          0,
+          65613
+        ],
+        [
+          52798,
+          0,
+          63868
+        ],
+        [
+          108178,
+          0,
+          62123
+        ],
+        [
+          108014,
+          0,
+          60379
+        ],
+        [
+          107850,
+          0,
+          58634
+        ],
+        [
+          107686,
+          0,
+          56889
+        ],
+        [
+          107522,
+          0,
+          55144
+        ],
+        [
+          107358,
+          0,
+          53399
+        ],
+        [
+          120000,
+          192895,
+          70173
+        ],
+        [
+          120000,
+          197223,
+          69841
+        ],
+        [
+          120000,
+          201784,
+          69577
+        ],
+        [
+          120000,
+          206600,
+          69389
+        ],
+        [
+          120000,
+          211692,
+          69280
+        ]
+      ],
+      "visible": 144,
+      "maximum": 0.9113078665506275,
+      "rows": [
+        {
+          "y": 27,
+          "visible": 16,
+          "colors": [
+            "rgb(0,177,255)"
+          ]
+        },
+        {
+          "y": 30,
+          "visible": 16,
+          "colors": [
+            "rgb(0,177,255)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 16,
+          "colors": [
+            "rgb(0,177,255)"
+          ]
+        },
+        {
+          "y": 16,
+          "visible": 32,
+          "colors": [
+            "rgb(0,177,255)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 32,
+          "colors": [
+            "rgb(0,177,255)"
+          ]
+        },
+        {
+          "y": 34.5,
+          "visible": 32,
+          "colors": [
+            "rgb(0,177,255)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 89,
+      "targets": [
+        [
+          -120000,
+          209357,
+          19547
+        ],
+        [
+          -120000,
+          154885,
+          28964
+        ],
+        [
+          -120000,
+          21587,
+          54957
+        ],
+        [
+          -88454,
+          0,
+          66574
+        ],
+        [
+          -53172,
+          0,
+          70553
+        ],
+        [
+          -17889,
+          0,
+          62595
+        ],
+        [
+          17393,
+          0,
+          54638
+        ],
+        [
+          52676,
+          0,
+          46680
+        ],
+        [
+          25068,
+          0,
+          46680
+        ],
+        [
+          60351,
+          0,
+          54638
+        ],
+        [
+          95633,
+          0,
+          62595
+        ],
+        [
+          120000,
+          35980,
+          62862
+        ],
+        [
+          120000,
+          120870,
+          42519
+        ],
+        [
+          120000,
+          176733,
+          28653
+        ],
+        [
+          120000,
+          205464,
+          21879
+        ],
+        [
+          120000,
+          231668,
+          17079
+        ],
+        [
+          -120000,
+          231814,
+          49490
+        ],
+        [
+          -120000,
+          170568,
+          49874
+        ],
+        [
+          -120000,
+          20689,
+          53760
+        ],
+        [
+          -88154,
+          0,
+          61692
+        ],
+        [
+          -53122,
+          0,
+          65624
+        ],
+        [
+          -18091,
+          0,
+          57761
+        ],
+        [
+          16940,
+          0,
+          49897
+        ],
+        [
+          51972,
+          0,
+          42033
+        ],
+        [
+          24855,
+          0,
+          42033
+        ],
+        [
+          59887,
+          0,
+          49897
+        ],
+        [
+          94918,
+          0,
+          57761
+        ],
+        [
+          120000,
+          36873,
+          64053
+        ],
+        [
+          120000,
+          132321,
+          57788
+        ],
+        [
+          120000,
+          195132,
+          53186
+        ],
+        [
+          120000,
+          227437,
+          51177
+        ],
+        [
+          120000,
+          256901,
+          50722
+        ],
+        [
+          -120000,
+          254272,
+          75690
+        ],
+        [
+          -120000,
+          186250,
+          68170
+        ],
+        [
+          -120000,
+          19792,
+          52714
+        ],
+        [
+          -87913,
+          0,
+          58261
+        ],
+        [
+          -53083,
+          0,
+          62156
+        ],
+        [
+          -18253,
+          0,
+          54367
+        ],
+        [
+          16578,
+          0,
+          46578
+        ],
+        [
+          51408,
+          0,
+          38789
+        ],
+        [
+          24685,
+          0,
+          38789
+        ],
+        [
+          59515,
+          0,
+          46578
+        ],
+        [
+          94345,
+          0,
+          54367
+        ],
+        [
+          120000,
+          37766,
+          65095
+        ],
+        [
+          120000,
+          143773,
+          71148
+        ],
+        [
+          120000,
+          213532,
+          74652
+        ],
+        [
+          120000,
+          249411,
+          76812
+        ],
+        [
+          120000,
+          282133,
+          80160
+        ],
+        [
+          -120000,
+          111142,
+          22106
+        ],
+        [
+          -120000,
+          109110,
+          23869
+        ],
+        [
+          -120000,
+          97244,
+          28335
+        ],
+        [
+          -120000,
+          74157,
+          36678
+        ],
+        [
+          -120000,
+          32143,
+          52218
+        ],
+        [
+          -109387,
+          0,
+          66580
+        ],
+        [
+          -90302,
+          0,
+          70775
+        ],
+        [
+          -71217,
+          0,
+          74970
+        ],
+        [
+          -52132,
+          0,
+          77067
+        ],
+        [
+          -33047,
+          0,
+          72872
+        ],
+        [
+          -13962,
+          0,
+          68677
+        ],
+        [
+          5123,
+          0,
+          64482
+        ],
+        [
+          24208,
+          0,
+          60287
+        ],
+        [
+          43293,
+          0,
+          56092
+        ],
+        [
+          62378,
+          0,
+          51897
+        ],
+        [
+          81463,
+          0,
+          47703
+        ],
+        [
+          3234,
+          0,
+          47703
+        ],
+        [
+          22319,
+          0,
+          51897
+        ],
+        [
+          41404,
+          0,
+          56092
+        ],
+        [
+          60489,
+          0,
+          60287
+        ],
+        [
+          79574,
+          0,
+          64482
+        ],
+        [
+          98659,
+          0,
+          68677
+        ],
+        [
+          117744,
+          0,
+          72872
+        ],
+        [
+          120000,
+          46643,
+          58033
+        ],
+        [
+          120000,
+          76602,
+          44714
+        ],
+        [
+          120000,
+          95341,
+          35618
+        ],
+        [
+          120000,
+          108168,
+          29529
+        ],
+        [
+          120000,
+          117500,
+          25218
+        ],
+        [
+          120000,
+          122392,
+          22685
+        ],
+        [
+          120000,
+          123931,
+          21293
+        ],
+        [
+          120000,
+          125521,
+          19969
+        ],
+        [
+          120000,
+          127165,
+          18718
+        ],
+        [
+          -120000,
+          195708,
+          48472
+        ],
+        [
+          -120000,
+          190035,
+          48706
+        ],
+        [
+          -120000,
+          175016,
+          48980
+        ],
+        [
+          -120000,
+          140873,
+          49800
+        ],
+        [
+          -120000,
+          40355,
+          53063
+        ],
+        [
+          -104969,
+          0,
+          57760
+        ],
+        [
+          -86860,
+          0,
+          61718
+        ],
+        [
+          -68752,
+          0,
+          65676
+        ],
+        [
+          -50643,
+          0,
+          67655
+        ],
+        [
+          -32534,
+          0,
+          63697
+        ],
+        [
+          -14425,
+          0,
+          59739
+        ],
+        [
+          3683,
+          0,
+          55781
+        ],
+        [
+          21792,
+          0,
+          51823
+        ],
+        [
+          39901,
+          0,
+          47865
+        ],
+        [
+          58009,
+          0,
+          43907
+        ],
+        [
+          76118,
+          0,
+          39949
+        ],
+        [
+          3795,
+          0,
+          39949
+        ],
+        [
+          21904,
+          0,
+          43907
+        ],
+        [
+          40012,
+          0,
+          47865
+        ],
+        [
+          58121,
+          0,
+          51823
+        ],
+        [
+          76230,
+          0,
+          55781
+        ],
+        [
+          94338,
+          0,
+          59739
+        ],
+        [
+          112447,
+          0,
+          63697
+        ],
+        [
+          120000,
+          73826,
+          61655
+        ],
+        [
+          120000,
+          132027,
+          56134
+        ],
+        [
+          120000,
+          160599,
+          53000
+        ],
+        [
+          120000,
+          177577,
+          51315
+        ],
+        [
+          120000,
+          188828,
+          50346
+        ],
+        [
+          120000,
+          195075,
+          49783
+        ],
+        [
+          120000,
+          198420,
+          49394
+        ],
+        [
+          120000,
+          201902,
+          49129
+        ],
+        [
+          120000,
+          205530,
+          48999
+        ],
+        [
+          -120000,
+          227248,
+          67921
+        ],
+        [
+          -120000,
+          222352,
+          68554
+        ],
+        [
+          -120000,
+          193755,
+          66417
+        ],
+        [
+          -120000,
+          138113,
+          61914
+        ],
+        [
+          -120000,
+          36857,
+          54078
+        ],
+        [
+          -106766,
+          0,
+          54159
+        ],
+        [
+          -89502,
+          0,
+          57912
+        ],
+        [
+          -72237,
+          0,
+          61665
+        ],
+        [
+          -54972,
+          0,
+          63542
+        ],
+        [
+          -37707,
+          0,
+          59789
+        ],
+        [
+          -20443,
+          0,
+          56036
+        ],
+        [
+          -3178,
+          0,
+          52283
+        ],
+        [
+          14087,
+          0,
+          48529
+        ],
+        [
+          31351,
+          0,
+          44776
+        ],
+        [
+          48616,
+          0,
+          41023
+        ],
+        [
+          65881,
+          0,
+          37270
+        ],
+        [
+          9897,
+          0,
+          37270
+        ],
+        [
+          27161,
+          0,
+          41023
+        ],
+        [
+          44426,
+          0,
+          44776
+        ],
+        [
+          61691,
+          0,
+          48529
+        ],
+        [
+          78955,
+          0,
+          52283
+        ],
+        [
+          96220,
+          0,
+          56036
+        ],
+        [
+          113485,
+          0,
+          59789
+        ],
+        [
+          120000,
+          71803,
+          67961
+        ],
+        [
+          120000,
+          144007,
+          71312
+        ],
+        [
+          120000,
+          189167,
+          72641
+        ],
+        [
+          120000,
+          220081,
+          73689
+        ],
+        [
+          120000,
+          242571,
+          74571
+        ],
+        [
+          120000,
+          254362,
+          74760
+        ],
+        [
+          120000,
+          258070,
+          74224
+        ],
+        [
+          120000,
+          261903,
+          73785
+        ],
+        [
+          120000,
+          265865,
+          73448
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.7958013528361462,
+      "rows": [
+        {
+          "y": 27,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 30,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 16,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 34.5,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 110,
+      "targets": [
+        [
+          -120000,
+          80484,
+          33227
+        ],
+        [
+          -120000,
+          58618,
+          35579
+        ],
+        [
+          -120000,
+          49753,
+          36532
+        ],
+        [
+          -120000,
+          44951,
+          37049
+        ],
+        [
+          -120000,
+          41940,
+          37373
+        ],
+        [
+          -120000,
+          39875,
+          37595
+        ],
+        [
+          -120000,
+          38371,
+          37757
+        ],
+        [
+          -120000,
+          37227,
+          37880
+        ],
+        [
+          87716,
+          0,
+          41884
+        ],
+        [
+          86045,
+          0,
+          41884
+        ],
+        [
+          84373,
+          0,
+          41884
+        ],
+        [
+          82701,
+          0,
+          41884
+        ],
+        [
+          81030,
+          0,
+          41884
+        ],
+        [
+          79358,
+          0,
+          41884
+        ],
+        [
+          77686,
+          0,
+          41884
+        ],
+        [
+          76015,
+          0,
+          41884
+        ],
+        [
+          -120000,
+          86913,
+          45512
+        ],
+        [
+          -120000,
+          62326,
+          44666
+        ],
+        [
+          -120000,
+          52359,
+          44323
+        ],
+        [
+          -120000,
+          46960,
+          44138
+        ],
+        [
+          -120000,
+          43574,
+          44021
+        ],
+        [
+          -120000,
+          41253,
+          43941
+        ],
+        [
+          -120000,
+          39562,
+          43883
+        ],
+        [
+          -120000,
+          38275,
+          43839
+        ],
+        [
+          86764,
+          0,
+          42523
+        ],
+        [
+          85277,
+          0,
+          42523
+        ],
+        [
+          83790,
+          0,
+          42523
+        ],
+        [
+          82304,
+          0,
+          42523
+        ],
+        [
+          80817,
+          0,
+          42523
+        ],
+        [
+          79330,
+          0,
+          42523
+        ],
+        [
+          77843,
+          0,
+          42523
+        ],
+        [
+          76357,
+          0,
+          42523
+        ],
+        [
+          -120000,
+          93341,
+          56726
+        ],
+        [
+          -120000,
+          66035,
+          53136
+        ],
+        [
+          -120000,
+          54965,
+          51680
+        ],
+        [
+          -120000,
+          48969,
+          50892
+        ],
+        [
+          -120000,
+          45209,
+          50397
+        ],
+        [
+          -120000,
+          42630,
+          50058
+        ],
+        [
+          -120000,
+          40752,
+          49811
+        ],
+        [
+          -120000,
+          39323,
+          49624
+        ],
+        [
+          86001,
+          0,
+          44454
+        ],
+        [
+          84662,
+          0,
+          44454
+        ],
+        [
+          83324,
+          0,
+          44454
+        ],
+        [
+          81985,
+          0,
+          44454
+        ],
+        [
+          80647,
+          0,
+          44454
+        ],
+        [
+          79308,
+          0,
+          44454
+        ],
+        [
+          77969,
+          0,
+          44454
+        ],
+        [
+          76631,
+          0,
+          44454
+        ],
+        [
+          -120000,
+          46345,
+          26985
+        ],
+        [
+          -120000,
+          45370,
+          27115
+        ],
+        [
+          -120000,
+          44497,
+          27232
+        ],
+        [
+          -120000,
+          43712,
+          27337
+        ],
+        [
+          -120000,
+          43002,
+          27432
+        ],
+        [
+          -120000,
+          42356,
+          27518
+        ],
+        [
+          -120000,
+          41767,
+          27597
+        ],
+        [
+          -120000,
+          41226,
+          27670
+        ],
+        [
+          -120000,
+          40729,
+          27736
+        ],
+        [
+          -120000,
+          40270,
+          27798
+        ],
+        [
+          -120000,
+          39845,
+          27854
+        ],
+        [
+          -120000,
+          39451,
+          27907
+        ],
+        [
+          -120000,
+          39084,
+          27956
+        ],
+        [
+          -120000,
+          38741,
+          28002
+        ],
+        [
+          -120000,
+          38420,
+          28045
+        ],
+        [
+          -120000,
+          38119,
+          28085
+        ],
+        [
+          81874,
+          0,
+          33187
+        ],
+        [
+          81479,
+          0,
+          33187
+        ],
+        [
+          81083,
+          0,
+          33187
+        ],
+        [
+          80688,
+          0,
+          33187
+        ],
+        [
+          80293,
+          0,
+          33187
+        ],
+        [
+          79898,
+          0,
+          33187
+        ],
+        [
+          79503,
+          0,
+          33187
+        ],
+        [
+          79108,
+          0,
+          33187
+        ],
+        [
+          78713,
+          0,
+          33187
+        ],
+        [
+          78318,
+          0,
+          33187
+        ],
+        [
+          77923,
+          0,
+          33187
+        ],
+        [
+          77527,
+          0,
+          33187
+        ],
+        [
+          77132,
+          0,
+          33187
+        ],
+        [
+          76737,
+          0,
+          33187
+        ],
+        [
+          76342,
+          0,
+          33187
+        ],
+        [
+          75947,
+          0,
+          33187
+        ],
+        [
+          -120000,
+          102652,
+          40130
+        ],
+        [
+          -120000,
+          91924,
+          39248
+        ],
+        [
+          -120000,
+          83917,
+          38590
+        ],
+        [
+          -120000,
+          77713,
+          38080
+        ],
+        [
+          -120000,
+          72764,
+          37673
+        ],
+        [
+          -120000,
+          68725,
+          37341
+        ],
+        [
+          -120000,
+          65365,
+          37065
+        ],
+        [
+          -120000,
+          62527,
+          36832
+        ],
+        [
+          -120000,
+          60098,
+          36632
+        ],
+        [
+          -120000,
+          57995,
+          36459
+        ],
+        [
+          -120000,
+          56157,
+          36308
+        ],
+        [
+          -120000,
+          54537,
+          36175
+        ],
+        [
+          -120000,
+          53097,
+          36057
+        ],
+        [
+          -120000,
+          51811,
+          35951
+        ],
+        [
+          -120000,
+          50653,
+          35856
+        ],
+        [
+          -120000,
+          49607,
+          35770
+        ],
+        [
+          77993,
+          0,
+          31692
+        ],
+        [
+          77722,
+          0,
+          31692
+        ],
+        [
+          77451,
+          0,
+          31692
+        ],
+        [
+          77179,
+          0,
+          31692
+        ],
+        [
+          76908,
+          0,
+          31692
+        ],
+        [
+          76637,
+          0,
+          31692
+        ],
+        [
+          76366,
+          0,
+          31692
+        ],
+        [
+          76095,
+          0,
+          31692
+        ],
+        [
+          75824,
+          0,
+          31692
+        ],
+        [
+          75553,
+          0,
+          31692
+        ],
+        [
+          75281,
+          0,
+          31692
+        ],
+        [
+          75010,
+          0,
+          31692
+        ],
+        [
+          74739,
+          0,
+          31692
+        ],
+        [
+          74468,
+          0,
+          31692
+        ],
+        [
+          74197,
+          0,
+          31692
+        ],
+        [
+          73926,
+          0,
+          31692
+        ],
+        [
+          -120000,
+          71084,
+          57221
+        ],
+        [
+          -120000,
+          68734,
+          56984
+        ],
+        [
+          -120000,
+          66632,
+          56773
+        ],
+        [
+          -120000,
+          64740,
+          56582
+        ],
+        [
+          -120000,
+          63028,
+          56410
+        ],
+        [
+          -120000,
+          61472,
+          56254
+        ],
+        [
+          -120000,
+          60051,
+          56111
+        ],
+        [
+          -120000,
+          58748,
+          55980
+        ],
+        [
+          -120000,
+          57550,
+          55859
+        ],
+        [
+          -120000,
+          56444,
+          55748
+        ],
+        [
+          -120000,
+          55420,
+          55645
+        ],
+        [
+          -120000,
+          54469,
+          55549
+        ],
+        [
+          -120000,
+          53584,
+          55460
+        ],
+        [
+          -120000,
+          52758,
+          55377
+        ],
+        [
+          -120000,
+          51985,
+          55299
+        ],
+        [
+          -120000,
+          51260,
+          55226
+        ],
+        [
+          80255,
+          0,
+          50070
+        ],
+        [
+          80091,
+          0,
+          50070
+        ],
+        [
+          79927,
+          0,
+          50070
+        ],
+        [
+          79763,
+          0,
+          50070
+        ],
+        [
+          79599,
+          0,
+          50070
+        ],
+        [
+          79435,
+          0,
+          50070
+        ],
+        [
+          79271,
+          0,
+          50070
+        ],
+        [
+          79107,
+          0,
+          50070
+        ],
+        [
+          78943,
+          0,
+          50070
+        ],
+        [
+          78779,
+          0,
+          50070
+        ],
+        [
+          78615,
+          0,
+          50070
+        ],
+        [
+          78451,
+          0,
+          50070
+        ],
+        [
+          78287,
+          0,
+          50070
+        ],
+        [
+          78123,
+          0,
+          50070
+        ],
+        [
+          77959,
+          0,
+          50070
+        ],
+        [
+          77795,
+          0,
+          50070
+        ]
+      ],
+      "visible": 13,
+      "maximum": 0.8603191845333018,
+      "rows": [
+        {
+          "y": 27,
+          "visible": 1,
+          "colors": [
+            "rgb(255,62,0)"
+          ]
+        },
+        {
+          "y": 30,
+          "visible": 2,
+          "colors": [
+            "rgb(255,62,0)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 3,
+          "colors": [
+            "rgb(255,62,0)"
+          ]
+        },
+        {
+          "y": 16,
+          "visible": 0,
+          "colors": [
+            "rgb(255,62,0)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 0,
+          "colors": [
+            "rgb(255,62,0)"
+          ]
+        },
+        {
+          "y": 34.5,
+          "visible": 7,
+          "colors": [
+            "rgb(255,62,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 135,
+      "targets": [
+        [
+          37280,
+          0,
+          52662
+        ],
+        [
+          32282,
+          0,
+          52662
+        ],
+        [
+          27285,
+          0,
+          52662
+        ],
+        [
+          22287,
+          0,
+          52662
+        ],
+        [
+          17289,
+          0,
+          52662
+        ],
+        [
+          12292,
+          0,
+          52662
+        ],
+        [
+          7294,
+          0,
+          52662
+        ],
+        [
+          2296,
+          0,
+          52662
+        ],
+        [
+          -2296,
+          0,
+          52662
+        ],
+        [
+          -7294,
+          0,
+          52662
+        ],
+        [
+          -12292,
+          0,
+          52662
+        ],
+        [
+          -17289,
+          0,
+          52662
+        ],
+        [
+          -22287,
+          0,
+          52662
+        ],
+        [
+          -27285,
+          0,
+          52662
+        ],
+        [
+          -32282,
+          0,
+          52662
+        ],
+        [
+          -37280,
+          0,
+          52662
+        ],
+        [
+          35601,
+          0,
+          50843
+        ],
+        [
+          30828,
+          0,
+          50843
+        ],
+        [
+          26054,
+          0,
+          50843
+        ],
+        [
+          21281,
+          0,
+          50843
+        ],
+        [
+          16507,
+          0,
+          50843
+        ],
+        [
+          11734,
+          0,
+          50843
+        ],
+        [
+          6960,
+          0,
+          50843
+        ],
+        [
+          2187,
+          0,
+          50843
+        ],
+        [
+          -2187,
+          0,
+          50843
+        ],
+        [
+          -6960,
+          0,
+          50843
+        ],
+        [
+          -11734,
+          0,
+          50843
+        ],
+        [
+          -16507,
+          0,
+          50843
+        ],
+        [
+          -21281,
+          0,
+          50843
+        ],
+        [
+          -26054,
+          0,
+          50843
+        ],
+        [
+          -30828,
+          0,
+          50843
+        ],
+        [
+          -35601,
+          0,
+          50843
+        ],
+        [
+          34257,
+          0,
+          50387
+        ],
+        [
+          29663,
+          0,
+          50387
+        ],
+        [
+          25069,
+          0,
+          50387
+        ],
+        [
+          20475,
+          0,
+          50387
+        ],
+        [
+          15881,
+          0,
+          50387
+        ],
+        [
+          11287,
+          0,
+          50387
+        ],
+        [
+          6693,
+          0,
+          50387
+        ],
+        [
+          2099,
+          0,
+          50387
+        ],
+        [
+          -2099,
+          0,
+          50387
+        ],
+        [
+          -6693,
+          0,
+          50387
+        ],
+        [
+          -11287,
+          0,
+          50387
+        ],
+        [
+          -15881,
+          0,
+          50387
+        ],
+        [
+          -20475,
+          0,
+          50387
+        ],
+        [
+          -25069,
+          0,
+          50387
+        ],
+        [
+          -29663,
+          0,
+          50387
+        ],
+        [
+          -34257,
+          0,
+          50387
+        ],
+        [
+          47480,
+          0,
+          50066
+        ],
+        [
+          45331,
+          0,
+          50066
+        ],
+        [
+          43183,
+          0,
+          50066
+        ],
+        [
+          41035,
+          0,
+          50066
+        ],
+        [
+          38886,
+          0,
+          50066
+        ],
+        [
+          36738,
+          0,
+          50066
+        ],
+        [
+          34589,
+          0,
+          50066
+        ],
+        [
+          32441,
+          0,
+          50066
+        ],
+        [
+          30293,
+          0,
+          50066
+        ],
+        [
+          28144,
+          0,
+          50066
+        ],
+        [
+          25996,
+          0,
+          50066
+        ],
+        [
+          23847,
+          0,
+          50066
+        ],
+        [
+          21699,
+          0,
+          50066
+        ],
+        [
+          19551,
+          0,
+          50066
+        ],
+        [
+          17402,
+          0,
+          50066
+        ],
+        [
+          15254,
+          0,
+          50066
+        ],
+        [
+          -15254,
+          0,
+          50066
+        ],
+        [
+          -17402,
+          0,
+          50066
+        ],
+        [
+          -19551,
+          0,
+          50066
+        ],
+        [
+          -21699,
+          0,
+          50066
+        ],
+        [
+          -23847,
+          0,
+          50066
+        ],
+        [
+          -25996,
+          0,
+          50066
+        ],
+        [
+          -28144,
+          0,
+          50066
+        ],
+        [
+          -30293,
+          0,
+          50066
+        ],
+        [
+          -32441,
+          0,
+          50066
+        ],
+        [
+          -34589,
+          0,
+          50066
+        ],
+        [
+          -36738,
+          0,
+          50066
+        ],
+        [
+          -38886,
+          0,
+          50066
+        ],
+        [
+          -41035,
+          0,
+          50066
+        ],
+        [
+          -43183,
+          0,
+          50066
+        ],
+        [
+          -45331,
+          0,
+          50066
+        ],
+        [
+          -47480,
+          0,
+          50066
+        ],
+        [
+          42529,
+          0,
+          45194
+        ],
+        [
+          40604,
+          0,
+          45194
+        ],
+        [
+          38678,
+          0,
+          45194
+        ],
+        [
+          36753,
+          0,
+          45194
+        ],
+        [
+          34828,
+          0,
+          45194
+        ],
+        [
+          32902,
+          0,
+          45194
+        ],
+        [
+          30977,
+          0,
+          45194
+        ],
+        [
+          29051,
+          0,
+          45194
+        ],
+        [
+          27126,
+          0,
+          45194
+        ],
+        [
+          25201,
+          0,
+          45194
+        ],
+        [
+          23275,
+          0,
+          45194
+        ],
+        [
+          21350,
+          0,
+          45194
+        ],
+        [
+          19425,
+          0,
+          45194
+        ],
+        [
+          17499,
+          0,
+          45194
+        ],
+        [
+          15574,
+          0,
+          45194
+        ],
+        [
+          13648,
+          0,
+          45194
+        ],
+        [
+          -13648,
+          0,
+          45194
+        ],
+        [
+          -15574,
+          0,
+          45194
+        ],
+        [
+          -17499,
+          0,
+          45194
+        ],
+        [
+          -19425,
+          0,
+          45194
+        ],
+        [
+          -21350,
+          0,
+          45194
+        ],
+        [
+          -23275,
+          0,
+          45194
+        ],
+        [
+          -25201,
+          0,
+          45194
+        ],
+        [
+          -27126,
+          0,
+          45194
+        ],
+        [
+          -29051,
+          0,
+          45194
+        ],
+        [
+          -30977,
+          0,
+          45194
+        ],
+        [
+          -32902,
+          0,
+          45194
+        ],
+        [
+          -34828,
+          0,
+          45194
+        ],
+        [
+          -36753,
+          0,
+          45194
+        ],
+        [
+          -38678,
+          0,
+          45194
+        ],
+        [
+          -40604,
+          0,
+          45194
+        ],
+        [
+          -42529,
+          0,
+          45194
+        ],
+        [
+          32633,
+          0,
+          53680
+        ],
+        [
+          30900,
+          0,
+          53680
+        ],
+        [
+          29168,
+          0,
+          53680
+        ],
+        [
+          27435,
+          0,
+          53680
+        ],
+        [
+          25702,
+          0,
+          53680
+        ],
+        [
+          23970,
+          0,
+          53680
+        ],
+        [
+          22237,
+          0,
+          53680
+        ],
+        [
+          20505,
+          0,
+          53680
+        ],
+        [
+          18772,
+          0,
+          53680
+        ],
+        [
+          17040,
+          0,
+          53680
+        ],
+        [
+          15307,
+          0,
+          53680
+        ],
+        [
+          13574,
+          0,
+          53680
+        ],
+        [
+          11842,
+          0,
+          53680
+        ],
+        [
+          10109,
+          0,
+          53680
+        ],
+        [
+          8377,
+          0,
+          53680
+        ],
+        [
+          6644,
+          0,
+          53680
+        ],
+        [
+          -6644,
+          0,
+          53680
+        ],
+        [
+          -8377,
+          0,
+          53680
+        ],
+        [
+          -10109,
+          0,
+          53680
+        ],
+        [
+          -11842,
+          0,
+          53680
+        ],
+        [
+          -13574,
+          0,
+          53680
+        ],
+        [
+          -15307,
+          0,
+          53680
+        ],
+        [
+          -17040,
+          0,
+          53680
+        ],
+        [
+          -18772,
+          0,
+          53680
+        ],
+        [
+          -20505,
+          0,
+          53680
+        ],
+        [
+          -22237,
+          0,
+          53680
+        ],
+        [
+          -23970,
+          0,
+          53680
+        ],
+        [
+          -25702,
+          0,
+          53680
+        ],
+        [
+          -27435,
+          0,
+          53680
+        ],
+        [
+          -29168,
+          0,
+          53680
+        ],
+        [
+          -30900,
+          0,
+          53680
+        ],
+        [
+          -32633,
+          0,
+          53680
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.5967181193397686,
+      "rows": [
+        {
+          "y": 27,
+          "visible": 0,
+          "colors": [
+            "rgb(255,200,0)"
+          ]
+        },
+        {
+          "y": 30,
+          "visible": 0,
+          "colors": [
+            "rgb(255,200,0)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 0,
+          "colors": [
+            "rgb(255,200,0)"
+          ]
+        },
+        {
+          "y": 16,
+          "visible": 0,
+          "colors": [
+            "rgb(255,200,0)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 0,
+          "colors": [
+            "rgb(255,200,0)"
+          ]
+        },
+        {
+          "y": 34.5,
+          "visible": 0,
+          "colors": [
+            "rgb(255,200,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 173,
+      "targets": [
+        [
+          120000,
+          91712,
+          39541
+        ],
+        [
+          120000,
+          81075,
+          41134
+        ],
+        [
+          120000,
+          67261,
+          43203
+        ],
+        [
+          120000,
+          48594,
+          45999
+        ],
+        [
+          120000,
+          21975,
+          49985
+        ],
+        [
+          109781,
+          0,
+          53276
+        ],
+        [
+          84589,
+          0,
+          53276
+        ],
+        [
+          59398,
+          0,
+          53276
+        ],
+        [
+          34206,
+          0,
+          53276
+        ],
+        [
+          9014,
+          0,
+          53276
+        ],
+        [
+          -16178,
+          0,
+          53276
+        ],
+        [
+          -41370,
+          0,
+          53276
+        ],
+        [
+          -66562,
+          0,
+          53276
+        ],
+        [
+          -91754,
+          0,
+          53276
+        ],
+        [
+          -116946,
+          0,
+          53276
+        ],
+        [
+          -120000,
+          24185,
+          49654
+        ],
+        [
+          120000,
+          99537,
+          52165
+        ],
+        [
+          120000,
+          87577,
+          52124
+        ],
+        [
+          120000,
+          72045,
+          52072
+        ],
+        [
+          120000,
+          51056,
+          52001
+        ],
+        [
+          120000,
+          21126,
+          51901
+        ],
+        [
+          108073,
+          0,
+          51829
+        ],
+        [
+          83344,
+          0,
+          51829
+        ],
+        [
+          58614,
+          0,
+          51829
+        ],
+        [
+          33885,
+          0,
+          51829
+        ],
+        [
+          9155,
+          0,
+          51829
+        ],
+        [
+          -15574,
+          0,
+          51829
+        ],
+        [
+          -40304,
+          0,
+          51829
+        ],
+        [
+          -65033,
+          0,
+          51829
+        ],
+        [
+          -89762,
+          0,
+          51829
+        ],
+        [
+          -114492,
+          0,
+          51829
+        ],
+        [
+          -120000,
+          23611,
+          51909
+        ],
+        [
+          120000,
+          107362,
+          63484
+        ],
+        [
+          120000,
+          94079,
+          62031
+        ],
+        [
+          120000,
+          76828,
+          60144
+        ],
+        [
+          120000,
+          53518,
+          57594
+        ],
+        [
+          120000,
+          20277,
+          53957
+        ],
+        [
+          106705,
+          0,
+          51739
+        ],
+        [
+          82346,
+          0,
+          51739
+        ],
+        [
+          57987,
+          0,
+          51739
+        ],
+        [
+          33628,
+          0,
+          51739
+        ],
+        [
+          9268,
+          0,
+          51739
+        ],
+        [
+          -15091,
+          0,
+          51739
+        ],
+        [
+          -39450,
+          0,
+          51739
+        ],
+        [
+          -63809,
+          0,
+          51739
+        ],
+        [
+          -88168,
+          0,
+          51739
+        ],
+        [
+          -112527,
+          0,
+          51739
+        ],
+        [
+          -120000,
+          23037,
+          54259
+        ],
+        [
+          120000,
+          64364,
+          34563
+        ],
+        [
+          120000,
+          61131,
+          35333
+        ],
+        [
+          120000,
+          57610,
+          36172
+        ],
+        [
+          120000,
+          53761,
+          37089
+        ],
+        [
+          120000,
+          49537,
+          38096
+        ],
+        [
+          120000,
+          44878,
+          39206
+        ],
+        [
+          120000,
+          39715,
+          40436
+        ],
+        [
+          120000,
+          33962,
+          41807
+        ],
+        [
+          120000,
+          27509,
+          43345
+        ],
+        [
+          120000,
+          20223,
+          45081
+        ],
+        [
+          120000,
+          11931,
+          47057
+        ],
+        [
+          120000,
+          2407,
+          49326
+        ],
+        [
+          110165,
+          0,
+          49899
+        ],
+        [
+          97371,
+          0,
+          49899
+        ],
+        [
+          84578,
+          0,
+          49899
+        ],
+        [
+          71784,
+          0,
+          49899
+        ],
+        [
+          30190,
+          0,
+          49899
+        ],
+        [
+          17397,
+          0,
+          49899
+        ],
+        [
+          4603,
+          0,
+          49899
+        ],
+        [
+          -8191,
+          0,
+          49899
+        ],
+        [
+          -20984,
+          0,
+          49899
+        ],
+        [
+          -33778,
+          0,
+          49899
+        ],
+        [
+          -46572,
+          0,
+          49899
+        ],
+        [
+          -59365,
+          0,
+          49899
+        ],
+        [
+          -72159,
+          0,
+          49899
+        ],
+        [
+          -84953,
+          0,
+          49899
+        ],
+        [
+          -97746,
+          0,
+          49899
+        ],
+        [
+          -110540,
+          0,
+          49899
+        ],
+        [
+          -120000,
+          2523,
+          49298
+        ],
+        [
+          -120000,
+          11416,
+          47179
+        ],
+        [
+          -120000,
+          19231,
+          45317
+        ],
+        [
+          -120000,
+          26152,
+          43668
+        ],
+        [
+          120000,
+          77316,
+          46958
+        ],
+        [
+          120000,
+          72785,
+          46869
+        ],
+        [
+          120000,
+          67880,
+          46772
+        ],
+        [
+          120000,
+          62550,
+          46666
+        ],
+        [
+          120000,
+          56740,
+          46552
+        ],
+        [
+          120000,
+          50379,
+          46426
+        ],
+        [
+          120000,
+          43387,
+          46288
+        ],
+        [
+          120000,
+          35665,
+          46136
+        ],
+        [
+          120000,
+          27092,
+          45966
+        ],
+        [
+          120000,
+          17519,
+          45777
+        ],
+        [
+          120000,
+          6761,
+          45565
+        ],
+        [
+          114863,
+          0,
+          45432
+        ],
+        [
+          102894,
+          0,
+          45432
+        ],
+        [
+          90924,
+          0,
+          45432
+        ],
+        [
+          78955,
+          0,
+          45432
+        ],
+        [
+          66985,
+          0,
+          45432
+        ],
+        [
+          29229,
+          0,
+          45432
+        ],
+        [
+          17259,
+          0,
+          45432
+        ],
+        [
+          5290,
+          0,
+          45432
+        ],
+        [
+          -6679,
+          0,
+          45432
+        ],
+        [
+          -18649,
+          0,
+          45432
+        ],
+        [
+          -30618,
+          0,
+          45432
+        ],
+        [
+          -42587,
+          0,
+          45432
+        ],
+        [
+          -54557,
+          0,
+          45432
+        ],
+        [
+          -66526,
+          0,
+          45432
+        ],
+        [
+          -78495,
+          0,
+          45432
+        ],
+        [
+          -90465,
+          0,
+          45432
+        ],
+        [
+          -102434,
+          0,
+          45432
+        ],
+        [
+          -114403,
+          0,
+          45432
+        ],
+        [
+          -120000,
+          5934,
+          45549
+        ],
+        [
+          -120000,
+          16138,
+          45750
+        ],
+        [
+          -120000,
+          25278,
+          45931
+        ],
+        [
+          120000,
+          114512,
+          65150
+        ],
+        [
+          120000,
+          106720,
+          64487
+        ],
+        [
+          120000,
+          98235,
+          63765
+        ],
+        [
+          120000,
+          88959,
+          62975
+        ],
+        [
+          120000,
+          78777,
+          62108
+        ],
+        [
+          120000,
+          67549,
+          61152
+        ],
+        [
+          120000,
+          55107,
+          60092
+        ],
+        [
+          120000,
+          41240,
+          58912
+        ],
+        [
+          120000,
+          25689,
+          57588
+        ],
+        [
+          120000,
+          8130,
+          56093
+        ],
+        [
+          113505,
+          0,
+          55401
+        ],
+        [
+          102248,
+          0,
+          55401
+        ],
+        [
+          90991,
+          0,
+          55401
+        ],
+        [
+          79734,
+          0,
+          55401
+        ],
+        [
+          68478,
+          0,
+          55401
+        ],
+        [
+          57221,
+          0,
+          55401
+        ],
+        [
+          34014,
+          0,
+          55401
+        ],
+        [
+          22757,
+          0,
+          55401
+        ],
+        [
+          11501,
+          0,
+          55401
+        ],
+        [
+          244,
+          0,
+          55401
+        ],
+        [
+          -11013,
+          0,
+          55401
+        ],
+        [
+          -22270,
+          0,
+          55401
+        ],
+        [
+          -33526,
+          0,
+          55401
+        ],
+        [
+          -44783,
+          0,
+          55401
+        ],
+        [
+          -56040,
+          0,
+          55401
+        ],
+        [
+          -67297,
+          0,
+          55401
+        ],
+        [
+          -78553,
+          0,
+          55401
+        ],
+        [
+          -89810,
+          0,
+          55401
+        ],
+        [
+          -101067,
+          0,
+          55401
+        ],
+        [
+          -112324,
+          0,
+          55401
+        ],
+        [
+          -120000,
+          5738,
+          55889
+        ],
+        [
+          -120000,
+          22418,
+          57309
+        ]
+      ],
+      "visible": 26,
+      "maximum": 0.8362275577060774,
+      "rows": [
+        {
+          "y": 27,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 30,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 16,
+          "visible": 12,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 14,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 34.5,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 189,
+      "targets": [
+        [
+          -120000,
+          194352,
+          22192
+        ],
+        [
+          -114589,
+          0,
+          47843
+        ],
+        [
+          -70641,
+          0,
+          49466
+        ],
+        [
+          -26693,
+          0,
+          51089
+        ],
+        [
+          17256,
+          0,
+          52712
+        ],
+        [
+          61204,
+          0,
+          54334
+        ],
+        [
+          105152,
+          0,
+          55957
+        ],
+        [
+          120000,
+          50334,
+          49240
+        ],
+        [
+          -120000,
+          50334,
+          49240
+        ],
+        [
+          -105152,
+          0,
+          55957
+        ],
+        [
+          -61204,
+          0,
+          54334
+        ],
+        [
+          -17256,
+          0,
+          52712
+        ],
+        [
+          26693,
+          0,
+          51089
+        ],
+        [
+          70641,
+          0,
+          49466
+        ],
+        [
+          114589,
+          0,
+          47843
+        ],
+        [
+          120000,
+          194352,
+          22192
+        ],
+        [
+          -120000,
+          214943,
+          49920
+        ],
+        [
+          -114311,
+          0,
+          44144
+        ],
+        [
+          -70716,
+          0,
+          45748
+        ],
+        [
+          -27121,
+          0,
+          47352
+        ],
+        [
+          16474,
+          0,
+          48956
+        ],
+        [
+          60069,
+          0,
+          50559
+        ],
+        [
+          103664,
+          0,
+          52163
+        ],
+        [
+          120000,
+          53012,
+          53603
+        ],
+        [
+          -120000,
+          53012,
+          53603
+        ],
+        [
+          -103664,
+          0,
+          52163
+        ],
+        [
+          -60069,
+          0,
+          50559
+        ],
+        [
+          -16474,
+          0,
+          48956
+        ],
+        [
+          27121,
+          0,
+          47352
+        ],
+        [
+          70716,
+          0,
+          45748
+        ],
+        [
+          114311,
+          0,
+          44144
+        ],
+        [
+          120000,
+          214943,
+          49920
+        ],
+        [
+          -120000,
+          235534,
+          74216
+        ],
+        [
+          -114088,
+          0,
+          41834
+        ],
+        [
+          -70776,
+          0,
+          43422
+        ],
+        [
+          -27464,
+          0,
+          45011
+        ],
+        [
+          15848,
+          0,
+          46599
+        ],
+        [
+          59160,
+          0,
+          48188
+        ],
+        [
+          102472,
+          0,
+          49776
+        ],
+        [
+          120000,
+          55691,
+          57520
+        ],
+        [
+          -120000,
+          55691,
+          57520
+        ],
+        [
+          -102472,
+          0,
+          49776
+        ],
+        [
+          -59160,
+          0,
+          48188
+        ],
+        [
+          -15848,
+          0,
+          46599
+        ],
+        [
+          27464,
+          0,
+          45011
+        ],
+        [
+          70776,
+          0,
+          43422
+        ],
+        [
+          114088,
+          0,
+          41834
+        ],
+        [
+          120000,
+          235534,
+          74216
+        ],
+        [
+          -120000,
+          101396,
+          24793
+        ],
+        [
+          -120000,
+          70331,
+          32174
+        ],
+        [
+          -118543,
+          0,
+          49028
+        ],
+        [
+          -94890,
+          0,
+          49884
+        ],
+        [
+          -71237,
+          0,
+          50739
+        ],
+        [
+          -47584,
+          0,
+          51595
+        ],
+        [
+          -23931,
+          0,
+          52450
+        ],
+        [
+          -278,
+          0,
+          53306
+        ],
+        [
+          23375,
+          0,
+          54161
+        ],
+        [
+          47029,
+          0,
+          55017
+        ],
+        [
+          70682,
+          0,
+          55872
+        ],
+        [
+          94335,
+          0,
+          56728
+        ],
+        [
+          117988,
+          0,
+          57583
+        ],
+        [
+          120000,
+          16353,
+          53669
+        ],
+        [
+          120000,
+          31024,
+          50080
+        ],
+        [
+          120000,
+          43185,
+          47093
+        ],
+        [
+          -120000,
+          43185,
+          47093
+        ],
+        [
+          -120000,
+          31024,
+          50080
+        ],
+        [
+          -120000,
+          16353,
+          53669
+        ],
+        [
+          -117988,
+          0,
+          57583
+        ],
+        [
+          -94335,
+          0,
+          56728
+        ],
+        [
+          -70682,
+          0,
+          55872
+        ],
+        [
+          -47029,
+          0,
+          55017
+        ],
+        [
+          -23375,
+          0,
+          54161
+        ],
+        [
+          278,
+          0,
+          53306
+        ],
+        [
+          23931,
+          0,
+          52450
+        ],
+        [
+          47584,
+          0,
+          51595
+        ],
+        [
+          71237,
+          0,
+          50739
+        ],
+        [
+          94890,
+          0,
+          49884
+        ],
+        [
+          118543,
+          0,
+          49028
+        ],
+        [
+          120000,
+          70331,
+          32174
+        ],
+        [
+          120000,
+          101396,
+          24793
+        ],
+        [
+          -120000,
+          188398,
+          48455
+        ],
+        [
+          -120000,
+          145868,
+          46951
+        ],
+        [
+          -113913,
+          0,
+          42201
+        ],
+        [
+          -91494,
+          0,
+          43008
+        ],
+        [
+          -69075,
+          0,
+          43815
+        ],
+        [
+          -46657,
+          0,
+          44623
+        ],
+        [
+          -24238,
+          0,
+          45430
+        ],
+        [
+          -1819,
+          0,
+          46237
+        ],
+        [
+          20600,
+          0,
+          47044
+        ],
+        [
+          43018,
+          0,
+          47851
+        ],
+        [
+          65437,
+          0,
+          48658
+        ],
+        [
+          87856,
+          0,
+          49466
+        ],
+        [
+          110275,
+          0,
+          50273
+        ],
+        [
+          120000,
+          12534,
+          51006
+        ],
+        [
+          120000,
+          31735,
+          51583
+        ],
+        [
+          120000,
+          47937,
+          52058
+        ],
+        [
+          -120000,
+          47937,
+          52058
+        ],
+        [
+          -120000,
+          31735,
+          51583
+        ],
+        [
+          -120000,
+          12534,
+          51006
+        ],
+        [
+          -110275,
+          0,
+          50273
+        ],
+        [
+          -87856,
+          0,
+          49466
+        ],
+        [
+          -65437,
+          0,
+          48658
+        ],
+        [
+          -43018,
+          0,
+          47851
+        ],
+        [
+          -20600,
+          0,
+          47044
+        ],
+        [
+          1819,
+          0,
+          46237
+        ],
+        [
+          24238,
+          0,
+          45430
+        ],
+        [
+          46657,
+          0,
+          44623
+        ],
+        [
+          69075,
+          0,
+          43815
+        ],
+        [
+          91494,
+          0,
+          43008
+        ],
+        [
+          113913,
+          0,
+          42201
+        ],
+        [
+          120000,
+          145868,
+          46951
+        ],
+        [
+          120000,
+          188398,
+          48455
+        ],
+        [
+          -120000,
+          203760,
+          67129
+        ],
+        [
+          -120000,
+          128891,
+          58254
+        ],
+        [
+          -115527,
+          0,
+          43202
+        ],
+        [
+          -94175,
+          0,
+          43967
+        ],
+        [
+          -72823,
+          0,
+          44732
+        ],
+        [
+          -51472,
+          0,
+          45498
+        ],
+        [
+          -30120,
+          0,
+          46263
+        ],
+        [
+          -8768,
+          0,
+          47029
+        ],
+        [
+          12583,
+          0,
+          47794
+        ],
+        [
+          33935,
+          0,
+          48559
+        ],
+        [
+          55287,
+          0,
+          49325
+        ],
+        [
+          76639,
+          0,
+          50090
+        ],
+        [
+          97990,
+          0,
+          50856
+        ],
+        [
+          119342,
+          0,
+          51621
+        ],
+        [
+          120000,
+          34161,
+          55593
+        ],
+        [
+          120000,
+          63470,
+          58970
+        ],
+        [
+          -120000,
+          63470,
+          58970
+        ],
+        [
+          -120000,
+          34161,
+          55593
+        ],
+        [
+          -119342,
+          0,
+          51621
+        ],
+        [
+          -97990,
+          0,
+          50856
+        ],
+        [
+          -76639,
+          0,
+          50090
+        ],
+        [
+          -55287,
+          0,
+          49325
+        ],
+        [
+          -33935,
+          0,
+          48559
+        ],
+        [
+          -12583,
+          0,
+          47794
+        ],
+        [
+          8768,
+          0,
+          47029
+        ],
+        [
+          30120,
+          0,
+          46263
+        ],
+        [
+          51472,
+          0,
+          45498
+        ],
+        [
+          72823,
+          0,
+          44732
+        ],
+        [
+          94175,
+          0,
+          43967
+        ],
+        [
+          115527,
+          0,
+          43202
+        ],
+        [
+          120000,
+          128891,
+          58254
+        ],
+        [
+          120000,
+          203760,
+          67129
+        ]
+      ],
+      "visible": 134,
+      "maximum": 0.9592104453294057,
+      "rows": [
+        {
+          "y": 27,
+          "visible": 16,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 30,
+          "visible": 16,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 14,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 16,
+          "visible": 32,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 32,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 34.5,
+          "visible": 24,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        }
+      ]
+    }
+  ],
+  "frames": 419,
+  "videoBytes": 2286076,
+  "motionSamples": [
+    {
+      "time": 142.0738999999985,
+      "meanDegreesPerSecond": 1.0314171689250367,
+      "visible": 24
+    },
+    {
+      "time": 142.1438999999985,
+      "meanDegreesPerSecond": 1.4355725904799528,
+      "visible": 24
+    },
+    {
+      "time": 142.21219999999553,
+      "meanDegreesPerSecond": 6.568462417199194,
+      "visible": 24
+    },
+    {
+      "time": 142.2885,
+      "meanDegreesPerSecond": 12.366853113189585,
+      "visible": 24
+    },
+    {
+      "time": 142.359299999997,
+      "meanDegreesPerSecond": 16.789954688558193,
+      "visible": 24
+    },
+    {
+      "time": 142.42679999999703,
+      "meanDegreesPerSecond": 19.749547490181072,
+      "visible": 24
+    },
+    {
+      "time": 142.49269999999552,
+      "meanDegreesPerSecond": 21.49194690893974,
+      "visible": 24
+    },
+    {
+      "time": 142.56059999999405,
+      "meanDegreesPerSecond": 22.181063660451972,
+      "visible": 24
+    },
+    {
+      "time": 142.6275,
+      "meanDegreesPerSecond": 21.638470915402696,
+      "visible": 24
+    },
+    {
+      "time": 142.6955,
+      "meanDegreesPerSecond": 20.471181279418182,
+      "visible": 20
+    },
+    {
+      "time": 142.76289999999852,
+      "meanDegreesPerSecond": 18.477789804087163,
+      "visible": 20
+    },
+    {
+      "time": 142.8335,
+      "meanDegreesPerSecond": 16.311543442719323,
+      "visible": 20
+    },
+    {
+      "time": 142.89889999999852,
+      "meanDegreesPerSecond": 13.847947759176753,
+      "visible": 24
+    },
+    {
+      "time": 142.9715,
+      "meanDegreesPerSecond": 12.151056681575346,
+      "visible": 24
+    },
+    {
+      "time": 143.0398999999985,
+      "meanDegreesPerSecond": 10.513998237809,
+      "visible": 24
+    },
+    {
+      "time": 143.10859999999403,
+      "meanDegreesPerSecond": 9.440547136490615,
+      "visible": 24
+    },
+    {
+      "time": 143.175,
+      "meanDegreesPerSecond": 8.34053638633756,
+      "visible": 24
+    },
+    {
+      "time": 143.245,
+      "meanDegreesPerSecond": 7.068868756473748,
+      "visible": 24
+    },
+    {
+      "time": 143.30829999999702,
+      "meanDegreesPerSecond": 5.098920745180094,
+      "visible": 24
+    },
+    {
+      "time": 143.375,
+      "meanDegreesPerSecond": 2.8903489886935687,
+      "visible": 24
+    },
+    {
+      "time": 143.44179999999702,
+      "meanDegreesPerSecond": 0.9164702471007106,
+      "visible": 20
+    },
+    {
+      "time": 143.50589999999852,
+      "meanDegreesPerSecond": 1.1925108587934659,
+      "visible": 20
+    },
+    {
+      "time": 143.57229999999703,
+      "meanDegreesPerSecond": 1.0049370070353862,
+      "visible": 22
+    },
+    {
+      "time": 143.63689999999852,
+      "meanDegreesPerSecond": 0.8896259889158502,
+      "visible": 24
+    },
+    {
+      "time": 143.703,
+      "meanDegreesPerSecond": 0.8326385670322337,
+      "visible": 24
+    },
+    {
+      "time": 143.7665,
+      "meanDegreesPerSecond": 0.7740409295750378,
+      "visible": 24
+    },
+    {
+      "time": 143.8343999999985,
+      "meanDegreesPerSecond": 0.7355388172806051,
+      "visible": 24
+    },
+    {
+      "time": 143.8985,
+      "meanDegreesPerSecond": 0.6771888537460257,
+      "visible": 24
+    },
+    {
+      "time": 143.9623999999985,
+      "meanDegreesPerSecond": 0.6276022983454149,
+      "visible": 24
+    },
+    {
+      "time": 144.026299999997,
+      "meanDegreesPerSecond": 0.5811499947459514,
+      "visible": 24
+    },
+    {
+      "time": 144.08929999999702,
+      "meanDegreesPerSecond": 0.5412796464415213,
+      "visible": 24
+    },
+    {
+      "time": 144.15559999999405,
+      "meanDegreesPerSecond": 0.5138083745544658,
+      "visible": 24
+    },
+    {
+      "time": 144.22369999999552,
+      "meanDegreesPerSecond": 0.4877110836330505,
+      "visible": 24
+    },
+    {
+      "time": 144.2903999999985,
+      "meanDegreesPerSecond": 0.4639378474926607,
+      "visible": 24
+    },
+    {
+      "time": 144.3548999999985,
+      "meanDegreesPerSecond": 0.44654263226473473,
+      "visible": 24
+    },
+    {
+      "time": 144.41919999999553,
+      "meanDegreesPerSecond": 0.4524870333774155,
+      "visible": 24
+    },
+    {
+      "time": 144.4848999999985,
+      "meanDegreesPerSecond": 0.451247514154391,
+      "visible": 20
+    },
+    {
+      "time": 144.54859999999405,
+      "meanDegreesPerSecond": 0.4510140745154566,
+      "visible": 20
+    },
+    {
+      "time": 144.6148999999985,
+      "meanDegreesPerSecond": 0.4673084362550798,
+      "visible": 20
+    },
+    {
+      "time": 144.67959999999405,
+      "meanDegreesPerSecond": 0.49282154535238665,
+      "visible": 20
+    },
+    {
+      "time": 144.7455,
+      "meanDegreesPerSecond": 0.5130359988108881,
+      "visible": 20
+    },
+    {
+      "time": 144.80969999999553,
+      "meanDegreesPerSecond": 0.5339206979691176,
+      "visible": 24
+    },
+    {
+      "time": 144.8795,
+      "meanDegreesPerSecond": 0.5839687117366038,
+      "visible": 24
+    },
+    {
+      "time": 144.9465,
+      "meanDegreesPerSecond": 0.629697589040428,
+      "visible": 24
+    },
+    {
+      "time": 145.01159999999405,
+      "meanDegreesPerSecond": 0.6639791428097078,
+      "visible": 24
+    },
+    {
+      "time": 145.07689999999852,
+      "meanDegreesPerSecond": 0.7083612777989204,
+      "visible": 24
+    },
+    {
+      "time": 145.1448999999985,
+      "meanDegreesPerSecond": 0.7635894333646395,
+      "visible": 24
+    },
+    {
+      "time": 145.20919999999552,
+      "meanDegreesPerSecond": 0.8069933927872593,
+      "visible": 24
+    },
+    {
+      "time": 145.27889999999852,
+      "meanDegreesPerSecond": 0.9785180637163969,
+      "visible": 24
+    },
+    {
+      "time": 145.3498999999985,
+      "meanDegreesPerSecond": 1.536755178649943,
+      "visible": 24
+    },
+    {
+      "time": 145.4235,
+      "meanDegreesPerSecond": 1.8661877841703507,
+      "visible": 24
+    },
+    {
+      "time": 145.48729999999702,
+      "meanDegreesPerSecond": 1.932017054813274,
+      "visible": 24
+    },
+    {
+      "time": 145.553799999997,
+      "meanDegreesPerSecond": 1.8978710467070088,
+      "visible": 20
+    },
+    {
+      "time": 145.61859999999405,
+      "meanDegreesPerSecond": 1.6598831092102455,
+      "visible": 20
+    },
+    {
+      "time": 145.6865,
+      "meanDegreesPerSecond": 1.2912842170517727,
+      "visible": 20
+    },
+    {
+      "time": 145.76859999999405,
+      "meanDegreesPerSecond": 1.042082348391784,
+      "visible": 20
+    },
+    {
+      "time": 145.84909999999405,
+      "meanDegreesPerSecond": 0.9502475783015706,
+      "visible": 20
+    },
+    {
+      "time": 145.92409999999404,
+      "meanDegreesPerSecond": 0.7775717978782664,
+      "visible": 20
+    },
+    {
+      "time": 145.99389999999852,
+      "meanDegreesPerSecond": 0.6665328783676302,
+      "visible": 20
+    },
+    {
+      "time": 146.07059999999404,
+      "meanDegreesPerSecond": 0.5735004531137881,
+      "visible": 20
+    },
+    {
+      "time": 146.14609999999405,
+      "meanDegreesPerSecond": 0.46756591506689454,
+      "visible": 20
+    },
+    {
+      "time": 146.22279999999702,
+      "meanDegreesPerSecond": 0.3820347590014502,
+      "visible": 20
+    },
+    {
+      "time": 146.30209999999403,
+      "meanDegreesPerSecond": 0.3241844856213064,
+      "visible": 20
+    },
+    {
+      "time": 146.37569999999553,
+      "meanDegreesPerSecond": 0.2726251614824477,
+      "visible": 20
+    },
+    {
+      "time": 146.45219999999554,
+      "meanDegreesPerSecond": 0.2788328354105335,
+      "visible": 20
+    },
+    {
+      "time": 146.52639999999852,
+      "meanDegreesPerSecond": 0.24764824119964796,
+      "visible": 20
+    },
+    {
+      "time": 146.60019999999554,
+      "meanDegreesPerSecond": 0.23386968156530363,
+      "visible": 20
+    },
+    {
+      "time": 146.67219999999554,
+      "meanDegreesPerSecond": 0.5646435336953334,
+      "visible": 20
+    },
+    {
+      "time": 146.74819999999553,
+      "meanDegreesPerSecond": 0.5345726997926105,
+      "visible": 20
+    },
+    {
+      "time": 146.8203999999985,
+      "meanDegreesPerSecond": 0.5162998922854097,
+      "visible": 20
+    },
+    {
+      "time": 146.89309999999404,
+      "meanDegreesPerSecond": 0.6652831579456674,
+      "visible": 20
+    },
+    {
+      "time": 146.97019999999554,
+      "meanDegreesPerSecond": 0.7679650179264357,
+      "visible": 20
+    },
+    {
+      "time": 147.04469999999554,
+      "meanDegreesPerSecond": 0.7521176499308767,
+      "visible": 20
+    },
+    {
+      "time": 147.1145,
+      "meanDegreesPerSecond": 0.7586230123379966,
+      "visible": 20
+    },
+    {
+      "time": 147.1843999999985,
+      "meanDegreesPerSecond": 0.6749993171991138,
+      "visible": 20
+    },
+    {
+      "time": 147.25069999999553,
+      "meanDegreesPerSecond": 0.6367687449124517,
+      "visible": 20
+    },
+    {
+      "time": 147.314,
+      "meanDegreesPerSecond": 0.5538952700424771,
+      "visible": 20
+    },
+    {
+      "time": 147.3775,
+      "meanDegreesPerSecond": 0.27569965950451036,
+      "visible": 20
+    },
+    {
+      "time": 147.44759999999405,
+      "meanDegreesPerSecond": 1.3548479933039643,
+      "visible": 20
+    },
+    {
+      "time": 147.51769999999553,
+      "meanDegreesPerSecond": 10.907861560067555,
+      "visible": 20
+    },
+    {
+      "time": 147.58469999999554,
+      "meanDegreesPerSecond": 22.752122929080336,
+      "visible": 20
+    },
+    {
+      "time": 147.6495,
+      "meanDegreesPerSecond": 33.68980837099088,
+      "visible": 20
+    },
+    {
+      "time": 147.71429999999702,
+      "meanDegreesPerSecond": 41.06744525559019,
+      "visible": 20
+    },
+    {
+      "time": 147.78069999999553,
+      "meanDegreesPerSecond": 46.08005413716694,
+      "visible": 20
+    },
+    {
+      "time": 147.8465,
+      "meanDegreesPerSecond": 48.39000442073496,
+      "visible": 20
+    },
+    {
+      "time": 147.91509999999403,
+      "meanDegreesPerSecond": 48.10969377974251,
+      "visible": 20
+    },
+    {
+      "time": 147.981,
+      "meanDegreesPerSecond": 44.49675025145418,
+      "visible": 20
+    },
+    {
+      "time": 148.04759999999405,
+      "meanDegreesPerSecond": 39.073453015049054,
+      "visible": 20
+    },
+    {
+      "time": 148.11509999999404,
+      "meanDegreesPerSecond": 32.03699747831031,
+      "visible": 20
+    },
+    {
+      "time": 148.1845,
+      "meanDegreesPerSecond": 23.165395303957126,
+      "visible": 20
+    },
+    {
+      "time": 148.25519999999554,
+      "meanDegreesPerSecond": 12.829004683306152,
+      "visible": 20
+    },
+    {
+      "time": 148.32189999999852,
+      "meanDegreesPerSecond": 2.0139306848182192,
+      "visible": 20
+    },
+    {
+      "time": 148.3895,
+      "meanDegreesPerSecond": 3.588400403345859,
+      "visible": 20
+    },
+    {
+      "time": 148.45709999999403,
+      "meanDegreesPerSecond": 2.263611042667616,
+      "visible": 20
+    },
+    {
+      "time": 148.5225,
+      "meanDegreesPerSecond": 1.304923457535766,
+      "visible": 20
+    },
+    {
+      "time": 148.5895,
+      "meanDegreesPerSecond": 0.7607137090066638,
+      "visible": 20
+    },
+    {
+      "time": 148.65579999999701,
+      "meanDegreesPerSecond": 0.6344767426778257,
+      "visible": 20
+    },
+    {
+      "time": 148.72759999999403,
+      "meanDegreesPerSecond": 0.66354912565259,
+      "visible": 20
+    },
+    {
+      "time": 148.79619999999554,
+      "meanDegreesPerSecond": 0.6267438620084617,
+      "visible": 20
+    },
+    {
+      "time": 148.8613999999985,
+      "meanDegreesPerSecond": 0.6149229651000082,
+      "visible": 20
+    },
+    {
+      "time": 148.93059999999403,
+      "meanDegreesPerSecond": 0.6509268549814438,
+      "visible": 20
+    },
+    {
+      "time": 149.00059999999405,
+      "meanDegreesPerSecond": 0.6392397022917622,
+      "visible": 20
+    },
+    {
+      "time": 149.0688999999985,
+      "meanDegreesPerSecond": 0.6267893061522696,
+      "visible": 20
+    },
+    {
+      "time": 149.13719999999552,
+      "meanDegreesPerSecond": 0.44868968148304306,
+      "visible": 20
+    },
+    {
+      "time": 149.2055,
+      "meanDegreesPerSecond": 0.3195151769472437,
+      "visible": 20
+    },
+    {
+      "time": 149.2733999999985,
+      "meanDegreesPerSecond": 0.3341148565700659,
+      "visible": 20
+    },
+    {
+      "time": 149.34159999999403,
+      "meanDegreesPerSecond": 0.34195576843446296,
+      "visible": 20
+    },
+    {
+      "time": 149.41179999999702,
+      "meanDegreesPerSecond": 0.08317958844671076,
+      "visible": 20
+    },
+    {
+      "time": 149.4855,
+      "meanDegreesPerSecond": 0.0907724505348771,
+      "visible": 24
+    },
+    {
+      "time": 149.557299999997,
+      "meanDegreesPerSecond": 0.08180603462938234,
+      "visible": 24
+    },
+    {
+      "time": 149.63119999999552,
+      "meanDegreesPerSecond": 0.12479362465439221,
+      "visible": 24
+    },
+    {
+      "time": 149.70189999999852,
+      "meanDegreesPerSecond": 0.21617984500450635,
+      "visible": 24
+    },
+    {
+      "time": 149.76959999999403,
+      "meanDegreesPerSecond": 0.1992441805248998,
+      "visible": 24
+    },
+    {
+      "time": 149.83819999999554,
+      "meanDegreesPerSecond": 0.19164113794137952,
+      "visible": 24
+    },
+    {
+      "time": 149.91129999999703,
+      "meanDegreesPerSecond": 0.21314669836659783,
+      "visible": 24
+    },
+    {
+      "time": 149.97829999999703,
+      "meanDegreesPerSecond": 0.2100225677290232,
+      "visible": 24
+    },
+    {
+      "time": 150.04719999999554,
+      "meanDegreesPerSecond": 0.20813431670298632,
+      "visible": 24
+    },
+    {
+      "time": 150.11769999999552,
+      "meanDegreesPerSecond": 0.19050151506062296,
+      "visible": 24
+    },
+    {
+      "time": 150.18669999999554,
+      "meanDegreesPerSecond": 0.14548466981579788,
+      "visible": 24
+    },
+    {
+      "time": 150.262,
+      "meanDegreesPerSecond": 0.15132650633870817,
+      "visible": 24
+    },
+    {
+      "time": 150.33069999999552,
+      "meanDegreesPerSecond": 0.14962616340658189,
+      "visible": 24
+    },
+    {
+      "time": 150.3983999999985,
+      "meanDegreesPerSecond": 0.13177128243833178,
+      "visible": 22
+    },
+    {
+      "time": 150.46859999999404,
+      "meanDegreesPerSecond": 0.1211072128334151,
+      "visible": 20
+    },
+    {
+      "time": 150.53859999999403,
+      "meanDegreesPerSecond": 0.12323362187397843,
+      "visible": 20
+    },
+    {
+      "time": 150.60609999999403,
+      "meanDegreesPerSecond": 0.12256366959309022,
+      "visible": 20
+    },
+    {
+      "time": 150.6773999999985,
+      "meanDegreesPerSecond": 0.11402311993232739,
+      "visible": 24
+    },
+    {
+      "time": 150.7485,
+      "meanDegreesPerSecond": 0.11482430122858424,
+      "visible": 24
+    },
+    {
+      "time": 150.8165,
+      "meanDegreesPerSecond": 0.11447512805296313,
+      "visible": 24
+    },
+    {
+      "time": 150.88729999999703,
+      "meanDegreesPerSecond": 0.1900375329396623,
+      "visible": 24
+    },
+    {
+      "time": 150.9555,
+      "meanDegreesPerSecond": 0.25116432434704117,
+      "visible": 24
+    },
+    {
+      "time": 151.02479999999701,
+      "meanDegreesPerSecond": 0.24338460172925483,
+      "visible": 24
+    },
+    {
+      "time": 151.09359999999404,
+      "meanDegreesPerSecond": 0.23808991449850578,
+      "visible": 24
+    },
+    {
+      "time": 151.1628999999985,
+      "meanDegreesPerSecond": 0.18052939343655894,
+      "visible": 24
+    },
+    {
+      "time": 151.2303999999985,
+      "meanDegreesPerSecond": 0.17682848879348853,
+      "visible": 24
+    },
+    {
+      "time": 151.29809999999404,
+      "meanDegreesPerSecond": 0.1791758758547299,
+      "visible": 24
+    },
+    {
+      "time": 151.373,
+      "meanDegreesPerSecond": 0.14276354157280724,
+      "visible": 24
+    },
+    {
+      "time": 151.4535,
+      "meanDegreesPerSecond": 0.05484644478790313,
+      "visible": 24
+    },
+    {
+      "time": 151.531,
+      "meanDegreesPerSecond": 0.06347965848376956,
+      "visible": 24
+    },
+    {
+      "time": 151.61609999999405,
+      "meanDegreesPerSecond": 0.02081384669161025,
+      "visible": 24
+    },
+    {
+      "time": 151.6955,
+      "meanDegreesPerSecond": 0.18645510741063875,
+      "visible": 24
+    },
+    {
+      "time": 151.77059999999403,
+      "meanDegreesPerSecond": 0.16212954119716935,
+      "visible": 24
+    },
+    {
+      "time": 151.84769999999554,
+      "meanDegreesPerSecond": 0.15140350436308864,
+      "visible": 24
+    },
+    {
+      "time": 151.919,
+      "meanDegreesPerSecond": 0.3108621463521808,
+      "visible": 20
+    },
+    {
+      "time": 151.99359999999405,
+      "meanDegreesPerSecond": 0.3024428821192159,
+      "visible": 20
+    },
+    {
+      "time": 152.0755,
+      "meanDegreesPerSecond": 0.29604847498901,
+      "visible": 20
+    },
+    {
+      "time": 152.152299999997,
+      "meanDegreesPerSecond": 0.31709866101035405,
+      "visible": 24
+    },
+    {
+      "time": 152.23029999999702,
+      "meanDegreesPerSecond": 0.3280551162413906,
+      "visible": 24
+    },
+    {
+      "time": 152.30519999999552,
+      "meanDegreesPerSecond": 0.3210746117871657,
+      "visible": 24
+    },
+    {
+      "time": 152.3793999999985,
+      "meanDegreesPerSecond": 0.2980258442784315,
+      "visible": 24
+    },
+    {
+      "time": 152.4505,
+      "meanDegreesPerSecond": 0.26705343318567715,
+      "visible": 24
+    },
+    {
+      "time": 152.52039999999852,
+      "meanDegreesPerSecond": 0.2702716550296943,
+      "visible": 24
+    },
+    {
+      "time": 152.59259999999404,
+      "meanDegreesPerSecond": 0.27374637745110625,
+      "visible": 20
+    },
+    {
+      "time": 152.6625,
+      "meanDegreesPerSecond": 0.11674573777264372,
+      "visible": 20
+    },
+    {
+      "time": 152.73659999999404,
+      "meanDegreesPerSecond": 0.12070127923221706,
+      "visible": 24
+    },
+    {
+      "time": 152.8093999999985,
+      "meanDegreesPerSecond": 0.11988477936774083,
+      "visible": 24
+    },
+    {
+      "time": 152.877299999997,
+      "meanDegreesPerSecond": 1.6295846978180208,
+      "visible": 22
+    },
+    {
+      "time": 152.95959999999405,
+      "meanDegreesPerSecond": 9.744355927136754,
+      "visible": 22
+    },
+    {
+      "time": 153.04319999999552,
+      "meanDegreesPerSecond": 16.760565799115263,
+      "visible": 57
+    },
+    {
+      "time": 153.124799999997,
+      "meanDegreesPerSecond": 21.20803218598681,
+      "visible": 76
+    },
+    {
+      "time": 153.20809999999403,
+      "meanDegreesPerSecond": 20.633787839450388,
+      "visible": 83
+    },
+    {
+      "time": 153.2955,
+      "meanDegreesPerSecond": 17.38900034336923,
+      "visible": 91
+    },
+    {
+      "time": 153.38719999999552,
+      "meanDegreesPerSecond": 12.951171557029703,
+      "visible": 107
+    },
+    {
+      "time": 153.4805,
+      "meanDegreesPerSecond": 7.574837029121272,
+      "visible": 120
+    },
+    {
+      "time": 153.5773999999985,
+      "meanDegreesPerSecond": 8.034922453081215,
+      "visible": 125
+    },
+    {
+      "time": 153.6735,
+      "meanDegreesPerSecond": 15.987053754015394,
+      "visible": 128
+    },
+    {
+      "time": 153.77329999999702,
+      "meanDegreesPerSecond": 23.076875399486454,
+      "visible": 114
+    },
+    {
+      "time": 153.86429999999703,
+      "meanDegreesPerSecond": 26.708951867069704,
+      "visible": 94
+    },
+    {
+      "time": 153.95919999999552,
+      "meanDegreesPerSecond": 31.04224303496942,
+      "visible": 83
+    },
+    {
+      "time": 154.0395,
+      "meanDegreesPerSecond": 33.912265293766325,
+      "visible": 86
+    },
+    {
+      "time": 154.12139999999852,
+      "meanDegreesPerSecond": 36.334470518240195,
+      "visible": 99
+    },
+    {
+      "time": 154.2063999999985,
+      "meanDegreesPerSecond": 36.953897950037494,
+      "visible": 114
+    },
+    {
+      "time": 154.2885,
+      "meanDegreesPerSecond": 36.81105576080763,
+      "visible": 129
+    },
+    {
+      "time": 154.37,
+      "meanDegreesPerSecond": 35.0972271391332,
+      "visible": 122
+    },
+    {
+      "time": 154.44569999999553,
+      "meanDegreesPerSecond": 30.23537250764721,
+      "visible": 112
+    },
+    {
+      "time": 154.5275,
+      "meanDegreesPerSecond": 25.75321323793539,
+      "visible": 100
+    },
+    {
+      "time": 154.6015,
+      "meanDegreesPerSecond": 19.156780064515942,
+      "visible": 83
+    },
+    {
+      "time": 154.6765,
+      "meanDegreesPerSecond": 12.831658932511806,
+      "visible": 67
+    },
+    {
+      "time": 154.7555,
+      "meanDegreesPerSecond": 12.52011555526401,
+      "visible": 56
+    },
+    {
+      "time": 154.82469999999552,
+      "meanDegreesPerSecond": 11.860459355895404,
+      "visible": 49
+    },
+    {
+      "time": 154.8943999999985,
+      "meanDegreesPerSecond": 9.797063412975461,
+      "visible": 41
+    },
+    {
+      "time": 154.9625,
+      "meanDegreesPerSecond": 8.76262578722312,
+      "visible": 35
+    },
+    {
+      "time": 155.0285,
+      "meanDegreesPerSecond": 8.660578371117412,
+      "visible": 28
+    },
+    {
+      "time": 155.09759999999403,
+      "meanDegreesPerSecond": 9.600870531417407,
+      "visible": 26
+    },
+    {
+      "time": 155.167,
+      "meanDegreesPerSecond": 10.00297405460294,
+      "visible": 23
+    },
+    {
+      "time": 155.231799999997,
+      "meanDegreesPerSecond": 9.393622149436876,
+      "visible": 22
+    },
+    {
+      "time": 155.297,
+      "meanDegreesPerSecond": 9.408280601197315,
+      "visible": 20
+    },
+    {
+      "time": 155.368,
+      "meanDegreesPerSecond": 9.017373859368801,
+      "visible": 20
+    },
+    {
+      "time": 155.43569999999553,
+      "meanDegreesPerSecond": 8.281032592775272,
+      "visible": 20
+    },
+    {
+      "time": 155.49989999999852,
+      "meanDegreesPerSecond": 8.394007358078078,
+      "visible": 20
+    },
+    {
+      "time": 155.56489999999852,
+      "meanDegreesPerSecond": 8.793507518841723,
+      "visible": 20
+    },
+    {
+      "time": 155.6275,
+      "meanDegreesPerSecond": 8.548311506827533,
+      "visible": 22
+    },
+    {
+      "time": 155.69219999999552,
+      "meanDegreesPerSecond": 8.567411402674143,
+      "visible": 22
+    },
+    {
+      "time": 155.75909999999405,
+      "meanDegreesPerSecond": 8.964699319960168,
+      "visible": 26
+    },
+    {
+      "time": 155.82519999999553,
+      "meanDegreesPerSecond": 9.359228077385419,
+      "visible": 28
+    },
+    {
+      "time": 155.89319999999552,
+      "meanDegreesPerSecond": 9.751181319788477,
+      "visible": 35
+    },
+    {
+      "time": 155.96059999999403,
+      "meanDegreesPerSecond": 10.521049097785122,
+      "visible": 43
+    },
+    {
+      "time": 156.02889999999852,
+      "meanDegreesPerSecond": 12.038747955711683,
+      "visible": 53
+    },
+    {
+      "time": 156.09939999999852,
+      "meanDegreesPerSecond": 15.952343079346818,
+      "visible": 67
+    },
+    {
+      "time": 156.17259999999405,
+      "meanDegreesPerSecond": 23.69266378068437,
+      "visible": 80
+    },
+    {
+      "time": 156.247,
+      "meanDegreesPerSecond": 30.658057775398337,
+      "visible": 99
+    },
+    {
+      "time": 156.321,
+      "meanDegreesPerSecond": 32.14519862693845,
+      "visible": 108
+    },
+    {
+      "time": 156.39769999999552,
+      "meanDegreesPerSecond": 30.496306226607565,
+      "visible": 120
+    },
+    {
+      "time": 156.4753999999985,
+      "meanDegreesPerSecond": 27.51926587882093,
+      "visible": 129
+    },
+    {
+      "time": 156.5518999999985,
+      "meanDegreesPerSecond": 23.20107788275728,
+      "visible": 124
+    },
+    {
+      "time": 156.6305,
+      "meanDegreesPerSecond": 15.057281873748678,
+      "visible": 95
+    },
+    {
+      "time": 156.70729999999702,
+      "meanDegreesPerSecond": 13.041620718157594,
+      "visible": 20
+    },
+    {
+      "time": 156.78659999999405,
+      "meanDegreesPerSecond": 2.5687145236735365,
+      "visible": 20
+    },
+    {
+      "time": 156.85459999999404,
+      "meanDegreesPerSecond": 2.8809321248968875,
+      "visible": 24
+    },
+    {
+      "time": 156.92759999999404,
+      "meanDegreesPerSecond": 1.7532488342312735,
+      "visible": 24
+    },
+    {
+      "time": 156.993799999997,
+      "meanDegreesPerSecond": 1.1368485607035093,
+      "visible": 24
+    },
+    {
+      "time": 157.05779999999703,
+      "meanDegreesPerSecond": 0.9990874758719807,
+      "visible": 24
+    },
+    {
+      "time": 157.124,
+      "meanDegreesPerSecond": 0.9454680026914012,
+      "visible": 24
+    },
+    {
+      "time": 157.191,
+      "meanDegreesPerSecond": 0.9012868236640522,
+      "visible": 24
+    },
+    {
+      "time": 157.255,
+      "meanDegreesPerSecond": 0.8913970326169784,
+      "visible": 24
+    },
+    {
+      "time": 157.3198999999985,
+      "meanDegreesPerSecond": 0.9334521147766207,
+      "visible": 24
+    },
+    {
+      "time": 157.38439999999852,
+      "meanDegreesPerSecond": 0.9293599553340276,
+      "visible": 24
+    },
+    {
+      "time": 157.44819999999552,
+      "meanDegreesPerSecond": 0.9415877013634003,
+      "visible": 24
+    },
+    {
+      "time": 157.5135,
+      "meanDegreesPerSecond": 1.0038802430279834,
+      "visible": 24
+    },
+    {
+      "time": 157.57789999999852,
+      "meanDegreesPerSecond": 1.0716669902615952,
+      "visible": 24
+    },
+    {
+      "time": 157.64289999999852,
+      "meanDegreesPerSecond": 1.1275959629573127,
+      "visible": 24
+    },
+    {
+      "time": 157.71229999999701,
+      "meanDegreesPerSecond": 1.2149076979084203,
+      "visible": 20
+    },
+    {
+      "time": 157.78019999999552,
+      "meanDegreesPerSecond": 1.2975934539677405,
+      "visible": 20
+    },
+    {
+      "time": 157.8478999999985,
+      "meanDegreesPerSecond": 1.4425444292207212,
+      "visible": 24
+    },
+    {
+      "time": 157.91759999999402,
+      "meanDegreesPerSecond": 1.6115466560580816,
+      "visible": 24
+    },
+    {
+      "time": 157.98539999999852,
+      "meanDegreesPerSecond": 1.7216790322426998,
+      "visible": 24
+    },
+    {
+      "time": 158.05079999999703,
+      "meanDegreesPerSecond": 1.7830850606653106,
+      "visible": 24
+    },
+    {
+      "time": 158.1235,
+      "meanDegreesPerSecond": 1.8657262891787232,
+      "visible": 24
+    },
+    {
+      "time": 158.19369999999554,
+      "meanDegreesPerSecond": 1.8475137105348314,
+      "visible": 20
+    },
+    {
+      "time": 158.26169999999553,
+      "meanDegreesPerSecond": 1.7980823747104662,
+      "visible": 20
+    },
+    {
+      "time": 158.33039999999852,
+      "meanDegreesPerSecond": 1.848292903552381,
+      "visible": 24
+    },
+    {
+      "time": 158.39989999999852,
+      "meanDegreesPerSecond": 1.911961062141873,
+      "visible": 24
+    },
+    {
+      "time": 158.4725,
+      "meanDegreesPerSecond": 1.9518477961909724,
+      "visible": 24
+    },
+    {
+      "time": 158.54319999999552,
+      "meanDegreesPerSecond": 1.9243876071887243,
+      "visible": 20
+    },
+    {
+      "time": 158.615,
+      "meanDegreesPerSecond": 1.8910070321645236,
+      "visible": 20
+    },
+    {
+      "time": 158.692,
+      "meanDegreesPerSecond": 1.8412428166813573,
+      "visible": 24
+    },
+    {
+      "time": 158.7645,
+      "meanDegreesPerSecond": 1.7330950202847575,
+      "visible": 24
+    },
+    {
+      "time": 158.832,
+      "meanDegreesPerSecond": 1.6689403643582876,
+      "visible": 24
+    },
+    {
+      "time": 158.8985,
+      "meanDegreesPerSecond": 1.6497791482052122,
+      "visible": 20
+    },
+    {
+      "time": 158.96609999999404,
+      "meanDegreesPerSecond": 1.6486110244411882,
+      "visible": 20
+    },
+    {
+      "time": 159.034799999997,
+      "meanDegreesPerSecond": 1.654128601709643,
+      "visible": 24
+    },
+    {
+      "time": 159.09839999999852,
+      "meanDegreesPerSecond": 1.6411472423342905,
+      "visible": 24
+    },
+    {
+      "time": 159.16439999999852,
+      "meanDegreesPerSecond": 1.668696868460513,
+      "visible": 24
+    },
+    {
+      "time": 159.229299999997,
+      "meanDegreesPerSecond": 1.6404892479754463,
+      "visible": 24
+    },
+    {
+      "time": 159.29409999999405,
+      "meanDegreesPerSecond": 1.6421737899098585,
+      "visible": 20
+    },
+    {
+      "time": 159.35959999999403,
+      "meanDegreesPerSecond": 1.633670453906722,
+      "visible": 20
+    },
+    {
+      "time": 159.42329999999703,
+      "meanDegreesPerSecond": 1.615156399246555,
+      "visible": 24
+    },
+    {
+      "time": 159.4895,
+      "meanDegreesPerSecond": 1.6268839933895711,
+      "visible": 24
+    },
+    {
+      "time": 159.553799999997,
+      "meanDegreesPerSecond": 1.6360246876112434,
+      "visible": 24
+    },
+    {
+      "time": 159.62019999999552,
+      "meanDegreesPerSecond": 1.651596180925888,
+      "visible": 24
+    },
+    {
+      "time": 159.6828999999985,
+      "meanDegreesPerSecond": 1.6481405912786127,
+      "visible": 24
+    },
+    {
+      "time": 159.75179999999702,
+      "meanDegreesPerSecond": 1.669324062698327,
+      "visible": 24
+    },
+    {
+      "time": 159.8173999999985,
+      "meanDegreesPerSecond": 1.6076883468231926,
+      "visible": 20
+    },
+    {
+      "time": 159.88319999999553,
+      "meanDegreesPerSecond": 1.5447889910871286,
+      "visible": 20
+    },
+    {
+      "time": 159.9508999999985,
+      "meanDegreesPerSecond": 1.4659789218967307,
+      "visible": 20
+    },
+    {
+      "time": 160.01809999999404,
+      "meanDegreesPerSecond": 1.3575130595320384,
+      "visible": 20
+    },
+    {
+      "time": 160.0825,
+      "meanDegreesPerSecond": 1.2523572314307976,
+      "visible": 20
+    },
+    {
+      "time": 160.14679999999703,
+      "meanDegreesPerSecond": 1.1862031287147186,
+      "visible": 20
+    },
+    {
+      "time": 160.21369999999553,
+      "meanDegreesPerSecond": 1.1295959942051326,
+      "visible": 20
+    },
+    {
+      "time": 160.277299999997,
+      "meanDegreesPerSecond": 1.0201900264236887,
+      "visible": 20
+    },
+    {
+      "time": 160.34279999999703,
+      "meanDegreesPerSecond": 0.957774676072391,
+      "visible": 20
+    },
+    {
+      "time": 160.41009999999403,
+      "meanDegreesPerSecond": 0.9006485936719544,
+      "visible": 20
+    },
+    {
+      "time": 160.47879999999702,
+      "meanDegreesPerSecond": 0.8390982210592185,
+      "visible": 20
+    },
+    {
+      "time": 160.54149999999998,
+      "meanDegreesPerSecond": 0.7595323969926394,
+      "visible": 20
+    },
+    {
+      "time": 160.62319999999553,
+      "meanDegreesPerSecond": 0.7191536905643436,
+      "visible": 20
+    },
+    {
+      "time": 160.68859999999404,
+      "meanDegreesPerSecond": 0.6048309336333934,
+      "visible": 20
+    },
+    {
+      "time": 160.75159999999403,
+      "meanDegreesPerSecond": 0.5460068115668446,
+      "visible": 20
+    },
+    {
+      "time": 160.82309999999404,
+      "meanDegreesPerSecond": 0.49828097462482523,
+      "visible": 20
+    },
+    {
+      "time": 160.8853999999985,
+      "meanDegreesPerSecond": 0.4294282705755699,
+      "visible": 20
+    },
+    {
+      "time": 160.9505,
+      "meanDegreesPerSecond": 0.3825607488775534,
+      "visible": 20
+    },
+    {
+      "time": 161.01789999999852,
+      "meanDegreesPerSecond": 0.3289671958570803,
+      "visible": 20
+    },
+    {
+      "time": 161.08079999999703,
+      "meanDegreesPerSecond": 0.2591751079073495,
+      "visible": 20
+    },
+    {
+      "time": 161.14669999999552,
+      "meanDegreesPerSecond": 0.18585300122236062,
+      "visible": 20
+    },
+    {
+      "time": 161.2108999999985,
+      "meanDegreesPerSecond": 0.10529489560378277,
+      "visible": 20
+    },
+    {
+      "time": 161.273799999997,
+      "meanDegreesPerSecond": 0.02259556933243501,
+      "visible": 20
+    },
+    {
+      "time": 161.33729999999701,
+      "meanDegreesPerSecond": 0.07321321080312054,
+      "visible": 20
+    },
+    {
+      "time": 161.4015,
+      "meanDegreesPerSecond": 0.14942540824148037,
+      "visible": 20
+    },
+    {
+      "time": 161.46559999999403,
+      "meanDegreesPerSecond": 0.22653041677395422,
+      "visible": 20
+    },
+    {
+      "time": 161.53,
+      "meanDegreesPerSecond": 0.3140802521676443,
+      "visible": 20
+    },
+    {
+      "time": 161.59679999999702,
+      "meanDegreesPerSecond": 0.3978014907007918,
+      "visible": 20
+    },
+    {
+      "time": 161.6615,
+      "meanDegreesPerSecond": 0.4730056832676942,
+      "visible": 20
+    },
+    {
+      "time": 161.726799999997,
+      "meanDegreesPerSecond": 0.5517133909415909,
+      "visible": 20
+    },
+    {
+      "time": 161.79059999999404,
+      "meanDegreesPerSecond": 0.6096971155580093,
+      "visible": 20
+    },
+    {
+      "time": 161.85609999999403,
+      "meanDegreesPerSecond": 0.693457393185315,
+      "visible": 20
+    },
+    {
+      "time": 161.92079999999703,
+      "meanDegreesPerSecond": 0.7818950767541369,
+      "visible": 20
+    },
+    {
+      "time": 161.98719999999554,
+      "meanDegreesPerSecond": 0.8724668228176355,
+      "visible": 20
+    },
+    {
+      "time": 162.05259999999404,
+      "meanDegreesPerSecond": 0.950623127191905,
+      "visible": 20
+    },
+    {
+      "time": 162.1165,
+      "meanDegreesPerSecond": 1.007248111325548,
+      "visible": 20
+    },
+    {
+      "time": 162.183799999997,
+      "meanDegreesPerSecond": 1.064668777985507,
+      "visible": 20
+    },
+    {
+      "time": 162.249799999997,
+      "meanDegreesPerSecond": 1.080335229771894,
+      "visible": 20
+    },
+    {
+      "time": 162.31409999999403,
+      "meanDegreesPerSecond": 1.067756907634216,
+      "visible": 20
+    },
+    {
+      "time": 162.37719999999553,
+      "meanDegreesPerSecond": 1.0717246999352543,
+      "visible": 20
+    },
+    {
+      "time": 162.443299999997,
+      "meanDegreesPerSecond": 1.103429754994869,
+      "visible": 20
+    },
+    {
+      "time": 162.5065,
+      "meanDegreesPerSecond": 1.1436025212002086,
+      "visible": 20
+    },
+    {
+      "time": 162.57359999999403,
+      "meanDegreesPerSecond": 1.2335510058727155,
+      "visible": 20
+    },
+    {
+      "time": 162.64469999999554,
+      "meanDegreesPerSecond": 1.321055271978075,
+      "visible": 20
+    },
+    {
+      "time": 162.7115,
+      "meanDegreesPerSecond": 1.4075852478523814,
+      "visible": 20
+    },
+    {
+      "time": 162.77879999999703,
+      "meanDegreesPerSecond": 1.531108117352668,
+      "visible": 20
+    },
+    {
+      "time": 162.84429999999702,
+      "meanDegreesPerSecond": 1.623655627128997,
+      "visible": 24
+    },
+    {
+      "time": 162.909,
+      "meanDegreesPerSecond": 1.7054064698457687,
+      "visible": 24
+    },
+    {
+      "time": 162.97159999999405,
+      "meanDegreesPerSecond": 1.7645125924451301,
+      "visible": 24
+    },
+    {
+      "time": 163.0375,
+      "meanDegreesPerSecond": 1.846425951896553,
+      "visible": 24
+    },
+    {
+      "time": 163.10339999999852,
+      "meanDegreesPerSecond": 1.8769520808751705,
+      "visible": 24
+    },
+    {
+      "time": 163.16769999999553,
+      "meanDegreesPerSecond": 1.880265205538678,
+      "visible": 24
+    },
+    {
+      "time": 163.23169999999553,
+      "meanDegreesPerSecond": 1.9159398589226466,
+      "visible": 20
+    },
+    {
+      "time": 163.30059999999403,
+      "meanDegreesPerSecond": 1.9770442510803141,
+      "visible": 22
+    },
+    {
+      "time": 163.3668999999985,
+      "meanDegreesPerSecond": 1.9930056592989,
+      "visible": 24
+    },
+    {
+      "time": 163.43019999999552,
+      "meanDegreesPerSecond": 1.9961240131419935,
+      "visible": 24
+    },
+    {
+      "time": 163.4948999999985,
+      "meanDegreesPerSecond": 2.014538077327236,
+      "visible": 24
+    },
+    {
+      "time": 163.55869999999553,
+      "meanDegreesPerSecond": 1.9979672395322094,
+      "visible": 20
+    },
+    {
+      "time": 163.62269999999552,
+      "meanDegreesPerSecond": 1.9841214787572021,
+      "visible": 20
+    },
+    {
+      "time": 163.69459999999404,
+      "meanDegreesPerSecond": 2.5928911862454767,
+      "visible": 24
+    },
+    {
+      "time": 163.76089999999851,
+      "meanDegreesPerSecond": 5.720825639274689,
+      "visible": 24
+    },
+    {
+      "time": 163.82859999999403,
+      "meanDegreesPerSecond": 8.801304806586604,
+      "visible": 24
+    },
+    {
+      "time": 163.8983999999985,
+      "meanDegreesPerSecond": 11.542599402583857,
+      "visible": 20
+    },
+    {
+      "time": 163.96679999999702,
+      "meanDegreesPerSecond": 13.905101357155445,
+      "visible": 20
+    },
+    {
+      "time": 164.03419999999554,
+      "meanDegreesPerSecond": 16.058319181951664,
+      "visible": 24
+    },
+    {
+      "time": 164.10159999999405,
+      "meanDegreesPerSecond": 17.899382416500213,
+      "visible": 24
+    },
+    {
+      "time": 164.16959999999403,
+      "meanDegreesPerSecond": 19.994700857196488,
+      "visible": 26
+    },
+    {
+      "time": 164.236799999997,
+      "meanDegreesPerSecond": 21.322524692255648,
+      "visible": 22
+    },
+    {
+      "time": 164.30669999999554,
+      "meanDegreesPerSecond": 23.10688552822734,
+      "visible": 24
+    },
+    {
+      "time": 164.37559999999405,
+      "meanDegreesPerSecond": 23.40310254127598,
+      "visible": 28
+    },
+    {
+      "time": 164.44689999999852,
+      "meanDegreesPerSecond": 23.99236059778995,
+      "visible": 30
+    },
+    {
+      "time": 164.52159999999404,
+      "meanDegreesPerSecond": 24.552380283703013,
+      "visible": 32
+    },
+    {
+      "time": 164.59219999999553,
+      "meanDegreesPerSecond": 23.546608222113882,
+      "visible": 30
+    },
+    {
+      "time": 164.66439999999852,
+      "meanDegreesPerSecond": 23.55761133372222,
+      "visible": 30
+    },
+    {
+      "time": 164.73419999999552,
+      "meanDegreesPerSecond": 22.806034736584802,
+      "visible": 32
+    },
+    {
+      "time": 164.8043999999985,
+      "meanDegreesPerSecond": 20.36995355875501,
+      "visible": 36
+    },
+    {
+      "time": 164.880799999997,
+      "meanDegreesPerSecond": 19.274198688247548,
+      "visible": 40
+    },
+    {
+      "time": 164.957799999997,
+      "meanDegreesPerSecond": 17.57876821369146,
+      "visible": 42
+    },
+    {
+      "time": 165.03719999999552,
+      "meanDegreesPerSecond": 15.70011061836737,
+      "visible": 40
+    },
+    {
+      "time": 165.11529999999703,
+      "meanDegreesPerSecond": 13.193648180134389,
+      "visible": 42
+    },
+    {
+      "time": 165.19509999999403,
+      "meanDegreesPerSecond": 10.307010382896088,
+      "visible": 44
+    },
+    {
+      "time": 165.2733999999985,
+      "meanDegreesPerSecond": 8.826739965828406,
+      "visible": 28
+    },
+    {
+      "time": 165.35729999999702,
+      "meanDegreesPerSecond": 5.634630528534384,
+      "visible": 30
+    },
+    {
+      "time": 165.44279999999702,
+      "meanDegreesPerSecond": 2.484669914882315,
+      "visible": 30
+    },
+    {
+      "time": 165.5183999999985,
+      "meanDegreesPerSecond": 2.450799381857951,
+      "visible": 32
+    },
+    {
+      "time": 165.59129999999703,
+      "meanDegreesPerSecond": 2.7038354696476996,
+      "visible": 34
+    },
+    {
+      "time": 165.66619999999554,
+      "meanDegreesPerSecond": 2.8393714222976256,
+      "visible": 38
+    },
+    {
+      "time": 165.73959999999403,
+      "meanDegreesPerSecond": 3.0379056510976916,
+      "visible": 38
+    },
+    {
+      "time": 165.81359999999404,
+      "meanDegreesPerSecond": 3.0247984079833583,
+      "visible": 42
+    },
+    {
+      "time": 165.89039999999852,
+      "meanDegreesPerSecond": 3.1882335764148104,
+      "visible": 42
+    },
+    {
+      "time": 165.965,
+      "meanDegreesPerSecond": 3.157269711572623,
+      "visible": 46
+    },
+    {
+      "time": 166.038299999997,
+      "meanDegreesPerSecond": 3.240131646626371,
+      "visible": 46
+    },
+    {
+      "time": 166.11679999999703,
+      "meanDegreesPerSecond": 3.2483972847538096,
+      "visible": 50
+    },
+    {
+      "time": 166.19459999999404,
+      "meanDegreesPerSecond": 3.292804010657474,
+      "visible": 56
+    },
+    {
+      "time": 166.2768999999985,
+      "meanDegreesPerSecond": 3.5407042783297156,
+      "visible": 56
+    },
+    {
+      "time": 166.3608999999985,
+      "meanDegreesPerSecond": 3.5646768499747306,
+      "visible": 60
+    },
+    {
+      "time": 166.4418999999985,
+      "meanDegreesPerSecond": 3.7013029443811707,
+      "visible": 64
+    },
+    {
+      "time": 166.5215,
+      "meanDegreesPerSecond": 3.8376701426646105,
+      "visible": 64
+    },
+    {
+      "time": 166.600799999997,
+      "meanDegreesPerSecond": 3.88153528779274,
+      "visible": 66
+    },
+    {
+      "time": 166.6863999999985,
+      "meanDegreesPerSecond": 3.9906381346431066,
+      "visible": 70
+    },
+    {
+      "time": 166.76659999999404,
+      "meanDegreesPerSecond": 3.8085884102976064,
+      "visible": 74
+    },
+    {
+      "time": 166.848299999997,
+      "meanDegreesPerSecond": 3.8493522565397598,
+      "visible": 76
+    },
+    {
+      "time": 166.92819999999554,
+      "meanDegreesPerSecond": 3.956171550508999,
+      "visible": 80
+    },
+    {
+      "time": 167.01129999999702,
+      "meanDegreesPerSecond": 3.9974839304716268,
+      "visible": 82
+    },
+    {
+      "time": 167.10019999999554,
+      "meanDegreesPerSecond": 4.097039695851533,
+      "visible": 84
+    },
+    {
+      "time": 167.33639999999852,
+      "meanDegreesPerSecond": 4.225725826555629,
+      "visible": 90
+    },
+    {
+      "time": 167.52109999999405,
+      "meanDegreesPerSecond": 5.208364297457334,
+      "visible": 98
+    },
+    {
+      "time": 167.64759999999404,
+      "meanDegreesPerSecond": 4.100885870980162,
+      "visible": 102
+    },
+    {
+      "time": 167.74679999999702,
+      "meanDegreesPerSecond": 3.5479897450914932,
+      "visible": 108
+    },
+    {
+      "time": 167.84219999999553,
+      "meanDegreesPerSecond": 3.5482147367952783,
+      "visible": 112
+    },
+    {
+      "time": 167.9385,
+      "meanDegreesPerSecond": 3.6032558092097626,
+      "visible": 112
+    },
+    {
+      "time": 168.0373999999985,
+      "meanDegreesPerSecond": 3.7109933979350727,
+      "visible": 116
+    },
+    {
+      "time": 168.144,
+      "meanDegreesPerSecond": 3.976393500624001,
+      "visible": 118
+    },
+    {
+      "time": 168.24019999999553,
+      "meanDegreesPerSecond": 3.8341437102845415,
+      "visible": 118
+    },
+    {
+      "time": 168.33759999999404,
+      "meanDegreesPerSecond": 3.6986999651100683,
+      "visible": 122
+    },
+    {
+      "time": 168.43579999999702,
+      "meanDegreesPerSecond": 3.4764006438343005,
+      "visible": 124
+    },
+    {
+      "time": 168.52259999999404,
+      "meanDegreesPerSecond": 3.0793135955407527,
+      "visible": 126
+    },
+    {
+      "time": 168.61319999999552,
+      "meanDegreesPerSecond": 2.916631031415927,
+      "visible": 128
+    },
+    {
+      "time": 168.70229999999702,
+      "meanDegreesPerSecond": 2.6529816320246424,
+      "visible": 128
+    },
+    {
+      "time": 168.80529999999703,
+      "meanDegreesPerSecond": 2.573145341632961,
+      "visible": 130
+    },
+    {
+      "time": 168.8955,
+      "meanDegreesPerSecond": 2.4061147923017443,
+      "visible": 132
+    },
+    {
+      "time": 168.98539999999852,
+      "meanDegreesPerSecond": 2.488790152434884,
+      "visible": 134
+    },
+    {
+      "time": 169.07629999999702,
+      "meanDegreesPerSecond": 2.510707193093218,
+      "visible": 136
+    },
+    {
+      "time": 169.16519999999554,
+      "meanDegreesPerSecond": 2.577063643637702,
+      "visible": 136
+    },
+    {
+      "time": 169.25169999999554,
+      "meanDegreesPerSecond": 2.5469497192653368,
+      "visible": 136
+    },
+    {
+      "time": 169.33779999999703,
+      "meanDegreesPerSecond": 2.3158025856805606,
+      "visible": 138
+    },
+    {
+      "time": 169.42659999999404,
+      "meanDegreesPerSecond": 2.2258158116675144,
+      "visible": 140
+    },
+    {
+      "time": 169.51289999999852,
+      "meanDegreesPerSecond": 2.0443703175157526,
+      "visible": 142
+    },
+    {
+      "time": 169.60469999999552,
+      "meanDegreesPerSecond": 1.8829544522942534,
+      "visible": 142
+    },
+    {
+      "time": 169.6938999999985,
+      "meanDegreesPerSecond": 1.8168674149709403,
+      "visible": 142
+    },
+    {
+      "time": 169.78019999999555,
+      "meanDegreesPerSecond": 1.8246851590911857,
+      "visible": 144
+    },
+    {
+      "time": 169.86709999999402,
+      "meanDegreesPerSecond": 1.8657543202893707,
+      "visible": 144
+    },
+    {
+      "time": 169.95559999999404,
+      "meanDegreesPerSecond": 1.709147627316346,
+      "visible": 144
+    },
+    {
+      "time": 170.0463999999985,
+      "meanDegreesPerSecond": 1.7333973044022324,
+      "visible": 144
+    },
+    {
+      "time": 170.13379999999702,
+      "meanDegreesPerSecond": 1.752245826027905,
+      "visible": 144
+    },
+    {
+      "time": 170.222,
+      "meanDegreesPerSecond": 1.8586376436715442,
+      "visible": 144
+    },
+    {
+      "time": 170.3105,
+      "meanDegreesPerSecond": 1.9521617026273361,
+      "visible": 144
+    },
+    {
+      "time": 170.3985,
+      "meanDegreesPerSecond": 2.1782800018144775,
+      "visible": 144
+    },
+    {
+      "time": 170.49219999999553,
+      "meanDegreesPerSecond": 2.5956568657860837,
+      "visible": 144
+    },
+    {
+      "time": 170.58019999999553,
+      "meanDegreesPerSecond": 2.6564341157389517,
+      "visible": 144
+    },
+    {
+      "time": 170.67069999999552,
+      "meanDegreesPerSecond": 2.9752874509743883,
+      "visible": 144
+    },
+    {
+      "time": 170.75900000000001,
+      "meanDegreesPerSecond": 1.6411065938661666,
+      "visible": 144
+    },
+    {
+      "time": 170.84819999999553,
+      "meanDegreesPerSecond": 17.20813312485683,
+      "visible": 144
+    },
+    {
+      "time": 170.94259999999403,
+      "meanDegreesPerSecond": 41.68585653328608,
+      "visible": 144
+    },
+    {
+      "time": 171.0343999999985,
+      "meanDegreesPerSecond": 53.462084300825,
+      "visible": 144
+    },
+    {
+      "time": 171.12559999999405,
+      "meanDegreesPerSecond": 48.40487393082048,
+      "visible": 144
+    },
+    {
+      "time": 171.2213999999985,
+      "meanDegreesPerSecond": 40.58542186684926,
+      "visible": 144
+    },
+    {
+      "time": 171.31709999999404,
+      "meanDegreesPerSecond": 33.48162177835843,
+      "visible": 144
+    },
+    {
+      "time": 171.41319999999553,
+      "meanDegreesPerSecond": 26.790987531128128,
+      "visible": 144
+    },
+    {
+      "time": 171.51209999999404,
+      "meanDegreesPerSecond": 44.39662120266149,
+      "visible": 17
+    },
+    {
+      "time": 171.61599999999999,
+      "meanDegreesPerSecond": 44.125725809830996,
+      "visible": 13
+    },
+    {
+      "time": 171.718,
+      "meanDegreesPerSecond": 38.96858268024689,
+      "visible": 12
+    },
+    {
+      "time": 171.82019999999554,
+      "meanDegreesPerSecond": 31.06895385505523,
+      "visible": 12
+    },
+    {
+      "time": 171.92009999999405,
+      "meanDegreesPerSecond": 26.190710236376102,
+      "visible": 12
+    },
+    {
+      "time": 172.02119999999553,
+      "meanDegreesPerSecond": 21.65406731002255,
+      "visible": 13
+    },
+    {
+      "time": 172.08409999999404,
+      "meanDegreesPerSecond": 16.968504709470324,
+      "visible": 17
+    },
+    {
+      "time": 172.15119999999553,
+      "meanDegreesPerSecond": 14.414693881487976,
+      "visible": 19
+    },
+    {
+      "time": 172.21719999999553,
+      "meanDegreesPerSecond": 12.70632801248796,
+      "visible": 23
+    },
+    {
+      "time": 172.28759999999403,
+      "meanDegreesPerSecond": 12.050594413758645,
+      "visible": 27
+    },
+    {
+      "time": 172.3583999999985,
+      "meanDegreesPerSecond": 11.258964965224688,
+      "visible": 34
+    },
+    {
+      "time": 172.43019999999552,
+      "meanDegreesPerSecond": 10.609475560500963,
+      "visible": 43
+    },
+    {
+      "time": 172.50419999999554,
+      "meanDegreesPerSecond": 9.982999503262896,
+      "visible": 52
+    },
+    {
+      "time": 172.58469999999554,
+      "meanDegreesPerSecond": 10.032743242226323,
+      "visible": 62
+    },
+    {
+      "time": 172.66589999999852,
+      "meanDegreesPerSecond": 8.13732150065652,
+      "visible": 74
+    },
+    {
+      "time": 172.74769999999552,
+      "meanDegreesPerSecond": 6.5091676301161225,
+      "visible": 87
+    },
+    {
+      "time": 172.83719999999553,
+      "meanDegreesPerSecond": 5.6500402522104425,
+      "visible": 97
+    },
+    {
+      "time": 172.9233999999985,
+      "meanDegreesPerSecond": 5.908465604737023,
+      "visible": 104
+    }
+  ]
+}

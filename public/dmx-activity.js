@@ -1,5 +1,6 @@
 import {strobeScoreAt} from './dmx-strobe-score.js';
-import {fixtureParticipation,fixtureParticipationLevel} from './dmx-participation.js';
+import {formationPreviewAt} from './dmx-strobe-choreography.js';
+import {fixtureParticipation,showFixtureParticipation,fixtureParticipationLevel} from './dmx-participation.js';
 import {automaticGroupMotionAt,showGroupMotionAt,automaticFixtureGroups,groupComposition,presenceRowFocus} from './dmx-group-motion.js';
 import {showScoreAt,showPictureLayers} from './show-score.js';
 import {showActionAt} from './show-action.js';
@@ -216,11 +217,26 @@ export function mixMovingPresence(entries){
  const layers=entries.flatMap(({presence,weight})=>(presence.layers||[presence]).map(layer=>({...layer,weight:(layer.weight??1)*weight})));
  return {level:layers.reduce((sum,p)=>sum+p.level*p.weight,0),spread:layers.reduce((sum,p)=>sum+p.spread*p.weight,0),layers};
 }
+function automaticScenePresence(scene,plan,time,flicker){
+ const base=scenePresence(scene,plan,time,{articulation:false});
+ if(!['groove','impact'].includes(scene.kind))return base;
+ const amount=Number.isFinite(flicker)?Math.max(0,Math.min(1,flicker/100)):1;
+ if(!amount)return base;
+ const accent=scenePresence(scene,plan,time);
+ // Gesture and bass envelopes must not take turns owning the same heads.
+ if(accent.mask!=='bass-chase')return base;
+ const age=accent.age,duration=accent.duration;
+ if(!Number.isFinite(age)||!(duration>0))return base;
+ // The source already carries the song's intensity accents. Bass notes may
+ // gently emphasize existing members, never replace the picture's membership.
+ return {...base,mask:'automatic-accent',accentAge:age,accentDuration:duration,
+  amount,phase:accent.phase};
+}
 export function movingPresenceAt(source){
  const plan=source.movingPlan,time=source.songTime;
  if(source.stageMode==='strobe'||plan?.showProfile==='strobe'){
-  const groupMotion=strobeScoreAt(plan,time);
-  return {level:groupMotion?musicalDarknessAt(plan,time).level:0,spread:1,mask:'all',rowFraction:1,rowSelection:0,trackMotion:true,groupMotion:groupMotion?{...groupMotion,flicker:source.flicker}:null};
+  const groupMotion=plan?strobeScoreAt(plan,time):Number.isFinite(source.beat)?formationPreviewAt(source.beat/2):null;
+  return {level:groupMotion?(plan?musicalDarknessAt(plan,time).level:1):0,spread:1,mask:'all',rowFraction:1,rowSelection:0,trackMotion:true,groupMotion:groupMotion?{...groupMotion,flicker:source.flicker}:null};
  }
  const scene=(!source.movingMood||source.movingMood==='balanced'||source.movingMood==='show')&&lightingSceneAt(plan,time);
  if(scene){
@@ -228,7 +244,7 @@ export function movingPresenceAt(source){
    const level=activityAt(source,1)[0],action=showActionAt(plan,time),picture=showScoreAt(plan,time);
    // A dark head still follows an active picture, ready for its next exposure.
    const rhythm=plan.sectionLighting?.find(s=>time>=s.start&&time<s.end)?.rhythm;
-   const accent=action&&action.cue.action!=='hit'?{mask:'show-action',action:action.cue.action,phase:action.cue.phase,progress:action.progress,amount:Math.max(0,Math.min(1,source.flicker??1))}:{};
+   const accent=action&&action.cue.action==='launch'?{mask:'show-action',action:action.cue.action,phase:action.cue.phase,progress:action.progress,amount:Number.isFinite(source.flicker)?Math.max(0,Math.min(1,source.flicker/100)):1}:{};
    if(rhythm&&rhythm!=='auto')return {level,spread:1,mask:'all'};
    const release=picture?.role==='silence'&&musicalDarknessAt(plan,time).active;
    const layers=showPictureLayers(plan,time).map(({picture:p,weight})=>{
@@ -242,19 +258,21 @@ export function movingPresenceAt(source){
     const groupMotion=showGroupMotionAt(plan,motionTime,p);
     return {weight,presence:{level,spread:1,
      trackMotion:!['held','silence'].includes(p.role),occupancy:selection.occupancy,selection:selection.index%2,
-     participation:fixtureParticipation(plan,selection,motionTime),
+     participation:showFixtureParticipation(plan,selection,motionTime),
      rowFraction:selection.rowFraction,rowSelection:selection.rowSelection,groupMotion,mask:'show-score',...accent}};
    });
    return layers.length===1?layers[0].presence:mixMovingPresence(layers);
   }
   const scenes=lightingScenes(plan),previous=scenes[scene.index-1];
   const groupMotion=automaticGroupMotionAt(plan,time,true);
-  // Visibility, selected rows and motor choreography share the handover.
-  // Previously a new rig was exposed in .2/.8 s while its pose was still fading.
+  // Flowing scenes share the motor handover. An acoustically confirmed impact
+  // exposes its new members promptly while the motors finish their safe travel.
   const manual=plan.sectionLighting?.some(s=>time>=s.start&&time<s.end&&s.rhythm&&s.rhythm!=='auto');
   const shared=!manual&&groupMotion?.from&&Math.abs(groupMotion.start-scene.start)<.001;
-  const t=shared?groupMotion.blend:smooth((time-scene.start)/(scene.kind==='impact'?.2:.8));
-  const presence=mixMovingPresence([{presence:previous?scenePresence(previous,plan,previous.end-.001):{level:0,spread:0},weight:1-t},{presence:scenePresence(scene,plan,time),weight:t}]);
+  const impact=!manual&&scene.kind==='impact'&&groupMotion?.intent?.transition?.confidence>.65;
+  const t=impact?smooth((time-scene.start)/.18):shared?groupMotion.blend:smooth((time-scene.start)/(scene.kind==='impact'?.2:.8));
+  const describe=(s,at)=>!plan.showProfile||plan.showProfile==='auto'?automaticScenePresence(s,plan,at,source.flicker):scenePresence(s,plan,at);
+  const presence=mixMovingPresence([{presence:previous?describe(previous,previous.end-.001):{level:0,spread:0},weight:1-t},{presence:describe(scene,time),weight:t}]);
   const darkness=activityAt(source,1)[0];
   return {...presence,level:presence.level*darkness,layers:presence.layers.map((p,i)=>{
    const section=i===0?previous:scene;
@@ -292,9 +310,25 @@ export function movingPresenceLevel(presence,rank,count){
  if(presence.participation){
   if(presence.occupancy<=0)return 0;
   const {participation,occupancy,rowFraction,groupMotion,...exposure}=presence;
+  if(presence.mask==='bass-chase'||presence.mask==='roles'){
+   // Measured notes/gestures own their spatial articulation. Gradually borrow
+   // reserve members for the accent and return them before its envelope ends.
+   const age=presence.mask==='bass-chase'?presence.age:presence.accentAge;
+   const duration=presence.mask==='bass-chase'?presence.duration:presence.accentDuration;
+   const accent=Number.isFinite(age)&&duration>0?smooth(age/.025)*(1-smooth((age-duration+.075)/.075)):0;
+   const reserve=fixtureParticipationLevel(participation,rank,count);
+   return movingPresenceLevel(exposure,rank,count)*(reserve+(1-reserve)*accent);
+  }
   // Geometry's lead/support dimmers must not attenuate membership a second
   // time. Preserve musical levels and authored Show action shutters.
-  return movingPresenceLevel({...exposure,mask:presence.mask==='show-action'?'show-action':'all'},rank,count)*fixtureParticipationLevel(participation,rank,count);
+  return movingPresenceLevel({...exposure,mask:['show-action','automatic-accent'].includes(presence.mask)?presence.mask:'all'},rank,count)*fixtureParticipationLevel(participation,rank,count);
+ }
+ if(presence.mask==='automatic-accent'){
+  const progress=Math.max(0,Math.min(1,presence.accentAge/presence.accentDuration));
+  const pulse=Math.sin(Math.PI*progress)**2;
+  const group=count===2?rank:Math.min(rank,count-1-rank)%2;
+  const weight=group===presence.phase?1:.25;
+  return Math.min(1,presence.level*(1+.15*(presence.amount??1)*pulse*weight));
  }
  const slots=Math.ceil(count/2),slot=Math.min(rank,count-1-rank);
  if(presence.occupancy!==undefined){

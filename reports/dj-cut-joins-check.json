@@ -1,0 +1,63 @@
+{
+  "clocks": {
+    "ruler": [
+      "0:00",
+      "0:03",
+      "0:06",
+      "0:09",
+      "0:12"
+    ],
+    "position": "Original 0:00,00 / 0:12,00 · Bearbeitet 0:00,00 / 0:07,00",
+    "duration": "Original 0:12,00 → mit Schnitten und Übergängen 0:07,00",
+    "join": "Übergang · 1.00 s"
+  },
+  "internalManager": {
+    "time": 3,
+    "cue": 8,
+    "duration": 1
+  },
+  "persisted": [
+    {
+      "cut": [
+        4,
+        8
+      ],
+      "duration": 1,
+      "style": "bass",
+      "points": null
+    }
+  ],
+  "restored": true,
+  "mp3": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "mp3",
+        "sample_rate": "44100",
+        "channels": 2
+      }
+    ],
+    "format": {
+      "duration": "7.026917"
+    }
+  },
+  "spectrum": {
+    "before": 0.07322479563360196,
+    "after": 0.07321863414460308,
+    "overlapA": 0.026366157404724054,
+    "overlapB": 0.037138807315348375,
+    "removed": 0.000021851209469900706
+  },
+  "liveSeeks": [
+    9.001447
+  ],
+  "editorAudition": {
+    "seeks": [
+      1,
+      9.001063
+    ],
+    "clock": "Original 0:09,02 / 0:12,00 · Bearbeitet 0:04,02 / 0:07,00"
+  },
+  "browserErrors": 0
+}

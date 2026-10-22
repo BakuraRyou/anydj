@@ -1,3 +1,5 @@
+import {syncSelectOptions,setControlDisabled} from './select-state.js';
+import {readAccessToken} from './local-access.js';
 // Physical output is opt-in and separate from the visual demo.
 export function createDmxConnection(parent,onEnable=()=>{}){
   const root=document.createElement('section');root.className='stage-hardware';
@@ -7,19 +9,16 @@ export function createDmxConnection(parent,onEnable=()=>{}){
   const web=document.documentElement.dataset.edition==='web';
   let generation=0,connectionError='',id=null,state=null,latest=new Uint8Array(512),busy=false,sending=false,disposed=false,message='',previewDemo=false,polling=false;
   async function api(path,body,keepalive=false){
-    let token='';try{token=sessionStorage.getItem('wiz-web-token')||'';}catch{}
+    const token=readAccessToken();
     const res=await fetch('/api/dmx/'+path,{method:body?'POST':'GET',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1',...(token?{Authorization:'Bearer '+token}:{})},...(body?{body:JSON.stringify(body)}:{}),keepalive,signal:AbortSignal.timeout(4000)});
     const data=await res.json();if(!res.ok)throw Error(data.error?.message||data.error||'DMX-Verbindung fehlgeschlagen.');return data;
   }
   function draw(){
-    const selected=select.value;select.replaceChildren();
-    for(const p of [...(state?.outputs||[])].sort((a,b)=>(a.kind==='lan')-(b.kind==='lan'))){
-      const option=document.createElement('option');option.value=p.id;option.textContent=`${p.kind==='lan'?'LAN':'USB / lokal'} · ${p.name} ${p.description}${p.online?'':' · getrennt'}`;option.disabled=!p.online||!p.ready;option.title=p.reason||'';select.append(option);
-    }
-    if([...select.options].some(o=>o.value===selected))select.value=selected;
-    else if([...select.options].some(o=>!o.disabled))select.value=[...select.options].find(o=>!o.disabled).value;
-    if(!select.options.length){const o=document.createElement('option');o.textContent='Noch kein Ausgang erkannt';o.value='';select.append(o);}
-    select.disabled=busy||Boolean(id)||Boolean(state?.active);
+    const options=[...(state?.outputs||[])].sort((a,b)=>(a.kind==='lan')-(b.kind==='lan')).map(p=>({
+      value:p.id,label:`${p.kind==='lan'?'LAN':'USB / lokal'} · ${p.name} ${p.description}${p.online?'':' · getrennt'}`,disabled:!p.online||!p.ready,title:p.reason||''}));
+    const selected=options.some(o=>o.value===select.value)?select.value:options.find(o=>!o.disabled)?.value||'';
+    syncSelectOptions(select,options.length?options:[{label:'Noch kein Ausgang erkannt',value:''}],selected);
+    setControlDisabled(select,busy||Boolean(id)||Boolean(state?.active));
     button.textContent=id?'DMX-Ausgabe ausschalten':'DMX-Ausgabe einschalten';
     button.disabled=busy||web||Boolean(state?.demo)||(!id&&(previewDemo||state?.active||!state?.outputs?.some(p=>p.id===select.value&&p.online&&p.ready)));
     const chosen=state?.outputs?.find(p=>p.id===select.value);

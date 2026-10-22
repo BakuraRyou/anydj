@@ -1,6 +1,6 @@
 # Gespeicherte DJ-Lichtshows
 
-IndexedDB `wiz-dj-library` erhält in Version 3 einen separaten `shows`-Store.
+IndexedDB `anydj-dj-library` erhält in Version 3 einen separaten `shows`-Store.
 Trackreferenzen, Ordnereinstellungen und Warteschlange bleiben erhalten.
 Gespeichert werden die unveränderte Basis-Show, noch benötigte Analysefenster
 und der Zustand der Teilanalysen. Party/Disco werden beim Laden auf die Basis

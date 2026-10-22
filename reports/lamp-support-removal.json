@@ -1,0 +1,44 @@
+{
+  "date": "2026-10-17",
+  "status": "implemented",
+  "published": false,
+  "removed": [
+    "Former WLAN lamp UDP driver and simulated lamp transport",
+    "lamp discovery, connection, device control and music-output APIs",
+    "lamp selector and connection polling in the DJ console",
+    "dedicated lamp, music-effect and lamp-editor pages",
+    "Former WLAN lamp support claims in website copy, metadata and structured data",
+    "legacy lamp write-header support"
+  ],
+  "preserved": [
+    "DMX/OLA output",
+    "DJ playback, track editing and integrated lighting editor",
+    "3D room planning and stage data",
+    "existing music library, playlists, show settings and cache contents",
+    "existing device files, which are no longer read or modified",
+    "optional local access code, now entered directly in the DJ console"
+  ],
+  "configuration": {
+    "webToken": "ANYDJ_WEB_TOKEN",
+    "dataDirectory": "ANYDJ_DATA_DIR",
+    "beatAnalysis": ["ANYDJ_BEAT_PYTHON", "ANYDJ_BEAT_MODEL", "ANYDJ_BEAT_DEVICE"]
+  },
+  "verification": {
+    "targetedTests": {"passed": 54, "failed": 0},
+    "fullSuite": {
+      "passed": 1073,
+      "failed": 2,
+      "failures": [
+        {"file": "test/dmx-strobe-phrases.test.mjs", "reason": "Expected chorus foreground-row count to exceed verse count"},
+        {"file": "test/vr-preview.test.mjs", "reason": "Existing preview dependency allowlist blocks /dmx-strobe-score.js"}
+      ]
+    },
+    "browserRemovalAndAccess": "passed: removed controls, no lamp requests after polling period, reload and access-code entry",
+    "browserFullMode": "passed",
+    "browserWebDemo": "passed: playback, queue, restored cache, mobile layout, zero API requests and uploads",
+    "supplementaryLegacyCacheCheck": "v2 queue migration completed; later test stopped at obsolete 'Fertig' status assertion. This broader historical script is not a passing acceptance check.",
+    "hostingBuild": "passed",
+    "seoCheck": "passed",
+    "diffWhitespaceCheck": "passed"
+  }
+}

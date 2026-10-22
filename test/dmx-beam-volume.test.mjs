@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {beamVolume,sampleBeamVolume,volumeCorners} from '../public/dmx-beam-volume.js';
+import {beamVolume,sampleBeamVolume,volumeCorners,beamScreenBounds} from '../public/dmx-beam-volume.js';
 const layout={width:8,depth:6,height:3,room:true};
 const source={id:'head',type:'moving',power:1,position:{x:0,y:4,height:1.5},target:{x:1,y:2,z:3},targetSurface:'ceiling'};
 const unit=v=>{const n=Math.hypot(...v);return v.map(x=>x/n);};
@@ -13,7 +13,7 @@ function reference(v,eye,direction){
   const r=p.map((x,k)=>x-d[k]),z=r.reduce((n,x,k)=>n+x*d[4+k],0);
   if(z<=0||z>d[7])continue;
   const r2=r.reduce((n,x,k)=>n+(x-d[4+k]*z)**2,0)/(d[3]*z)**2;
-  sum+=Math.max(0,Math.exp(-4*r2)-Math.exp(-4))/(.12+z*z*.035)*step;
+  sum+=Math.max(0,Math.exp(-4*r2)-Math.exp(-4))/(.12+(d[3]*z)**2*2)*step;
  }
  const along=direction.reduce((n,x,k)=>n+x*d[4+k],0);
  return 1-Math.exp(-sum*.24*(.65+.35*Math.max(0,-along)**2));
@@ -38,4 +38,29 @@ test('zero-length beams are omitted and looking along the axis stays finite',()=
  assert.equal(beamVolume({...source,target:{x:0,y:4,z:1.5}},layout),null);
  const v=beamVolume(source,layout);
  for(const direction of [v.axis,v.axis.map(x=>-x)])assert.ok(Number.isFinite(sampleBeamVolume(v.data,v.origin,direction)));
+});
+const screen={eye:[0,0,0],right:[1,0,0],up:[0,0,1],forward:[0,1,0],scaleX:1,scaleY:1};
+test('eye-plane intersections keep tight bounds and cull offscreen cones',()=>{
+ const hull=x=>volumeCorners({origin:[x,-1,0],axis:[0,1,0],reach:3,slope:.02});
+ assert.equal(beamScreenBounds(hull(5),screen),null);
+ const bounds=beamScreenBounds(hull(.4),screen);
+ assert.ok(bounds&&bounds[0]>0&&bounds[2]===1);
+ assert.deepEqual(beamScreenBounds(volumeCorners({origin:[0,-1,0],axis:[0,1,0],reach:3,slope:1}),screen),[-1,-1,1,1]);
+});
+test('conservative screen bounds include every sampled illuminated viewing ray',()=>{
+ let illuminated=0;
+ for(const light of [source,{...source,target:{x:-2,y:0,z:0}},{...source,target:{x:4,y:3,z:2},wallIndex:1}]){
+  const v=beamVolume(light,layout),corners=volumeCorners(v);
+  for(const eye of [[0,0,1.6],[0,3.99,1.5],[0,4.01,1.5],[3,4,2]])for(const yaw of [0,.7,Math.PI]){
+   const right=[Math.cos(yaw),Math.sin(yaw),0],forward=[-Math.sin(yaw),Math.cos(yaw),0],up=[0,0,1];
+   const basis={eye,right,forward,up,scaleX:1.2,scaleY:2},bounds=beamScreenBounds(corners,basis);
+   for(let row=0;row<=20;row++)for(let col=0;col<=32;col++){
+    const x=col/16-1,y=row/10-1,direction=unit(forward.map((n,k)=>n+right[k]*x/basis.scaleX+up[k]*y/basis.scaleY));
+    if(sampleBeamVolume(v.data,eye,direction)<=1e-6)continue;
+    illuminated++;
+    assert.ok(bounds&&x>=bounds[0]-1e-6&&x<=bounds[2]+1e-6&&y>=bounds[1]-1e-6&&y<=bounds[3]+1e-6,`missed lit ray ${eye}, ${yaw}, ${x}, ${y}`);
+   }
+  }
+ }
+ assert.ok(illuminated>100);
 });

@@ -32,6 +32,8 @@ void main(){vec4 color=tint;float alpha=1.0;float kind=floor(effect+.5);
 export function createWebGlStage(canvas,onLost){
   const gl=canvas.getContext('webgl',{alpha:false,antialias:true,powerPreference:'high-performance'});
   if(!gl)throw Error('WebGL unavailable');
+  const identity=gl.getExtension('WEBGL_debug_renderer_info');
+  const device=gl.getParameter(identity?.UNMASKED_RENDERER_WEBGL??gl.RENDERER);
   const shaders=[];let program,buffer,disposed=false,capacity=0,depthTexture=null,depthTarget=null,depthColor=null,depthProgram=null,depthWidth=0,depthHeight=0,profileTexture=null,volumeTexture=null,volumeTarget=null,composite=null,quad=null,volumeWidth=0,volumeHeight=0;
   const lost=event=>{event.preventDefault();if(!disposed)onLost();};
   canvas.addEventListener('webglcontextlost',lost);
@@ -69,7 +71,7 @@ export function createWebGlStage(canvas,onLost){
     const uniforms=['eye','right','up','forward'].map(name=>gl.getUniformLocation(program,name));
     const beamUniform=gl.getUniformLocation(program,'beamData[0]'),depthEnabled=gl.getUniformLocation(program,'depthEnabled'),volumeViewport=gl.getUniformLocation(program,'volumeViewport');gl.uniform1i(gl.getUniformLocation(program,'sceneDepth'),2);
     gl.disable(gl.DEPTH_TEST);gl.enable(gl.BLEND);
-    return {kind:'webgl',maxSize:Math.min(gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),...gl.getParameter(gl.MAX_VIEWPORT_DIMS)),destroy,render(frame){
+    return {kind:'webgl',device,maxSize:Math.min(gl.getParameter(gl.MAX_RENDERBUFFER_SIZE),...gl.getParameter(gl.MAX_VIEWPORT_DIMS)),destroy,render(frame){
       if(disposed||gl.isContextLost())throw Error('WebGL context unavailable');
       gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,canvas.width,canvas.height);bindScene();
       if(frame.vertices.byteLength>capacity){capacity=2**Math.ceil(Math.log2(frame.vertices.byteLength));gl.bufferData(gl.ARRAY_BUFFER,capacity,gl.DYNAMIC_DRAW);}
@@ -84,15 +86,18 @@ export function createWebGlStage(canvas,onLost){
         // upsample rejects background haze across foreground silhouettes.
         if(!depthTexture){depthTexture=gl.createTexture();depthTarget=gl.createFramebuffer();depthColor=gl.createRenderbuffer();}
         gl.activeTexture(gl.TEXTURE2);gl.bindTexture(gl.TEXTURE_2D,depthTexture);
+        gl.bindFramebuffer(gl.FRAMEBUFFER,depthTarget);
         if(depthWidth!==canvas.width||depthHeight!==canvas.height){
           depthWidth=canvas.width;depthHeight=canvas.height;
           gl.texImage2D(gl.TEXTURE_2D,0,gl.DEPTH_COMPONENT,depthWidth,depthHeight,0,gl.DEPTH_COMPONENT,gl.UNSIGNED_INT,null);
           gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.NEAREST);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.NEAREST);
           gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
           gl.bindRenderbuffer(gl.RENDERBUFFER,depthColor);gl.renderbufferStorage(gl.RENDERBUFFER,gl.RGBA4,depthWidth,depthHeight);
+          // Attachments remain valid between frames. Checking completeness on
+          // every draw synchronizes with the driver and stalls the render loop.
+          gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.TEXTURE_2D,depthTexture,0);gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.RENDERBUFFER,depthColor);
+          if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw Error('Scene depth unavailable');
         }
-        gl.bindFramebuffer(gl.FRAMEBUFFER,depthTarget);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.DEPTH_ATTACHMENT,gl.TEXTURE_2D,depthTexture,0);gl.framebufferRenderbuffer(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.RENDERBUFFER,depthColor);
-        if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw Error('Scene depth unavailable');
         gl.useProgram(depthProgram);for(const [location] of attributes)gl.disableVertexAttribArray(location);
         gl.enableVertexAttribArray(depthPosition);gl.vertexAttribPointer(depthPosition,3,gl.FLOAT,false,44,0);gl.enableVertexAttribArray(depthKind);gl.vertexAttribPointer(depthKind,1,gl.FLOAT,false,44,40);
         depthUniforms.forEach((location,i)=>gl.uniform4fv(location,frame.camera.subarray(i*4,i*4+4)));
@@ -103,13 +108,14 @@ export function createWebGlStage(canvas,onLost){
 
         if(!volumeTexture){volumeTexture=gl.createTexture();volumeTarget=gl.createFramebuffer();}
         gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,volumeTexture);
+        gl.bindFramebuffer(gl.FRAMEBUFFER,volumeTarget);
         if(w!==volumeWidth||h!==volumeHeight){
           volumeWidth=w;volumeHeight=h;gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,w,h,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
           gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
           gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+          gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,volumeTexture,0);
+          if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw Error('Haze framebuffer unavailable');
         }
-        gl.bindFramebuffer(gl.FRAMEBUFFER,volumeTarget);gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,volumeTexture,0);
-        if(gl.checkFramebufferStatus(gl.FRAMEBUFFER)!==gl.FRAMEBUFFER_COMPLETE)throw Error('Haze framebuffer unavailable');
         gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
         for(const batch of frame.batches)if(batch.volume)draw(batch);
         gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,canvas.width,canvas.height);

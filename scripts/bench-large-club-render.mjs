@@ -11,7 +11,6 @@ import {createApp} from '../server.mjs';
 const app=await createApp({demo:true,previewPort:0});
 app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
-await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
 
 // CI: VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.json xvfb-run -a node scripts/bench-large-club-render.mjs
 const profile=await mkdtemp(join(tmpdir(),'anydj-stage-gpu-'));

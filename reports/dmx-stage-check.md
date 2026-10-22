@@ -8,7 +8,7 @@ Die DJ-Seite bietet im Mixer „Virtuelle Lichtbühne öffnen“. Das nichtmodal
 Fenster zeigt vier generische Dimmer/RGB-Scheinwerfer und eine RGB-Lichtleiste
 mit acht Segmenten. Ohne Musik lässt sich ein ausdrücklich gekennzeichneter
 Demo-Verlauf starten. Die laufende DJ-Show hat Vorrang. Die Vorschau hängt nicht
-von einer WiZ-Sitzung ab und funktioniert damit auch bei „Nur Audio“.
+von einer Sitzung der früheren WLAN-Lampensteuerung ab und funktioniert damit auch bei „Nur Audio“.
 
 Die Darstellung liest einen 512-Byte-DMX-Puffer, der aus dem vorhandenen
 DJ-Lichtmix erzeugt wird. Dimmer/RGB und direkt gedimmte RGB-Segmente haben

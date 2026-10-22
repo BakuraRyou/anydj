@@ -1,0 +1,37 @@
+{
+  "queueEditorPlan": {
+    "time": 8,
+    "cue": 2,
+    "duration": 2,
+    "status": "Gespeicherte Schnitte berücksichtigt · Zeitangaben beziehen sich auf die Originaldateien."
+  },
+  "invalidOverlapRejected": true,
+  "cutMarkers": [
+    2,
+    2
+  ],
+  "realMediaAudition": {
+    "seeks": [
+      [
+        2,
+        8
+      ],
+      [
+        2,
+        7
+      ]
+    ],
+    "starts": [
+      [
+        2,
+        8
+      ],
+      [
+        2,
+        7
+      ]
+    ],
+    "decksUnaffected": true
+  },
+  "browserErrors": 0
+}

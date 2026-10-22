@@ -1,8 +1,8 @@
 {
   "renderer": "webgl",
   "performanceSample": {
-    "frames": 39,
-    "seconds": 2.00010000000149
+    "frames": 43,
+    "seconds": 2.0001000000089406
   },
   "performanceNote": "Headless Chrome with SwiftShader; not a physical mobile GPU benchmark.",
   "checks": [

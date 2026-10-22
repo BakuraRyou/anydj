@@ -1,0 +1,38 @@
+{
+  "source": "Shades.mp3, saved local analysis",
+  "room": "Festival-Bühne, original FOH zone retained",
+  "method": "Mean rendered target travel per second across 80 heads at 30 Hz; geometry comparison, not calibrated physical motor measurements.",
+  "cause": "The presence of any exclusion zone applied a 2 m/s floor-target detour filter to unobstructed formation paths.",
+  "fix": "Verified clear formation segments retain their authored targets. Obstructed segments still use protected routing. Angular motor limits remain enabled.",
+  "samples": [
+    {
+      "start": 34,
+      "end": 38,
+      "authoredTargetTravelPerSecond": 13.130987867730662,
+      "displayedBefore": 0.816224615940467,
+      "displayedAfter": 6.921996118035028
+    },
+    {
+      "start": 48,
+      "end": 52,
+      "authoredTargetTravelPerSecond": 14.25754837628952,
+      "displayedBefore": 1.0764953038354343,
+      "displayedAfter": 7.383044000086791
+    },
+    {
+      "start": 78,
+      "end": 82,
+      "authoredTargetTravelPerSecond": 22.67582143355363,
+      "displayedBefore": 0.932644507788966,
+      "displayedAfter": 11.798598909918462
+    },
+    {
+      "start": 94,
+      "end": 104,
+      "authoredTargetTravelPerSecond": 0.7990743941184973,
+      "displayedBefore": 0.6665711307066937,
+      "displayedAfter": 0.74823370617421
+    }
+  ],
+  "tests": 254
+}

@@ -40,8 +40,9 @@ test('cached moods remain separate and unfinished variants resume correctly',()=
   preparation.setEnabled(true);preparation.prepare([plan],'auto','calm');
   const first=task;task=null;first();
   preparation.prepare([plan],'auto','atmospheric');drain();const air=preparation.read(plan,14,'auto','atmospheric');
-  assert.equal(preparation.read(plan,14,'auto','calm'),null);
-  preparation.prepare([plan],'auto','calm');drain();assert.notDeepEqual(preparation.read(plan,14,'auto','calm'),air);
+  const early=preparation.read(plan,14,'auto','calm');assert.ok(early,'complete cue timelines are usable before sample baking finishes');
+  assert.notDeepEqual(early,air);
+  preparation.prepare([plan],'auto','calm');drain();assert.deepEqual(preparation.read(plan,14,'auto','calm'),early);
   preparation.prepare([plan],'auto','atmospheric');assert.equal(task,null);assert.deepEqual(preparation.read(plan,14,'auto','atmospheric'),air);
   preparation.destroy();
 });

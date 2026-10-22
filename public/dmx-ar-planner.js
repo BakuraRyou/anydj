@@ -1,4 +1,5 @@
-import {upgradeFestivalLighting,festivalStageRoom,villageBarnRoom,largeHallRoomWithDJQuietZone,largeClubRoom,clubStageRoomWithoutQuietZones,clubStageRoom} from './dmx-room-presets.js';
+import {syncSelectOptions,setSelectValue,setControlDisabled} from './select-state.js';
+import {choreographyArenaRoom,combinedFormationRoom,formationArenaRoom,upgradeFormationStage,strobeStageRoom,upgradeFestivalLighting,festivalStageRoom,villageBarnRoom,largeHallRoomWithDJQuietZone,largeClubRoom,clubStageRoomWithoutQuietZones,clubStageRoom} from './dmx-room-presets.js';
 import {compactDeviceManager} from './dmx-device-manager.js';
 import {importRoomModel,modelFileLimit} from './dmx-room-mesh.js';
 import {createZonePlan} from './dmx-zone-plan.js';
@@ -10,10 +11,10 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   let plans=[],selected='',enabled=false,disposed=false,step=1,fixture='',mode='select',draft=[],pointer=null,drag=null,preview=null,arReady=false;
   const renderRoom=createRoomPreview();let roomZones=null,zoneDrag=null,compact=null;
   let mapView={key:'',zoom:1,x:0,y:0},pan=null;
-  let undo=null,storageError='',lastMessage='',clubRoomAdded=false,clubStageRoomAdded=false,clubStageOpenRoomAdded=false,hallDJRoomAdded=false,barnRoomAdded=false,festivalRoomAdded=false;
-  try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved){plans=(saved.plans||[]).slice(0,20).flatMap(p=>{try{return [validateRoomPlan(p)];}catch{return [];}});selected=saved.selected;enabled=saved.enabled===true;clubRoomAdded=saved.clubRoomAdded===true;clubStageRoomAdded=saved.clubStageRoomAdded===true;clubStageOpenRoomAdded=saved.clubStageOpenRoomAdded===true;hallDJRoomAdded=saved.hallDJRoomAdded===true;barnRoomAdded=saved.barnRoomAdded===true;festivalRoomAdded=saved.festivalRoomAdded===true;}}catch{storageError='Deine Räume konnten nicht geladen werden. Du kannst eine Sicherung importieren.';}
+  let undo=null,storageError='',lastMessage='',clubRoomAdded=false,clubStageRoomAdded=false,clubStageOpenRoomAdded=false,hallDJRoomAdded=false,barnRoomAdded=false,festivalRoomAdded=false,strobeRoomAdded=false,formationArenaAdded=false,combinedFormationAdded=false,choreographyArenaAdded=false;
+  try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved){plans=(saved.plans||[]).slice(0,20).flatMap(p=>{try{return [validateRoomPlan(p)];}catch{return [];}});selected=saved.selected;enabled=saved.enabled===true;clubRoomAdded=saved.clubRoomAdded===true;clubStageRoomAdded=saved.clubStageRoomAdded===true;clubStageOpenRoomAdded=saved.clubStageOpenRoomAdded===true;hallDJRoomAdded=saved.hallDJRoomAdded===true;barnRoomAdded=saved.barnRoomAdded===true;festivalRoomAdded=saved.festivalRoomAdded===true;strobeRoomAdded=saved.strobeRoomAdded===true;formationArenaAdded=saved.formationArenaAdded===true;combinedFormationAdded=saved.combinedFormationAdded===true;choreographyArenaAdded=saved.choreographyArenaAdded===true;}}catch{storageError='Deine Räume konnten nicht geladen werden. Du kannst eine Sicherung importieren.';}
   let libraryUpdated=false;
-  plans=plans.map(plan=>{const updated=upgradeFestivalLighting(plan);if(updated!==plan)libraryUpdated=true;return updated;});
+  plans=plans.map(plan=>{const updated=upgradeFormationStage(upgradeFestivalLighting(plan));if(updated!==plan)libraryUpdated=true;return updated;});
   if(!clubRoomAdded){
     // Recognize rooms created by the former button, including renamed rooms.
     const existing=plans.some(p=>p.width===30&&p.depth===42&&p.positions['club-1']?.type==='truss');
@@ -27,8 +28,24 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   if(!hallDJRoomAdded&&plans.length<20){plans.push(largeHallRoomWithDJQuietZone());hallDJRoomAdded=true;libraryUpdated=true;}
   if(!barnRoomAdded&&plans.length<20){plans.push(villageBarnRoom());barnRoomAdded=true;libraryUpdated=true;}
   if(!festivalRoomAdded&&plans.length<20){plans.push(festivalStageRoom());festivalRoomAdded=true;libraryUpdated=true;}
-  if(!plans.some(p=>p.id===selected)){selected=plans[0]?.id||'';enabled=false;}
-  if(libraryUpdated)try{localStorage.setItem(storageKey,JSON.stringify({plans,selected,enabled,clubRoomAdded,clubStageRoomAdded,clubStageOpenRoomAdded,hallDJRoomAdded,barnRoomAdded,festivalRoomAdded}));}catch{storageError='Speichern auf diesem Gerät fehlgeschlagen. Bitte exportiere deinen Raum.';}
+  if(!strobeRoomAdded&&plans.length<20){plans.push(strobeStageRoom());strobeRoomAdded=true;libraryUpdated=true;}
+  if(!formationArenaAdded&&plans.length<20){
+    if(!plans.some(p=>p.positions?.['formation-arena-0--1-0']))plans.push(formationArenaRoom());
+    formationArenaAdded=true;libraryUpdated=true;
+  }
+  if(!combinedFormationAdded&&plans.length<20){
+    if(!plans.some(p=>p.positions?.['combined-formation-arena-0--1-0']))plans.push(combinedFormationRoom());
+    combinedFormationAdded=true;libraryUpdated=true;
+  }
+  if(!choreographyArenaAdded&&plans.length<20){
+    if(!plans.some(p=>p.positions?.['choreo-beam-row-0-0']))plans.push(choreographyArenaRoom());
+    choreographyArenaAdded=true;libraryUpdated=true;
+  }
+  if(!plans.some(p=>p.id===selected)){
+    selected=(plans.find(p=>p.name==='Club-Bühne · ohne Ruhezonen')||plans[0])?.id||'';
+    enabled=Boolean(selected);libraryUpdated=true;
+  }
+  if(libraryUpdated)try{localStorage.setItem(storageKey,JSON.stringify({plans,selected,enabled,clubRoomAdded,clubStageRoomAdded,clubStageOpenRoomAdded,hallDJRoomAdded,barnRoomAdded,festivalRoomAdded,strobeRoomAdded,formationArenaAdded,combinedFormationAdded,choreographyArenaAdded}));}catch{storageError='Speichern auf diesem Gerät fehlgeschlagen. Bitte exportiere deinen Raum.';}
 
   const current=()=>plans.find(p=>p.id===selected)||null;
   const root=document.createElement('details');root.className='stage-ar-planner';root.open=true;
@@ -80,7 +97,7 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   host.prepend(root);
   const q=name=>root.querySelector(`[data-ar-${name}]`);
   function notify(text,error=false){lastMessage=text;q('status').textContent=text;q('status').dataset.error=String(error);}
-  function persist(){try{localStorage.setItem(storageKey,JSON.stringify({plans,selected,enabled,clubRoomAdded,clubStageRoomAdded,clubStageOpenRoomAdded,hallDJRoomAdded,barnRoomAdded,festivalRoomAdded}));storageError='';}catch{storageError='Speichern auf diesem Gerät fehlgeschlagen. Bitte exportiere deinen Raum.';notify(storageError,true);}onChange();}
+  function persist(){try{localStorage.setItem(storageKey,JSON.stringify({plans,selected,enabled,clubRoomAdded,clubStageRoomAdded,clubStageOpenRoomAdded,hallDJRoomAdded,barnRoomAdded,festivalRoomAdded,strobeRoomAdded,formationArenaAdded,combinedFormationAdded,choreographyArenaAdded}));storageError='';}catch{storageError='Speichern auf diesem Gerät fehlgeschlagen. Bitte exportiere deinen Raum.';notify(storageError,true);}onChange();}
   function commit(value,{message='Änderung gespeichert.',history=true}={}){
     const plan=validateRoomPlan(value),i=plans.findIndex(p=>p.id===plan.id);
     if(i<0&&plans.length>=20)throw Error('Du hast bereits 20 Räume. Exportiere und entferne zuerst einen alten Raum.');
@@ -197,25 +214,25 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
     root.querySelectorAll('[data-ar-step]').forEach(n=>{n.disabled=Number(n.dataset.arStep)>1&&!plan;n.setAttribute('aria-current',Number(n.dataset.arStep)===step?'step':'false');});
     q('title').textContent=step===1?'1 · Lege deinen Raum an':step===2?'2 · Stelle deine Geräte auf':'3 · Deine Aufstellung ist bereit';
     q('help').textContent=step===1?(plan?'Prüfe die Maße und lege unter dem Raumplan Ruhezonen für Tische und Sitzbereiche an. Die Raumecken kannst du direkt im Plan setzen.':'Wähle einen einfachen Einstieg. Du kannst alles später ändern.'):step===2?'Zwei Punkte pro Leuchte: Gerät und Lichtziel direkt im Plan ziehen.':'Deine Änderungen sind gespeichert. Du kannst den Raum jetzt in der Lichtshow oder in AR verwenden.';
-    q('room').replaceChildren(...(plans.length?plans.map(p=>new Option(p.name,p.id)):[new Option('Noch kein Raum','')]));q('room').value=selected;q('room').disabled=!plans.length;q('new-room').disabled=plans.length>=20;
+    syncSelectOptions(q('room'),plans.length?plans.map(p=>({label:p.name,value:p.id})):[{label:'Noch kein Raum',value:''}],selected);setControlDisabled(q('room'),!plans.length);q('new-room').disabled=plans.length>=20;
     for(const k of ['name','width','depth','height']){q(k).value=plan?.[k]??'';q(k).disabled=!plan||mode==='draw'||(k!=='name'&&!!plan.mesh);}
     q('enabled').checked=enabled;q('enabled').disabled=!plan;
     q('brightness').value=plan?.environmentBrightness??30;q('brightness-value').textContent=`${plan?.environmentBrightness??30} %`;
-    q('style').value=plan?.style||'club';q('style').disabled=plan?.representation==='model';
-    q('representation').value=plan?.representation||'style';
-    q('representation').querySelector('[value=scan]').disabled=!plan?.surfaces.length;
-    q('representation').querySelector('[value=model]').disabled=!plan?.mesh;
+    setSelectValue(q('style'),plan?.style||'club');setControlDisabled(q('style'),plan?.representation==='model');
+    setSelectValue(q('representation'),plan?.representation||'style');
+    setControlDisabled(q('representation').querySelector('[value=scan]'),!plan?.surfaces.length);
+    setControlDisabled(q('representation').querySelector('[value=model]'),!plan?.mesh);
     q('geometry-info').textContent=plan?.representation==='model'?`${plan.mesh.name} · ${plan.mesh.triangles.length} Dreiecke · Maße aus dem Modell. Den begehbaren Grundriss kannst du im Plan anpassen.`:plan?.representation==='scan'?`${plan.surfaces.length} erfasste Raumflächen. Die Brille liefert Flächengeometrie, keine Fototexturen.`:'Wände und Boden werden aus deinem Grundriss erzeugt.';
     q('map-size').textContent=plan?`${plan.width.toFixed(1)} × ${plan.depth.toFixed(1)} m`:'';
     q('map-title').textContent=mode==='draw'?`${draft.length} Ecken gesetzt`:'Dein Raum von oben';
     q('map-hint').textContent=mode==='aim'?'Wohin schaut die Leuchte? Klicke auf ihr Lichtziel im Raum.':mode==='draw'?(draft.length<3?'Klicke mindestens drei Ecken entlang deiner Wände an. Jeder Klick setzt einen Punkt.':'Weitere Ecken setzen oder „Raumform übernehmen“ wählen. Ein Klick auf Punkt 1 schließt den Grundriss.'):mode==='place'?`${deviceName(fixture,plan?.positions[fixture],ids.indexOf(fixture))}: Tippe auf den gewünschten Standort. Grün = innerhalb des Raumes.`:step===2?'Gerät = Standort · gelber Kreis = Lichtziel. Beide Punkte lassen sich direkt ziehen.':'Jedes kleine Rasterfeld entspricht einem Meter.';
     q('draw-actions').hidden=mode!=='draw';q('place-actions').hidden=!['place','aim'].includes(mode);q('draw-finish').disabled=draft.length<3;q('point-undo').disabled=!draft.length;
     q('empty').hidden=ids.length>0;q('device-editor').hidden=!fixture;
-    q('fixture').replaceChildren(...ids.map((id,i)=>new Option(deviceName(id,plan.positions[id],i),id)));q('fixture').value=fixture;
+    syncSelectOptions(q('fixture'),ids.map((id,i)=>({label:deviceName(id,plan.positions[id],i),value:id})),fixture);
     q('devices').replaceChildren(...ids.map((id,i)=>{const b=document.createElement('button');b.type='button';b.className='ar-device';b.dataset.selectDevice=id;b.setAttribute('aria-pressed',String(id===fixture));const number=document.createElement('b'),name=document.createElement('span'),small=document.createElement('small');number.textContent=String(i+1);name.textContent=deviceName(id,plan.positions[id],i);small.textContent=`${deviceTypes[plan.positions[id].type]||'Lichtgerät'} · ${plan.positions[id].height.toFixed(2)} m hoch · ${plan.positions[id].type==='moving'?'freier Bewegungsbereich':roomFixtureRotation(plan.positions[id],roomFixtureTarget(plan,id,getScene()?.lights)).toFixed(1)+'°'}`;b.append(number,name,small);b.onclick=()=>selectFixture(id);return b;}));
     const p=plan?.positions[fixture];q('rotation').closest('label').hidden=false;q('rotation-label').textContent=p?.type==='moving'?'Montageausrichtung (°)':'Drehung (°)';q('rotation-help').hidden=p?.type!=='moving';q('motion-area').hidden=p?.type!=='moving';
     if(p?.type==='moving'){const a=p.motionArea||{x:0,y:0,width:1,depth:1};for(const [key,value] of [['left',(a.x-.5)*plan.width],['right',(a.x+a.width-.5)*plan.width],['front',a.y*plan.depth],['back',(a.y+a.depth)*plan.depth]])q('area-'+key).value=Number(value.toFixed(3));}
-    q('wall').replaceChildren(new Option('Nur Boden',''),...(plan?.boundary||[]).map((_,i)=>new Option('Wand '+(i+1),String(i))));q('wall').value=p?.wallTarget?String(p.wallTarget.wall):'';q('wall-fields').hidden=!p?.wallTarget;
+    syncSelectOptions(q('wall'),[{label:'Nur Boden',value:''},...(plan?.boundary||[]).map((_,i)=>({label:'Wand '+(i+1),value:String(i)}))],p?.wallTarget?String(p.wallTarget.wall):'');q('wall-fields').hidden=!p?.wallTarget;
     if(p?.wallTarget){const w=p.wallTarget;for(const [key,value] of [['start',w.start*100],['end',w.end*100],['min',w.minHeight],['max',w.maxHeight]])q('wall-'+key).value=value;}
     q('device-name').value=p?deviceName(fixture,p,ids.indexOf(fixture)):'';
     for(const [key,field] of [['x','x'],['y','y'],['height','z'],['rotation','rotation']]){q(field).disabled=!p;q(field).value=key==='rotation'&&p?Number((p.type==='moving'?(p.rotation||0):roomFixtureRotation(p,roomFixtureTarget(plan,fixture,getScene()?.lights))).toFixed(1)):p?Number(p[key].toFixed(2)):'';}
@@ -327,5 +344,5 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   importZones.onclick=()=>attempt(()=>{const saved=JSON.parse(localStorage.getItem('anydj-3d-zones-v1')||'null');if(!saved?.zones?.length){notify('Keine bisherigen Showzonen gespeichert.');return;}commit({...current(),zones:[...(current().zones||[]),...saved.zones.map(z=>({...z,id:roomId()}))]},{message:'Showzonen übernommen. Prüfe ihre Position im Raum.'});});roomZones.panel.querySelector('.stage-3d-zone-actions').append(importZones);
   compact=compactDeviceManager(root);
   sync();if(storageError)notify(storageError,true);
-  return {root,get moving(){return renderRoom.active();},get plan(){return current();},get active(){return enabled&&!!current();},get layout(){return enabled&&current()?roomPlanLayout(current()):null;},scene(scene,ar=false){return enabled&&current()?renderRoom(scene,current(),ar):scene;},seed,save:commit,use(plan){validateRoomPlan(plan);enabled=true;commit(plan);},notify,openStep(value){root.open=true;go(value);},setARSupport(value){if(arReady===value)return;arReady=value;sync();},destroy(){disposed=true;compact?.destroy();roomZones?.destroy();root.remove();}};
+  return {root,selectDevice(id){if(current()?.positions[id]){step=2;selectFixture(id);}},get moving(){return renderRoom.active();},get plan(){return current();},get active(){return enabled&&!!current();},get layout(){return enabled&&current()?roomPlanLayout(current()):null;},scene(scene,ar=false){return enabled&&current()?renderRoom(scene,current(),ar):scene;},seed,save:commit,use(plan){validateRoomPlan(plan);enabled=true;commit(plan);},notify,openStep(value){root.open=true;go(value);},setARSupport(value){if(arReady===value)return;arReady=value;sync();},destroy(){disposed=true;compact?.destroy();roomZones?.destroy();root.remove();}};
 }

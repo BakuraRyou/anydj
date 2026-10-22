@@ -43,6 +43,26 @@ test('preparation is opt-in, chunked, cancellable, cached and invalidated by sho
   prep.prepare([{duration:NaN}]);drain();assert.equal(prep.stats().failed,1);
   prep.prepare([song(60)]);assert.equal(tasks.size,1);prep.destroy();assert.equal(tasks.size,0);
 });
+test('live song variants jump ahead of library jobs and expose complete cues after the first chunk',()=>{
+ let nextId=0;const tasks=new Map();
+ const prep=createMovingPreparation({schedule:fn=>{tasks.set(++nextId,fn);return nextId;},cancel:id=>tasks.delete(id)});
+ const live={...song(600),movingMood:'show',arrangement:{step:.1,times:[8,10,12,16,18,20],accents:[.8,.8,.8,.8,.8,.8],bases:Array(6000).fill(.5),patterns:{phrases:[{start:0,end:600,energy:.8,tone:.5,movement:{driving:.8}}]}}};
+ const background=song(600);prep.setEnabled(true);prep.prepare([background]);
+ prep.prioritize([live],'auto','balanced');
+ assert.equal(prep.read(live,18),null);
+ const [id,tick]=tasks.entries().next().value;tasks.delete(id);tick();
+ assert.equal(prep.stats().ready,0,'large sample buffers are still being baked');
+ const expected=movingPlanJob(live,'auto','show');expected.advance();
+ assert.ok(expected.result.cues?.length);
+ assert.deepEqual(prep.read(live,18),movingPlanAt(expected.result,18));
+ assert.equal(prep.read(background,18),null,'inactive library jobs cannot block the audible song');
+ const variant={...live,movingMood:'disco'};
+ prep.prioritize([variant],'auto','balanced');
+ const [next,nextTick]=tasks.entries().next().value;tasks.delete(next);nextTick();
+ const variantJob=movingPlanJob(variant,'auto','disco');variantJob.advance();
+ assert.deepEqual(prep.read(variant,18),movingPlanAt(variantJob.result,18));
+ prep.destroy();assert.equal(tasks.size,0);
+});
 test('playback velocity is continuous across 50 ms sample boundaries without overshoot',()=>{
  const track={duration:.2,step:.05,values:Float32Array.from([0,1,3,4,4].flatMap(p=>Array.from({length:4},()=>[p,.8]).flat()))};
  const at=t=>movingPlanAt(track,t)[0].pan,h=.000001;

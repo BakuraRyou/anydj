@@ -1,0 +1,31 @@
+{
+  "scenario": "CPU-only large club, animated targets and intensity changes, same camera and pixel dimensions",
+  "before": {
+    "fixtures": 192,
+    "frames": 400,
+    "measuredFrames": 340,
+    "medianMs": 13.565345999999863,
+    "p95Ms": 17.37532900000042,
+    "streamHash": "91a2ca5f527e290b5cecf19724385f75917530cb703842d2edb82fe8466126f8"
+  },
+  "after": {
+    "fixtures": 192,
+    "frames": 400,
+    "measuredFrames": 340,
+    "medianMs": 11.569426999999905,
+    "p95Ms": 15.121814000000086,
+    "streamHash": "91a2ca5f527e290b5cecf19724385f75917530cb703842d2edb82fe8466126f8"
+  },
+  "medianReductionPercent": 14.7,
+  "identicalGraphicsStream": true,
+  "validation": {
+    "unitTestsPassed": 28,
+    "browserBackendsPassed": [
+      "WebGL",
+      "WebGPU",
+      "Canvas"
+    ],
+    "contextLossAndDisposalPassed": true
+  },
+  "note": "CPU timing is not end-to-end FPS. Live scene differs from the synthetic 192-light benchmark."
+}

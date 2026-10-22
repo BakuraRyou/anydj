@@ -1,9 +1,10 @@
 // UI composition only: keep existing controls, handlers and saved settings intact.
-export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones}){
+export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones,getPreviewLights=()=>({room:[],patch:[]})}){
   const q=s=>panel.querySelector(s),heading=q('.stage-3d-heading'),canvas=q('canvas'),tools=q('.stage-3d-tools'),status=q(':scope>p[role=status]');
   heading.querySelector('strong').innerHTML='Lichtshow <small>3D-Vorschau</small>';
   q('[data-stage3d-full]').textContent='Vollbild';
   const reset=q('[data-camera=reset]');reset.textContent='Raum einpassen';tools.append(reset);
+  q('[data-stage3d-expand]').before(q('[data-stage3d-fps]'));
   q('[data-camera=front]').textContent='Übersicht';q('[data-camera=front]').setAttribute('aria-pressed','true');q('[data-camera=top]').textContent='Von oben';
   const work=document.createElement('div');work.className='stage-3d-workspace';
   const viewport=document.createElement('div');viewport.className='stage-3d-viewport';
@@ -32,7 +33,7 @@ export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones}
   const retry=document.createElement('button');retry.type='button';retry.className='button secondary';retry.textContent='Song-Licht bearbeiten';retry.hidden=true;
   const editorMount=document.createElement('div');songHost.append(songHint,retry,editorMount);
   const lightHost=document.createElement('div');lightHost.className='stage-3d-light-editor';lightPage.append(lightTabs,songHost,lightHost);
-  let lightView='song',session=null,sessionKey='',pending=null,epoch=0,disposed=false;
+  let roomSignature='',lightView='song',session=null,sessionKey='',pending=null,epoch=0,disposed=false;
   function releaseSong(){epoch++;pending?.abort();pending=null;session?.destroy();session=null;sessionKey='';editorMount.replaceChildren();}
   async function ensureSong(force=false){
     const selected=transport.getSelected(),key=selected?.canEdit?`${selected.id}:${selected.trackId}`:'';
@@ -43,13 +44,21 @@ export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones}
     releaseSong();sessionKey=key;songHint.textContent='Lichtmanager wird geöffnet …';retry.hidden=true;
     const own=++epoch;pending=new AbortController();
     try{
-      const editor=await transport.mountEditor(editorMount,{signal:pending.signal,onDispose:()=>{if(own!==epoch)return;session=null;songHint.textContent='Entwurf bleibt für diese Sitzung erhalten.';retry.hidden=false;}});
+      const room=roomPlanner?.active?roomPlanner.plan:null;
+      const devices=Object.entries(room?.positions||{}).filter(([,p])=>['moving','spot','bar'].includes(p.type));
+      const targets=room?[...['moving','spot','bar'].filter(type=>devices.some(([,p])=>p.type===type)).map(type=>({id:`room-type:${room.id}:${type}`,name:`Raumgruppe · ${type==='moving'?'Moving Heads':type==='spot'?'Scheinwerfer':'Lichtleisten'}`,room:{width:room.width,depth:room.depth}})),...[...new Set(devices.map(([,p])=>p.group).filter(Number.isInteger))].map(group=>({id:`room-group:${room.id}:${group}`,name:`Raumgruppe · Gruppe ${group+1}`,room:{width:room.width,depth:room.depth}})),...devices.map(([id,p])=>({id:`room:${room.id}:${id}`,name:p.name||id,room:{width:room.width,depth:room.depth},aim:p.target}))]:[];
+      const editor=await transport.mountEditor(editorMount,{signal:pending.signal,targets,getTargetPreview:target=>{
+        const scene=getPreviewLights(),prefix=`room:${room?.id}:`,typePrefix=`room-type:${room?.id}:`,groupPrefix=`room-group:${room?.id}:`;
+        const selected=target.startsWith(prefix)?scene.room.filter(l=>l.id===target.slice(prefix.length)):target.startsWith(typePrefix)?scene.room.filter(l=>l.type===target.slice(typePrefix.length)):target.startsWith(groupPrefix)?scene.room.filter(l=>room.positions[l.id]?.group===Number(target.slice(groupPrefix.length))):target.startsWith('patch:')?scene.patch.filter(l=>l.id===target.slice(6)):[];
+        return selected.map(l=>({color:l.color,power:l.power}));
+      },onEditPosition:target=>{show('fixtures');const prefix=`room:${room?.id}:`;if(target.startsWith(prefix))roomPlanner?.selectDevice(target.slice(prefix.length));},onDispose:()=>{if(own!==epoch)return;session=null;songHint.textContent='Entwurf bleibt für diese Sitzung erhalten.';retry.hidden=false;}});
       if(own!==epoch||disposed){editor?.destroy();return;}
       pending=null;session=editor;
       if(editor){
         // Share the timeline's zoom, scroll and playhead with the existing light curve.
         const track=editorMount.querySelector('.le-track'),curve=editorMount.querySelector('.le-preview-card canvas');
         track.classList.add('le-combined');track.insertBefore(curve,track.querySelector('.le-phases'));
+        editorMount.querySelector('.le-preview-card').hidden=true;
         editorMount.querySelector('.le-timeline-tools strong').textContent='Lichtverlauf & Abschnitte';
       }
       songHint.textContent=editor?'Änderungen siehst du direkt in der 3D-Vorschau. Mit „Änderungen speichern“ übernehmen.':'Für diesen Song ist noch kein Lichtplan verfügbar.';
@@ -62,6 +71,7 @@ export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones}
     songHost.hidden=view!=='song';lightHost.hidden=view==='song';
     lightTabs.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lightView===view)));
     work.classList.toggle('editing-song',current==='lighting'&&view==='song');
+    if(view==='song'){const signature=JSON.stringify(roomPlanner?.active?roomPlanner.plan:null);if(signature!==roomSignature){releaseSong();roomSignature=signature;}}
     if(view==='live')cleanup=mountLighting?.(lightHost,stageView);else void ensureSong();
   }
   lightTabs.querySelectorAll('button').forEach(b=>b.onclick=()=>chooseLight(b.dataset.lightView));
@@ -137,7 +147,7 @@ export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones}
     }
     xr.append(intro,paths,remote,local);choosePath(setup.dataset.vrState==='ready'?'local':'remote');syncConnection();
     panel.addEventListener('vr-connection-change',syncConnection,{signal:toolEvents.signal});
-    tools.replaceChildren(views,zoom,extras);
+    tools.replaceChildren(views,zoom,q('[data-focus-point]'),extras);
     document.addEventListener('pointerdown',event=>{for(const menu of extras.children)if(menu.open&&!menu.contains(event.target))menu.open=false;},{signal:toolEvents.signal});
     tools.addEventListener('keydown',event=>{if(event.key!=='Escape')return;const open=[...extras.children].find(m=>m.open);if(open){event.preventDefault();event.stopPropagation();open.open=false;open.querySelector('summary').focus();}},{signal:toolEvents.signal});
   }

@@ -19,7 +19,7 @@ npm run pack -- --dir     # App-Verzeichnis ohne Installer, zum Testen
 npm run desktop -- --demo # Entwicklung mit virtueller Lampe
 ```
 
-Ausgabe: `dist/`. Windows am besten auf Windows bauen, Linux auf Linux.
+Ausgabe: `dist/`. Windows auf Windows bauen, Linux auf Linux und macOS auf einem Mac.
 Der manuell startbare GitHub-Workflow `Desktop installers` baut beide separat,
 lädt die Dateien als Build-Artefakte hoch und veröffentlicht keinen Release.
 Der Workflow wurde hier nicht ausgeführt. Builds sind noch nicht signiert.
@@ -45,7 +45,7 @@ Die Analyseumgebungen und Modelle werden zuvor über die vorhandenen
 Python-Umgebungen unter `.venv-*/Scripts/python.exe` erforderlich; insbesondere
 müssen alle nativen Analysebibliotheken für Windows verfügbar sein. Der
 vollständige Windows-KI-Build ist noch nicht validiert. Ein Linux-KI-Paket kann
-nicht in einen Windows-Installer übernommen werden.
+nicht in einen Windows- oder Mac-Installer übernommen werden.
 
 `pack:analysis` erstellt `.build/analysis/<Betriebssystem>-<Architektur>/`.
 Nach Änderungen an Python-Adaptern, Analysebibliotheken oder Modellen diesen
@@ -71,14 +71,22 @@ Bereits gespeicherte Teilanalysen bleiben im Bibliothekscache: Nach dem Update
 betroffene Titel einmal über **Lichtshow neu berechnen** aktualisieren.
 Private Lampendaten, Musikdateien und Berichte werden nicht eingepackt.
 
-WLAN-Scans und automatische WLAN-Neueinrichtung sind entfernt. Die App erstellt
-keine NetworkManager-Profile. Die UDP-Steuerung bereits eingerichteter WiZ-Lampen
-im vorhandenen Netzwerk ist enthalten.
+Die Hardwareausgabe erfolgt über DMX/OLA. Die App erstellt keine
+NetworkManager-Profile und enthält keine WLAN-Lampensteuerung.
 Linux-Pakete setzen ein unterstütztes Desktop-Linux mit den üblichen
 Systembibliotheken voraus; AppImage benötigt je nach Distribution FUSE oder
 kann mit `--appimage-extract-and-run` gestartet werden.
 
 ## Laufzeit und Daten
+
+Die Desktop-App verwendet eine eigene, 34 Pixel hohe Fensterleiste im AnyDj-Stil.
+Logo, Stopp, Einstellungen und Fensterbuttons teilen sich eine einzige Zeile.
+Unter Windows und Linux enthält sie eigene Fensterbuttons; unter macOS sind die
+nativen Fensterknöpfe integriert. Die Leiste bleibt in der großen Lichtshow und
+bei modalen Dialogen bedienbar. Die Implementierung liegt in `titlebar.cjs` und
+`window-chrome.mjs`; die Browseroberfläche benötigt keine Desktop-APIs.
+Nach Änderungen an dieser Einbindung die Desktop-App neu starten. Installierte
+Pakete übernehmen die Änderung erst mit einem neuen Desktop-Build.
 
 Die App startet ihren Server ausschließlich auf `127.0.0.1:36931` und beendet
 ihn zusammen mit dem Fenster. Der feste Ursprung erhält IndexedDB und
@@ -118,9 +126,25 @@ Es gibt bei diesem Release-Befehl keinen Lite-Fallback und keinen Cross-Build.
 `npm run deploy:full` verbindet diesen Build mit Website und FTPS-Veröffentlichung.
 Details und der Ablauf für beide Plattformen: [gemeinsames Deployment](../builder/README.md#website-und-vollständige-desktop-apps-gemeinsam-veröffentlichen).
 
-## Geplante lokale Windows-VM
+## Automatisierte Build-Umgebung
 
 Die Einrichtung und die noch offenen Schritte zur Funktionsgleichheit stehen in
-[Lokale Windows-Buildumgebung](windows-vm.md). Das VM-Skript bietet eine reine
-Voraussetzungsprüfung und eine explizite Erstellung; es installiert keine
-Systempakete. Windows bleibt bis zu vollständigen Laufzeittests unvalidiert.
+[Lokale Windows-Buildumgebung](windows-vm.md). `npm run init:apps` richtet den Windows-Gast und native Build-Abhängigkeiten ein.
+Danach führt `npm run deploy:apps` Builds und Uploads aus. Ein optionaler Mac
+wird über SSH angebunden. Windows und macOS benötigen weiterhin Laufzeittests.
+
+Für den automatisierten Linux-/Windows-Ablauf mit einer vorhandenen Build-VM:
+`npm run deploy:apps`. Einrichtung, Fehlerverhalten und Optionen stehen in
+[Windows-VM: gemeinsamer Build und Upload](windows-vm.md#ein-befehl-für-linux-windows-vm-und-upload).
+
+### App-Icon
+
+Das Desktop-Icon verwendet das Logo aus `public/animatus-small.svg` auf einer dunklen Fläche. `desktop/icons/` enthält die eingebundenen PNG-, ICO- und ICNS-Dateien sowie die Linux-Größen. Das Entwicklungsfenster und die Pakete verwenden dieselben Assets.
+
+Nach Änderungen am Logo: `python3 scripts/build-app-icons.py` ausführen (Pillow und Chrome/Chromium erforderlich). Die generierten Dateien werden eingecheckt; zum Starten und Paketieren ist keine erneute Konvertierung nötig. Für installierte Anwendungen wird das Icon mit einem neuen Desktop-Build aktualisiert.
+
+### Lokale Audiodateien wiederherstellen
+
+Die Desktopapp erneuert Lesefreigaben für bereits ausgewählte Datei-/Ordner-Handles im eigenen App-Fenster. Einzeldateien und Drag-and-drop-Importe werden zusätzlich über ihre nativen Dateipfade in `userData/data/audio-references.json` referenziert. Musikdateien werden dabei nicht kopiert. Nach Neuladen oder Neustart werden die pausierten Decks einschließlich ihrer Position wiederhergestellt. Fehlende oder veränderte Dateien müssen weiterhin zugeordnet bzw. neu analysiert werden.
+
+Prüfungen: `node --test test/desktop-local-audio.test.mjs test/dj-session-restore.test.mjs`; vollständiger Electron-Neustarttest unter Linux: `node scripts/check-desktop-file-restore.mjs` (benötigt Xvfb).

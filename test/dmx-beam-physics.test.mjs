@@ -56,6 +56,35 @@ test('vertical aiming retains the current pan instead of inventing a half-turn',
   assert.ok(Math.abs(result.aimRotation-90)<1e-7);
  }
 });
+
+test('an unrelated quiet zone does not delay feasible visible formations by a fraction of a beat',()=>{
+ for(const zones of [[],[{id:'side',x:0,y:0,width:.1,depth:.1}]]){
+  const motor=createRoomMotors(),room={...layout,zones},dt=1/120,rad=Math.PI/180;
+  let peak=-Infinity,peakTime=0,previous=null,velocity=0,error=0,count=0;
+  for(let i=0;i<1200;i++){
+   const time=i*dt,angle=15*rad*Math.sin(Math.PI*time);
+   const value=motor({...lamp,position:{x:0,y:3,height:1.5},target:{x:2*Math.sin(angle),y:3-2*Math.cos(angle),z:1.5},
+    motionPresentation:'strobe',strobeVisibleMotion:true},room,time);
+   const actual=Math.atan2(value.target.x,3-value.target.y)/rad,v=previous===null?0:(actual-previous)/dt;
+   if(i>1){assert.ok(Math.abs(v)<=70+1e-6);assert.ok(Math.abs(v-velocity)/dt<=280+1e-5);}
+   if(time>=4&&time<=5&&actual>peak){peak=actual;peakTime=time;}
+   if(time>2){error+=Math.abs(actual-15*Math.sin(Math.PI*time));count++;}
+   previous=actual;velocity=v;
+  }
+  assert.ok(Math.abs(peakTime-4.5)<.035,`zones=${zones.length}: late formation reversal ${peakTime-4.5}s`);
+  assert.ok(error/count<1,'feasible movement follows within one degree on average');
+ }
+});
+
+test('protected transfers ignore the unrouted future even when a formation is visibly moving',()=>{
+ const a=createRoomMotors(),b=createRoomMotors(),room={...layout,zones:[{id:'side',x:0,y:0,width:.1,depth:.1}]};
+ for(let i=0;i<240;i++){
+  const time=i/120,light={...lamp,zoneTransit:true,power:0,motionPresentation:'strobe',strobeVisibleMotion:true,
+   target:{x:2*Math.sin(time),y:1,z:.2}};
+  const normal=a(light,room,time),misleading=b({...light,motionAhead:{seconds:.12,target:{x:-4,y:6,z:3}}},room,time);
+  assert.deepEqual(normal.target,misleading.target);assert.equal(misleading.power,0);
+ }
+});
 test('a head tilts continuously across zenith and nadir without a lateral pan sweep',()=>{
  for(const upward of [true,false]){
   const motor=createRoomMotors(),origin={x:0,y:3,height:1.5},dt=1/120;

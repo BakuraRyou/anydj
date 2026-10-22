@@ -16,7 +16,11 @@ function music({period=.5,barsize=4,energy=.82,vocals=0,drive=.9,duration=96}={}
 }
 
 for(const profile of SHOW_PROFILES)test(`${profile}: source, presence and room preserve limits, blackouts and deterministic movement`,()=>{
- const original=music(),saved=structuredClone(original),plan=applyShowProfile(original,profile),mood=movingMoodForProfile(profile);
+ const original=music();
+ // Strobo responds to measured entrances, rather than treating the beat grid
+ // itself as evidence for a shutter run. Give this active-song fixture onsets.
+ original.arrangement.eventSources=original.arrangement.times.map(()=>'onset');
+ const saved=structuredClone(original),plan=applyShowProfile(original,profile),mood=movingMoodForProfile(profile);
  const mode=profile==='strobe'?'strobe':'auto',cues=movingCues(plan,mode,mood),equipment={devices:Array.from({length:8},(_,i)=>({id:'h'+i,type:'moving',cells:1}))};
  function frame(t,zero=false){
   const value=showFrameAt(plan,t),source={movingPlan:plan,songTime:t,look:'peak',weight:1,frame:zero?{...value,dimming:0}:value};

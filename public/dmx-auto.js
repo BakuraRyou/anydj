@@ -1,13 +1,13 @@
 import {renderStrobe} from './dmx-strobe.js';
-import {lightingSceneAt,lightingScenes} from './dmx-light-scenes.js';
-import {showActionAt} from './show-action.js';
+import {musicalSourceDimming as automaticDimming} from './dmx-musical-score.js';
+export {musicalSourceDimming as automaticDimming} from './dmx-musical-score.js';
 import {activityAt} from './dmx-activity.js';
 import {passageIntensity} from './stage-motifs.js';
 import {stagePatch} from './dmx-model.js';
 export const colorCount=value=>[1,2,3,4].includes(value)?value:2;
 export const STAGE_PRESETS={
   auto:{name:'Automatische Lichtshow',help:'Farben, Bewegung und Lichtpausen folgen der Musik. Gezielte Aufbauten und Rücknahmen gestalten besondere Passagen.'},
-  strobe:{name:'Strobo',help:'120 Animationen passend zum Songabschnitt: sanfte Wellen, Gruppenwechsel, Aufbauten und weiße Blitzfolgen. Maximales Beat-Flackern regelt die Stärke. Ohne Beat-Raster bleibt das Licht konstant.'},
+  strobe:{name:'Formationen',help:'Hauptbild, Gegenfigur und bewegte Verbindungen bilden eine gemeinsame Choreografie. Ruhige Passagen, Dialoge, Aufbauten und Höhepunkte bekommen eigene Bühnenbilder. Aktive Strahlen behalten ihre Lichtstärke.'},
   chase:{name:'Lauflicht',help:'Eine weiche Lichtwelle wandert im Beat von Gerät zu Gerät. Farben und Helligkeit folgen deiner Show.'},
   wash:{name:'Ruhige Farbflächen',help:'Für Warm-up und Hintergrundlicht: Die Helligkeit folgt dem langsamen Verlauf der Show, ohne zusätzliche Beat-Impulse.'},
   follow:{name:'Musikimpulse gemeinsam',help:'Alle Geräte übernehmen die Helligkeit der vorbereiteten Show gleichzeitig, in deinen Bühnenfarben. Keine zusätzliche Blinkkurve.'},
@@ -46,6 +46,37 @@ export function automaticColorCount(limit,look,progress=0){
   if(look==='peak')return limit;
   if(look==='lift')return Math.min(limit,1+Math.floor(clamp(progress,0,1)*(limit-1)));
   return Math.min(limit,2);
+}
+const densityCache=new WeakMap();
+function automaticColorDensity(source,limit){
+  const plan=source.movingPlan,time=source.songTime;
+  if(!plan?.sections?.length||!Number.isFinite(time)||plan.showProfile&&plan.showProfile!=='auto')return null;
+  let limits=densityCache.get(plan);if(!limits){limits=new Map();densityCache.set(plan,limits);}
+  let sections=limits.get(limit);
+  if(!sections){
+    let previous;
+    sections=plan.sections.map(s=>{
+      const build=s.look==='lift',target=build?limit:automaticColorCount(limit,s.look);
+      // A build opens the picture it inherits instead of first collapsing it
+      // to one color. Its complete duration supplies the expansion clock.
+      const from=previous??(build?1:target),fade=build?Math.max(.65,s.end-s.start):.65;
+      previous=from+(target-from)*ease((s.end-s.start)/fade);
+      return {...s,from,target,fade};
+    });limits.set(limit,sections);
+  }
+  const section=sections.find(s=>time>=s.start&&time<s.end);
+  if(!section||section.look!==source.look)return null;
+  const progress=ease((time-section.start)/section.fade);
+  return section.from+(section.target-section.from)*progress;
+}
+function densityPalette(source,limit,density){
+  const low=Math.floor(density),high=Math.ceil(density),mix=density-low;
+  // Keep the outgoing contrast while a quiet picture becomes monochrome.
+  const look=quiet(source.look)&&density>1?'flow':source.look;
+  const a=automaticPalette(source.frame,low,look,source.palette);
+  const b=high===low?a:automaticPalette(source.frame,high,look,source.palette);
+  // Fixed slots keep fixture membership stable as colors open or withdraw.
+  return Array.from({length:limit},(_,i)=>high===low?a[i%low]:blendSpatialColor(a[i%low],b[i%high],mix));
 }
 const colorLayouts=new WeakMap();
 function colorLayoutAt(source){
@@ -92,27 +123,23 @@ const ease=x=>{const v=clamp(x,0,1);return v*v*(3-2*v);};
 // Only measured, driving bounce/sweep phrases carry a travelling palette.
 // Pair selected attacks into steps; a beat grid alone never animates colors.
 export function spatialColors(source,units,palette){
-  const action=showActionAt(source.movingPlan,source.songTime);
-  if(action&&palette.length>1){
-    const {cue,progress}=action;
-    // Center and edges share one color wave. Normalize brightness during
-    // complementary blends so a color transition does not invent a blackout.
-    return Array.from({length:units},(_,i)=>{
-      const radius=units===1?0:Math.abs(2*i/(units-1)-1);
-      const wave=cue.action==='launch'?ease(progress*1.6-radius*.6):cue.action==='hit'?ease(progress)*radius:cue.phase?1-radius:radius;
-      return blendSpatialColor(palette[0],palette.at(-1),wave*ease(progress/.16)*(1-ease((progress-.72)/.28)));
-    });
-  }
-  if(source.movingPlan?.showProfile==='show')return Array.from({length:units},()=>palette[0]);
-  const count=palette.length,slots=spatialColorSlots(source,units,count);
+  const show=source.movingPlan?.showProfile==='show',count=palette.length;
+  // Show shares the configured palette, with mirrored groups where the fixture
+  // count allows every color to appear. Small rigs still use all available slots.
+  const slotsAt=layout=>show&&units>=2*count-1
+    ?Array.from({length:units},(_,i)=>(Math.min(i,units-1-i)+layout)%count)
+    :slotsForLayout(layout,units,count);
+  const slots=slotsAt(colorLayoutAt(source));
   let base=slots.map(i=>palette[i]);
   // A musical layout change is a short dissolve, not a simultaneous hard swap.
   const layout=colorLayoutAt(source),boundaries=colorLayouts.get(source.movingPlan);
   const age=source.songTime-(boundaries?.[layout]??-Infinity);
   if(layout>0&&age>=0&&age<.65){
-    const previous=slotsForLayout(layout-1,units,count),mix=ease(age/.65);
+    const previous=slotsAt(layout-1),mix=ease(age/.65);
     base=base.map((rgb,i)=>blendSpatialColor(palette[previous[i]],rgb,mix));
   }
+  // Action cues affect motion and exposure, never trigger travelling color waves.
+  if(show)return base;
   const plan=source.movingPlan,time=source.songTime;
   if(count<2||units<2||!plan||!Number.isFinite(time)||quiet(source.look))return base;
   let phrases=rollingCache.get(plan);
@@ -133,7 +160,7 @@ export function spatialColors(source,units,palette){
   if(event<0)return base;
   const last=times[event],next=times[event+1];
   // Let a genuine musical gap settle back instead of free-running through it.
-  const amount=ease((time-phrase.start)/.5)*ease((phrase.end-time)/.5)*
+  const amount=ease((time-times[0])/.5)*ease((phrase.end-time)/.5)*
     (event>0&&last-times[event-1]>.85?ease((time-last)/.3):1)*
     (next!==undefined&&next-last<=.85?1:1-ease((time-last-.15)/.5));
   const anchor=event-event%2,step=anchor/2;
@@ -145,28 +172,12 @@ export function spatialColors(source,units,palette){
   return base.map((rgb,i)=>blendSpatialColor(rgb,
     blendSpatialColor(palette[slot(i,step)],palette[slot(i,step+1)],mix),amount));
 }
-// Recover mid-level exposure in measured energetic passages before fixture masks.
-// Zero stays zero; the configured ceiling and explicit section edits still win.
-export function automaticDimming(source){
-  const raw=clamp(source.frame?.dimming||0,0,100),plan=source.movingPlan,time=source.songTime;
-  if(!raw||source.frame?.state===false||!plan||!Number.isFinite(time))return raw;
-  if(plan.sectionLighting?.some(s=>time>=s.start&&time<s.end))return raw;
-  const scene=lightingSceneAt(plan,time);if(!scene)return raw;
-  const strength=s=>!s||s.kind==='silence'||s.kind==='sculpture'?0:ease((s.energy-.55)/.3);
-  const previous=lightingScenes(plan)[scene.index-1],blend=ease((time-scene.start)/.8);
-  const intensity=strength(previous)+(strength(scene)-strength(previous))*blend;
-  const ceiling=clamp(plan.effectiveOptions?.maximum??plan.beatTiming?.maximum??100,0,100);
-  if(raw>=ceiling)return raw;
-  const normalized=raw/ceiling;
-  const lifted=Math.min(raw*2.5,ceiling*Math.sqrt(normalized));
-  return raw+(lifted-raw)*intensity;
-}
-
 // Song profiles take precedence over the stage's default look while audible.
 export function stageModeForStreams(streams,mode='auto'){
  const active=streams.filter(s=>s.frame&&s.frame.state!==false&&Number.isFinite(s.weight)&&s.weight>0);
  const main=active.reduce((a,b)=>!a||b.weight>a.weight?b:a,null);
- return main?.movingPlan?.showProfile==='strobe'?'strobe':mode;
+ const profile=main?.movingPlan?.showProfile;
+ return profile==='strobe'?'strobe':['auto','show','party','disco','calm','atmospheric'].includes(profile)?'auto':mode;
 }
 
 export function automaticStage(streams,count=2,equipment,mode='auto',{movingSource=false}={}){
@@ -179,7 +190,6 @@ export function automaticStage(streams,count=2,equipment,mode='auto',{movingSour
   const total=active.reduce((sum,s)=>sum+s.weight,0);
   if(!total||!units)return {frames:patch.map(f=>Array.from({length:f.cells},()=>null)),palette:[],description:'Wartet auf Musik oder Demo.'};
   const main=active.reduce((a,b)=>a.weight>=b.weight?a:b),beat=Number.isFinite(main.motionBeat)?main.motionBeat:Number.isFinite(main.beat)?main.beat:null;
-  if(mode==='strobe')return renderStrobe(active,patch,{movingSource});
   const requested=count;
   const counts=active.map(s=>automaticColorCount(requested,s.look,s.sectionProgress));
   // Each deck may deliberately repeat colors. Preserve both shows in a transition.
@@ -189,13 +199,22 @@ export function automaticStage(streams,count=2,equipment,mode='auto',{movingSour
   const palettes=active.map((s,k)=>{const p=automaticPalette(s.frame,counts[k],s.look,s.palette);return Array.from({length:count},(_,i)=>p[i%p.length]);});
   // Blend colors per palette slot before distributing them: at most N color
   // families remain on stage, including while two decks crossfade.
-  const palette=Array.from({length:count},(_,i)=>[0,1,2].map(c=>Math.round(active.reduce((sum,s,k)=>sum+palettes[k][i][c]*s.weight,0)/total)));
+  let palette=Array.from({length:count},(_,i)=>[0,1,2].map(c=>Math.round(active.reduce((sum,s,k)=>sum+palettes[k][i][c]*s.weight,0)/total)));
+  if(mode==='strobe')return renderStrobe(active,patch,{movingSource,palette});
+  let spatialPalette=palette;
+  const densities=mode==='auto'?active.map(s=>automaticColorDensity(s,requested)):[];
+  if(densities.length&&densities.every(Number.isFinite)){
+    const expanded=active.map((s,i)=>densityPalette(s,requested,densities[i]));
+    spatialPalette=Array.from({length:requested},(_,i)=>[0,1,2].map(c=>Math.round(active.reduce((sum,s,k)=>sum+expanded[k][i][c]*s.weight,0)/total)));
+    palette=spatialPalette.filter((rgb,i)=>!spatialPalette.slice(0,i).some(p=>p.every((v,c)=>v===rgb[c])));
+    count=palette.length;
+  }
   const level=active.reduce((sum,s)=>sum+clamp(s.frame.dimming||0,0,100)*passageIntensity(s.look,s.sectionProgress)*s.weight,0)/total;
   // Spots and bar pixels each get a complete formation, so a long bar cannot
   // consume the active slots intended for the spotlights.
   const spots=patch.filter(f=>f.profile!=='rgb-pixels').length;
-  const spotColors=mode==='auto'?spatialColors(main,spots,palette):null;
-  const barColors=mode==='auto'?patch.map(f=>f.profile==='rgb-pixels'?spatialColors(main,f.cells,palette):null):[];
+  const spotColors=mode==='auto'?spatialColors(main,spots,spatialPalette):null;
+  const barColors=mode==='auto'?patch.map(f=>f.profile==='rgb-pixels'?spatialColors(main,f.cells,spatialPalette):null):[];
   const activity=mode==='auto'?active.map(s=>({spots:activityAt(s,spots),bars:patch.map(f=>f.profile==='rgb-pixels'?activityAt(s,f.cells):null)})):[];
   const calm=quiet(main.look)||mode==='auto'&&main.motionCharacter==='atmospheric',peak=main.look==='peak',build=main.look==='lift';
   const rotation=mode!=='auto'&&!simple&&beat!==null&&!calm?Math.floor(beat/8)%count:0;

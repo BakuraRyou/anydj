@@ -9,13 +9,11 @@ import {createApp} from '../server.mjs';
 const app=await createApp({demo:true});
 app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
-await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
-const lamp=app.client.lights.get('192.168.178.50');app.client.lights.clear();
 const requests=[];
 app.server.on('request',req=>requests.push(req.url));
-const profile=await mkdtemp(join(tmpdir(),'wiz-dj-connection-'));
+const profile=await mkdtemp(join(tmpdir(),'anydj-without-lamps-'));
 const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking','--no-first-run','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
-let ws;
+let ws,authApp;
 try {
   const endpoint=await new Promise((resolve,reject)=>{
     let output='';const timer=setTimeout(()=>reject(Error('Chrome startup timeout')),15000);
@@ -37,30 +35,35 @@ try {
   const evaluate=async expression=>{const r=await c('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
   const wait=async expression=>{const end=Date.now()+25000;while(Date.now()<end){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Timeout: '+expression);};
   await c('Page.navigate',{url:base+'/dj'});
-  await wait("document.querySelector('#djConnection')?.dataset.state==='offline'");
-  assert.ok(requests.includes('/api/connection'));
-  assert.equal(requests.includes('/api/music/start'),false);
-  assert.equal(await evaluate("document.querySelector('#djConnection').getBoundingClientRect().height>0"),true);
-  app.client.lights.set('192.168.178.70',lamp);
-  await wait("document.querySelector('#djConnection')?.dataset.state==='ready'");
-  assert.equal(await evaluate("[...document.querySelector('#djLamp').options].some(o=>o.value==='192.168.178.70')"),true);
+  await wait("typeof document.querySelector('#djFiles')?.onchange==='function'");
+  assert.equal(await evaluate("document.querySelector('#djLamp,#djConnection')===null"),true);
+  // The DJ console replaces the old login page, including optional local access.
+  authApp=await createApp({demo:true,token:'browser-check-access-code'});
+  authApp.server.listen(0,'127.0.0.1');await once(authApp.server,'listening');
+  const authBase=`http://127.0.0.1:${authApp.server.address().port}`;
+  await c('Page.navigate',{url:authBase+'/'});
+  await wait("document.querySelector('dialog[open] #localAccessToken')");
+  await evaluate("document.querySelector('#localAccessToken').value='wrong';document.querySelector('dialog form').requestSubmit()");
+  await wait("document.querySelector('dialog [role=status]').textContent.includes('stimmt nicht')");
+  await evaluate("document.querySelector('#localAccessToken').value='browser-check-access-code';document.querySelector('dialog form').requestSubmit()");
+  await wait("typeof document.querySelector('#djFiles')?.onchange==='function'");
+  assert.equal(await evaluate("document.querySelector('dialog[open]')===null"),true);
+  await c('Page.reload');
+  await wait("typeof document.querySelector('#djFiles')?.onchange==='function'");
+  assert.equal(await evaluate("document.querySelector('dialog[open]')===null"),true);
   assert.equal(await evaluate("[...document.querySelectorAll('audio')].every(a=>a.paused)"),true);
-  assert.equal(requests.includes('/api/music/start'),false);
-  await evaluate("document.querySelector('#djLamp').value='192.168.178.70';document.querySelector('#djLamp').dispatchEvent(new Event('change'))");
+  await new Promise(resolve=>setTimeout(resolve,7500));
+  assert.equal(requests.some(url=>/^\/api\/(connection|discover|devices|music)(\/|$)/.test(url)),false);
   await c('Page.reload');
-  await wait("document.querySelector('#djConnection')?.dataset.state==='ready'");
-  assert.equal(await evaluate("document.querySelector('#djLamp').value"),'192.168.178.70');
-  await evaluate("document.querySelector('#djLamp').value='';document.querySelector('#djLamp').dispatchEvent(new Event('change'))");
-  await c('Page.reload');
-  await wait("document.querySelector('#djConnection')?.dataset.state==='ready'");
-  assert.equal(await evaluate("document.querySelector('#djLamp').value"),'');
-  assert.equal(requests.includes('/api/music/start'),false);
+  await wait("typeof document.querySelector('#djFiles')?.onchange==='function'");
+  assert.equal(await evaluate("document.querySelector('#djLamp,#djConnection')===null"),true);
   assert.deepEqual(errors,[]);
-  const result={opensWithoutPlay:true,offlineStatusVisible:true,automaticReconnect:true,changedIP:true,reloadConnects:true,selectionRestored:true,audioOnlyRestored:true,musicStarts:0,browserErrors:0};
+  const result={removedLampControls:true,removedLampRequests:true,reloadWorks:true,localAccessWorks:true,browserErrors:0};
   console.log(JSON.stringify(result,null,2));
-  await writeFile(new URL('../reports/dj-connection-browser-check.json',import.meta.url),JSON.stringify(result,null,2)+'\n');
+  await writeFile(new URL('../reports/removed-lamp-browser-check.json',import.meta.url),JSON.stringify(result,null,2)+'\n');
 } finally {
   ws?.close();chrome.kill('SIGKILL');app.server.closeAllConnections();
+  if(authApp){authApp.server.closeAllConnections();await new Promise(resolve=>authApp.server.close(resolve));}
   await new Promise(resolve=>app.server.close(resolve));
   await rm(profile,{recursive:true,force:true,maxRetries:10,retryDelay:100});
 }

@@ -8,14 +8,13 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createApp} from '../server.mjs';
 const projectRoot=fileURLToPath(new URL('../',import.meta.url));
-const fixtures=await mkdtemp(join(tmpdir(),'wiz-queue-audio-'));
+const fixtures=await mkdtemp(join(tmpdir(),'anydj-queue-audio-'));
 const wav=join(fixtures,'test.wav'),mp3=join(fixtures,'test.mp3');
 await promisify(execFile)('ffmpeg',['-v','error','-f','lavfi','-i','sine=frequency=440:duration=13','-ar','16000',wav]);
 await promisify(execFile)('ffmpeg',['-v','error','-i',wav,mp3]);
 const {BeatAnalysis}=await import('../lib/beat-analysis.mjs');const app=await createApp({demo:true,beatAnalysis:new BeatAnalysis({ready:async()=>{throw Error('Test uses builtin analysis');}})});app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
-await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
-const profile=await mkdtemp(join(tmpdir(),'wiz-beat-chrome-'));
+const profile=await mkdtemp(join(tmpdir(),'anydj-beat-chrome-'));
 const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--mute-audio','--autoplay-policy=no-user-gesture-required','--no-sandbox','--disable-gpu','--disable-background-networking','--no-first-run','--no-default-browser-check','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
 let ws;
 try {
@@ -29,7 +28,7 @@ try {
  const wait=async(expression,timeout=30000)=>{const start=Date.now();while(Date.now()-start<timeout){try{if(await evaluate(expression))return;}catch(error){if(!/navigated or closed|context|Cannot find/i.test(error.message))throw error;}await new Promise(r=>setTimeout(r,100));}throw Error('Timed out: '+expression+' '+JSON.stringify(errors)+' '+await evaluate("({queue:document.querySelector('#queueStatus')?.textContent,status:document.querySelector('#djStatus')?.textContent,count:document.querySelector('#queueCount')?.textContent,start:document.querySelector('#queueStart')?.textContent,decks:[...document.querySelectorAll('audio')].map(a=>({time:a.currentTime,paused:a.paused}))})"));};
  await c('Emulation.setDeviceMetricsOverride',{width:1280,height:1000,deviceScaleFactor:1,mobile:false});
  await c('Page.addScriptToEvaluateOnNewDocument',{source:`window.rateWrites=[];const descriptor=Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype,'playbackRate');Object.defineProperty(HTMLMediaElement.prototype,'playbackRate',{...descriptor,set(value){window.rateWrites.push(value);descriptor.set.call(this,value);}});`});
- await c('Page.navigate',{url:base+'/dj'});await wait("document.querySelector('#djLamp')?.options.length>1");
+ await c('Page.navigate',{url:base+'/dj'});await wait("typeof document.querySelector('#djFiles')?.onchange==='function'");
 
 
 
@@ -44,7 +43,7 @@ try {
  await wait("document.querySelectorAll('#trackList small').length===2&&[...document.querySelectorAll('#trackList small')].every(n=>n.dataset.analysis==='complete')");
 
 
- await evaluate("document.querySelector('#djLamp').value='';document.querySelector('#djLamp').dispatchEvent(new Event('change'));document.querySelector('#fadeDuration').value='2';document.querySelector('#enqueueAll').click();document.querySelector('#queueSaveList').click();var listName=document.querySelector('#queueName');listName.value='Warm-up';listName.dispatchEvent(new Event('input'))");
+ await evaluate("document.querySelector('#fadeDuration').value='2';document.querySelector('#enqueueAll').click();document.querySelector('#queueSaveList').click();var listName=document.querySelector('#queueName');listName.value='Warm-up';listName.dispatchEvent(new Event('input'))");
  await wait("document.querySelector('#queueCount').textContent==='2'&&document.querySelector('#queueSaved').textContent.includes('gespeichert')");
  const first=await evaluate("document.querySelector('#queueSelect').value");
  await evaluate("document.querySelector('[data-queue-transition]').click()");

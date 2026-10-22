@@ -7,14 +7,13 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createApp} from '../server.mjs';
 const projectRoot=fileURLToPath(new URL('../',import.meta.url));
-const fixtures=await mkdtemp(join(tmpdir(),'wiz-queue-audio-'));
+const fixtures=await mkdtemp(join(tmpdir(),'anydj-queue-audio-'));
 const wav=join(fixtures,'test.wav'),mp3=join(fixtures,'test.mp3');
 await promisify(execFile)('ffmpeg',['-v','error','-f','lavfi','-i','sine=frequency=440:duration=12','-ar','16000',wav]);
 await promisify(execFile)('ffmpeg',['-v','error','-i',wav,mp3]);
 const {BeatAnalysis}=await import('../lib/beat-analysis.mjs');const app=await createApp({demo:true,beatAnalysis:new BeatAnalysis({ready:async()=>{throw Error('Test uses builtin analysis');}})});app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
-await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
-const profile=await mkdtemp(join(tmpdir(),'wiz-beat-chrome-'));
+const profile=await mkdtemp(join(tmpdir(),'anydj-beat-chrome-'));
 const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--mute-audio','--autoplay-policy=no-user-gesture-required','--no-sandbox','--disable-gpu','--disable-background-networking','--no-first-run','--no-default-browser-check','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
 let ws;
 try {
@@ -27,13 +26,15 @@ try {
  const evaluate=async expression=>{const r=await c('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true,userGesture:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value;};
  const wait=async(expression,timeout=30000)=>{const start=Date.now();while(Date.now()-start<timeout){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,100));}throw Error('Timed out: '+expression+' '+JSON.stringify(errors)+' '+await evaluate("({queue:document.querySelector('#queueStatus')?.textContent,status:document.querySelector('#djStatus')?.textContent,count:document.querySelector('#queueCount')?.textContent,start:document.querySelector('#queueStart')?.textContent,decks:[...document.querySelectorAll('audio')].map(a=>({time:a.currentTime,paused:a.paused}))})"));};
  await c('Emulation.setDeviceMetricsOverride',{width:1280,height:1000,deviceScaleFactor:1,mobile:false});
- await c('Page.navigate',{url:base+'/'});await wait(`location.origin===${JSON.stringify(base)}&&document.readyState==='complete'`);
- await evaluate(`new Promise((resolve,reject)=>{const request=indexedDB.open('wiz-dj-library',2);request.onupgradeneeded=()=>{request.result.createObjectStore('tracks',{keyPath:'id'});request.result.createObjectStore('settings');};request.onerror=()=>reject(request.error);request.onsuccess=()=>{const db=request.result,tx=db.transaction('settings','readwrite');tx.objectStore('settings').put([{id:'migration-entry',trackId:'migration-track'}],'queue');tx.oncomplete=()=>{db.close();resolve(true);};};})`);
- await c('Page.navigate',{url:base+'/dj'});await wait("document.querySelector('#djLamp')?.options.length>1");
+ // Seed the previous database version on an inert same-origin document.
+ await c('Page.navigate',{url:base+'/style.css'});await wait(`location.origin===${JSON.stringify(base)}&&document.readyState==='complete'`);
+ await evaluate(`new Promise((resolve,reject)=>{const request=indexedDB.open('previous-dj-library',2);request.onupgradeneeded=()=>{request.result.createObjectStore('tracks',{keyPath:'id'});request.result.createObjectStore('settings');};request.onerror=()=>reject(request.error);request.onsuccess=()=>{const db=request.result,tx=db.transaction('settings','readwrite');tx.objectStore('settings').put([{id:'migration-entry',trackId:'migration-track'}],'queue');tx.oncomplete=()=>{db.close();resolve(true);};};})`);
+ await c('Page.navigate',{url:base+'/dj'});await wait("typeof document.querySelector('#djFiles')?.onchange==='function'");
 
 
 
  // Open a real native popup, then let the UI refresh timers run.
+ await evaluate("(()=>{const select=document.querySelector('#fadeDuration');for(let node=select.parentElement;node;node=node.parentElement)if(node.tagName==='DETAILS')node.open=true;select.scrollIntoView({block:'center'});})()");
  const selectPoint=await evaluate("(()=>{const r=document.querySelector('#fadeDuration').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};})()");
  await c('Input.dispatchMouseEvent',{type:'mousePressed',...selectPoint,button:'left',clickCount:1});
  await c('Input.dispatchMouseEvent',{type:'mouseReleased',...selectPoint,button:'left',clickCount:1});
@@ -42,9 +43,6 @@ try {
  if(!await evaluate("document.querySelector('#fadeDuration').matches(':open')"))throw Error('Duration dropdown closed during UI refresh');
  await c('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
  await c('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
- await evaluate("window.lampOptionChanges=0;new MutationObserver(changes=>window.lampOptionChanges+=changes.length).observe(document.querySelector('#djLamp'),{childList:true,subtree:true})");
- await new Promise(resolve=>setTimeout(resolve,7500));
- if(await evaluate("window.lampOptionChanges"))throw Error('Unchanged connection poll rebuilt lamp options');
  const migration=await evaluate(`(async()=>{const lib=await import('/dj-library.js');const queue=await lib.readQueue();if(queue?.[0]?.id!=='migration-entry')throw Error('v2 queue lost during upgrade');await lib.saveQueue([]);return true;})()`);
  await evaluate("document.querySelector('#queueClear').click()");
  await evaluate(`document.querySelector('#djStructure').checked=false;const original=fetch;window.fetch=async(url,options={})=>{
@@ -154,7 +152,7 @@ await evaluate("document.querySelector('#queueStart').click()");
  const layout=await evaluate("(()=>{const library=document.querySelector('#libraryDrop').getBoundingClientRect(),queue=document.querySelector('.dj-queue').getBoundingClientRect();return {width:innerWidth,height:innerHeight,scrollWidth:document.documentElement.scrollWidth,scrollHeight:document.documentElement.scrollHeight,sideBySide:library.right<=queue.left&&Math.abs(library.top-queue.top)<1,bothListsVisible:[...document.querySelectorAll('#trackList,#queueList')].every(list=>list.getBoundingClientRect().height>70&&!list.hidden)};})()");
  if(layout.scrollWidth>width||(width>760&&layout.scrollHeight>height)||!layout.sideBySide||!layout.bothListsVisible)throw Error('Layout regression '+JSON.stringify(layout));layouts.push(layout);
  if(width===390){await evaluate("document.querySelector('.dj-color-picker').open=true");await wait("document.querySelector('.color-search')===document.activeElement");if(!await evaluate("(()=>{const r=document.querySelector('.dj-color-menu').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth;})()"))throw Error('Color menu overflows mobile viewport');}
- if(width===1280||width===390){const shot=await c('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await writeFile(join(tmpdir(),`wiz-dj-containers-${width}.png`),Buffer.from(shot.data,'base64'));}
+ if(width===1280||width===390){const shot=await c('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});await writeFile(join(tmpdir(),`anydj-dj-containers-${width}.png`),Buffer.from(shot.data,'base64'));}
 
  }
  if(errors.length)throw Error(JSON.stringify(errors));const result={autoBeat:true,colorModeFilter:true,customColorMode:true,colorModePersistence:true,liveColorPreview:true,recalculated,migration,cacheChecks,threeTracks:true,twoAutomaticCrossfades:true,finished:true,reorder:true,remove:true,restored,layouts,browserErrors:0};console.log(JSON.stringify(result,null,2));await writeFile(join(projectRoot,'reports/dj-show-cache-browser-check.json'),JSON.stringify(result,null,2)+'\n');

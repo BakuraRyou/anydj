@@ -530,12 +530,13 @@
 .dj-page .web-legal-footer{padding:12px 0;font-size:12px}.web-legal-footer nav{display:flex;flex-wrap:wrap;gap:12px 24px}.web-legal-footer a{text-decoration:underline;text-underline-offset:3px}
 
 /* Keep the web edition and its analysis limits visible above the decks. */
-.web-analysis-notice{display:flex;align-items:center;justify-content:space-between;gap:12px 24px;flex:none;padding:12px 20px;background:#29251d;border-bottom:1px solid #80643d;color:#f5e6cd}
-.web-analysis-notice strong{display:block;font-size:14px;line-height:1.4}
+.web-analysis-notice{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:12px 24px;flex:none;padding:12px var(--workspace-edge);background:#29251d;border-bottom:1px solid #80643d;color:#f5e6cd}
+.web-analysis-notice>div{min-width:0}
+.web-analysis-notice h1{display:block;margin:0;font-weight:700;font-size:14px;line-height:1.4}
 .web-analysis-notice p{margin:4px 0 0;font-size:12px;line-height:1.5;color:#dccbb2}
 .web-analysis-notice .button{flex-shrink:0;flex-wrap:wrap;text-align:center}
 .web-analysis-new-tab{font-size:10px;font-weight:400}
-@media(max-width:760px){.web-analysis-notice{align-items:flex-start;flex-direction:column;gap:10px;padding:12px}.web-analysis-notice .button{max-width:100%}}
+@media(max-width:760px){.web-analysis-notice{grid-template-columns:minmax(0,1fr);gap:10px}.web-analysis-notice .button{justify-self:start;max-width:100%;white-space:normal}}
 
 .dj-transition-preview .preview-advanced>h4{margin:0;padding:6px 0;font-size:12px;font-weight:600;color:#b6c9d5}
 

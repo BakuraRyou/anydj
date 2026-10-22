@@ -2,6 +2,7 @@
 import hashlib
 from pathlib import Path
 import urllib.request
+from tls_context import download_context
 
 root = Path(__file__).resolve().parent.parent / 'data' / 'style'
 root.mkdir(parents=True, exist_ok=True)
@@ -14,7 +15,7 @@ for remote, local, expected in files:
     path = root / local
     if path.exists() and hashlib.sha256(path.read_bytes()).hexdigest() == expected:
         continue
-    with urllib.request.urlopen(base + remote, timeout=120) as response:
+    with urllib.request.urlopen(base + remote, timeout=120, context=download_context()) as response:
         content = response.read(32 * 1024 * 1024)
     if hashlib.sha256(content).hexdigest() != expected:
         raise RuntimeError('Modell-Prüfsumme stimmt nicht: ' + remote)

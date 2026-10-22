@@ -6,6 +6,7 @@ import {tmpdir} from 'node:os';
 import {once} from 'node:events';
 import {spawn} from 'node:child_process';
 import {createHostedServer} from '../builder/hosting/server.mjs';
+import {createHash} from 'node:crypto';
 
 async function fixture(t){
   const root=await mkdtemp(join(tmpdir(),'anydj-hosting-test-'));
@@ -16,6 +17,22 @@ async function fixture(t){
   await writeFile(join(root,'secret.txt'),'DO NOT SERVE');
   t.after(()=>rm(root,{recursive:true,force:true}));return root;
 }
+test('SEO discovery files have crawler-readable MIME types and JSON-LD uses exact CSP hashes',async t=>{
+  const root=await fixture(t),data=JSON.stringify({'@context':'https://schema.org','@type':'WebSite',name:'AnyDj'});
+  await writeFile(join(root,'public','index.html'),`<h1>AnyDj</h1><script type="application/ld+json">${data}</script>`);
+  await writeFile(join(root,'public','sitemap.xml'),'<urlset/>');
+  await writeFile(join(root,'public','robots.txt'),'User-agent: *\nAllow: /\n');
+  const server=await createHostedServer({root,watchRestart:false});server.listen(0,'127.0.0.1');await once(server,'listening');
+  t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve);}));
+  const base=`http://127.0.0.1:${server.address().port}`;
+  for(const [path,type] of [['sitemap.xml','application/xml; charset=utf-8'],['robots.txt','text/plain; charset=utf-8']]){
+    const response=await fetch(`${base}/${path}`);assert.equal(response.status,200);assert.equal(response.headers.get('Content-Type'),type);
+    assert.equal((await fetch(`${base}/${path}`,{method:'HEAD'})).status,200);
+  }
+  const home=await fetch(base),csp=home.headers.get('Content-Security-Policy');
+  assert.ok(csp.includes(`'sha256-${createHash('sha256').update(data).digest('base64')}'`));
+  assert.doesNotMatch(csp,/unsafe-inline.*script-src|script-src[^;]*unsafe-inline/);
+});
 test('hosted server serves web edition and health, never local APIs or private files',async t=>{
   const root=await fixture(t);await symlink(join(root,'secret.txt'),join(root,'public','leak.html'));
   await writeFile(join(root,'public','.env'),'secret');
@@ -75,13 +92,19 @@ test('Plesk CommonJS bootstrap loads selected ESM release and rejects traversal'
 });
 
 test('installer downloads support HEAD, streaming ranges and invalid-range rejection',async t=>{
- const root=await fixture(t);await mkdir(join(root,'public','downloads'));await writeFile(join(root,'public','downloads','AnyDj.exe'),'0123456789');await writeFile(join(root,'public','downloads.html'),'Downloads');
+ const root=await fixture(t);await mkdir(join(root,'public','downloads'));
+ for(const format of ['exe','dmg','AppImage','deb'])await writeFile(join(root,'public','downloads','AnyDj.'+format),'0123456789');
+ await writeFile(join(root,'public','downloads.html'),'Downloads');
  const server=await createHostedServer({root,watchRestart:false});server.listen(0,'127.0.0.1');await once(server,'listening');t.after(()=>new Promise(resolve=>{server.closeAllConnections();server.close(resolve);}));
- const base=`http://127.0.0.1:${server.address().port}`,url=base+'/downloads/AnyDj.exe';
+ const base=`http://127.0.0.1:${server.address().port}`;
  assert.equal(await (await fetch(base+'/downloads')).text(),'Downloads');
- const head=await fetch(url,{method:'HEAD'});assert.equal(head.headers.get('Content-Length'),'10');assert.equal(head.headers.get('Content-Disposition'),'attachment');assert.equal(await head.text(),'');
+ for(const format of ['exe','dmg','AppImage','deb']){
+ const url=base+'/downloads/AnyDj.'+format;
+ const head=await fetch(url,{method:'HEAD'});assert.equal(head.status,200);assert.equal(head.headers.get('Content-Length'),'10');assert.equal(head.headers.get('Content-Disposition'),'attachment');assert.equal(await head.text(),'');
+ if(format==='dmg')assert.equal(head.headers.get('Content-Type'),'application/x-apple-diskimage');
  const part=await fetch(url,{headers:{Range:'bytes=2-5'}});assert.equal(part.status,206);assert.equal(part.headers.get('Content-Range'),'bytes 2-5/10');assert.equal(await part.text(),'2345');
  assert.equal(await (await fetch(url,{headers:{Range:'bytes=-3'}})).text(),'789');
  for(const range of ['bytes=50-','bytes=5-2','bytes=-0','bytes=0-1,5-6'])assert.equal((await fetch(url,{headers:{Range:range}})).status,416);
  assert.equal(await (await fetch(url)).text(),'0123456789');
+ }
 });

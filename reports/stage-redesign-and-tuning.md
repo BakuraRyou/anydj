@@ -16,10 +16,9 @@ Die Einstellungen liegen geräteweit in localStorage; die Audioanalyse wird
 nicht erneut berechnet. Ein zusätzlicher Einstieg im Mixer öffnet direkt
 Feinschliff, auch wenn die virtuelle Bühne nicht aktiviert ist.
 
-Die Transformation erfolgt nach der Palettenerzeugung und Mischung für WiZ,
-DMX und Full. DMX-Hardware und Bühnenvorschau verwenden denselben korrigierten
-Ausgabeframe. WiZ erhält bei Helligkeit 0 `state:false`, da sein Dimmer keine 0
-akzeptiert. Full passt die vier Farben nach ihrer Erzeugung an. Farben der
+Die Transformation erfolgt nach der Palettenerzeugung und Mischung für DMX
+und Full. DMX-Hardware und Bühnenvorschau verwenden denselben korrigierten
+Ausgabeframe. Helligkeit 0 schaltet die Ausgabe dunkel. Full passt die vier Farben nach ihrer Erzeugung an. Farben der
 Bühnenpalette zeigen ebenfalls Sättigung und Farbton der Feinjustierung.
 
 Geprüft:

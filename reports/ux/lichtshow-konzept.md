@@ -15,7 +15,7 @@ umgebaut. [Interaktiver Entwurf](lichtshow-entwurf.html) mit Beispieldaten.
 - Das Bühnenfenster mischt Demo, Ausstattung, Showgestaltung, Verbindung,
   Hilfetexte und technische Kanalwerte. Einstellungen für die einmalige
   Einrichtung konkurrieren mit laufender Bedienung.
-- „Nur Audio“ in der WiZ-Auswahl beschreibt nicht zuverlässig die separat
+- „Nur Audio“ in der früheren Lampenauswahl beschreibt nicht zuverlässig die separat
   aktivierbare DMX-Ausgabe. Ebenso kann „Vorschau · ohne echte Lampen“ im
   Bühnenfenster bei aktiver DMX-Ausgabe missverstanden werden.
 - In jeder Bibliothekszeile stehen zahlreiche kleine Symbolaktionen. Ihre
@@ -60,16 +60,14 @@ verwalten; Lichtleisten einzeln mit Segmentanzahl hinzufügen. Individuelle
 Gerätezuordnungen beim Reduzieren der Anzahl beachten. Nur die konfigurierte
 Ausstattung darstellen. USB/LAN-Hilfe kontextbezogen einblenden. Benötigte
 Kanalbelegung vor der ersten echten Ausgabe zugänglich machen; Rohwerte und
-Diagnose zuklappen. WiZ und DMX gemeinsam sichtbar machen, ohne bereits
-unterstützten parallelen Betrieb durch eine exklusive Auswahl einzuschränken.
+Diagnose zuklappen. Verfügbare DMX-Ausgänge mit ihrem Verbindungsstatus anzeigen.
 
 Status direkt bei der Vorschau: „Nur Vorschau“, „USB-Interface erkannt“,
 „DMX-Ausgabe aktiv“ oder „Verbindung unterbrochen“. Gerätezahl bezeichnet die
 konfigurierte Ausstattung, nicht automatisch erkannte DMX-Scheinwerfer.
-LAN-Ausgang und Empfangsbestätigung weiterhin unterscheiden. Aktive WiZ- und
-DMX-Ausgaben jeweils separat benennen. Die gemeinsame Stop-Aktion muss mit der
-tatsächlichen Wirkung abgestimmt werden: WiZ stellt derzeit den vorherigen
-Zustand wieder her, DMX versucht ein Schwarzbild zu senden.
+LAN-Ausgang und Empfangsbestätigung weiterhin unterscheiden. Aktive DMX-Ausgaben jeweils separat benennen. Die gemeinsame Stop-Aktion
+muss mit der tatsächlichen Wirkung abgestimmt werden: DMX versucht ein
+Schwarzbild zu senden.
 
 ## Bibliothek und Darstellung
 

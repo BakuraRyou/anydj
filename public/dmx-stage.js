@@ -1,7 +1,7 @@
 import {createDmxConnection} from './dmx-connection.js';
 import {automaticStage,STAGE_PRESETS,stageModeForStreams} from './dmx-auto.js';
 import {createStageEditor} from './dmx-editor.js';
-import {mixFixtureFrames} from './dmx-show.js';
+import {mixFixtureFrames,songFixtureMix,GROUPS} from './dmx-show.js';
 import {stagePatch,encodeStage,decodeStage,fixtureKey} from './dmx-model.js';
 import {createMovingHeads} from './dmx-moving-heads.js';
 import {createStageLayout} from './dmx-layout.js';
@@ -21,7 +21,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   document.body.append(panel);
   const colorPreview=button.closest('.dj-mixer')?.querySelector('.dj-color-preview');
   const inline=colorPreview?document.createElement('section'):null;
-  let active=false,editorPreview=null,previewMode='2d';
+  let lastFixtures=[],active=false,editorPreview=null,previewMode='2d';
   const settingsButton=document.createElement('button');
   settingsButton.type='button';settingsButton.id='stageSettings';settingsButton.className='button secondary';settingsButton.textContent='Bühne einstellen';settingsButton.hidden=true;
   if(inline){
@@ -63,7 +63,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   }
   const nodes=[],fixtureNodes=[];
   let demo=false,blackout=false,current=null,playing=false,timer,streams=[];
-  const editor=createStageEditor(panel.querySelector('.stage-editor'),()=>render());
+  const editor=createStageEditor(panel.querySelector('.stage-editor'),()=>render(),{songDriven:true});
   const hardware=createDmxConnection(panel.querySelector('.stage-editor'),()=>{if(inline&&!active)activate(true);render();startTimer();});
   // Keep daily show controls first; setup and preview tools are disclosed on demand.
   function fold(node,title,className){
@@ -83,7 +83,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   // Keep the existing control nodes and handlers; organize them around DJ tasks.
   panel.classList.add('stage-redesigned');
   panel.querySelector('.stage-badge').textContent='DEIN LICHT';
-  panel.querySelector('.stage-intro').textContent='Wähle deinen Look. Passe die Wirkung an. Deine Änderungen sind sofort sichtbar.';
+  panel.querySelector('.stage-intro').textContent='Die Lichtshow folgt deinem Song. Hier stellst du Ausstattung, Farbanzahl und Verbindung ein.';
   const nav=document.createElement('nav');nav.className='stage-navigation';nav.setAttribute('aria-label','Lichtbühne Bereiche');
   const pages=document.createElement('div');pages.className='stage-pages';
   const views={};
@@ -95,15 +95,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   panel.querySelector('.stage-heading').after(nav);editorHost.append(pages);
   const live=views.look.page;
   const modeLabel=editorHost.querySelector('[data-mode]').closest('label');modeLabel.hidden=true;live.append(modeLabel);
-  const modeHeading=document.createElement('h3');modeHeading.textContent='Wie soll dein Licht spielen?';live.append(modeHeading);
-  const modeButtons=document.createElement('div');modeButtons.className='stage-mode-grid';live.append(modeButtons);
-  const names={shared:['Gemeinsam','Alle Lampen folgen dem Mix'],auto:['Automatisch','Passend zum Song'],chase:['Lauflicht','Bewegung durch die Bühne'],wash:['Ruhige Flächen','Weich und zurückhaltend'],follow:['Musikimpulse','Gemeinsam im Rhythmus'],alternate:['Gruppenwechsel','Links und rechts im Wechsel'],design:['Individuell','Farben und Bewegung selbst wählen']};
-  for(const option of editorHost.querySelector('[data-mode]').options){
-    const mode=option.value;
-    const [name,description]=names[mode]||[STAGE_PRESETS[mode]?.name||option.textContent,mode==='strobe'?'120 Animationen passend zum Songabschnitt':STAGE_PRESETS[mode]?.help||''];
-    const choice=document.createElement('button');choice.type='button';choice.className='stage-mode-choice';choice.dataset.stageChoice=mode;choice.innerHTML=`<strong>${name}</strong><span>${description}</span>`;
-    choice.onclick=()=>{const select=editorHost.querySelector('[data-mode]');select.value=mode;select.dispatchEvent(new Event('change'));};modeButtons.append(choice);
-  }
+  const songHelp=document.createElement('p');songHelp.textContent='Die Lichtshow wird am Song im Deck gewählt. Songs ohne eigene Auswahl verwenden die Standard-Lichtshow.';live.append(songHelp);
   const automatic=editorHost.querySelector('[data-auto]');automatic.classList.add('stage-look-card');live.append(automatic);
   const tuningHost=document.createElement('section');tuningHost.className='stage-tuning-host stage-look-card';views.tuning.page.append(tuningHost);
   const individual=editorHost.querySelector('[data-editor]');individual.classList.add('stage-look-card');live.append(individual);
@@ -127,9 +119,8 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
     if(!panel.open&&!active&&!hardware.enabled&&!editorPreview&&!stage3d.sharing)return;
     const current=editorPreview?.frame??lastFrame(),streams=editorPreview?.streams??lastStreams();
     const demo=editorPreview?false:lastDemo(),blackout=editorPreview?false:lastBlackout();
-    const mode=stageModeForStreams(streams,editor.mode);
-    panel.dataset.design=String(editor.enabled);panel.dataset.stageMode=mode;
-    for(const choice of modeButtons.children)choice.setAttribute('aria-pressed',String(choice.dataset.stageChoice===mode));
+    const mode=stageModeForStreams(streams,'auto');
+    panel.dataset.design=String(mode==='design');panel.dataset.stageMode=mode;
     const equipment=editor.equipment,patch=stagePatch(equipment);
     const equipmentTitle='Ausstattung · '+patch.length+' Geräte';
     if(equipmentSection.querySelector('summary').textContent!==equipmentTitle)equipmentSection.querySelector('summary').textContent=equipmentTitle;
@@ -164,11 +155,12 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
     const automatic=Object.hasOwn(STAGE_PRESETS,mode)?automaticStage(inputs,editor.count,equipment,mode):null;
     if(automatic)editor.preview(automatic.palette.map(rgb=>{const f=adjustFrame({r:rgb[0],g:rgb[1],b:rgb[2],dimming:100});return [f.r,f.g,f.b];}),automatic.description);
     const rawOutput=automatic?automatic.frames:mode==='design'?mixFixtureFrames(inputs,editor.config,equipment):sample;
-    const output=patch.map((f,i)=>Array.from({length:f.cells},(_,j)=>{const value=Array.isArray(rawOutput)?rawOutput[i]?.[j]:rawOutput;const adjusted=adjustFrame(value);return adjusted?{...adjusted,dimming:(adjusted.dimming??0)*(f.gain??100)/100}:adjusted;}));
+    const output=patch.map((f,i)=>Array.from({length:f.cells},(_,j)=>{const value=Array.isArray(rawOutput)?rawOutput[i]?.[j]:rawOutput;const edited=songFixtureMix(value,inputs,[`patch:${fixtureKey(f)}`,`patch-group:${editor.config.members[i]}`],{group:editor.config.members[i],position:j,units:f.cells});const adjusted=adjustFrame(edited);return adjusted?{...adjusted,dimming:(adjusted.dimming??0)*(f.gain??100)/100}:adjusted;}));
     hardware.setDemo(demo);
     hardware.push(encodeStage(demo?null:output,equipment));
     const universe=encodeStage(blackout?null:output,equipment),fixtures=decodeStage(universe,equipment);
     fixtures.forEach((f,i)=>{if(f.type==='moving')f.cells=output[i].map(frame=>!frame||frame.state===false||blackout?[0,0,0]:['r','g','b'].map(k=>Math.round(Math.max(0,Math.min(255,frame[k]||0))*(frame.dimming||0)/100)));});
+    lastFixtures=fixtures;
     movingHeads.update(fixtures,adjustFrame(sample),t,blackout,inputs,mode,editor.count);
     layout.setLights(fixtures.filter(f=>f.type!=='moving'));
     stage3d.update(fixtures.filter(f=>f.type!=='moving'),movingPreview,{streams:inputs});
@@ -208,6 +200,8 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   if(inline)activate(true);
   return {
     tabs,
+    lightingPreview(target){const patch=stagePatch(editor.equipment);return lastFixtures.flatMap((f,i)=>target===`patch:${fixtureKey(patch[i])}`||target===`patch-group:${editor.config.members[i]}`?f.cells.map(rgb=>({color:`rgb(${rgb.join(',')})`,power:Math.max(...rgb)/255})):[]);},
+    get lightingTargets(){return [...GROUPS.map((name,i)=>({id:`patch-group:${i}`,name:`DMX-Gruppe · ${name}`})),...stagePatch(editor.equipment).map(f=>({id:`patch:${fixtureKey(f)}`,name:`DMX · ${f.name}`}))];},
     mountOptions(node,fullButton){live.prepend(node);node.open=true;live.append(fullButton);},
     mountEditor(host){
       if(editorPreview)throw Error('Ein Lichteditor ist bereits geöffnet.');
@@ -219,7 +213,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
         destroy(){editorPreview=null;marker.replaceWith(scene);status.remove();render();if(!active&&!panel.open&&!hardware.enabled&&!stage3d.sharing){clearInterval(timer);timer=null;}}
       };
     },
-    getDiagnostics:()=>({...stage3d.getDiagnostics(),mode:editor.mode,equipment:editor.equipment}),
+    getDiagnostics:()=>({...stage3d.getDiagnostics(),mode:panel.dataset.stageMode||'auto',equipment:editor.equipment}),
     setTransport:stage3d.setTransport,
     prepareMovingHeads(){movingHeads.prepare();},
     setMovingMood(value){movingHeads.setMood(value);},

@@ -1,0 +1,44 @@
+{
+  "scope": "Hardware WebGL comparison of framebuffer validation before/after. Not a measurement of the user's complete DJ session or presented FPS.",
+  "userScreenshot": {
+    "fps": 12,
+    "lights": 144,
+    "pixels": [1920, 992],
+    "sceneMs": 3.1,
+    "drawCpuMs": 20.9,
+    "renderer": "ANGLE (Intel, Mesa Intel(R) Graphics (RPL-S), OpenGL 4.6)"
+  },
+  "comparison": {
+    "renderer": "ANGLE (Intel, Mesa Intel(R) Graphics (RPL-S), OpenGL 4.6)",
+    "room": "clubStageRoom",
+    "lights": 144,
+    "pixels": [1920, 992],
+    "frames": 45,
+    "warmupFrames": 10,
+    "input": "Synthetic moving/spot/bar sources expanded into the actual room preset; fixed dancer camera. Same targets, colors, power and geometry in both runs.",
+    "timing": "CPU submission and total render including gl.finish plus gl.getError, measured in the same browser. Total is the graphics call only; excludes room/geometry preparation and compositor presentation.",
+    "before": {
+      "submitMedianMs": 2.9,
+      "submitP95Ms": 8.8,
+      "renderMedianMs": 3.5,
+      "renderP95Ms": 9.4,
+      "framebufferChecks": 90,
+      "checksAfterResize": 92
+    },
+    "after": {
+      "submitMedianMs": 0.8,
+      "submitP95Ms": 1.4,
+      "renderMedianMs": 3.3,
+      "renderP95Ms": 7.4,
+      "framebufferChecks": 2,
+      "checksAfterResize": 4
+    },
+    "snapshot": {
+      "method": "gl.readPixels immediately after the last render in the same task, before requestAnimationFrame; compare all RGBA bytes.",
+      "comparedBytes": 7618560,
+      "differentBytes": 0
+    },
+    "resizeGlError": 0
+  },
+  "regression": "scripts/check-dmx-stage-gpu.mjs: initial/steady/resized/steady framebuffer check counts 2/2/4/4. Browser checks passed for GPU/Canvas images, context loss, fallback and disposal."
+}

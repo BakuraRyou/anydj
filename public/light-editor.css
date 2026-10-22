@@ -38,3 +38,42 @@ dialog.section-editor:has(.light-editor){width:min(1160px,96vw);max-width:96vw;m
 @media(max-width:600px){.light-editor [data-set-preview] .stage-scene{height:220px}}
 
 .light-editor .le-curve-heading{display:block;font-size:12px;font-weight:500;margin-bottom:8px}
+
+/* Shared song editor: time, scope and effect remain visible together. */
+.light-editor{background:var(--surface-panel,#14151b);color:var(--content-primary,#f4f5f7);border-radius:10px}
+.light-editor .le-main,.light-editor .le-inspector{padding:18px;gap:14px}
+.light-editor .le-inspector{display:flex;flex-direction:column;gap:12px;background:var(--surface-raised,#1c1e26)}
+.light-editor .le-selection{margin-top:0}.light-editor .le-selection-time{margin:0;color:var(--content-secondary,#a6a9b6)}
+.light-editor .le-transport{gap:8px;padding:8px 0;background:var(--surface-panel,#14151b)}
+.light-editor .le-time-input{flex-direction:row;align-items:center;font-size:11px}
+.light-editor .le-time-input input{width:92px!important;height:36px!important;font-variant-numeric:tabular-nums}
+.light-editor .le-moment-tools{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.light-editor .le-moment-tools button{min-height:36px;font-size:12px;padding:7px 10px}
+.light-editor .le-moment-tools label{flex-direction:row;align-items:center;font-size:11px;gap:5px}
+.light-editor .le-moment-tools input{width:65px!important;height:36px!important}
+.light-editor [data-moment]{border-color:var(--brand-accent,#c4f567);color:var(--brand-accent,#c4f567)}
+.light-editor .le-target-choice{padding-top:12px;border-top:1px solid var(--border-subtle,#2b2e38)}
+.light-editor .le-scope-help{font-size:11px;line-height:1.5;color:var(--content-secondary,#a6a9b6)}
+.light-editor .section-fields{gap:14px}
+.light-editor .le-target-controls,.light-editor [data-cue-fields]{display:flex;flex-direction:column;gap:12px}
+.light-editor [data-cue-fields][inert]{opacity:.45}
+.light-editor [data-cue-aim] p{font-size:11px;color:var(--content-secondary,#a6a9b6)}
+.light-editor [data-cue-enabled],.light-editor [data-cue-aim-enabled]{align-self:start}
+.light-editor[data-edit-scope=fixture] .section-fields>:not(.le-target-controls){display:none!important}
+.light-editor .le-palette-card{padding:12px;border:1px solid var(--border-subtle,#2b2e38);border-radius:8px;background:var(--surface-base,#0b0c10)}
+.light-editor [data-palette]{display:grid;grid-template-columns:repeat(auto-fit,minmax(62px,1fr));gap:8px}
+.light-editor [data-palette] label{font-size:10px;gap:4px}
+.light-editor [data-palette] span{font:10px ui-monospace,monospace;color:var(--content-secondary,#a6a9b6)}
+.light-editor [data-palette-help]{font-size:11px;line-height:1.5;color:var(--content-secondary,#a6a9b6);margin-top:8px}
+.light-editor .le-seek{position:relative;clip-path:none;width:100%!important;height:24px!important;margin-top:6px}
+.light-editor .le-footer{position:sticky;bottom:0;background:var(--surface-panel,#14151b);box-shadow:0 -8px 18px #0003}
+.light-editor .le-start:after,.light-editor .le-end:after{top:22px}
+.light-editor .le-phase .le-start,.light-editor .le-phase .le-end{width:13px;opacity:1;background:#ffffff06}
+.light-editor .le-phase .le-move{padding-inline:15px}
+@media(pointer:coarse){.light-editor button{min-height:44px}.light-editor .le-phase .le-start,.light-editor .le-phase .le-end{width:18px}.light-editor .le-phase .le-move{padding-inline:20px}}
+.light-editor .le-advanced{padding:0 18px 18px;display:grid;gap:12px}
+.light-editor .section-colors{display:none}
+.light-editor .le-target-search{font-size:11px}
+.light-editor [data-target-colors]{display:grid;grid-template-columns:repeat(auto-fit,minmax(62px,1fr));gap:8px}
+.light-editor [data-target-colors] label{font-size:11px}
+.light-editor [data-target-colors-help]{font-size:11px;line-height:1.5;margin-top:8px;color:var(--content-secondary,#a6a9b6)}

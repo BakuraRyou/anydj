@@ -1,3 +1,5 @@
+import {syncSelectOptions,setControlDisabled} from './select-state.js';
+import {createCutPlayback} from './track-cut-playback.js';
 import {drawWaveform} from './dj-waveform.js';
 import {holdAudioParam} from './transition-audio.js';
 import {transitionBassDb} from './musical-transition.js';
@@ -82,10 +84,10 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
  unlock.onclick=()=>refreshOutputs({requestAccess:true});
  function syncOutputFields(){
   for(const kind of ['master','cue']){
-   const select=outputSelects[kind];select.replaceChildren(new Option(kind==='master'?'Lautsprecher auswählen':outputs.master?'Kopfhörer auswählen':'Zuerst Master auswählen',''));
+   const select=outputSelects[kind];
    const devices=[...available];if(outputs[kind]&&!devices.some(d=>d.deviceId===outputs[kind].deviceId))devices.push(outputs[kind]);
-   devices.forEach((device,i)=>{const option=new Option(device.label||`Audioausgang ${i+1}`,device.deviceId);select.add(option);});
-   select.value=outputs[kind]?.deviceId||(restorePending&&devices.some(d=>d.deviceId===savedRouting[kind])?savedRouting[kind]:'');select.disabled=!outputSupport||outputBusy||!devices.length||(kind==='cue'&&!outputs.master);
+   syncSelectOptions(select,[{label:kind==='master'?'Lautsprecher auswählen':outputs.master?'Kopfhörer auswählen':'Zuerst Master auswählen',value:''},...devices.map((device,i)=>({label:device.label||`Audioausgang ${i+1}`,value:device.deviceId}))],outputs[kind]?.deviceId||(restorePending&&devices.some(d=>d.deviceId===savedRouting[kind])?savedRouting[kind]:''));
+   setControlDisabled(select,!outputSupport||outputBusy||!devices.length||(kind==='cue'&&!outputs.master));
   }
  }
  let available=[];
@@ -210,7 +212,7 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
    Object.assign(d.eq.low,{type:'lowshelf'});d.eq.low.frequency.value=250;
    d.eq.mid.type='peaking';d.eq.mid.frequency.value=1000;d.eq.mid.Q.value=.7;
    d.eq.high.type='highshelf';d.eq.high.frequency.value=4000;
-   const source=ctx.createMediaElementSource(d.audio);source.connect(d.eq.trim);d.eq.trim.connect(d.eq.low);d.eq.low.connect(d.eq.mid);d.eq.mid.connect(d.eq.high);
+   const source=ctx.createMediaElementSource(d.audio);d.cutPlayback=createCutPlayback({context:ctx,audio:d.audio,source,destination:d.eq.trim,getTrack:()=>d.track,onError:report,onSkip:()=>{d.loop=null;d.transition=null;d.pairPlan=null;}});d.eq.trim.connect(d.eq.low);d.eq.low.connect(d.eq.mid);d.eq.mid.connect(d.eq.high);
    d.meter=ctx.createAnalyser();d.meter.fftSize=1024;d.eq.high.connect(d.meter);
    d.gain=ctx.createGain();d.gain.gain.value=0;d.transitionFilter=ctx.createBiquadFilter();d.transitionFilter.type='lowshelf';d.transitionFilter.frequency.value=250;d.transitionFilter.gain.value=0;
    d.meter.connect(d.transitionFilter);d.transitionFilter.connect(d.gain);d.channelGain=ctx.createGain();d.gain.connect(d.channelGain);d.channelGain.connect(master);
@@ -228,13 +230,14 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
    const bpm=tempoAt(beats,position);find('[data-bpm]').textContent=bpm?`${(bpm*d.audio.playbackRate).toFixed(1)} BPM`:'— BPM';
    find('[data-remaining]').textContent=d.spotify?'Spotify':duration?'Rest '+time((duration-position)/d.audio.playbackRate):'Rest —';
    find('[data-tempo-value]').textContent=((d.audio.playbackRate-1)*100).toFixed(1)+' %';
+   const mixSummary=find('[data-mix-summary]');if(mixSummary){const active=[];if(d.loop)active.push('Loop aktiv');if(d.monitor)active.push('Vorhören an');if(Math.abs(d.audio.playbackRate-1)>.0005)active.push('Tempo '+find('[data-tempo-value]').textContent);if([...root.querySelectorAll('[data-eq]')].some(input=>Number(input.value)!==0))active.push('EQ aktiv');const label='DJ-Mix'+(active.length?' · '+active.join(' · '):'');if(mixSummary.textContent!==label)mixSummary.textContent=label;}
    const cues=cleanCues(d.track?.hotCues,duration);
    root.querySelectorAll('[data-hotcue]').forEach((b,i)=>{b.disabled=!duration||d.resumeTime!=null;b.textContent=`${i+1} · ${cues[i]===null?'Setzen':time(cues[i])}`;b.setAttribute('aria-label',`Hotcue ${i+1} ${cues[i]===null?'setzen':'bei '+time(cues[i])+' anspringen'} · Shift zum Löschen`);});
-   find('[data-tempo]').disabled=!duration;find('[data-sync]').disabled=!duration||!decks.some(other=>other!==d&&other.track?.plan);
+   const state=find('.dj-deck-top h2');if(state){const playing=d.spotify?d.spotifyStarted&&!d.spotifyPaused:!d.audio.paused;const label=!d.track&&!d.spotify?'Leer':d.restoring?'Wird geladen':d.resumeTime!=null?'Datei verbinden':playing?'Spielt':'Bereit';state.textContent='DECK '+d.name+' · '+label;state.dataset.playing=String(Boolean(playing));}find('[data-tempo]').disabled=!duration;find('[data-sync]').disabled=!duration||!decks.some(other=>other!==d&&other.track?.plan);
    find('[data-loop]').disabled=!duration||d.resumeTime!=null;find('[data-loop]').textContent=d.loop?'Loop aus':'Loop an';find('[data-loop]').setAttribute('aria-pressed',String(Boolean(d.loop)));
    if(d.loop)find('[data-loop-info]').textContent=`Loop ${time(d.loop.start)} – ${time(d.loop.end)}`;else if(find('[data-loop-info]').textContent.startsWith('Loop '))find('[data-loop-info]').textContent='Loops benötigen ein Beat-Raster.';
    root.querySelectorAll('[data-jump]').forEach(b=>b.disabled=!beats?.length);
-   const monitor=find('.dj-monitor');monitor.disabled=!outputs.cue||!duration;monitor.setAttribute('aria-pressed',String(d.monitor));
+   const monitor=find('.dj-monitor');monitor.title=!outputs.cue?'Kopfhörerausgang über „Kopfhörer einrichten“ im Mixer wählen':!duration?'Zuerst einen Titel in dieses Deck laden':'Dieses Deck unabhängig vom Crossfader auf Kopfhörern hören';monitor.disabled=!outputs.cue||!duration;monitor.setAttribute('aria-pressed',String(d.monitor));
    if(d.cueGain)d.cueGain.gain.setTargetAtTime(d.monitor&&outputs.cue?1:0,ctx.currentTime,.01);
    meter(d.meter,find('[data-level]'),find('[data-db]'));
    if(!d.spotify){const seek=find('.dj-seek');seek.max=duration||1;seek.value=position;}
@@ -286,5 +289,5 @@ export function createPerformance({decks,mixer,ready,manual,save,report,sync}){
   routingHost:q('.dj-routing'),
   getPreviewOutput:()=>!dead&&!outputBusy&&outputs.master&&outputs.cue?{deviceId:outputs.cue.deviceId,groupId:outputs.cue.groupId,label:outputs.cue.label}:null,
   subscribeOutput(listener){outputEvents.addEventListener('change',listener);return ()=>outputEvents.removeEventListener('change',listener);},
-  destroy(){window.removeEventListener('pointerdown',activateSavedOutputs,{capture:true});window.removeEventListener('keydown',activateSavedOutputs,{capture:true});clearTransition();dead=true;outputEpoch++;ctx?.removeEventListener('sinkchange',muteCue);clearInterval(timer);clearTimeout(recordTimer);if(recorder?.state==='recording'){recorder.onstop=null;recorder.stop();}recordDestination?.stream.getTracks().forEach(t=>t.stop());if(recordUrl)URL.revokeObjectURL(recordUrl);muteCue();cueAudio?.srcObject?.getTracks().forEach(t=>t.stop());if(cueAudio)cueAudio.srcObject=null;window.removeEventListener('keydown',key);window.removeEventListener('beforeunload',beforeLeave);navigator.mediaDevices?.removeEventListener('devicechange',deviceChanged);}};
+  destroy(){for(const d of decks)d.cutPlayback?.destroy();window.removeEventListener('pointerdown',activateSavedOutputs,{capture:true});window.removeEventListener('keydown',activateSavedOutputs,{capture:true});clearTransition();dead=true;outputEpoch++;ctx?.removeEventListener('sinkchange',muteCue);clearInterval(timer);clearTimeout(recordTimer);if(recorder?.state==='recording'){recorder.onstop=null;recorder.stop();}recordDestination?.stream.getTracks().forEach(t=>t.stop());if(recordUrl)URL.revokeObjectURL(recordUrl);muteCue();cueAudio?.srcObject?.getTracks().forEach(t=>t.stop());if(cueAudio)cueAudio.srcObject=null;window.removeEventListener('keydown',key);window.removeEventListener('beforeunload',beforeLeave);navigator.mediaDevices?.removeEventListener('devicechange',deviceChanged);}};
 }

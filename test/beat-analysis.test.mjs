@@ -49,7 +49,7 @@ test('Audio-Analyse respektiert den LAN-Zugangscode und verändert das JSON-Limi
   const client=await app(t,new BeatAnalysis({ready:async()=>{},run:async()=>grid()}),{token:'a'.repeat(24)});
   assert.equal((await client.post()).status,401);
   assert.equal((await client.post(pcm(),{Authorization:'Bearer '+'a'.repeat(24)})).status,200);
-  const r=await fetch(client.base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1',Authorization:'Bearer '+'a'.repeat(24)},body:JSON.stringify({padding:'x'.repeat(9000)})});
+  const r=await fetch(client.base+'/api/dmx/stop',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1',Authorization:'Bearer '+'a'.repeat(24)},body:JSON.stringify({padding:'x'.repeat(9000)})});
   assert.equal(r.status,413);
 });
 test('Fehlendes Modell und defektes Ergebnis führen zu sichtbaren Fehlern',async t=>{

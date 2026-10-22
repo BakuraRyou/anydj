@@ -13,7 +13,6 @@ const snapshotPrefix=process.env.SNAPSHOT_PREFIX||'/tmp/anydj';
 const app=await createApp({demo:true,previewPort:0});
 app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
-await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
 
 // CI: VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/lvp_icd.json xvfb-run -a node scripts/check-dmx-stage-gpu.mjs
 const profile=await mkdtemp(join(tmpdir(),'anydj-stage-gpu-'));
@@ -99,6 +98,21 @@ try {
 
   for(const [kind,snapshot] of Object.entries(await evaluate('window.rendererSnapshots')))await writeFile(`${snapshotPrefix}-${kind}.png`,Buffer.from(snapshot.split(',')[1],'base64'));
   for(const r of result){assert.equal(r.actual,r.requested,JSON.stringify(r));assert.ok(r.colors>32,JSON.stringify(r));}
+  const framebuffers=await evaluate(`(async()=>{
+    const {createWebGlStage}=await import('/dmx-stage-webgl.js');
+    const {createStageGpuScene}=await import('/dmx-stage-gpu-scene.js');
+    const canvas=document.createElement('canvas');canvas.width=640;canvas.height=360;
+    const backend=createWebGlStage(canvas,()=>{}),gl=canvas.getContext('webgl'),builder=createStageGpuScene();
+    const check=gl.checkFramebufferStatus.bind(gl);let checks=0;
+    gl.checkFramebufferStatus=(...args)=>{checks++;return check(...args);};
+    const layout={width:8,depth:6,height:3,room:true,positions:{}},camera={mode:'dancer',x:0,y:.4,eyeHeight:1.7,yaw:0,pitch:0,zoom:1};
+    const lights=Array.from({length:40},(_,i)=>({id:'buffer-'+i,type:'moving',power:.8,color:'#20eecc',position:{x:-3+i*6/39,y:5,height:2.5},target:{x:0,y:2,z:0}}));
+    const draw=()=>{backend.render(builder.build(canvas.width,canvas.height,layout,lights,camera));gl.finish();if(gl.getError()!==gl.NO_ERROR)throw Error('Framebuffer render failed');return checks;};
+    const initial=draw(),steady=draw();canvas.width=800;canvas.height=450;
+    const resized=draw(),steadyAfterResize=draw();
+    backend.destroy();return {initial,steady,resized,steadyAfterResize};
+  })()`);
+  assert.deepEqual(framebuffers,{initial:2,steady:2,resized:4,steadyAfterResize:4},'framebuffer validation only runs on allocation or resize');
   await writeFile(`${snapshotPrefix}-gpu-comparison.png`,Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
   assert.ok(await evaluate('gpuPixelDifference<4'),'WebGPU and WebGL images agree');
   await evaluate('gpuChecks[0].device.destroy()');

@@ -1,12 +1,12 @@
-import {readFile,access} from 'node:fs/promises';
+import {readFile,access,mkdir,rm} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
 import {join,resolve} from 'node:path';
 import {spawn} from 'node:child_process';
 
 const root=fileURLToPath(new URL('../',import.meta.url));
-function run(command,args,{capture=false}={}){
+function run(command,args,{capture=false,env=process.env}={}){
   return new Promise((resolve,reject)=>{
-    const child=spawn(command,args,{cwd:root,stdio:['ignore',capture?'pipe':'inherit','inherit']});let output='';
+    const child=spawn(command,args,{cwd:root,env,stdio:['ignore',capture?'pipe':'inherit','inherit']});let output='';
     child.stdout?.on('data',chunk=>{output+=chunk;});
     child.once('error',()=>reject(Error(`Programm nicht verfügbar: ${command}. Node.js 22+ und Python 3 werden benötigt.`)));
     child.once('exit',code=>code===0?resolve(output):reject(Error(`Deployment-Schritt fehlgeschlagen (Exit ${code}).`)));
@@ -30,7 +30,14 @@ export async function pruneAfterHealthcheck({action,release,url,cleanup,readHeal
   if(status.release!==release)throw Error('Keine Bereinigung: Der Healthcheck bestätigt nicht mehr das aktivierte Release.');
   return cleanup(release);
 }
-async function main(){
+export async function withDeploymentLock(task,{workspace=root}={}){
+  await mkdir(join(workspace,'.build'),{recursive:true});
+  const lock=join(workspace,'.build','deploy-hosting.lock');
+  await mkdir(lock).catch(error=>{if(error.code==='EEXIST')throw Error('Ein Hosting-Deployment läuft bereits oder die Sperre ist verwaist: '+lock);throw error;});
+  try{return await task();}finally{await rm(lock,{recursive:true,force:true});}
+}
+async function main(){return withDeploymentLock(deploy);}
+async function deploy(){
   const args=process.argv.slice(2),allowed=new Set(['--dry-run','--check','--restart','--crash','--rollback','--skip-health','--skip-build','--with-downloads','--config']);
   let configFile=join(root,'builder','ftp','.env');
   for(let i=0;i<args.length;i++){
@@ -63,7 +70,7 @@ async function main(){
         await access(join(root,'dist','hosting',file)).catch(()=>{throw Error('Hosting-Paket unvollständig: '+file);});
       }
       console.log('Build übersprungen: vorhandenes dist/hosting wird verwendet. Neuere Quelländerungen sind darin möglicherweise nicht enthalten.');
-    }else await run(process.execPath,[join(root,'scripts','build-hosting.mjs'),...(args.includes('--with-downloads')?['--with-downloads']:[])]);
+    }else await run(process.execPath,[join(root,'scripts','build-hosting.mjs'),...(args.includes('--with-downloads')?['--with-downloads']:[])],{env:{...process.env,ANYDJ_SITE_URL:config.publicUrl||process.env.ANYDJ_SITE_URL||'https://anydj.de/'}});
   }
   console.log(`Plesk ${action}: ${config.localDir} · ${config.secure===false?'FTP':'FTPS'}`);
   if(action==='deploy')console.log(args.includes('--with-downloads')?'Website und bereitgestellte Installer veröffentlichen.':'Website inklusive Downloadseite aktualisieren; veröffentlichte Installer und Downloadkarten bleiben erhalten.');

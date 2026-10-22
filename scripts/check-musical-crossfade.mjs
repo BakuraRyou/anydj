@@ -7,14 +7,13 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createApp} from '../server.mjs';
 const projectRoot=fileURLToPath(new URL('../',import.meta.url));
-const fixtures=await mkdtemp(join(tmpdir(),'wiz-queue-audio-'));
+const fixtures=await mkdtemp(join(tmpdir(),'anydj-queue-audio-'));
 const wav=join(fixtures,'test.wav'),mp3=join(fixtures,'test.mp3');
 await promisify(execFile)('ffmpeg',['-v','error','-f','lavfi','-i','sine=frequency=440:duration=13','-ar','16000',wav]);
 await promisify(execFile)('ffmpeg',['-v','error','-i',wav,mp3]);
 const {BeatAnalysis}=await import('../lib/beat-analysis.mjs');const app=await createApp({demo:true,beatAnalysis:new BeatAnalysis({ready:async()=>{throw Error('Test uses builtin analysis');}})});app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
-await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
-const profile=await mkdtemp(join(tmpdir(),'wiz-beat-chrome-'));
+const profile=await mkdtemp(join(tmpdir(),'anydj-beat-chrome-'));
 const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--mute-audio','--autoplay-policy=no-user-gesture-required','--no-sandbox','--disable-gpu','--disable-background-networking','--no-first-run','--no-default-browser-check','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
 let ws;
 try {
@@ -31,7 +30,7 @@ try {
  if(process.argv.includes('--audio-clock'))await c('Page.addScriptToEvaluateOnNewDocument',{source:`
  window.gainCurves=[];const schedule=AudioParam.prototype.setValueCurveAtTime;
  AudioParam.prototype.setValueCurveAtTime=function(curve,start,duration){if(curve.length===257&&curve[0]>=0)window.gainCurves.push({param:this,curve:[...curve],start,duration});return schedule.call(this,curve,start,duration);};`});
- await c('Page.navigate',{url:base+'/dj'});await wait("document.querySelector('#djLamp')?.options.length>1");
+ await c('Page.navigate',{url:base+'/dj'});await wait("typeof document.querySelector('#djFiles')?.onchange==='function'");
 
 
 
@@ -51,11 +50,11 @@ try {
 
  if(process.argv.includes('--plain'))await evaluate("document.querySelector('#autoBeat').checked=false;document.querySelector('#autoBeat').dispatchEvent(new Event('change'))");
  if(process.argv.includes('--queue')){
- await evaluate(`document.querySelector('#djLamp').value='';document.querySelector('#djLamp').dispatchEvent(new Event('change'));document.querySelector('#fadeDuration').value='4';document.querySelector('#enqueueAll').click()`);
+ await evaluate(`document.querySelector('#fadeDuration').value='4';document.querySelector('#enqueueAll').click()`);
  await wait("document.querySelector('#queueCount').textContent==='2'");
  await evaluate("document.querySelector('#queueStart').click()");
  }else{
- await evaluate(`document.querySelector('#djLamp').value='';document.querySelector('#djLamp').dispatchEvent(new Event('change'));
+ await evaluate(`
  document.querySelector('[aria-label="Auf Deck A laden"]').click();document.querySelectorAll('[aria-label="Auf Deck B laden"]')[1].click();document.querySelector('#fadeDuration').value='4';`);
  await wait("[...document.querySelectorAll('.dj-play')].every(b=>!b.disabled)");
  await evaluate("document.querySelector('.dj-play').click()");

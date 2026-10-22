@@ -1,5 +1,7 @@
 import {strobeRole,strobeRoleColor} from './dmx-strobe-motifs.js';
 import {strobeScoreAt,strobeComposition} from './dmx-strobe-score.js';
+import {formationPreviewAt,FORMATION_NAMES,FORMATION_STORY_NAMES,FORMATION_ACT_NAMES} from './dmx-strobe-choreography.js';
+import {FORMATION_GESTURE_NAMES} from './dmx-formation-variations.js';
 import {lightingScenes,lightingSceneAt} from './dmx-light-scenes.js';
 import {musicalDarknessAt} from './dmx-activity.js';
 const clamp=v=>Math.max(0,Math.min(1,Number.isFinite(v)?v:0));
@@ -107,41 +109,89 @@ export function strobeGestureExposure(plan,time){
  const figure=strobeScoreAt(plan,time);
  return figure?Math.max(...Array.from({length:8},(_,i)=>strobeComposition(figure,i,8).level)):0;
 }
-export function renderStrobe(active,patch,{movingSource=false}={}){
+export function strobeBaseDimming(source){
+ const raw=Number.isFinite(source.frame?.dimming)?Math.max(0,Math.min(100,source.frame.dimming)):0;
+ if(!raw||source.frame?.state===false)return 0;
+ const base=Number.isFinite(source.washDimming)?Math.max(0,Math.min(100,source.washDimming)):raw;
+ const plan=source.movingPlan,time=source.songTime;
+ if(!plan||!Number.isFinite(time))return base;
+ // The fixture sequence owns exposure. A second master beat pulse would
+ // extinguish offbeat answers and multiply short flashes into near darkness.
+ const figure=strobeScoreAt(plan,time);
+ if(figure?.music?.sequence?.sharedPassage){
+  const ceiling=Math.max(0,Math.min(100,plan.effectiveOptions?.maximum??plan.beatTiming?.maximum??100));
+  // Keep the slow musical energy contour without a constant full-power bed
+  // or a second beat gate. Individual events carry their own dynamics.
+  const energy=clamp(figure.music.energy??figure.energy??.5);
+  const edited=plan.sectionLighting?.find(s=>time>=s.start&&time<s.end);
+  const amount=Number.isFinite(edited?.movement)?Math.min(1,edited.movement):1;
+  return Math.min(ceiling,Math.max(base,ceiling*(.7+.3*energy)*amount));
+ }
+ const ceiling=Math.max(0,Math.min(100,plan.effectiveOptions?.maximum??plan.beatTiming?.maximum??100));
+ // Default section metadata exists on edited/exported songs too. It is not a
+ // manual dimmer override and must not disable the active-beam correction.
+ if(plan.sectionLighting?.some(s=>time>=s.start&&time<s.end&&(s.movement<1||s.rhythm==='none')))return Math.min(base,ceiling);
+ const sequence=strobeScoreAt(plan,time)?.music?.sequence;
+ if(!sequence||['held','silence'].includes(sequence.role)||source.look==='outro')return Math.min(base,ceiling);
+ // A sparse beam show needs a clear active source, not the two-second wash
+ // average followed by another sequence envelope. Occupancy owns the gaps.
+ const active=ceiling*(.6+.3*clamp(sequence.energy));
+ const existing=Math.max(raw,base);
+ return Math.min(ceiling,existing>=ceiling*.6?existing:Math.max(existing,active));
+}
+export function renderStrobe(active,patch,{movingSource=false,palette=null}={}){
  const total=active.reduce((sum,s)=>sum+s.weight,0);
  const main=active.reduce((a,b)=>a.weight>=b.weight?a:b);
- const {animation,scene}=strobeAnimationAt(main);
+ const figure=main.movingPlan&&Number.isFinite(main.songTime)?strobeScoreAt(main.movingPlan,main.songTime):Number.isFinite(main.beat)?formationPreviewAt(main.beat/2):null;
+ const shared=figure?.music?.sequence?.sharedPassage;
+ // Prepared songs no longer select a second animation from the demo catalog.
+ const {animation,scene}=shared?{animation:null,scene:shared}:strobeAnimationAt(main);
  const progress=scene?clamp((main.songTime-scene.start)/(scene.end-scene.start)):clamp(main.sectionProgress);
- const figure=main.movingPlan&&Number.isFinite(main.songTime)?strobeScoreAt(main.movingPlan,main.songTime):null;
  // One beat clock keeps the two decks' flashes from filling each other's gaps.
  const beat=Number.isFinite(main.beat)?main.beat:null;
  const directed=Boolean(main.movingPlan&&Number.isFinite(main.songTime));
  const sources=active.map(s=>{
-  const source=Number.isFinite(s.frame.dimming)?Math.max(0,Math.min(100,s.frame.dimming)):0;
-  const base=source>0&&Number.isFinite(s.washDimming)?Math.max(0,Math.min(100,s.washDimming)):source;
-  return {source:s,base:base*musicalDarknessAt(s.movingPlan,s.songTime).level};
+  const base=strobeBaseDimming(s);
+  return {source:s,unmaskedBase:base,base:base*musicalDarknessAt(s.movingPlan,s.songTime).level};
  });
  // Strong impacts are white; gentler passages retain the song's live colors.
  const flashStrength=active.reduce((sum,s)=>sum+s.weight*(Number.isFinite(s.flicker)?clamp(s.flicker/100):1),0)/total;
- const white=directed?(figure?.kind==='impact'?flashStrength*.35*clamp(main.accentStrength??0):0):animation.family==='impact'?flashStrength:animation.family==='build'?progress*.7*flashStrength:0;
+ const white=shared?0:directed?(!shared&&figure?.kind==='impact'?flashStrength*.35*clamp(main.accentStrength??0):0):animation.family==='impact'?flashStrength:animation.family==='build'?progress*.7*flashStrength:0;
  const colorWeight=sources.reduce((sum,{source:s,base})=>sum+base*s.weight,0);
  const rgb=['r','g','b'].map(k=>sources.reduce((sum,{source:s,base})=>sum+(Math.max(0,Math.min(255,s.frame[k]||0))*(1-white)+255*white)*base*s.weight,0)/Math.max(.001,colorWeight));
- const fixtures=patch.filter(f=>f.type!=='bar'&&f.profile!=='rgb-pixels');let ordinal=-1;
+ const fixtures=patch.filter(f=>f.type!=='bar'&&f.profile!=='rgb-pixels');let ordinal=-1,spotOrdinal=-1;
+ const moving=patch.some(f=>f.type==='moving'),spots=patch.filter(f=>f.type==='spot'),primary=moving||spots.length>0;
  const frames=patch.map(f=>{
-  const bar=f.type==='bar'||f.profile==='rgb-pixels';if(!bar)ordinal++;
+  const bar=f.type==='bar'||f.profile==='rgb-pixels';if(!bar)ordinal++;if(f.type==='spot')spotOrdinal++;
   return Array.from({length:f.cells},(_,cell)=>{
    const index=bar?cell:ordinal,units=bar?f.cells:fixtures.length;
-   const dimming=sources.reduce((sum,{source:s,base})=>{
+   const dimming=sources.reduce((sum,{source:s,base,unmaskedBase})=>{
     const strength=Number.isFinite(s.flicker)?clamp(s.flicker/100):1;
-    const shape=figure?strobeComposition(figure,index,units).level:0;
-    const level=!figure&&beat===null?1:movingSource||f.type==='moving'?1:1-strength+strength*shape;
-    return sum+base*s.weight*(directed?level:strobeLevel(animation,{beat,progress,index,units,flicker:s.flicker}));
+    // In a mixed rig, spots and bars accompany the SAME musical statement.
+    // They no longer run independent copies of the moving-head role sequence.
+    const companion=!movingSource&&figure?.music?.sequence&&(bar&&primary||f.type==='spot'&&moving);
+    const hit=figure?.music?.sequence?.chapter==='arrival';
+    let composition=companion?{...figure,fixtureRole:!bar&&hit?'lead':'support'}:figure;
+    if(shared)composition={...composition,flicker:s.flicker};
+    const shape=figure?strobeComposition(composition,companion&&!bar?spotOrdinal:index,companion&&!bar?spots.length:units).level:0;
+    const limited=shared?shape:figure?.music?.sequence?(strength>0?shape*strength:1):1-strength+strength*shape;
+    const level=!figure&&beat===null?1:movingSource||f.type==='moving'?1:limited;
+    // Moving presence owns its musical darkness after room expansion. Baking
+    // it into the unmasked source here would multiply the same fade twice.
+    return sum+(movingSource||f.type==='moving'?unmaskedBase:base)*s.weight*(figure?level:1);
    },0)/total;
-   const color=figure?.motifId&&flashStrength>0?strobeRoleColor(rgb,strobeRole(index,units)):rgb;
+   const colorFigure=!movingSource&&figure?.music?.sequence?.formationStory&&(bar&&primary||f.type==='spot'&&moving)?{...figure,fixtureRole:'support'}:figure;
+   const colorIndex=figure?.music?.sequence?.formationProgram?strobeComposition(colorFigure,index,units).paletteIndex??0:index;
+   const color=palette?.length?palette[colorIndex%palette.length]:figure?.music?.sequence?.formationProgram?rgb:figure?.motifId&&flashStrength>0?strobeRoleColor(rgb,strobeRole(index,units)):rgb;
    return {state:true,r:color[0],g:color[1],b:color[2],dimming};
   });
  });
  const first=frames.flat()[0];
- return {frames,strobeColor:figure?.motifId&&flashStrength>0?rgb.map(v=>v*255/Math.max(1,...rgb)):undefined,palette:first?[[first.r,first.g,first.b]]:[],animationId:figure?.id||animation.id,
-  description:`${figure?.id||animation.name} · ${directed?(figure&&strobeComposition(figure,0,1).level>0?'Figur · Bewegung':'Figurwechsel · dunkel'):'Beat-Demo'}`+(beat===null?' · ohne Beat-Raster: Dauerlicht':'')};
+ const visual=figure?.music?.sequence;
+ const story=visual?.formationStory;
+ const animationId=story?`formation-${story.motion}-${story.act}-${story.variation?.key.replaceAll('/','-')??story.chapter}`:shared&&visual?.formationId?`formation-${visual.formationProgram?.kind??visual.role}-${visual.formationId}`:shared?`strobe-${shared.composition??visual.role}`:figure?.id||animation.id;
+ const role=figure?.music?.sequence?.role;
+ const description=story?`Formationen · ${FORMATION_GESTURE_NAMES[story.variation?.gesture]??FORMATION_STORY_NAMES[story.motion]} · ${FORMATION_ACT_NAMES[story.act]}`:shared?`Formationen · ${FORMATION_NAMES[visual.formationId]??'Strahlenbild'} · ${({held:'Ruhe',silence:'Musikalische Pause',build:'Aufbau',arrival:'Höhepunkt',groove:'Rhythmische Gruppen',flow:'Fließende Phrase'})[role]||'Musikalische Gruppen'}`
+  :`${figure?.id||animation.name} · ${directed?(figure&&strobeComposition(figure,0,1).level>0?'Figur · Bewegung':'Figurwechsel · dunkel'):'Beat-Demo'}`+(beat===null?' · ohne Beat-Raster: Dauerlicht':'');
+ return {frames,strobePalette:palette||undefined,strobeColor:!palette&&figure?.motifId&&flashStrength>0?rgb.map(v=>v*255/Math.max(1,...rgb)):undefined,palette:palette||(first?[[first.r,first.g,first.b]]:[]),animationId,description};
 }

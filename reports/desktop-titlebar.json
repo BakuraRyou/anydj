@@ -1,0 +1,35 @@
+{
+  "initial": {
+    "bar": true,
+    "buttons": [
+      "Minimieren",
+      "Maximieren",
+      "Schließen"
+    ],
+    "height": 34,
+    "consoleTop": 34,
+    "toolbarIntegrated": true,
+    "shellTop": 34,
+    "shellBottom": 860,
+    "viewport": 860,
+    "nodeExposed": false,
+    "draggable": "drag"
+  },
+  "stage": {
+    "visible": true,
+    "top": 34,
+    "bottom": 860,
+    "viewport": 860,
+    "barInert": false
+  },
+  "modal": {
+    "inside": true,
+    "restored": true
+  },
+  "actions": [
+    "maximize",
+    "minimize",
+    "close"
+  ],
+  "normalClose": true
+}

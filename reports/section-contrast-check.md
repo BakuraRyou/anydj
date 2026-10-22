@@ -49,8 +49,8 @@ Die physische Lichtwirkung wurde nicht bewertet.
 
 Bei der Browserprüfung wurde zusätzlich eine Inkonsistenz der App-Umbenennung
 sichtbar: Das Frontend sendete X-AnyDj-Local, der Server akzeptierte nur
-X-WiZ-Local. Beide Namen werden jetzt akzeptiert; fehlender Header wird weiterhin
-abgewiesen und ist getestet. Eine versehentlich umbenannte Hardware-SSID im
-Verbindungstest wurde auf den tatsächlichen WiZConfig-Namen korrigiert.
+einen früheren Header. Die aktuelle API verwendet ausschließlich
+X-AnyDj-Local; ein fehlender oder fremder Schreibheader wird abgewiesen.
+Die frühere WLAN-Lampensteuerung wurde inzwischen entfernt.
 
 Planversion 17 sorgt für die Erneuerung der vorberechneten Shows.

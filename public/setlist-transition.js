@@ -1,3 +1,4 @@
+import {cutTransitionFits} from './track-cuts.js';
 import {fileIdentity} from './dj-model.js';
 import {validTransitionPoints} from './transition-audio.js';
 export function copySetTransition(value){
@@ -13,5 +14,6 @@ export function matchingSetTransition(entry,previous,from,to,rateA=1,rateB=1,fro
  if(saved?.libraryId&&(!fromTrack||!toTrack||fromTrack.missing||toTrack.missing||fromTrack.pendingChange||toTrack.pendingChange||saved.fromIdentity!==fileIdentity(fromTrack)||saved.toIdentity!==fileIdentity(toTrack)||rateA!==saved.rateA||rateB!==saved.rateB))return null;
  if(!saved||!previous||saved.fromEntryId!==(previous.sourceEntryId||previous.id)||saved.fromTrackId!==previous.trackId||saved.toTrackId!==entry.trackId||Math.abs(saved.fromDuration-from.duration)>.01||Math.abs(saved.toDuration-to.duration)>.01)return null;
  if(saved.plan.time+saved.plan.duration*rateA>from.duration+.001||saved.plan.cue+saved.plan.duration*rateB>to.duration+.001)return null;
+ if((fromTrack?.audioCuts?.length||toTrack?.audioCuts?.length)&&!cutTransitionFits(saved.plan,{...fromTrack,plan:from},{...toTrack,plan:to},rateA,rateB))return null;
  return saved.plan;
 }

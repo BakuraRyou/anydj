@@ -1,0 +1,138 @@
+@import url("./design-tokens.css");
+
+/* Visual styling only: transport, stage and planner behavior live in their modules. */
+.dj-page {
+  --bg:var(--surface-base);--panel:var(--surface-panel);--line:var(--border-subtle);
+  --text:var(--content-primary);--muted:var(--content-secondary);
+  --accent:var(--brand-accent);--accent-ink:var(--brand-accent-ink);
+  background:var(--bg);color:var(--text);
+}
+.dj-page ::selection{background:var(--accent);color:var(--accent-ink)}
+.dj-page .topbar{border-color:var(--line);min-height:70px;gap:16px}
+.dj-page .topbar nav a{color:var(--muted)}
+.dj-page .topbar nav a:hover,.dj-page .topbar nav [aria-current=page]{color:var(--text)}
+.dj-page .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:0 8px 30px #0002}
+.dj-page .button{border-radius:6px;font-weight:550;transition:background .15s,border-color .15s,color .15s}
+.dj-page .button.secondary{background:var(--surface-raised);border-color:#3a3d49;color:var(--text)}
+.dj-page .button.secondary:hover:not(:disabled){background:#272a35;border-color:#646878}
+.dj-page .button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.dj-page .button.primary:hover:not(:disabled){background:#d5ff8a;border-color:#d5ff8a}
+.dj-page :is(input:not([type=range]):not([type=checkbox]):not([type=radio]):not([type=color]),select,textarea){background:var(--bg);border-color:#3a3d49;color:var(--text);border-radius:6px}
+.dj-page input::placeholder{color:#9397a7}
+.dj-page :is(input[type=range],input[type=checkbox],input[type=radio]){accent-color:var(--accent)}
+.dj-page :is(a,button,input,select,textarea,summary):focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.dj-page .dj-console .dj-deck{--deck-accent:var(--signal-warm);border-top-width:2px;background:linear-gradient(160deg,#ffb07905,transparent 45%),var(--panel)}
+.dj-page .dj-console .dj-deck:last-child{--deck-accent:var(--signal-cool);background:linear-gradient(200deg,#aaa4ff08,transparent 45%),var(--panel)}
+.dj-page .dj-deck h2{font-family:ui-monospace,monospace;font-size:11px;letter-spacing:1.5px}
+.dj-page .dj-deck canvas{background:var(--bg);border-radius:5px}
+.dj-page .dj-clock,.dj-page #mixValue{font-family:ui-monospace,monospace;font-variant-numeric:tabular-nums;color:var(--muted)}
+.dj-page .dj-track-title{font-weight:550;letter-spacing:-.4px}
+.dj-page .dj-mixer{background:linear-gradient(180deg,#c4f56704,transparent 50%),var(--panel)}
+.dj-page .dj-library-heading h2{font-weight:550;letter-spacing:-.3px}
+.dj-page .dj-library-heading h2 span{background:var(--surface-raised);padding:3px 7px;border-radius:4px;font:11px ui-monospace,monospace;color:var(--muted)}
+.dj-page .dj-import-options>summary{border-color:var(--line);color:var(--text);border-radius:6px}
+.dj-page .dj-tracks li{border-color:var(--line)}
+.dj-page #trackList .dj-enqueue{background:#c4f5670a;border-color:#c4f56730;color:var(--accent)}
+.dj-page .dj-track-info small{color:var(--muted)}
+.dj-page .dj-settings>div,.dj-page .dj-library-filters{background:var(--panel);border-color:var(--line);box-shadow:0 20px 60px #0008}
+.dj-page .web-analysis-notice{background:var(--panel);border-color:var(--line);border-radius:8px}
+.dj-page .web-analysis-notice h1{color:var(--text);font-weight:550}
+.dj-page .web-analysis-notice p{color:var(--muted)}
+.dj-page .web-legal-footer{border-color:var(--line);color:var(--muted)}
+.dj-page :is(.stage-3d-workspace,.stage-3d-inspector,.stage-3d-room-settings,.stage-3d-light-editor){color:var(--text);border-color:var(--line)}
+.dj-page .stage-3d-inspector{background:var(--panel)}
+@media(max-width:760px){.dj-page .topbar{min-height:64px;gap:10px}.dj-page .topbar nav{flex-wrap:wrap}}
+@media(prefers-reduced-motion:reduce){.dj-page .button{transition:none}}
+
+/* Preserve the docked workspace and its draggable dividers. */
+.dj-page .topbar{background:var(--bg)}
+.dj-page .topbar nav{align-items:center}
+.dj-page .dj-console{background:var(--bg)}
+.dj-page .dj-console .dj-deck{border:0;border-radius:0;box-shadow:none;border-top:2px solid var(--deck-accent)}
+.dj-page .dj-console .dj-deck[aria-label="Deck B"]{--deck-accent:var(--signal-cool);background:linear-gradient(200deg,#aaa4ff08,transparent 45%),var(--panel)}
+.dj-page .dj-console .dj-deck h2{color:var(--deck-accent)}
+.dj-page .dj-console .dj-mixer{background:var(--panel);border-color:var(--line);box-shadow:none}
+.dj-page .dj-mixer>.dj-mixer-light{background:var(--panel)}
+.dj-page .dj-mixer>.dj-mixer-transition{background:var(--surface-raised);border-color:var(--line)}
+.dj-page .dj-mixer h2{color:var(--text);font-weight:550}
+.dj-page .dj-collections{background:var(--panel);border-color:var(--line)}
+.dj-page .dj-collections .dj-library{background:transparent;box-shadow:none}
+.dj-page .dj-collections .dj-queue{border-color:var(--line)}
+.dj-page :is(.dj-resize-handle,.dj-statusbar){background:var(--bg);border-color:var(--line)}
+.dj-page :is(.dj-deck,.dj-mixer,.dj-tracks){scrollbar-color:#454854 transparent}
+.dj-page :is(.dj-transition-preview,.dj-analysis-dialog,.dj-routing-dialog,.dj-export-dialog){background:var(--panel);border-color:var(--line);color:var(--text)}
+.dj-page .dj-transition-preview :is(.preview-visual,.preview-step-page [data-timing],.preview-proposals article,.proposal-editor .transition-timeline>section,[data-tracks]>span){background:var(--bg);border-color:var(--line)}
+.dj-page :is(.stage-3d-dialog,.stage-3d-dialog>.stage-3d,.stage-3d-heading,.stage-3d-tool-tabs){background:var(--surface-panel);border-color:var(--line);color:var(--text)}
+.dj-page .stage-3d-dialog .stage-3d-inspector{background:#14151bf5;border-color:var(--line)}
+.dj-page .stage-3d-inspector :is(.stage-3d-room-settings,.stage-3d-light-editor){background:var(--panel)}
+
+/* Library: one heading/source row and one search/action row. */
+.dj-page #libraryDrop{gap:6px;overflow:hidden;container:library / inline-size;padding-block:10px}
+.dj-page #libraryDrop>.dj-library-heading{flex-wrap:wrap;min-height:32px;gap:6px 12px}
+.dj-page #libraryDrop>.dj-library-heading h2{flex:0 0 auto;flex-basis:auto;margin:0;white-space:nowrap;font-size:13px}
+.dj-page #libraryDrop .dj-import-options{flex:0 0 auto;margin:0 0 0 auto}
+.dj-page #libraryDrop .dj-import-options>.button{min-height:32px;padding:5px 10px;font-size:12px;white-space:nowrap;display:inline-flex;align-items:center;gap:5px;margin:0}
+.dj-page #libraryDrop .dj-library-heading>.provider-tabbar{gap:0;min-width:0;flex-wrap:nowrap;margin:0;padding:0;border:0}
+.dj-page #libraryDrop .provider-tabs{gap:2px;flex-wrap:nowrap;min-width:0}
+.dj-page #libraryDrop .provider-tabs .button{min-height:32px;padding:5px 9px;border-color:transparent;background:transparent;color:var(--muted);font-size:12px}
+.dj-page #libraryDrop .provider-tabs .button[aria-selected=true]{color:var(--accent);background:var(--surface-raised);border-color:var(--line)}
+.dj-page #libraryDrop .provider-tabbar>.button{min-height:30px;padding:5px 8px;font-size:11px;border-color:transparent;background:transparent;color:var(--muted);white-space:nowrap}
+.dj-page #libraryDrop .provider-tabbar .button:hover{color:var(--text);background:var(--surface-raised)}
+.dj-page #localLibrary{gap:5px}
+.dj-page #libraryTools{display:flex;flex-wrap:nowrap;gap:6px;flex-shrink:0;align-items:center}
+.dj-page #libraryTools #trackSearch{flex:1 1 0;flex-basis:0;width:0;min-width:0;height:32px;font-size:12px}
+.dj-page #libraryTools #libraryFilterButton{flex:0 0 32px;width:32px;min-height:32px;padding:6px;color:var(--muted);border:1px solid var(--line);background:transparent}
+.dj-page #libraryTools #libraryFilterButton:is([aria-expanded=true],[data-active=true]){color:var(--accent);border-color:var(--accent)}
+.dj-page #libraryTools #enqueueAll{flex:0 0 auto;min-height:32px;padding:5px 9px;border:1px solid var(--line);background:var(--surface-raised);font-size:11px;white-space:nowrap}
+.dj-page #libraryDrop :is(#folderStatus,#libraryStatus):empty{display:none}
+.dj-page #libraryDrop #trackList{margin:0}
+.dj-page .dj-import-panel{position:fixed;inset:auto;margin:0;box-sizing:border-box;width:340px;max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);overflow:auto;padding:16px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:var(--text);box-shadow:0 16px 48px #0008}
+.dj-page .dj-import-panel h3{font-size:13px;margin:0 0 12px}
+.dj-page .dj-import-panel .dj-import-actions{display:flex;flex-wrap:wrap;gap:8px}
+.dj-page .dj-import-panel .button{margin:0;min-height:36px;font-size:12px}
+.dj-page .dj-import-panel #folderBar{display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.dj-page .dj-import-panel #folderName{grid-column:1/-1;font-size:12px;font-weight:550}
+.dj-page .dj-import-panel #syncFolder{justify-self:start}
+.dj-page .dj-import-panel #disconnectFolder{color:var(--muted)}
+.dj-page .dj-import-panel #folderStatus{margin:10px 0 0;line-height:1.5}
+@media(max-width:420px){
+ .dj-page #libraryDrop>.dj-library-heading{gap:8px}
+ .dj-page #libraryDrop .dj-import-options>.button{padding-inline:8px;font-size:11px}
+ .dj-page #libraryDrop .provider-tabs .button{padding-inline:9px}
+ .dj-page #libraryTools #enqueueAll{padding-inline:7px;font-size:10px}
+}
+
+/* Adapt to the pane width, including manually resized desktop libraries. */
+.dj-page .dj-import-icon{font-size:18px;line-height:1;font-weight:500}
+.dj-page .dj-import-panel .dj-connect-provider{margin-top:12px;width:100%}
+@container library (max-width:480px){
+ .dj-page #libraryDrop>.dj-library-heading{gap:4px 8px}
+ .dj-page #libraryDrop .dj-import-label{display:none}
+ .dj-page #libraryDrop .dj-import-options>.button{width:32px;min-width:32px;padding:5px;justify-content:center}
+ .dj-page #libraryDrop .provider-tabs .button{padding-inline:7px}
+ .dj-page #libraryDrop>.dj-library-heading h2{font-size:12px}
+ .dj-page #libraryDrop>.dj-library-heading h2 span{padding:2px 4px;font-size:10px}
+}
+@container library (max-width:320px){
+ .dj-page #libraryDrop>.dj-library-heading{gap:4px}
+ .dj-page #libraryDrop>.dj-library-heading h2 span{display:none}
+ .dj-page #libraryDrop .provider-tabs .button{padding-inline:5px;font-size:11px}
+ .dj-page #libraryTools #enqueueAll{font-size:10px;padding-inline:6px}
+}
+@media(pointer:coarse){
+ .dj-page #libraryDrop .provider-tabs .button,.dj-page #libraryDrop .dj-import-options>.button,.dj-page #libraryTools :is(#libraryFilterButton,#enqueueAll){min-height:40px}
+ .dj-page #libraryTools #trackSearch{height:40px}
+}
+
+/* Row actions stay discoverable with keyboard focus and on touch screens. */
+.dj-page #trackList .dj-enqueue{display:inline-flex;align-items:center;justify-content:center;flex:none;width:34px;height:34px;min-height:34px;padding:0}
+.dj-page #trackList .dj-enqueue svg{display:block;flex:none;pointer-events:none}
+@media(hover:hover) and (pointer:fine){
+ .dj-page #trackList>li>.dj-track-actions{opacity:0;pointer-events:none;transition:opacity .12s ease}
+ .dj-page #trackList>li:hover>.dj-track-actions,.dj-page #trackList>li:focus-within>.dj-track-actions,.dj-page #trackList>li:has(.dj-track-more[open])>.dj-track-actions{opacity:1;pointer-events:auto}
+}
+@media(pointer:coarse){.dj-page #trackList .dj-enqueue{width:44px;height:44px;min-height:44px}}
+@media(prefers-reduced-motion:reduce){.dj-page #trackList>li>.dj-track-actions{transition:none}}
+/* Respect the optional larger-control preference in the compact header. */
+html[data-app-comfortable=true] .dj-page #libraryDrop :is(.provider-tabs .button,.dj-import-options>.button),
+html[data-app-comfortable=true] .dj-page #libraryTools :is(#trackSearch,#libraryFilterButton,#enqueueAll){min-height:40px;font-size:14px}

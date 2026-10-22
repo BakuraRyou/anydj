@@ -95,21 +95,37 @@ export function createMovingPreparation({schedule=fn=>setTimeout(fn,0),cancel=cl
     start();
   }
   function start(){if(enabled&&!destroyed&&pending===null&&queue.some(e=>e.state==='waiting'))pending=schedule(tick);}
+  function entryFor(plan,mode,mood){
+    const key=modes(mode)+':'+movingMood(plan.movingMood??mood);
+    let variants=cache.get(plan);if(!variants){variants=new Map();cache.set(plan,variants);}
+    if(!variants.has(key))variants.set(key,{plan,mode:modes(mode),mood:movingMood(plan.movingMood??mood),state:'waiting',job:null,result:null});
+    return variants.get(key);
+  }
   return {
     setEnabled(value){enabled=value;if(!enabled&&pending!==null){cancel(pending);pending=null;}start();},
     prepare(plans,mode='auto',mood='balanced'){
       if(destroyed||!enabled)return;
       currentMode=modes(mode);currentMood=movingMood(mood);
       queue=[...new Set(plans.filter(Boolean))].map(plan=>{
-        const planMood=movingMood(plan.movingMood??currentMood),key=currentMode+':'+planMood;
-        let variants=cache.get(plan);if(!variants){variants=new Map();cache.set(plan,variants);}
-        if(!variants.has(key))variants.set(key,{plan,mode:currentMode,mood:planMood,state:'waiting',job:null,result:null});
-        return variants.get(key);
+        return entryFor(plan,currentMode,currentMood);
       });
       notify();start();
     },
-    read(plan,time,mode='auto',mood='balanced'){return movingPlanAt(cache.get(plan)?.get(modes(mode)+':'+movingMood(plan?.movingMood??mood))?.result,time);},
-    exposure(plan,time,mode='auto',mood='balanced',options){return movingCueExposure(cache.get(plan)?.get(modes(mode)+':'+movingMood(plan?.movingMood??mood))?.result?.cues,time,options);},
+    prioritize(plans,mode='auto',mood='balanced'){
+      if(destroyed||!enabled)return;
+      const active=[...new Set(plans.filter(Boolean))].map(plan=>entryFor(plan,mode,mood));
+      queue=[...active,...queue.filter(e=>!active.includes(e))];start();
+    },
+    read(plan,time,mode='auto',mood='balanced'){
+      const entry=cache.get(plan)?.get(modes(mode)+':'+movingMood(plan?.movingMood??mood));
+      // Authored cues are complete after the first chunk. The remaining sample
+      // buffer must not hold live playback at a resting pose in the meantime.
+      return movingPlanAt(entry?.result||(entry?.job?.result?.cues?entry.job.result:null),time);
+    },
+    exposure(plan,time,mode='auto',mood='balanced',options){
+      const entry=cache.get(plan)?.get(modes(mode)+':'+movingMood(plan?.movingMood??mood));
+      return movingCueExposure((entry?.result||entry?.job?.result)?.cues,time,options);
+    },
     stats,
     destroy(){destroyed=true;enabled=false;if(pending!==null)cancel(pending);pending=null;queue=[];cache=new WeakMap();},
   };

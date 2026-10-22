@@ -9,26 +9,27 @@ const room=()=>{
  return roomPlanLayout(p);
 };
 const light=(layout,i,uv)=>({id:'h'+i,type:'moving',position:layout.positions['h'+i],target:{x:0,y:1},motionUV:uv,motionPresentation:'strobe',motionFormation:'designed',power:.8});
-test('different mounting rows and heights aim through the same shared stage point',()=>{
+test('different mounting rows and heights retain parallel beam directions',()=>{
  const layout=room(),uv={x:.6,y:.7};
  const a=light(layout,0,uv),b=light(layout,1,uv);
- assert.deepEqual(strobeSpaceTarget(a,layout),strobeSpaceTarget(b,layout));
+ const direction=l=>{const t=strobeSpaceTarget(l,layout);return [t.x-l.position.x,t.y-l.position.y,t.z-l.position.height];};
+ direction(a).forEach((v,i)=>assert.ok(Math.abs(v-direction(b)[i])<1e-8));
  for(const source of [a,b]){
   const point=strobeSpaceTarget(source,layout),mapped=roomSurfaceChoreography(source,layout);
   const t=(point.y-source.position.y)/(mapped.target.y-source.position.y);
   assert.ok(Math.abs(source.position.x+(mapped.target.x-source.position.x)*t-point.x)<1e-8);
   assert.ok(Math.abs(source.position.height+(mapped.target.z-source.position.height)*t-point.z)<1e-8);
-  assert.equal(mapped.power,.8);assert.ok(mapped.target.z>0);
+  assert.equal(mapped.power,.8);assert.ok(mapped.target.z>=-1e-8);
  }
 });
-test('fan, crossed pairs and diagonal produce distinct elevated spatial pictures',()=>{
+test('fan, crossed pairs and diagonal produce distinct spatial beam directions',()=>{
  const layout=room(),pictures=[];
  for(const form of [0,2,13]){
   const targets=[];
   for(let i=0;i<8;i++){
    const c=strobeComposition({motifId:'exchange',form,kind:'groove',energy:.8,progress:.6},i,8);
    const source=light(layout,i,c),mapped=roomSurfaceChoreography(source,layout);
-   assert.ok(mapped.target.z>0);targets.push([mapped.target.x,mapped.target.y,mapped.target.z]);
+   assert.ok(mapped.target.z>=-1e-8);targets.push([mapped.target.x,mapped.target.y,mapped.target.z]);
   }
   pictures.push(JSON.stringify(targets));
  }

@@ -155,8 +155,7 @@ welcher Abschnitt gerade bearbeitet wird. Abschnittsregeln sind an Track-ID und
 Abschnittsstart gebunden; nach einer Neuanalyse mit veränderten Grenzen müssen
 sie gegebenenfalls neu gesetzt werden.
 
-Modus und Gestaltung werden lokal im Browser gespeichert, getrennt von der
-WiZ-Steuerung. Speicherfehler werden angezeigt; Löschen der Browserdaten entfernt
+Modus und Gestaltung werden lokal im Browser gespeichert. Speicherfehler werden angezeigt; Löschen der Browserdaten entfernt
 die Gestaltung. Es werden bis zu 256 Abschnittsregeln gespeichert. Die
 Simulation erzeugt ein DMX-Universum mit 512 Kanalwerten: dynamisch aufeinanderfolgende Dimmer/RGB-Geräte und RGB-Segmente
 mit automatisch zugeordneten Kanalbereichen. Die Darstellung interpretiert
@@ -181,9 +180,8 @@ USB-Plug-and-play-Treiber. Die Web-Demo und der App-Demomodus senden kein DMX.
 Drag & Drop, Cue-Punkte, Positionsregler und Lautstärke pro Deck. Der Crossfader
 überblendet Audio und die beiden automatisch erzeugten Lichtshows. Mehrere
 Dateien hinzufügen, mit „A/B“ oder per Ziehen laden, beide Decks starten und
-überblenden. Die Lampe vor der Wiedergabe auswählen; „Nur Audio“ ist ebenfalls
-möglich. „Stopp“ pausiert beide Decks und stellt das vorherige Licht
-wieder her. Cue pausiert und springt zum gesetzten Punkt. Noch kein automatisches
+überblenden. DMX-Ausgabe schaltest du bei Bedarf in den Bühneneinstellungen ein.
+„Stopp“ pausiert beide Decks und die Lichtshow. Cue pausiert und springt zum gesetzten Punkt. Noch kein automatisches
 Beatmatching oder Kopfhörer-Vorhören.
 
 **Kompakte Ansicht:** Decks und Mixer stehen über zwei dauerhaft sichtbaren
@@ -630,269 +628,65 @@ keine Strophen oder Refrains. Seine Zeitpunkte bleiben bei Änderungen der
 Effektregler erhalten. Für einen direkten Vergleich die Beat-Erkennung beim
 gleichen Lied wechseln; mehr erkannte Beats allein belegen keine bessere Qualität.
 
-Optional lassen sich `WIZ_BEAT_PYTHON`, `WIZ_BEAT_MODEL` (lokale `final0`-Datei)
-und `WIZ_BEAT_DEVICE=cpu|cuda|auto` konfigurieren. CUDA setzt eine separat passend
+Optional lassen sich `ANYDJ_BEAT_PYTHON`, `ANYDJ_BEAT_MODEL` (lokale `final0`-Datei)
+und `ANYDJ_BEAT_DEVICE=cpu|cuda|auto` konfigurieren. CUDA setzt eine separat passend
 installierte GPU-Version von PyTorch voraus; der mitgelieferte Installer richtet
 CPU-Betrieb ein. Der bestehende Node-Server benötigt keine neuen npm-Pakete.
 Nach Aktualisierung des Servercodes den Server neu starten und die Seite neu laden.
 
 Verfahren und Lizenz: [Beat This! – offizielles Repository](https://github.com/CPJKU/beat_this).
 
-Eine lokale Webapp für AnyDj-WLAN-Lampen: Node.js-Backend, Browser-Frontend, keine npm-Abhängigkeiten und keine Cloud-Anbindung der Webapp.
+## Lokal starten
 
-**Voraussetzung:** Die Lampe ist bereits im WLAN und akzeptiert ungesicherte lokale AnyDj-Befehle. Diese Version unterstützt **nicht** „Only verified controls / Nur verifizierte Steuerungen“ mit dem AnyDj Home Security Key. Die WLAN-Ersteinrichtung erfolgt außerhalb von AnyDj. Sicherheitseinstellungen werden nicht umgangen. AnyDj beschreibt diese Unterscheidung in seinen lokalen Integrations- und Sicherheitshinweisen [1, 2].
-
-## Start auf Kubuntu / Ubuntu
-
-ZIP entpacken und ein Terminal im Ordner `wiz-local` öffnen:
-
-```bash
-node --version
-node server.mjs
+```sh
+npm start
 ```
 
-Das Projekt benötigt **Node.js 22 oder neuer**. Es gibt keinen Build-Schritt und kein `npm install`. `npm start` ist ein alternativer Startbefehl, sofern npm installiert ist.
+Öffne `http://127.0.0.1:3030/`. Du landest direkt im DJ-Pult. Mit `npm run demo`
+startest du ohne Hardwareausgabe. Für echte Lampen nutzt du DMX über den separat
+installierten OLA-Dienst. Lichtshows, Raumplanung und Full funktionieren auch
+ohne angeschlossene Hardware.
 
-Im Browser öffnen:
-
-```text
-http://127.0.0.1:3030
-```
-
-Im Frontend **„Lampen suchen“** wählen. Die Suche verändert keinen Lichtzustand. Eine gefundene Lampe auswählen. Werden mehrere Netzwerke angezeigt, unter „Netzwerk auswählen“ möglichst die tatsächliche WLAN- oder LAN-Schnittstelle verwenden, nicht eine Docker- oder VPN-Schnittstelle. Alternativ unter **„IP manuell hinzufügen“** die Lampen-IP aus dem Router eintragen.
-
-Zum Beenden im Terminal `Strg+C`. Während der Benutzung muss der Node-Prozess laufen. Die Lampe muss am Wandschalter mit Strom versorgt bleiben.
-
-**Die Datei `public/index.html` nicht per Doppelklick öffnen:** Die Bedienoberfläche braucht das lokale HTTP-Backend.
-
-## Bedienung
-
-Ein/Aus wird als eindeutiger Zielzustand gesendet, nicht als Toggle auf der Lampe. Dadurch führt ein wiederholtes UDP-Paket nicht versehentlich zum Zurückschalten.
-
-Helligkeit, RGB-Farbe, Hex-Farbwert und Weißtemperatur lassen sich getrennt einstellen. Änderungen an Reglern und Presets **schalten die Lampe ein**. Der Helligkeitsregler sendet 1–100 Prozent; die tatsächliche Mindesthelligkeit hängt vom Gerät ab. RGB-Schwarz ist bewusst kein Ersatz für den Ausschaltbefehl.
-
-Die UI enthält sechs **eigene, statische Presets**, keine vollständige Liste der nativen AnyDj-Effekte. Das Umschalten zwischen den Tabs „Weißlicht“ und „Farbe“ sendet noch keinen Befehl. Erst ein geänderter Wert wird übertragen.
-
-Der Server liest soweit möglich Modul und Temperaturbereich aus. Nicht unterstützte Funktionen werden bei bekannten Modultypen deaktiviert. Kann der Bereich nicht ermittelt werden, zeigt die UI ausdrücklich einen voreingestellten Bereich von 2200–6500 K. Die Lampe kann Werte ignorieren oder begrenzen; maßgeblich bleibt der zurückgelesene Zustand. Ungewöhnliche Geräte und Mehrzonenleuchten können zusätzliche Anpassungen benötigen. Die zugrunde liegenden AnyDj-Felder und Modellabfragen sind unter anderem in pywizlight nachvollziehbar [3].
-
-Unter **„Verbindung & Diagnose“** stehen IP, MAC, Modul, Firmware, aktuelle Rohdaten und ein begrenzter Verlauf gesendeter/empfangener Pakete. Namen können dort lokal geändert werden. „Aus Liste entfernen“ löscht nur den App-Eintrag und setzt die Lampe nicht zurück.
-
-Reglerereignisse werden gebündelt; Befehle werden je Lampe nacheinander gesendet. Nach einem bestätigten Schreibbefehl wird der Zustand erneut gelesen. Ein Timeout ist **kein Beweis**, dass der Befehl nicht angekommen ist. Die Oberfläche meldet deshalb eine fehlende Bestätigung und erfindet keinen Erfolg.
-
-## Vom Handy im selben Heimnetz
-
-Den bisher laufenden Server zuerst mit `Strg+C` beenden. Anschließend:
-
-```bash
-npm run lan
-```
-
-Mit eigenen Zertifikaten alternativ:
-
-```bash
-SSL_CERT_FILE=/pfad/cert.pem SSL_KEY_FILE=/pfad/key.pem node server.mjs --https --lan
-```
-
-`npm run lan` verwendet HTTPS. Der Helfer erstellt mit `mkcert` ein separates LAN-Zertifikat für localhost und die aktuellen lokalen IPv4-Adressen. Bei geänderten Adressen wird es beim nächsten Start erneuert. Eigene Zertifikate werden unverändert verwendet.
-
-Der Server lauscht nun auf `0.0.0.0` und zeigt seine lokalen Adressen im Terminal. Der Heimnetz-Zugriff benötigt standardmäßig keinen Zugangscode. Eine dieser Adressen auf dem Handy im Heimnetz öffnen, zum Beispiel:
-
-```text
-https://192.168.178.20:3030
-```
-
-Das ist die **IP des Rechners mit dem Node-Server**, nicht die IP der Lampe. Die Seite lässt sich direkt öffnen. Optional kann mit `WIZ_WEB_TOKEN` ein eigener Zugangscode (mindestens 20 Zeichen) gesetzt werden; nur dann erscheint der Anmeldedialog.
-
-Der Web-Zugangscode schützt diese Webapp und hat **nichts mit dem AnyDj Home Security Key** zu tun. Er schaltet den verifizierten AnyDj-Modus nicht frei.
-
-**Zertifikatsvertrauen:** Handy und VR-Brille müssen dem Zertifikat ebenfalls vertrauen. Die lokale mkcert-Einrichtung auf dem PC erledigt das nicht automatisch auf anderen Geräten. Nur in einem vertrauenswürdigen Heimnetz benutzen, nicht öffentlich bereitstellen und keine Internet-Portweiterleitung einrichten. Der Standardstart bindet absichtlich nur an Loopback. Host-/Origin-Prüfungen, ein zusätzlicher Schreibheader und Eingabevalidierung bieten Basisschutz, sind aber kein Ersatz für eine gehärtete produktive Bereitstellung.
-
-## Demo ohne echte Lampe
-
-```bash
-node server.mjs --demo
-```
-
-Oder `npm run demo`. Die Demo verwendet zwei simulierte Lampen und dieselbe Bedienoberfläche. Der gelbe Demo-Hinweis ist dauerhaft sichtbar. **Es werden keine UDP-Pakete an echte Geräte gesendet.** Demo-Zustände und Demo-Namen verschwinden beim Neustart; die echten gespeicherten Geräte werden weder geladen noch verändert.
+`npm run dev:https` startet mit lokalem HTTPS. `npm run lan` macht die App im
+Heimnetz erreichbar. Verwende die im Terminal angezeigte Rechneradresse.
 
 ## Konfiguration
 
-| Einstellung | Standard | Bedeutung |
-| --- | --- | --- |
-| `PORT` | `3030` | Port der Haupt-App (HTTP oder HTTPS) |
-| `VR_PREVIEW_PORT` | `3031` | Fester Heimnetz-Port der gekoppelten VR-Vorschau |
+| Variable | Standard | Bedeutung |
+|---|---|---|
+| `PORT` | `3030` | Lokaler Serverport |
 | `HOST` | `127.0.0.1` | Bind-Adresse; `--lan` verwendet `0.0.0.0` |
-| `WIZ_WEB_TOKEN` | leer | Optionaler Web-Zugangscode, mindestens 20 Zeichen; auch im LAN standardmäßig ohne Code |
-| `WIZ_DATA_DIR` | `./data` relativ zum Projekt | Ordner für gespeicherte Geräte |
+| `ANYDJ_WEB_TOKEN` | leer | Optionaler Web-Zugangscode mit mindestens 20 Zeichen; Eingabe direkt im DJ-Pult |
+| `ANYDJ_DATA_DIR` | `./data` | Lokale Serverdaten, etwa die VR-Kopplung |
+| `ANYDJ_BEAT_PYTHON` | `.venv-beat-this/bin/python` | Python für die Beat-Analyse |
+| `ANYDJ_BEAT_MODEL` | `data/beat-this/final0.ckpt` | Lokales Beat-Modell |
+| `ANYDJ_BEAT_DEVICE` | `cpu` | Analysegerät: `cpu`, `cuda` oder `auto` |
 
-Beispiel für einen anderen Port:
+`.env`-Dateien werden nicht automatisch geladen. Setze Variablen in deiner Shell
+oder Prozessverwaltung. Zugangscodes gehören nicht ins Repository.
 
-```bash
-PORT=3031 node server.mjs
-```
+## Lokale API
 
-Ein fester Zugangscode kann über `WIZ_WEB_TOKEN` gesetzt werden. Keine echten Zugangscodes ins Git-Repository schreiben. `.env`-Dateien werden **nicht automatisch geladen**; Variablen direkt in der Shell oder in der Prozessverwaltung setzen.
+`/api/meta` liefert den App-Status. Musikanalyse verwendet `/api/analysis/beats`,
+`/api/analysis/style` und `/api/analysis/structure`. Hardwareausgabe liegt unter
+`/api/dmx/*`, die VR-Übertragung unter `/api/vr-preview/*`. Schreibzugriffe benötigen
+`X-AnyDj-Local: 1`; ein konfigurierter Zugangscode wird als Bearer-Token übergeben.
 
-Im echten Modus liegen IP-Adressen, MAC-Adressen und eigene Namen in `data/devices.json`. Es werden keine Passwörter oder AnyDj-Zugangsdaten darin gespeichert. Zustände werden nicht über einen Neustart hinweg als aktuell ausgegeben. Bei einer defekten Gerätedatei bricht der Server ab, anstatt sie still zu überschreiben. Bei einer Wiederentdeckung per MAC bleibt der eigene Name auch bei geänderter DHCP-Adresse erhalten.
+Die frühere WLAN-Lampensteuerung und ihre Such-, Geräte- und Musik-Endpunkte
+sind entfernt. Alte Gerätedateien bleiben unangetastet und werden nicht geladen.
+Bestehende Bibliotheken und Einstellungen werden auf die aktuellen AnyDj-
+Bezeichnungen übernommen. Tracks, Setlisten, Lichtshows und eigene Anpassungen
+bleiben dabei erhalten; neuere Einträge werden nicht überschrieben.
 
-## Wenn keine Lampe antwortet
+## Tests und Entwicklung
 
-Zuerst IP und WLAN-Verbindung im Router prüfen und die IP manuell hinzufügen. Ein fehlendes Suchergebnis beweist nicht, dass die Lampe keine lokale Steuerung unterstützt. Der Rechner sollte für den ersten Test direkt im gleichen Netz laufen, nicht in einer VM oder einem Docker-Bridge-Netz.
-
-Der Prototyp sendet an den AnyDj-Port **UDP 38899** [3]. Er verwendet auf dem Rechner dynamische UDP-Quellports. Antworten müssen an diese Quellports zurückkommen können; nur pauschal eingehendes UDP 38899 freizugeben beschreibt die benötigte Verbindung deshalb nicht vollständig. Für die Suche werden Broadcasts der ausgewählten lokalen IPv4-Schnittstellen verwendet. Gastnetz-Isolation, VLAN-Grenzen, VPN-Routing oder Firewall-Regeln können die Verbindung verhindern.
-
-Unter AnyDj **Settings → Security** muss lokale Kommunikation erlaubt sein. Diese Version benötigt **„All controls / Alle Steuerungen“**. Bei **„Only verified controls“** fehlt diesem Prototyp die authentifizierte Protokollimplementierung; bei deaktivierter lokaler Kommunikation wird lokales UDP nicht akzeptiert [1, 2]. Ein Timeout kann diese Fälle nicht zuverlässig voneinander unterscheiden.
-
-Wenn eure AnyDj-App nicht funktioniert, aber die Lampe weiterhin im WLAN und für lokale Befehle offen ist, benötigt der laufende Prototyp keinen App-Login. Eine nicht mehr eingerichtete oder gesperrte Lampe lässt sich damit jedoch nicht einfach übernehmen. **Nicht vorschnell auf Werkseinstellungen zurücksetzen**, da danach die WLAN-Ersteinrichtung erneut nötig wäre. Die offizielle Home-Assistant-Dokumentation setzt ebenfalls eine bereits konfigurierte AnyDj-Netzwerkverbindung voraus [4].
-
-Die App greift ausschließlich lokal zu. Sie verändert oder sperrt nicht die Cloud-Verbindungen, die die Lampe selbst eventuell weiterhin aufbaut.
-
-## Projektstruktur
-
-```text
-wiz-local/
-├── server.mjs            HTTP-API, Zugriffsschutz, Geräteverwaltung, Speicherung
-├── lib/
-│   ├── wiz.mjs           UDP, Discovery, Validierung und Modellinformationen
-│   └── demo.mjs          Simulierter Transport ohne echte Lampen
-├── public/
-│   ├── index.html        Bedienoberfläche
-│   ├── style.css         Responsive Gestaltung, ohne externe Ressourcen
-│   └── app.js            UI, Presets, Reglerbündelung und Statusabgleich
-├── test/
-│   └── app.test.mjs      Automatisierte Tests mit Node-Bordmitteln
-├── package.json
-├── README.md
-├── TESTING.md
-└── .gitignore
-```
-
-Die Transportklasse `WizClient` ist von der HTTP-API getrennt. Ein späteres React-/Next.js-Frontend kann dieselben HTTP-Endpunkte nutzen, wenn es im selben Origin ausgeliefert wird. Eine direkt eingebaute Next.js-Variante müsste den UDP-Code in der Node-Runtime ausführen, nicht im Browser oder in einer Edge-Runtime. Der verwendete UDP-Baustein ist Nodes `dgram` [5].
-
-Sinnvolle Erweiterungspunkte sind eigene gespeicherte Presets, Räume/Gruppen, ein zentraler Scheduler und eine separat zu implementierende Unterstützung des AnyDj Home Security Key. Keine dieser Erweiterungen wird hier bereits vorgetäuscht.
-
-## HTTP-API
-
-Alle Schreibanfragen benötigen `Content-Type: application/json` und `X-AnyDj-Local: 1`. Bei aktiviertem Web-Zugangscode wird zusätzlich `Authorization: Bearer <WEB-ZUGANGSCODE>` benötigt. Es gibt bewusst keinen frei aufrufbaren AnyDj-RPC-Endpunkt.
-
-| Methode / Pfad | Zweck |
-| --- | --- |
-| `GET /api/meta` | Version, Demo-Status, Anmeldebedarf; ohne Geheimnisse |
-| `GET /api/devices` | Gespeicherte Geräte und Netzwerkschnittstellen |
-| `POST /api/discover` | Suche; Body `{}` oder `{"interface":"192.168.178.20"}` |
-| `POST /api/devices` | Lampe prüfen/hinzufügen; Body `{"ip":"192.168.178.42","name":"Wohnzimmer"}` |
-| `GET /api/devices/:ip` | Aktuellen Status von einer bekannten Lampe lesen |
-| `POST /api/devices/:ip/pilot` | Kontrollierte Lichtparameter senden |
-| `PATCH /api/devices/:ip` | Eigenen Namen speichern; Body `{"name":"Wohnzimmer"}` |
-| `DELETE /api/devices/:ip` | Nur lokalen Eintrag entfernen; Body `{}` |
-
-Beispiel: bereits hinzugefügte Lampe auf violett mit 70 Prozent Helligkeit setzen. **Dieser Aufruf verändert den Lichtzustand tatsächlich.**
-
-```bash
-curl -X POST http://127.0.0.1:3030/api/devices/192.168.178.42/pilot \
-  -H 'Content-Type: application/json' \
-  -H 'X-AnyDj-Local: 1' \
-  --data '{"state":true,"r":170,"g":20,"b":255,"dimming":70}'
-```
-
-## Tests und Entwicklungsmodus
-
-```bash
+```sh
 npm test
 npm run dev
 ```
 
-Alternativ ohne npm:
-
-```bash
-node --test test/*.test.mjs
-node --watch server.mjs
-```
-
-Die Tests verwenden Demo-Adapter und lokale UDP-Testserver, nicht eure Lampe. `node --watch` startet das Backend bei Änderungen an importierten Serverdateien neu. Frontend-Änderungen werden nach einem Neuladen der Seite sichtbar; ein Browser-Hot-Reload ist nicht eingebaut.
-
-**Testumfang und Grenzen stehen in `TESTING.md`. Ein erfolgreicher Test mit eurer konkreten AnyDj-Birne ist noch nicht nachgewiesen.**
-
-## Quellen zum Protokoll und zu den Voraussetzungen
-
-[1] AnyDj: Local integrations – verifizierte/unverifizierte Steuerungen und Home Security Key.
-https://wizconnected.helpshift.com/hc/en/7-wiz-v2/faq/1178-local-integrations/
-
-[2] AnyDj: Secure or Disable local network communication.
-https://wizconnected.helpshift.com/hc/en/7-wiz-v2/faq/548-secure-or-disable-local-network-communication/
-
-[3] pywizlight: primäre Implementierung und Felder für lokale AnyDj-Steuerung.
-https://github.com/sbidy/pywizlight
-https://github.com/sbidy/pywizlight/blob/master/pywizlight/bulb.py
-https://github.com/sbidy/pywizlight/blob/master/pywizlight/discovery.py
-
-[4] Home Assistant: AnyDj-Integration und lokale Netzwerkverbindung.
-https://www.home-assistant.io/integrations/wiz/
-
-[5] Node.js: UDP / dgram.
-https://nodejs.org/api/dgram.html
-
-Stand der für diesen Prototyp geprüften Quellen: 19.09.2026. Unabhängiger Prototyp; kein offizielles Produkt von AnyDj oder Signify.
-
-## Live zur Musik
-
-Unter **[Musiksteuerung](http://localhost:3030/music)** eine gespeicherte Lampe auswählen:
-
-- **Rechner-Audio starten:** Reagiert auf die Standard-Audioausgabe des Server-Rechners, etwa Musik aus einem Player oder Browser. Auf dem eingerichteten Linux-Rechner funktioniert dies über PulseAudio/PipeWire und `parec` (Paket `pulseaudio-utils`). Die Seite direkt über localhost öffnen. Die gewünschte Audioausgabe vor dem Start wählen; nach einem Wechsel den Effekt neu starten.
-- **MP3 hierher ziehen:** Datei ablegen oder auswählen und im eingebauten Player auf Play drücken. Die MP3 wird lokal im Browser abgespielt und analysiert; nur Audiopegel gehen an den lokalen Server. Maximal 200 MB. Pause und Titelende beenden den Effekt.
-- **Browser-Tab teilen:** Alternative über den Freigabedialog des Browsers. Einen Tab samt Audio freigeben. Ob Ton verfügbar ist, hängt von Browser und Betriebssystem ab.
-
-Für die manuelle Gestaltung stehen vier Effekte bereit: sanftes Licht, Bass-Puls, fließender Farbverlauf und **Disco**. Disco verfolgt wiederkehrende Schlagabstände, zeigt geschätzte BPM und Erkennungsstatus und filtert bei stabilem Rhythmus Impulse außerhalb des Beatrasters. Bassimpulse haben Vorrang vor breitbandigen Anstiegen, sobald ausreichend Bass vorhanden ist. Jeder akzeptierte Beat setzt die maximale Helligkeit; eine Farbfamilie bleibt jeweils über acht Schläge erhalten und geht dann weich in die nächste über; dazwischen klingt der Akzent mit etwa 110 ms Zeitkonstante zur Mindesthelligkeit ab. Die Erkennung benötigt mehrere Schläge; vor der Stabilisierung reagiert sie auf einzelne Impulse. Synkopen, Tempowechsel oder Musik ohne klare Percussion können die Schätzung weiterhin erschweren.
-
-Fünf Farbpaletten (Sonnenuntergang, Regenbogen, Neon, Feuer und Ozean) sowie zwei eigene Farben stehen bereit. Farbwechsel-Tempo und Sättigung sind einstellbar. Sanft und Bass-Puls verwenden die erste Palettenfarbe, Farbverlauf und Disco durchlaufen die Palette. Das Farbwechsel-Tempo steuert ausschließlich den Farbverlauf. Disco folgt den erkannten Beats ohne zusätzliche feste 500-ms-Sperre. Empfindlichkeit, Helligkeitskurve und Glättung sind in Disco deaktiviert, damit sie den klaren Beat-Akzent nicht verwischen.
-
-Für feinere Helligkeitsabstufungen gibt es Mindest- und Maximalhelligkeit (5–100 %), drei Helligkeitskurven, Empfindlichkeit und zeitbasierte Glättung. Die Regler wirken während der Wiedergabe. Die Lampe erhält weiterhin ganzzahlige Helligkeitswerte und höchstens acht Befehle pro Sekunde; WLAN-Latenz und die Übergänge der Lampenfirmware beeinflussen das sichtbare Ergebnis. Pro Sitzung wird eine Lampe gesteuert.
-
-**Stoppen** stellt den zuvor gelesenen Lichtzustand wieder her. Während der Sitzung sind andere Lichtbefehle der App für diese Lampe gesperrt. Die Übertragung erfolgt mit höchstens acht Lichtbefehlen pro Sekunde und ohne Warteschlange. Bei ausbleibender Browserverbindung endet die Sitzung nach zehn Sekunden; bei nicht erreichbarer Lampe kann die Wiederherstellung fehlschlagen. Ein harter Prozessabbruch oder Stromausfall kann ebenfalls keine Wiederherstellung garantieren.
-
-Rechner-Audio erfasst ausschließlich den Ausgabemonitor, kein Mikrofon. Audioaufnahmen werden weder gespeichert noch an einen Cloud-Dienst gesendet. Die Rechner-Audioquelle ist im Demo-Modus deaktiviert; MP3 kann dort mit simulierten Lampen getestet werden.
-
-### Audio- und Bassanzeige
-
-MP3/Tab-Audio wird kontinuierlich in einem AudioWorklet ausgewertet, Rechner-Audio mit derselben Analyse am Server. Je 20 ms werden der Audiopegel und ein separat gefiltertes Bassband (40–180 Hz) berechnet. Stereokanäle werden energetisch gemittelt, damit gegenphasige Signale nicht verschwinden. Eine laufende Impulsnummer erhält kurze erkannte Anstiege bis zur nächsten Übertragung.
-
-Die getrennten Audio- und Bassbalken passen ihre Skala an die jüngsten Signalspitzen an; sehr leises Rauschen wird nicht hochgezogen. Die daneben angegebenen dBFS-Werte zeigen den absoluten Pegel. Die Impulsanzeige reagiert auf tatsächliche Pegelanstiege, nicht auf eine dekorative Animation. Beim Rechner-Audio wird die Anzeige alle 125 ms aktualisiert. Browseranalyse und Pegelanzeige laufen unabhängig von den höchstens acht Lichtbefehlen pro Sekunde. Die neue Browseranalyse benötigt AudioWorklet-Unterstützung (im lokalen Chrome geprüft).
-
-### Kommunikation während Musik
-
-Statusabfragen der Hauptseite zeigen während einer Musiksitzung ausdrücklich den zuletzt gelesenen Zustand, statt zusätzliche `getPilot`-Pakete zu senden. Eine erneute Lampensuche ist erst nach dem Stoppen möglich. Unveränderte Lichtwerte werden höchstens alle zwei Sekunden erneut bestätigt; nach fehlenden Antworten pausiert die Musikübertragung zunehmend, bevor sie bei vier aufeinanderfolgenden Fehlern endet. Die Wiederherstellung sendet entweder eine gültige Szene, Weißtemperatur oder RGB-Werte; der reine Statuswert `sceneId: 0` wird nicht zurückgeschickt.
-
-## Automatische Verbindungsprüfung beim Öffnen
-
-Haupt- und Musikseite prüfen die gespeicherte Lampe beim Laden. Bei ausbleibender Antwort sucht die App automatisch nach derselben Gerätekennung (MAC). Eine neue IP ersetzt die alte erst nach bestätigter Identität; der Name bleibt erhalten. Ist noch kein Gerät gespeichert, wird automatisch eine gefundene Lampe geprüft und hinzugefügt. Die Hauptseite prüft weiter regelmäßig, die Musikseite versucht bei fehlender Verbindung alle 15 Sekunden erneut zu verbinden. Gleichzeitige Prüfungen werden zusammengefasst; erfolglose Suchen werden für 20 Sekunden zwischengespeichert.
-
-Die Musiksteuerung und die normalen Lichtknöpfe werden erst bei bestätigter Verbindung freigegeben. Während einer bestehenden Musiksitzung werden Statuswerte aus dem gekennzeichneten Cache genutzt. Eine IP, die nun einem anderen Gerät gehört, wird nicht stillschweigend übernommen.
-
-AnyDj prüft Lampen ausschließlich im vorhandenen IP-Netzwerk. WLAN-Scans, automatische WLAN-Einrichtung und Netzwechsel sind entfernt; die App legt keine Netzwerkprofile an.
-
-## Lichtshow vorab erstellen
-
-Auf der Musikseite ist für MP3s zusätzlich **„Lichtshow vorab erstellen“** verfügbar und vorausgewählt. Datei hineinziehen, die Analyse abwarten und anschließend im Player Play drücken. **„Live zur Musik“** bleibt als Alternative wählbar; Rechner- und Tab-Audio nutzen weiterhin die Live-Analyse.
-
-Die Voranalyse decodiert das ganze Lied lokal auf 16 kHz und berechnet Pegel, Bass und erkannte Schläge in einem Web Worker. Ein zweiter Durchlauf vergleicht die Energie über das gesamte Lied und berücksichtigt benachbarte, auch kommende Abschnitte. Daraus entstehen vorberechnete Lichtbilder und eine klickbare Verlaufsvorschau mit „Ruhig“, „Aufbau“, „Fließend“ und „Intensiv“. Das sind heuristische Energieabschnitte, keine semantische Erkennung von Strophe, Refrain oder Stimmung.
-
-Die Helligkeit folgt ausschließlich erkannten Beats. Tonverläufe und Klangmerkmale bestimmen die Farben. Palette, Sättigung, Farbtempo, Empfindlichkeit, Helligkeitskurve sowie Minimum und Maximum können vor dem Start geändert werden; der Ablauf wird dabei neu berechnet. Während der Show sind diese Regler gesperrt. Nach Pause sind sie wieder verfügbar. Die Live-Stimmung beeinflusst die vorbereitete Show nicht. „Weiche Übergänge“ glättet in der Show nur Farbposition und Sättigung; das Beat-Timing bleibt erhalten.
-
-Die Wiedergabe nutzt die aktuelle Zeit des MP3-Players, nicht einen unabhängig laufenden Show-Timer. Springen und Fortsetzen wählen damit die passende Stelle des vorberechneten Ablaufs. Zum Start wird auf die Lampensitzung gewartet. Pause, Ende und Stoppen stellen den vorherigen Lichtzustand wieder her; bei ausbleibenden Show-Daten endet die Sitzung automatisch. WLAN-Latenz und die Lampenfirmware begrenzen weiterhin die Genauigkeit der sichtbaren Synchronität. Maximal acht Lichtbilder pro Sekunde.
-
-Grenzen der Voranalyse: 50 MB und 15 Minuten pro MP3. Die MP3, Audiodaten und komplette Show bleiben im Browser; nur das jeweils aktuelle Lichtbild wird an den lokalen Server gesendet. Nach Neuladen ist eine erneute Analyse nötig. Es findet kein Upload zu einem Cloud-Dienst statt.
-
-
-### Gespeicherte Einstellungen und Klangverläufe
-
-Die Musikseite speichert Effektregler, Farbpalette, Wunschfarben, MP3-Modus, Klangfarben-Einfluss, Licht-Vorlauf und Player-Lautstärke/Stummschaltung im Browser (`localStorage`). Die ausgewählte Lampe wird ebenfalls gemerkt. MP3 und vorberechnete Show werden nicht dauerhaft gespeichert. Ungültige gespeicherte Werte werden verworfen; bei gesperrtem Browserspeicher funktioniert die Seite weiterhin mit temporären Einstellungen.
-
-Die Voranalyse berechnet zusätzlich ein Spektrum pro 80 ms (Hann-Fenster, 2048 Samples bei 16 kHz) und schätzt Klanghelligkeit, dominante Tonklasse und deren spektralen Anteil. Diese Merkmale lenken die Farbposition auch bei gleicher Lautstärke. „Klangfarben folgen“ mischt diesen Einfluss mit dem bisherigen rhythmischen Farbverlauf; „Weiche Übergänge“ verbindet die Farb- und Abschnittswechsel. Das ist eine Schätzung dominanter Klangmerkmale, keine vollständige Notentranskription mehrstimmiger Musik.
-
-„Licht-Vorlauf“ korrigiert den angeforderten Zeitpunkt der vorberechneten Show zwischen −500 und +500 ms. Positive Werte senden kommende Lichtbilder früher, negative Werte später. Der Wert bleibt gespeichert und kann Verzögerungen durch WLAN oder Lampe nachjustieren; wechselnde Netzwerklatenz und die auf acht Bilder pro Sekunde begrenzte Übertragung bleiben praktische Grenzen.
-
-Das Raster der Musikseite begrenzt beide Spalten unabhängig von der Länge der Vorschau. Lange Dateinamen umbrechen; auch sehr viele Abschnitte vergrößern die Seite nicht horizontal.
-
+Die Tests nutzen lokale Server und simulierte DMX-Ausgänge. Echte Hardware wird
+dabei nicht angesprochen. Frontend-Änderungen werden nach dem Neuladen sichtbar.
 
 ### Zusammenhängender Liedverlauf
 
@@ -983,56 +777,11 @@ Die aktuelle Stimmung steht unter dem Schalter. Melodieverlauf, Klangreaktion,
 Sättigungsregler und Beat-Helligkeit bleiben wirksam. Live-Audio verwendet diesen
 Vorab-Modus nicht; dort ist der Schalter deaktiviert.
 
-Wiederfinden nach Stromunterbrechung: „Lampen suchen“ wiederholt erfolglose
-Suchrunden bis zu 90 Sekunden. Bei Suche über alle Netzwerke werden zusätzlich
-bis zu zwölf bekannte IP-Adressen direkt geprüft. Statusfehler werden nur fünf
-Sekunden zwischengespeichert; „Status neu lesen“ erzwingt eine frische Prüfung.
-Beim Zurückkehren zum Browser-Tab wird erneut geprüft. Neue DHCP-Adressen werden
-weiterhin über die MAC zugeordnet.
+## Lichtabschnitte bearbeiten
 
-WLAN-Suche und automatische WLAN-Wiederherstellung sind entfernt. Alte
-Recovery-Konfigurationen werden nicht mehr gelesen; `/setup` und
-`/api/setup/*` sind nicht mehr verfügbar. Bereits im Betriebssystem vorhandene
-Netzwerkprofile werden durch das Update nicht gelöscht. Nach dem Update den
-App-Server neu starten.
-
-## Lichtshow-Editor
-
-`http://localhost:3030/editor` bietet einen eigenen manuellen Ablauf pro Lied und
-Lampe. MP3 laden (bis 50 MB/15 Minuten), in Wellenform/Zeitleiste eine Stelle wählen,
-„Punkt setzen“ anklicken und Farbe, Helligkeit sowie weichen oder direkten Übergang
-festlegen. Änderungen sind während laufender Lichtwiedergabe möglich; Löschen und
-Rückgängig helfen beim Bearbeiten. Die Wellenform ist auch über den Positionsregler
-per Tastatur bedienbar.
-
-Die Vorschau spielt zunächst nur Audio. „Musik + Licht starten“ aktiviert die
-gewählte Lampe, Pause/Stop stellt ihren vorigen Zustand wieder her. Optional
-steuert die vorhandene Beat-Analyse die Helligkeit zwischen 5 % und dem am Punkt
-gewählten Wert. RGB-Lampen erhalten Farben; Weißlichtlampen ihre unterstützte
-Weißtemperatur, reine Dimmer nur Helligkeit. Geräte mit unklarer Dimmbarkeit
-werden nicht gestartet. Momentan spielt jeweils eine Lampe; ein separater Entwurf
-pro Lampe wird anhand MAC und SHA-256 der Musikdatei im Browser gespeichert. Zum
-Wiederöffnen dieselbe MP3 auswählen; die Audiodatei selbst wird nicht gespeichert
-oder hochgeladen. Löschen des Browser-Speichers entfernt diese Entwürfe.
-
-### Editor mit Maus und Tastatur
-
-Die Zeitleiste besitzt direkt bedienbare Farbmarkierungen: Doppelklick auf die
-Wellenform setzt einen Punkt, Ziehen einer Markierung verschiebt ihn. Optional
-rasten Positionen innerhalb von 0,15 Sekunden an erkannten Beats ein (Alt beim
-Ziehen übergeht das Raster). Der Startpunkt bleibt fest bei 0; Punkte können
-nicht übereinander oder aneinander vorbei geschoben werden. Zoom von Gesamtansicht
-bis 16× und horizontales Scrollen erlauben Detailarbeit. Die Markierungen sind
-fokussierbare Buttons; die zusätzliche Punktliste bleibt aufklappbar verfügbar.
-
-Leertaste auf der Zeitleiste: Musikvorschau starten/pausieren. N: Punkt setzen.
-1–6: Schnellfarbe. Entf: ausgewählten Punkt löschen. Strg/Cmd+D: Punkt an der
-Abspielposition duplizieren (bei belegter Position 0,5 s später). Strg/Cmd+Z:
-rückgängig. Strg/Cmd+Umschalt+Z oder Strg/Cmd+Y: wiederholen. Auf einem Marker
-verschieben Pfeiltasten den Punkt um 0,05 s, Umschalt+Pfeil um 0,5 s; auf der
-Zeitleiste springen sie um 1 bzw. 5 Sekunden. Eingabefelder behalten ihre normalen
-Tastaturfunktionen. Analyse-Einstellungen und Punktliste sind einklappbar; am
-Desktop bleibt die kompaktere Farbauswahl beim Scrollen sichtbar.
+Öffne im DJ-Pult bei einem analysierten Titel „Abschnittslicht bearbeiten“.
+Dort kannst du Farben, Helligkeit und Übergänge im Songverlauf anpassen und
+in der Bühnenvorschau prüfen. Deine Änderungen werden pro Titel gespeichert.
 
 ### Website und Desktop-Apps gemeinsam deployen
 
@@ -1048,6 +797,22 @@ Mit `-- --reuse-analysis --dry-run` werden vorhandene KI-Laufzeiten verwendet
 und die Veröffentlichung ausgelassen.
 
 ### Desktop-Anwendung / Installer
+
+Alle drei Betriebssysteme vom Linux-Rechner aus nativ bauen:
+
+```sh
+pnpm run deploy:all
+```
+
+Synchronisiert den aktuellen Projektstand per SSH auf Mac und Windows, baut
+parallel vollständige Desktop-Apps mit lokaler KI, holt geprüfte Installer
+nach `.build/desktop-downloads/` zurück und veröffentlicht sie auf der Downloadseite. Einrichtung und dauerhafte
+SSH-Anmeldung: [SSH-Builds für alle drei Systeme](docs/deploy-all.md).
+`pnpm run sync:all` überträgt nur die Quellen; `pnpm run deploy:all:check`
+prüft die Verbindungen und Werkzeuge. `--build-only` baut ohne Upload;
+`pnpm run deploy:downloads` veröffentlicht vorhandene Installer ohne neue Builds.
+
+Einzelne Installer auf dem jeweiligen Build-Rechner:
 
 ```sh
 npm ci
@@ -1143,6 +908,117 @@ Vorlage, nicht die laufende Kopie oder Musikdateien. Speichern umfasst lokale
 Track-Verweise, keine Kopien der Audiodateien. Nach einem Neustart müssen Dateien
 gegebenenfalls erneut freigegeben/verknüpft werden. Die Speicherung gilt pro
 Browserprofil bzw. lokaler App; es gibt keinen Cloud-Abgleich.
+
+### Warteschlange als MP3 und Lieder schneiden
+
+**„Als MP3 exportieren“** exportiert alle beim Öffnen angezeigten Einträge der
+aktuellen Warteschlange oder ausgewählten Setliste in ihrer Reihenfolge,
+inklusive mehrfach eingereihter Titel. Bereits aus der Warteschlange verbrauchte
+Titel gehören nicht dazu. Der Export beginnt von vorn und verändert die laufende
+Wiedergabe oder Warteschlange nicht. Gespeicherte Set-Übergänge mit eigenen
+Lautstärkekurven und Bassübergaben werden übernommen; für andere Paare gelten
+die aktuellen Automatikeinstellungen. Ein einzelner Titel wird vollständig mit
+seinen Schnitten exportiert, ohne zusätzlichen End-Crossfade.
+
+Im Exportdialog stehen 192 und 320 kbit/s, Fortschritt, Abbrechen und anschließend
+**„MP3 herunterladen“** bereit. Die Berechnung läuft lokal mit kurzen Audioblöcken
+und einem separaten MP3-Worker. Es werden die gerade benötigten Titel dekodiert,
+nicht das gesamte Set auf einmal. Lange Einzeltitel benötigen dennoch entsprechend
+Arbeitsspeicher; die komprimierte MP3 bleibt bis zum Schließen im Speicher.
+Die Web-Version benötigt dafür keine zusätzliche Installation. Exportpegel ist
+80 % mit Begrenzer; Live-EQ, Masterregler, manuelle Loops und spontane Deckaktionen
+sind kein Teil dieses vorberechneten Exports.
+
+**„Lied schneiden“** ist in den Titelaktionen der Bibliothek, an den Einträgen
+der Warteschlange und unter „Deck einstellen“ erreichbar. Auf der Wellenform
+ziehen oder Von/Bis eingeben, dann „Bereich entfernen“ wählen. Ein einfacher Klick
+auf die Wellenform setzt die Hörposition, ohne die Auswahl zu verändern. Mit
+←/→ lässt sie sich um eine Sekunde verschieben, mit Shift um fünf Sekunden.
+Unter „Probehören“ kann eine genaue Position im gewählten Zeitformat eingegeben
+und mit „Springen“ oder Enter angesprungen werden; −5 s/+5 s dienen zum schnellen
+Navigieren. Die Hörprobe startet anschließend dort. Entfernte Bereiche werden
+übersprungen. Unter
+„Format“ direkt neben Von/Bis lässt sich zwischen Sekunden (z. B. `90,5`) und
+Minuten:Sekunden (z. B. `1:30,5`) wechseln. Vorhandene Werte werden automatisch
+umgerechnet; die bevorzugte Eingabeart wird auf diesem Gerät gemerkt. Komma
+und Punkt sind für Nachkommastellen möglich.
+Die Wellenform hat eine Zeitachse in Minuten:Sekunden. Auswahl und Vorschau zeigen
+zusätzlich genaue Zeitwerte; Originalposition und bearbeitete Position werden
+nebeneinander angezeigt. Songabschnitte können ebenfalls ausgewählt werden.
+Mehrere Schnitte, Wiederherstellen einzelner Bereiche, Rückgängig und vollständiges
+Zurücksetzen sind möglich.
+
+Die Bereiche „Bereich auswählen“, „Deine Schnitte“ und „Probehören“ bündeln die
+jeweiligen Bedienelemente. Die Schnittliste zeigt entfernte Bereiche und die
+resultierende Lieddauer. Speichern und Abbrechen bleiben beim Scrollen erreichbar;
+Speichern wird erst bei Änderungen aktiv.
+Im Übergangsmanager öffnet „Lied schneiden“ am jeweiligen Titel denselben Editor
+direkt im Fenster. „Schnitte anwenden“ speichert die Änderungen für den Titel und
+aktualisiert Wellenform und Hörprobe. Der gewählte Übergang bleibt erhalten;
+Songstellen und Dauer werden bei Bedarf an die hörbaren Bereiche angepasst.
+Den aktualisierten Übergang anschließend probehören und übernehmen.
+Die Übergangsfläche lässt sich auch direkt in der Wellenform über rote, entfernte
+Passagen ziehen. Nur die benötigten Teile der Überblendung werden für die Hörprobe
+wieder hörbar und grün markiert. „Übergang & Schnitte übernehmen“ speichert diese
+Wiederherstellung zusammen mit dem Übergang; Schließen verwirft sie. Beim weiteren
+Verschieben zählt ausschließlich die endgültige Position, nicht der Weg dorthin.
+Betroffene Titel in den Decks müssen zum Speichern pausiert sein.
+**„Optimieren“** vergleicht im Hintergrund mehrere Tausend Kombinationen aus
+Songstellen, Überblendlängen und Übergangsarten. Die musikalische Bewertung teilt
+der Editor mit der automatischen Übergangsplanung: Gesangsüberschneidungen,
+konkurrierende Bässe, Energieverlauf, Beat- und Taktgrenzen, Songabschnitte und
+vorhandene Tonartschätzungen fließen ein. Gemessene Audiopegel ergänzen den Vergleich.
+Die Suche darf die gewählte Stelle deutlich verschieben, bleibt aber in ihrer
+Umgebung (bis zu 48 Sekunden zurück und 32 Sekunden vorwärts). Eigene
+Lautstärkekurven bleiben erhalten. Fehlende Instrumentendaten werden angezeigt;
+Beat-, Abschnitts- und Wellenformdaten erlauben weiterhin eine eingeschränkte Suche.
+Die Berechnung ist abbrechbar und verändert weder die laufenden Decks noch
+gespeicherte Übergänge, bis das Ergebnis übernommen wird.
+
+Im Schnittmanager optimiert **„Übergänge optimieren“** alle inneren Schnittstellen
+gemeinsam als Entwurf. Jede Suche bleibt in den zwei angrenzenden, erhaltenen
+Liedteilen; entfernte Passagen werden dabei nicht zurückgeholt. Vorhandene
+Nachbarüberblendungen begrenzen den verfügbaren Platz. Schnittgrenzen können
+für einen passenden Einsatz weiter gekürzt werden. Einmal „Rückgängig“ verwirft
+die gesamte gemeinsame Optimierung. Einzelne Schnittübergänge lassen sich
+zusätzlich im Übergangsmanager optimieren. Anschließend probehören und speichern.
+Mit „Auswahl wiederherstellen“ lassen sich auch nur markierte Teilbereiche eines
+Schnitts zurückholen. „Änderungen verwerfen“ kehrt zum Übergang zurück, ohne den
+Schnittentwurf zu speichern.
+
+**„Mit Übergang entfernen“** öffnet den Übergangsmanager für die Verbindung
+zwischen dem erhaltenen Teil vor und nach einem inneren Schnitt. Das geht direkt
+für eine markierte Auswahl oder über „Übergang gestalten“ am Eintrag eines bereits
+entfernten Bereichs.
+Überblenddauer, sanfte Überblendung, Bassübergabe, kurze Überlagerung und eigene
+Lautstärkekurven sind wie bei Titelübergängen verfügbar. „Übergang übernehmen“
+aktualisiert den Entwurf; „Schnitte speichern“ speichert ihn für die Wiedergabe und
+den MP3-Export. Mit „Ohne Überblendung“ bleibt die Schnittstelle als einfacher
+Sprung erhalten. Intro und Ende werden gekürzt; ein Schnittübergang braucht
+hörbare Teile auf beiden Seiten. Überblendungen überlappen diese Teile und
+verkürzen die bearbeitete Gesamtdauer zusätzlich. Benachbarte Überblendungen
+dürfen sich nicht gegenseitig überdecken. Die Hörprobe verwendet den gewählten
+Vorschauausgang. Zum Speichern muss der betreffende Titel in beiden Decks
+pausiert sein.
+
+Schnitte verändern keine Originaldateien und gelten für den Bibliothekstitel in
+allen Listen. Sie bleiben auf diesem Gerät gespeichert. Die Wiedergabe überspringt
+diese Bereiche; die Lichtshow folgt weiterhin der Originalposition im Lied.
+Auch der Übergangseditor berücksichtigt diese Schnitte bei Vorschlägen,
+Beat-Anpassung und der Auswahl von Songstellen und Überblenddauer. Entfernte
+Bereiche sind in der vollständigen Wellenform rot markiert. Die Hörprobe
+überspringt Schnitte im Vor- und Nachlauf; die Überblendung bleibt innerhalb
+erhaltener Liedteile.
+Im Export werden die Bereiche herausgerechnet und interne Schnittkanten über
+5 ms geglättet. Gespeicherte Übergänge, die gelöschte Teile überdecken, müssen
+neu bearbeitet oder entfernt werden. Zu kurze Titel mit überlappenden Ein- und
+Ausblendungen werden mit einer Erklärung abgewiesen.
+
+Voraussetzung sind vorbereitete, verfügbare lokale Audiodateien. Streaming-Einträge
+und gespeicherte Übergänge mit verändertem Tempo werden derzeit mit einer
+Erklärung abgewiesen. Der MP3-Encoder ist das separat eingebundene, unveränderte
+[lamejs 1.2.1](https://github.com/zhuker/lamejs); Lizenz und lesbarer Encoderquelltext
+sind im Exportdialog verlinkt. Browser-Abnahme: `node scripts/check-queue-export.mjs`.
 
 ### Vereinfachte DJ-Oberfläche
 

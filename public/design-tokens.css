@@ -1,0 +1,13 @@
+/* Shared visual language for the website and DJ workspace. All assets stay local. */
+:root {
+  --surface-base: #0b0c10;
+  --surface-panel: #14151b;
+  --surface-raised: #1c1e26;
+  --border-subtle: #2b2e38;
+  --content-primary: #f4f5f7;
+  --content-secondary: #a6a9b6;
+  --brand-accent: #c4f567;
+  --brand-accent-ink: #182309;
+  --signal-warm: #ffb079;
+  --signal-cool: #aaa4ff;
+}

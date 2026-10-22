@@ -1,4 +1,170 @@
-import {newRoomPlan,validateRoomPlan} from './dmx-ar-model.js';
+import {newRoomPlan,validateRoomPlan,insideRoom,triangulateFloor} from './dmx-ar-model.js';
+
+// These views follow the audience areas and stage orientation of each preset.
+// Detect existing/renamed rooms by their fixture IDs, without rewriting plans.
+export function roomSpectatorView(layout){
+ const plan=layout.roomPlan??layout,positions=plan.positions??{},has=prefix=>Object.keys(positions).some(id=>id.startsWith(prefix));
+ let x=0,y=layout.room?layout.depth*.5:-Math.min(3,layout.depth),yaw=0;
+ // The forward banks begin at y=16 with a 19 m span. At the old y=8
+ // position they sit outside the spectator's 72-degree field of view.
+ if(has('choreo-'))y=layout.depth*7/46;
+ else if(has('combined-formation-arena-'))y=layout.depth*2.5/36;
+ else if(has('formation-arena-'))y=layout.depth*5.5/36;
+ else if(has('strobe-head-'))y=layout.depth*10/36;
+ else if(has('festival-'))y=layout.depth*22/56;
+ else if(has('club-stage-'))y=layout.depth*20/50;
+ else if(has('club-')){y=layout.depth*21/42;yaw=Math.PI;}
+ else if(has('barn-')){x=-layout.width*.25;y=layout.depth*.5;yaw=-Math.atan2(layout.width*.6,layout.depth/14);}
+ const boundary=plan.boundary,zones=plan.zones??[];
+ const available=([px,py])=>(!boundary||insideRoom([px,py],boundary))&&!zones.some(z=>px>=(z.x-.5)*layout.width&&px<=(z.x+z.width-.5)*layout.width&&py>=z.y*layout.depth&&py<=(z.y+z.depth)*layout.depth);
+ if(layout.room&& !available([x,y])){
+  // Edited/imported concave floors and exclusion areas need a valid fallback.
+  const candidates=[];
+  for(let i=1;i<20;i++)for(let j=1;j<20;j++)candidates.push([(i/20-.5)*layout.width,j/20*layout.depth]);
+  if(boundary)candidates.push(...triangulateFloor(boundary).map(t=>[t.reduce((s,p)=>s+p[0],0)/3,t.reduce((s,p)=>s+p[1],0)/3]));
+  const point=candidates.filter(available).sort((a,b)=>Math.hypot(a[0]-x,a[1]-y)-Math.hypot(b[0]-x,b[1]-y))[0];
+  if(point)[x,y]=point;
+ }
+ return {mode:'dancer',x,y,eyeHeight:1.7,yaw,pitch:0,zoom:1};
+}
+
+export function formationArenaRoom(){
+  const plan=newRoomPlan(24,36,10);
+  plan.name='Formationsarena · Raumfächer';plan.style='industrial';
+  plan.environmentBrightness=5;plan.representation='model';
+  const {mesh,face,box}=roomMeshBuilder('Formationsarena · sechs gegenüberliegende Beam-Bänke');
+  face([[-12,0,0],[12,0,0],[12,36,0],[-12,36,0]],'#161a21');
+  face([[-12,35.8,0],[12,35.8,0],[12,35.8,10],[-12,35.8,10]],'#0c1018');
+  box(-11,11,0,22,24,.6,'#222832');
+  box(-2,33,.6,4,1,1,'#161923');
+  // Compact banks give each wing a distinct origin. Placing every fixture on
+  // full-width rear traverses cannot produce these opposing spatial fans.
+  for(const [row,y,height,center] of [[0,16,1,8],[1,24,4.8,10],[2,33,8.3,8]]){
+    for(const side of [-1,1]){
+      box(side*center-1.5,y,height+.45,3,.22,.22,'#454b56');
+      for(let i=0;i<16;i++){
+        const x=side*center+(i-7.5)*.18;
+        plan.positions[`formation-arena-${row}-${side}-${i}`]={type:'moving',
+          name:`${['Boden','Seite','Oben'][row]} ${side<0?'links':'rechts'} · Beam ${i+1}`,
+          x,y,height,rotation:0,beamAngle:2,size:{width:.14,depth:.2,height:.25},target:{x:side*3,y:10,z:5}};
+      }
+    }
+  }
+  plan.mesh=mesh;plan.zones=[];
+  return validateRoomPlan(plan);
+}
+
+export function strobeStageRoom(){
+  const plan=newRoomPlan(24,36,10);
+  plan.name='Formationsbühne · 3 Ebenen';
+  plan.style='industrial';plan.environmentBrightness=5;plan.representation='model';
+  const {mesh,face,box}=roomMeshBuilder('Formationsbühne · Bodenfächer und zwei erhöhte Strahlenreihen');
+  face([[-12,0,0],[12,0,0],[12,36,0],[-12,36,0]],'#20232a');
+  face([[-12,35.8,0],[12,35.8,0],[12,35.8,10],[-12,35.8,10]],'#10131c');
+  box(-11,26,0,22,9,.6,'#292e37');
+  box(-2,33,.6,4,1,1,'#161923');
+  for(const x of [-11,10.7])box(x,31,.6,.3,.3,8.4,'#454b56');
+  for(const [row,y,height] of [[0,27,1],[1,30,5],[2,33,8.5]]){
+    if(row)box(-11,y,height+.45,22,.25,.25,'#454b56');
+    for(let i=0;i<16;i++){
+      const x=-10.5+i*1.4;
+      plan.positions[`strobe-head-${row}-${i}`]={type:'moving',name:`${['Boden','Mitte','Oben'][row]} · Beam ${i+1}`,
+        x,y,height,rotation:0,size:{width:.34,depth:.34,height:.4},
+        target:{x:x*.8,y:12,z:row===0?6:2}};
+    }
+  }
+  for(let i=0;i<8;i++)plan.positions[`strobe-bar-${i}`]={type:'bar',name:`Bühnenkante · LED-Antwort ${i+1}`,
+    x:-9.8+i*2.8,y:26.4,height:.75,rotation:0,size:{width:1,depth:.12,height:.15},
+    target:{x:-9.8+i*2.8,y:25,z:.6}};
+  plan.mesh=mesh;plan.zones=[];
+  return validateRoomPlan(plan);
+}
+
+// The full-width stage supplies the room geometry once. Only the arena's
+// separate beam banks and supports are added; overlaying both room meshes
+// would duplicate the floor, rear wall and DJ booth.
+export function combinedFormationRoom(){
+  const plan=strobeStageRoom(),arena=formationArenaRoom();
+  plan.name='Formationsbühne · Panorama & Raumfächer';
+  plan.positions=Object.fromEntries(Object.entries(plan.positions).map(([id,p])=>['combined-'+id,p]));
+  const {mesh,box}=roomMeshBuilder(plan.name);
+  const rows=[[0,16,1,8],[1,22,4.8,10],[2,34.5,8.3,8]];
+  for(const [row,y,height,center] of rows)for(const side of [-1,1]){
+    box(side*center-1.5,y,height+.45,3,.22,.22,'#454b56');
+    for(const edge of [-1,1])box(side*center+edge*1.6-.05,y+.12,0,.1,.16,height+.45,'#343b46');
+    for(let i=0;i<16;i++){
+      const id=`formation-arena-${row}-${side}-${i}`;
+      plan.positions['combined-'+id]={...arena.positions[id],y};
+    }
+  }
+  const offset=plan.mesh.vertices.length;
+  plan.mesh={...plan.mesh,name:plan.name,
+    vertices:[...plan.mesh.vertices,...mesh.vertices],
+    triangles:[...plan.mesh.triangles,...mesh.triangles.map(t=>t.map(i=>i+offset))],
+    colors:[...plan.mesh.colors,...mesh.colors]};
+  return validateRoomPlan(plan);
+}
+
+// A clear audience sightline, three broad beam rows and three opposing bank
+// pairs form the moving picture. Fixed washes colour the stage and backdrop;
+// narrow accents and LED strips provide a separate musical response.
+export function choreographyArenaRoom(){
+ const plan=newRoomPlan(28,46,12);
+ plan.name='Choreografie-Arena · Beams, Wash & LED';plan.style='industrial';
+ plan.environmentBrightness=7;plan.representation='model';plan.zones=[];
+ const {mesh,face,box}=roomMeshBuilder(plan.name);
+ face([[-14,0,0],[14,0,0],[14,46,0],[-14,46,0]],'#151922');
+ face([[-14,45.9,0],[14,45.9,0],[14,45.9,12],[-14,45.9,12]],'#090e18');
+ box(-12,30,0,24,14.8,1,'#242b36');
+ for(const side of [-1,1])for(let i=0;i<4;i++)box(side<0?-13.2:12,29+i*.35,0,1.2,.35,(i+1)*.25,'#343d4a');
+ for(let i=0;i<7;i++)box(-11.8+i*3.5,45.1,1,2.6,.2,8.7,i%2?'#121e30':'#182638');
+ for(const [y,height]of [[32,9.2],[38,10],[44,10.8]]){
+  box(-12.7,y,height,25.4,.2,.2,'#454e5e');
+  for(const x of [-12.7,12.5])box(x,y,1,.2,.2,height-1,'#343e4c');
+ }
+ box(-2.3,41,1,4.6,1.2,1.1,'#121823');
+ const sizes={moving:{width:.28,depth:.3,height:.34},spot:{width:.22,depth:.24,height:.26},bar:{width:1.2,depth:.12,height:.14}};
+ const add=(id,type,name,x,y,height,target,beamAngle,size)=>{
+  plan.positions['choreo-'+id]={type,name,x,y,height,rotation:0,target,beamAngle,size:size??{...sizes[type]}};
+ };
+ for(const [row,y,height]of [[0,31,1.3],[1,36,5.6],[2,43,9.6]]){
+  if(row)box(-12,y+.25,height+.45,24,.2,.2,'#495565');
+  for(let i=0;i<14;i++){
+   const x=-11.7+i*1.8;
+   add(`beam-row-${row}-${i}`,'moving',`${['Bodenlinie','Panorama','Dachlinie'][row]} · Beam ${i+1}`,x,y,height,{x:x*.5,y:14,z:4.5},3);
+  }
+ }
+ for(const [row,y,height,centre]of [[0,26,2.2,10],[1,33,5.7,11.5],[2,41,9.9,10]])for(const side of [-1,1]){
+  box(side*centre-1.1,y+.25,height+.36,2.2,.16,.16,'#526073');
+  box(side*(centre+1.2)-.06,y+.35,0,.12,.14,height+.36,'#34404e');
+  for(let i=0;i<8;i++){
+   const x=side*centre+(i-3.5)*.22;
+   add(`fan-${row}-${side}-${i}`,'moving',`${['Frontfächer','Seitenfächer','Hochfächer'][row]} ${side<0?'links':'rechts'} · Beam ${i+1}`,
+    x,y,height,{x:-side*3,y:14,z:5},2.4,{width:.15,depth:.2,height:.24});
+  }
+ }
+ for(let i=0;i<6;i++){
+  const x=-10+i*4;
+  add(`wash-up-${i}`,'spot',`Kulisse · Uplight ${i+1}`,x,43.5,1.2,{x,y:45.7,z:8.7},18);
+  add(`wash-down-${i}`,'spot',`Bühnenfläche · Wash ${i+1}`,x,36.5,10.4,{x:x*.8,y:35,z:1.02},35);
+ }
+ for(const side of [-1,1])for(let i=0;i<4;i++){
+  const y=32+i*3.2;
+  add(`wash-side-${side}-${i}`,'spot',`Seitenlicht ${side<0?'links':'rechts'} ${i+1}`,side*13.2,y,4.8,{x:side*8,y,z:1.1},26);
+  add(`accent-${side}-${i}`,'spot',`Akzent ${side<0?'links':'rechts'} ${i+1}`,side*12.8,29+i*4,1.3,{x:side*7,y:31+i*4,z:6.7},8);
+  add(`led-tower-${side}-${i}`,'bar',`LED-Säule ${side<0?'links':'rechts'} ${i+1}`,side*12.8,38,2+i*2,{x:side*13.8,y:38,z:2+i*2},35,{width:.14,depth:.12,height:1.1});
+ }
+ for(let i=0;i<12;i++){
+  const x=-10.8+i*21.6/11;
+  add(`led-edge-${i}`,'bar',`Bühnenkante · LED ${i+1}`,x,30.15,1.15,{x,y:31.5,z:1.03},40);
+ }
+ for(let row=0;row<2;row++)for(let i=0;i<8;i++){
+  const x=-10.5+i*3;
+  add(`led-back-${row}-${i}`,'bar',`Hintergrund ${row+1} · LED ${i+1}`,x,45.35,3+row*4.5,{x,y:45.8,z:3+row*4.5},45,{width:2,depth:.12,height:.14});
+ }
+ plan.mesh=mesh;
+ return validateRoomPlan(plan);
+}
 
 // All fixtures are virtual room devices, driven by the current show's frames.
 export function largeClubRoom() {
@@ -292,4 +458,10 @@ export function upgradeFestivalLighting(plan){
   if(!Object.keys(original.positions).every(id=>same(plan.positions[id],original.positions[id])))return plan;
   const updated=festivalStageRoom();
   return validateRoomPlan({...plan,outdoor:true,positions:updated.positions});
+}
+
+// Rename only the supplied preset. Preserve identity, fixtures and user edits.
+export function upgradeFormationStage(plan){
+ if(plan.name!=='Strobo-Bühne · 3 Ebenen'||!plan.positions?.['strobe-head-0-0'])return plan;
+ return {...plan,name:'Formationsbühne · 3 Ebenen',...(plan.mesh?.name==='Strobo-Bühne · Bodenfächer und zwei erhöhte Strahlenreihen'?{mesh:{...plan.mesh,name:'Formationsbühne · Bodenfächer und zwei erhöhte Strahlenreihen'}}:{})};
 }

@@ -3,6 +3,13 @@ import {songPaletteAt} from './song-palette.js';
 import {planShowScore,SHOW_SCORE_VERSION} from './show-score.js';
 import {arrangementLevelAt} from './show-arrangement.js';
 export const SHOW_PROFILES=['auto','show','strobe','party','disco','calm','atmospheric'];
+export function resolveShowProfile(songProfile,standard='auto'){
+ return SHOW_PROFILES.includes(songProfile)?songProfile:SHOW_PROFILES.includes(standard)?standard:'auto';
+}
+export function applySongShowProfile(plan,songProfile,standard='auto'){
+ const profile=resolveShowProfile(songProfile,standard);
+ return {...applyShowProfile(plan,profile),showProfile:profile,movingMood:movingMoodForProfile(profile),showProfileBase:plan};
+}
 export const movingMoodForProfile=profile=>profile==='show'||profile==='calm'||profile==='atmospheric'||profile==='disco'?profile:profile==='party'?'energetic':'balanced';
 const clamp=value=>Math.max(0,Math.min(1,value));
 // Apply to the original plan, never to the previous preset's output. This is

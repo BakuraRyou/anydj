@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {editTransitionPlan,transitionProposals} from '../public/transition-preview.js';
+import {editTransitionPlan,transitionProposals,transitionPreviewLead} from '../public/transition-preview.js';
+import {cutTransitionFits,transitionCutTracks,fitPreviewCuts} from '../public/track-cuts.js';
 const pair={from:{duration:100,rate:1},to:{duration:60,rate:1},plan:{time:90,cue:0,duration:8,style:'smooth',audioProfile:{a:.2,b:.1}}};
 test('manual transition updates a copy and clears stale audio curve analysis',()=>{
  const result=editTransitionPlan(pair,{time:85,cue:4,duration:10,style:'bass'});
@@ -39,4 +40,20 @@ test('duration edits align outgoing end and incoming start while preserving requ
  assert.equal(source.plan.time,208);
  assert.throws(()=>editTransitionPlan(source,{...source.plan,duration:60},{fitDuration:true}),/zu kurz/);
  assert.throws(()=>editTransitionPlan(source,{...source.plan,duration:NaN},{fitDuration:true}));
+});
+test('trimmed outro and intro set the edited overlap at the last and first kept passages',()=>{
+ const input={...pair,from:{...pair.from,audioCuts:[[70,100]]},to:{...pair.to,audioCuts:[[0,12],[30,40]]}};
+ const plan=editTransitionPlan(input,{time:90,cue:0,duration:8,style:'bass'},{fitDuration:true});
+ assert.equal(plan.time,62);assert.equal(plan.cue,12);assert.equal(plan.duration,8);
+ assert.throws(()=>editTransitionPlan(input,{time:65,cue:12,duration:8,style:'smooth'}),/entfernten Liedteil/);
+ const adjusted=fitPreviewCuts(input,input.plan);
+ assert.equal(adjusted.time,62);assert.equal(adjusted.cue,12);
+ const proposals=transitionProposals({...input,plan:adjusted});
+ assert.ok(proposals.length>=4);assert.ok(proposals.every(p=>cutTransitionFits(p,...transitionCutTracks(input))));
+});
+test('preview lead counts audible seconds across internal cuts at different playback rates',()=>{
+ const input={...pair,from:{duration:100,rate:1,audioCuts:[[8,12]]},plan:{...pair.plan,time:13}};
+ assert.deepEqual(transitionPreviewLead(input),{start:7,duration:2});
+ assert.deepEqual(transitionPreviewLead({...input,from:{...input.from,rate:2}}),{start:5,duration:2});
+ assert.deepEqual(transitionPreviewLead({...input,from:{...input.from,audioCuts:[[0,12]]}}),{start:12,duration:1});
 });

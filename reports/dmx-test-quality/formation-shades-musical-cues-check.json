@@ -1,0 +1,48 @@
+{
+  "source": "Shades.mp3, saved local analysis",
+  "sharedDecisions": 28,
+  "formationScenes": 29,
+  "missedSharedBoundaries": 0,
+  "peaks": [
+    {
+      "sectionStart": 31.92,
+      "sourceHit": 31.94,
+      "minimumPlaneExposureAfterOneFrame": 0.8366600265340756,
+      "openingComplete": true
+    },
+    {
+      "sectionStart": 46.93,
+      "sourceHit": 46.94,
+      "minimumPlaneExposureAfterOneFrame": 0.8366600265340756,
+      "openingComplete": false
+    },
+    {
+      "sectionStart": 61.93,
+      "sourceHit": 61.94,
+      "minimumPlaneExposureAfterOneFrame": 0.9698759984241658,
+      "openingComplete": false
+    },
+    {
+      "sectionStart": 140.67,
+      "sourceHit": 140.7,
+      "minimumPlaneExposureAfterOneFrame": 0.8366600265340756,
+      "openingComplete": true
+    },
+    {
+      "sectionStart": 170.68,
+      "sourceHit": 170.7,
+      "minimumPlaneExposureAfterOneFrame": 0.8366600265340756,
+      "openingComplete": true
+    }
+  ],
+  "preparations": [
+    {
+      "sceneStart": 133.18,
+      "start": 139.47,
+      "end": 140.67,
+      "strength": 1
+    }
+  ],
+  "tests": 218,
+  "desktop": "npm run desktop loads the current project source"
+}

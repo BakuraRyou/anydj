@@ -1,9 +1,9 @@
 {
-  "name": "wiz-local-prototype",
+  "name": "anydj",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Lokale AnyDj-Lampensteuerung ohne Cloud und ohne npm-Abhängigkeiten",
+  "description": "DJ-Software mit lokaler Musikanalyse, DMX-Lichtsteuerung und 3D-Vorschau",
   "engines": {
     "node": ">=22"
   },
@@ -17,6 +17,7 @@
     "pack": "node scripts/pack.mjs",
     "pack:linux": "node scripts/pack.mjs --linux",
     "pack:win": "node scripts/pack.mjs --win",
+    "pack:mac": "node scripts/pack.mjs --mac",
     "pack:analysis": "node scripts/prepare-analysis-bundle.mjs",
     "build:web": "node scripts/build-web.mjs",
     "preview:web": "node scripts/preview-web.mjs",
@@ -32,13 +33,19 @@
     "release:desktop": "node scripts/release-desktop.mjs",
     "deploy:full": "node scripts/deploy-full.mjs",
     "deploy:web": "node scripts/deploy.mjs",
-    "vr:sim": "node scripts/start-vr-sim.mjs"
+    "vr:sim": "node scripts/start-vr-sim.mjs",
+    "deploy:apps": "node scripts/deploy-apps.mjs",
+    "init:apps": "node scripts/init-apps.mjs",
+    "deploy:all": "node scripts/deploy-all.mjs",
+    "deploy:all:check": "node scripts/deploy-all.mjs --check",
+    "sync:all": "node scripts/deploy-all.mjs --sync-only",
+    "deploy:downloads": "node scripts/deploy-all.mjs --publish-only"
   },
   "main": "desktop/main.mjs",
   "author": "AnyDj",
   "devDependencies": {
     "@iwer/devui": "^2.5.0",
-    "electron": "44.4.3",
+    "electron": "44.5.1",
     "electron-builder": "26.15.3"
   },
   "homepage": "https://github.com/BakuraRyou/anydj",

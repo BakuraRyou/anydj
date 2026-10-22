@@ -1,0 +1,32 @@
+[
+  {
+    "input": "silence",
+    "frames": 64,
+    "maximumMelError": 0.0,
+    "maximumModelScoreError": 0.0
+  },
+  {
+    "input": "noise",
+    "frames": 64,
+    "maximumMelError": 5.054473876953125e-05,
+    "maximumModelScoreError": 3.2782554626464844e-06
+  },
+  {
+    "input": "tone",
+    "frames": 65,
+    "maximumMelError": 1.8656253814697266e-05,
+    "maximumModelScoreError": 3.8743019104003906e-07
+  },
+  {
+    "input": "impulse",
+    "frames": 64,
+    "maximumMelError": 3.814697265625e-06,
+    "maximumModelScoreError": 1.1920928955078125e-07
+  },
+  {
+    "input": "audio",
+    "frames": 3751,
+    "maximumMelError": 0.0002696514129638672,
+    "maximumModelScoreError": 1.6897916793823242e-05
+  }
+]

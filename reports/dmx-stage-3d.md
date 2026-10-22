@@ -245,7 +245,7 @@ Ist kein Kandidat frei, wird auf 10 % reduziert. Feste Geräte behalten ihre
 gewählte Richtung und werden bei Zielkonflikten ebenfalls auf 10 % reduziert.
 Dies sind praktische Rücksichtszonen auf dem Boden, keine Strahlwegprüfung:
 Lichtkegel und Übergänge können die Flächen weiterhin treffen. Diese erste
-Umsetzung ändert ausschließlich die Vorschau, keine DMX-/WiZ-Ausgaben.
+Umsetzung ändert ausschließlich die Vorschau, keine Hardwareausgaben.
 
 Eigenes Modul `dmx-zone-plan.js` mit eigener Route, UI und Speicherung; keine
 Änderung des bisherigen Geräte-/Showformats. Tests prüfen Zielkorrektur,

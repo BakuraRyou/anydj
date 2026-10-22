@@ -1,0 +1,79 @@
+{
+  "source": "__mock/anydj-light-review (1).json",
+  "title": "Timecode - lightshow - Atomic Damage -MA3D.mp3",
+  "method": "Offline replay of the saved real-song analysis, including saved editor overrides. Single row, source dimming and moving presence; excludes cue-transit shutters, room routing, renderer and physical hardware. 0.25-second samples; transitions include fades and musical shutters.",
+  "rows": [
+    {
+      "profile": "auto",
+      "count": 4,
+      "partialSeconds": 90.25,
+      "fullSeconds": 16.75,
+      "distinctActiveSelections": 4,
+      "selectionTransitions": 20,
+      "darkSeconds": 1
+    },
+    {
+      "profile": "auto",
+      "count": 7,
+      "partialSeconds": 101.25,
+      "fullSeconds": 5.75,
+      "distinctActiveSelections": 16,
+      "selectionTransitions": 22,
+      "darkSeconds": 1
+    },
+    {
+      "profile": "auto",
+      "count": 16,
+      "partialSeconds": 101.5,
+      "fullSeconds": 5.5,
+      "distinctActiveSelections": 20,
+      "selectionTransitions": 24,
+      "darkSeconds": 1
+    },
+    {
+      "profile": "auto",
+      "count": 72,
+      "partialSeconds": 103.25,
+      "fullSeconds": 3.75,
+      "distinctActiveSelections": 32,
+      "selectionTransitions": 35,
+      "darkSeconds": 1
+    },
+    {
+      "profile": "show",
+      "count": 4,
+      "partialSeconds": 78.5,
+      "fullSeconds": 26,
+      "distinctActiveSelections": 4,
+      "selectionTransitions": 51,
+      "darkSeconds": 3.5
+    },
+    {
+      "profile": "show",
+      "count": 7,
+      "partialSeconds": 90,
+      "fullSeconds": 17.25,
+      "distinctActiveSelections": 25,
+      "selectionTransitions": 70,
+      "darkSeconds": 0.75
+    },
+    {
+      "profile": "show",
+      "count": 16,
+      "partialSeconds": 97.75,
+      "fullSeconds": 9.5,
+      "distinctActiveSelections": 31,
+      "selectionTransitions": 71,
+      "darkSeconds": 0.75
+    },
+    {
+      "profile": "show",
+      "count": 72,
+      "partialSeconds": 99,
+      "fullSeconds": 8.25,
+      "distinctActiveSelections": 50,
+      "selectionTransitions": 82,
+      "darkSeconds": 0.75
+    }
+  ]
+}

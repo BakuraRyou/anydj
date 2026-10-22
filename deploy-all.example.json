@@ -1,0 +1,23 @@
+{
+  "linux": {
+    "root": "/home/YOUR_USER/projects/anydj/.build/deploy-all/linux",
+    "environmentRoot": "/home/YOUR_USER/projects/anydj"
+  },
+  "mac": {
+    "host": "YOUR_USER@mac-build.local",
+    "root": "/Users/YOUR_USER/AnyDj Build",
+    "node": "/usr/local/bin/node",
+    "pnpm": "/usr/local/bin/pnpm",
+    "python": "/Users/YOUR_USER/AnyDj Build/tools/python-intel",
+    "environmentRoot": "/Users/YOUR_USER/AnyDj Build/cache-py311",
+    "unsigned": true
+  },
+  "windows": {
+    "host": "YOUR_USER@windows-build",
+    "root": "C:\\Users\\YOUR_USER\\AnyDj Build",
+    "node": "C:\\Program Files\\nodejs\\node.exe",
+    "pnpm": "C:\\Users\\YOUR_USER\\AppData\\Roaming\\npm\\pnpm.cmd",
+    "python": "C:\\Users\\YOUR_USER\\AnyDj Build\\tools\\python-3.14.4\\python.exe",
+    "environmentRoot": "C:\\Users\\YOUR_USER\\AnyDj Build\\cache-py314"
+  }
+}

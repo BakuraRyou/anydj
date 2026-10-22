@@ -1,6 +1,8 @@
 import {createLightOutputTrace} from './light-output-trace.js';
+import {createPreviewQuality} from './dmx-stage-desktop.js';
+import {createAnimationFocus,focusAnimation} from './dmx-focus.js';
 import {createRoomMotors} from './dmx-light-geometry.js';
-import {roomMusicalAim,respectRoomVolumes,alignRoomFormation} from './dmx-ar-model.js';
+import {roomMusicalAim,respectRoomVolumes,alignRoomFormation,insideRoom} from './dmx-ar-model.js';
 import {createMovingPreview} from './dmx-vr-playback.js';
 import {createARPlanner} from './dmx-ar-planner.js';
 import {createVRShare} from './dmx-vr-share.js';
@@ -13,6 +15,7 @@ import {createRoomSettings,roomLayout,roomLights} from './dmx-room.js';
 import {createStageTransport} from './dmx-stage-transport.js';
 import {createStageFullTransport} from './dmx-stage-full.js';
 import {fixturePosition} from './dmx-layout-model.js';
+import {roomSpectatorView} from './dmx-room-presets.js';
 // Optional preview adapter. Remove this module and its hooks in dmx-stage.js
 // to remove the feature. The renderer is loaded only on first activation.
 export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePosition,getFixtureAims,setFixtureAim,onZonePlan,onToggle=()=>{},onShareChange=()=>{}}){
@@ -22,6 +25,23 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
   const panel=document.createElement('section');panel.className='stage-3d';panel.hidden=true;panel.setAttribute('aria-label','3D-Bühnenvorschau');
   panel.innerHTML=`<div class="stage-3d-heading"><strong>3D-Bühne <small>Simulation</small></strong><button type="button" class="button secondary" data-stage3d-full aria-haspopup="dialog" aria-pressed="false">Full</button><button type="button" class="button secondary" data-stage3d-expand>Große Ansicht</button><button type="button" class="button secondary" data-camera="reset">Kamera zurücksetzen</button></div><canvas tabindex="0" role="img" aria-label="Räumliche Lichtbühne. Mit Linksziehen oder Alt plus Pfeiltasten drehen, mit Rechtsziehen verschieben, mit Mausrad, Plus und Minus vorwärts oder rückwärts bewegen."></canvas><div class="stage-3d-full-controls" hidden><span>FULL · Esc zum Verlassen</span><button type="button" class="button secondary" data-stage3d-full-close>Full schließen</button></div><div class="stage-3d-tools"><button type="button" class="button secondary" data-camera="front">Publikum</button><button type="button" class="button secondary" data-camera="top">Draufsicht</button><button type="button" class="button secondary" data-camera="in" aria-label="Vorwärts bewegen">+</button><button type="button" class="button secondary" data-camera="out" aria-label="Rückwärts bewegen">−</button><button type="button" class="button secondary" data-dancer aria-pressed="false">Auf die Tanzfläche</button><span data-camera-help>Links ziehen: drehen · Rechts ziehen: verschieben · Mausrad / + / −: vor / zurück</span></div><fieldset class="stage-3d-dancer" hidden><legend>Dein Standort auf der Tanzfläche</legend><svg data-dancer-map viewBox="0 0 240 140" role="img" aria-label="Standort wählen: Bühne oben, Tanzfläche darunter"><rect x="10" y="4" width="220" height="25" rx="3" fill="#476174"/><text x="120" y="21" text-anchor="middle" fill="#edf6fa">BÜHNE</text><rect x="10" y="34" width="220" height="96" rx="3" fill="#183b42" stroke="#638891"/><path data-dancer-direction fill="none" stroke="#9ee7d6" stroke-width="2"/><circle data-dancer-dot r="5" fill="#b8ffe6"/></svg><div class="stage-3d-location"><label>Links / rechts <input data-dancer-x type="range" step="0.1" value="0"></label><label>Abstand zur Bühne <input data-dancer-distance type="range" min="0.4" step="0.1" value="3"></label><label>Augenhöhe <select data-dancer-height><option value="1.2">1,20 m</option><option value="1.5">1,50 m</option><option value="1.7" selected>1,70 m</option><option value="1.9">1,90 m</option></select></label><output data-dancer-position></output></div><div class="stage-3d-walk"><button type="button" class="button secondary" data-walk="forward">Vorwärts</button><button type="button" class="button secondary" data-walk="back">Zurück</button><button type="button" class="button secondary" data-walk="left">Schritt links</button><button type="button" class="button secondary" data-walk="right">Schritt rechts</button></div><label class="stage-3d-aim"><input type="checkbox" data-dancer-aim> Moving Heads auf die Tanzfläche richten · nur diese Vorschau</label></fieldset><p role="status">Vereinfachte Lichtvorschau · Aufbau aus „Bühne & Geräte aufstellen“</p>`;
   const outputTrace=createLightOutputTrace();
+  const frameRate=document.createElement('span');frameRate.className='stage-3d-fps';frameRate.dataset.stage3dFps='';frameRate.textContent='— FPS';
+  frameRate.title='Tatsächlich gezeichnete Bilder pro Sekunde · — bei ruhender Vorschau';
+  panel.querySelector('.stage-3d-heading').append(frameRate);
+  let fpsFrames=0,fpsSample=performance.now(),fpsSceneMs=0,fpsDrawMs=0,fpsLights=0,frameDiagnostics=null;
+  let fpsSetupMs=0,fpsGeometryMs=0,fpsSubmitMs=0,fpsOverlayMs=0;
+  const fpsTimer=setInterval(()=>{
+    const now=performance.now();
+    frameRate.textContent=fpsFrames?`${Math.round(fpsFrames*1000/Math.max(1,now-fpsSample))} FPS`:'— FPS';
+    if(fpsFrames){
+      frameDiagnostics={fps:fpsFrames*1000/Math.max(1,now-fpsSample),backend:graphics?.kind||'canvas',device:graphics?.device||null,
+        sceneMs:fpsSceneMs/fpsFrames,drawCpuMs:fpsDrawMs/fpsFrames,setupMs:fpsSetupMs/fpsFrames,geometryMs:fpsGeometryMs/fpsFrames,submitMs:fpsSubmitMs/fpsFrames,overlayMs:fpsOverlayMs/fpsFrames,frameMs:quality.frameMs,lights:fpsLights,pixels:[canvas.width,canvas.height]};
+      frameRate.title=`${frameDiagnostics.backend.toUpperCase()}${frameDiagnostics.device?' · '+frameDiagnostics.device:''}\n${fpsLights} Lichter · ${canvas.width} × ${canvas.height} Pixel\nRaumberechnung: ${frameDiagnostics.sceneMs.toFixed(1)} ms/Bild\nZeichenaufruf (CPU): ${frameDiagnostics.drawCpuMs.toFixed(1)} ms/Bild\nGPU-Wartezeit und andere Browserarbeit sind nicht separat gemessen.`;
+      frameRate.title+=`\nUI vor dem Bild: ${frameDiagnostics.setupMs.toFixed(1)} ms · Geometrie: ${frameDiagnostics.geometryMs.toFixed(1)} ms · Grafikbefehle: ${frameDiagnostics.submitMs.toFixed(1)} ms · Beschriftung: ${frameDiagnostics.overlayMs.toFixed(1)} ms`;
+      if(frameDiagnostics.frameMs)frameRate.title+=`\nBildabstand: ${frameDiagnostics.frameMs.toFixed(1)} ms · Renderauflösung wird an die tatsächliche Bildrate angepasst.`;
+    }else frameRate.title='Keine neuen Bilder · Vorschau ruht oder ist ausgeblendet.';
+    fpsFrames=0;fpsSceneMs=0;fpsDrawMs=0;fpsSetupMs=0;fpsGeometryMs=0;fpsSubmitMs=0;fpsOverlayMs=0;fpsSample=now;
+  },1000);
   const scene=host.querySelector('.stage-scene');
   if(scene)scene.after(panel);else host.append(panel);
   const marker=document.createComment('stage-3d-home');panel.before(marker);
@@ -37,12 +57,13 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
   function openShow(trigger=expand){
     if(isOpen())return;
     returnFocus=trigger;dialog.append(panel);dialog.hidden=false;dialog.setAttribute('open','');dialog.classList.add('stage-3d-full');
-    for(const node of document.body.children)if(node!==dialog&&node instanceof HTMLElement&&!['SCRIPT','STYLE','LINK'].includes(node.tagName)){background.set(node,node.inert);node.inert=true;}
+    for(const node of document.body.children)if(node!==dialog&&node instanceof HTMLElement&&!node.classList.contains('desktop-titlebar')&&!['SCRIPT','STYLE','LINK'].includes(node.tagName)){background.set(node,node.inert);node.inert=true;}
     expand.textContent='Schließen';fullButton.hidden=true;fullControls.hidden=true;fullTransport.setActive(true);
     panel.querySelector('[data-workspace-tab]')?.focus({preventScroll:true});requestDraw();
   }
   function closeShow(){
     if(!isOpen())return;
+    releaseFocus();
     void vr?.stop();stopWalking();workspace?.close();fullTransport.setActive(false);
     dialog.hidden=true;dialog.removeAttribute('open');dialog.classList.remove('stage-3d-full');
     for(const [node,inert] of background)if(node.isConnected)node.inert=inert;background.clear();
@@ -65,13 +86,43 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
     transport.handleShortcut(event);if(event.defaultPrevented)event.stopPropagation();
   });
   const canvas=panel.querySelector('canvas'),ctx=canvas.getContext('2d'),status=panel.querySelector('[role=status]');
-  let enabled=false,disposed=false,visible=true,renderer=null,graphics=null,moveCamera=null,loading=null,raf=0,viewportSize=null,lights=[],moving=[],drag=null;
-  const room=createRoomSettings(panel,{getLayout,onChange:()=>{if(room.value.enabled){dancer.y=Math.max(.15,dancer.y);q('dancer-aim').checked=false;}syncDancer();requestDraw();}});
+  const animationFocus=createAnimationFocus();let focusMode=false,focusPointer=null,pickFloor=null,projectScene=null,focusSpace='';
+  const focusButton=document.createElement('button');focusButton.type='button';focusButton.className='button secondary';focusButton.dataset.focusPoint='';focusButton.textContent='Fokuspunkt';focusButton.setAttribute('aria-pressed','false');
+  focusButton.title='Gedrückt halten und auf dem Boden ziehen: Animation um diesen Punkt aufbauen. Loslassen: zur Show zurückkehren.';
+  panel.querySelector('.stage-3d-tools').append(focusButton);
+  function releaseFocus(){animationFocus.release();focusPointer=null;}
+  function setFocusMode(value){focusMode=value;releaseFocus();drag=null;focusButton.setAttribute('aria-pressed',String(value));canvas.style.cursor=value?'crosshair':'';q('camera-help').textContent=value?'Fokuspunkt: auf dem Boden gedrückt halten und ziehen · loslassen: zurück zur Show · Escape: Modus beenden':'Links ziehen: drehen · Rechts ziehen: verschieben · Mausrad / + / −: vor / zurück';requestDraw();}
+  focusButton.onclick=()=>setFocusMode(!focusMode);
+  function focusAt(e){
+    if(!pickFloor)return false;
+    const rect=canvas.getBoundingClientRect(),layout=viewLayout();
+    const point=pickFloor(layout,camera,rect.width,rect.height,e.clientX-rect.left,e.clientY-rect.top);
+    const focusZones=(planner?.active?planner.plan.zones:zonesPlan())||[];
+    if(!point||layout.boundary&&!insideRoom([point.x,point.y],layout.boundary)||focusZones.some(z=>point.x>=(z.x-.5)*layout.width&&point.x<=(z.x+z.width-.5)*layout.width&&point.y>=z.y*layout.depth&&point.y<=(z.y+z.depth)*layout.depth))return false;
+    if(Math.abs(point.x)>layout.width/2-.1||point.y>(layout.depth-.1)||point.y<(layout.room?.1:-Math.max(4,layout.depth)+.1))return false;
+    animationFocus.hold(point);requestDraw();return true;
+  }
+  function zonesPlan(){return zones.value.zones||[];}
+  const endFocus=()=>{releaseFocus();requestDraw();};
+  window.addEventListener('blur',endFocus);canvas.addEventListener('blur',endFocus);
+  dialog.addEventListener('keydown',e=>{if(e.key==='Escape'&&focusMode){e.preventDefault();e.stopPropagation();setFocusMode(false);}},{capture:true});
+  let lastRenderedScene=null,enabled=false,disposed=false,visible=true,renderer=null,graphics=null,moveCamera=null,loading=null,raf=0,viewportSize=null,lights=[],moving=[],drag=null;
+  const room=createRoomSettings(panel,{getLayout,onChange:()=>{syncCameraRoom();if(room.value.enabled)q('dancer-aim').checked=false;syncDancer();requestDraw();}});
   const viewLayout=()=>planner?.layout||(room.value.enabled?roomLayout(room.value):{...getLayout(),environmentBrightness:room.value.environmentBrightness});
   const roomMotors=createRoomMotors(),zoneMotion=createZoneMotion(),movingFrames=createMovingPreview();
+  const focusMotors=createRoomMotors(),focusZoneMotion=createZoneMotion();
   const zones=createZonePlan(panel,{getAims:getFixtureAims,onAim:setFixtureAim,getLayout:viewLayout,onPosition:(id,p)=>{const source=getLayout();onFixturePosition?.(id,{x:(p.x-.5)*source.width,y:p.y*source.depth});},onChange:()=>requestDraw()});
   const initial=()=>({yaw:.32,pitch:.55,zoom:1});let camera=initial(),overview=initial();
   const cameraKey='anydj-3d-camera-v1';let cameraSaveTimer=null,cameraStorageReady=false,lastCameraSave='';
+  const roomCameras=new Map();let activeCameraRoom=null;
+  const cameraRoomKey=()=>viewLayout().roomPlan?.id||(viewLayout().room?'room':'stage');
+  function syncCameraRoom(){
+    if(!cameraStorageReady)return;
+    const key=cameraRoomKey();if(key===activeCameraRoom)return;
+    if(activeCameraRoom)roomCameras.set(activeCameraRoom,cleanCamera(dancer,true));
+    Object.assign(dancer,roomCameras.get(key)??roomSpectatorView(viewLayout()));
+    activeCameraRoom=key;stopWalking();
+  }
   function cleanCamera(value,ego=false){
     const keys=ego?['x','y','eyeHeight','yaw','pitch','zoom']:['yaw','pitch','zoom'];
     if(!value||keys.some(key=>!Number.isFinite(value[key])||Math.abs(value[key])>100000)||value.zoom<=0)return null;
@@ -83,14 +134,15 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
   function saveCamera(){
     clearTimeout(cameraSaveTimer);cameraSaveTimer=null;
     if(!cameraStorageReady)return;
-    const value=JSON.stringify({version:1,ego:camera.mode==='dancer',overview:cleanCamera(camera.mode==='dancer'?overview:camera),dancer:cleanCamera(dancer,true)});
+    if(activeCameraRoom)roomCameras.set(activeCameraRoom,cleanCamera(dancer,true));
+    const value=JSON.stringify({version:1,roomId:activeCameraRoom,rooms:Object.fromEntries([...roomCameras].slice(-24)),ego:camera.mode==='dancer',overview:cleanCamera(camera.mode==='dancer'?overview:camera),dancer:cleanCamera(dancer,true)});
     if(value===lastCameraSave)return;
     try{localStorage.setItem(cameraKey,value);lastCameraSave=value;}catch{} // Browsers may disable local storage.
   }
   function queueCameraSave(){if(cameraStorageReady&&cameraSaveTimer===null)cameraSaveTimer=setTimeout(saveCamera,250);}
 
   onZonePlan?.(zones);
-  const dancer={mode:'dancer',x:0,y:room.value.enabled?room.value.depth*.25:-Math.min(3,getLayout().depth),eyeHeight:1.7,yaw:0,pitch:0,zoom:1};
+  const dancer=roomSpectatorView(room.value.enabled?roomLayout(room.value):getLayout());
   const controlCache=new Map(),q=name=>{if(!controlCache.has(name))controlCache.set(name,panel.querySelector(`[data-${name}]`));return controlCache.get(name);},dancerButton=q('dancer'),dancerTools=panel.querySelector('.stage-3d-dancer');
   const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
   const walkingKeys=new Set();let lastWalkTime=0,fastWalk=false;
@@ -208,13 +260,14 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
     dancer.y+=Math.cos(dancer.yaw)*forward+Math.sin(dancer.yaw)*right;syncDancer();
   }
   panel.querySelectorAll('[data-walk]').forEach(b=>b.onclick=()=>walk(b.dataset.walk));
-  let resolution=1.5,renderAverage=0,slowFrames=0,fastFrames=0;
+  const quality=createPreviewQuality();
   const requestDraw=()=>{queueCameraSave();if(!disposed&&enabled&&visible&&!document.hidden&&!raf)raf=requestAnimationFrame(draw);};
   function draw(){
     raf=0;if(vr?.active||!enabled||disposed||!visible||document.hidden||!renderer||!ctx)return;
+    const frameStart=performance.now();
     transport.update();
     const {width,height}=viewportSize||canvas.getBoundingClientRect();if(!width||!height)return;
-    const scale=Math.min(window.devicePixelRatio||1,resolution);
+    const scale=quality.scale(window.devicePixelRatio||1);
     if(canvas.width!==Math.round(width*scale)||canvas.height!==Math.round(height*scale)){canvas.width=Math.round(width*scale);canvas.height=Math.round(height*scale);}
     if(camera.mode==='dancer'){
       if(walkingKeys.size){
@@ -223,16 +276,24 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
         const distance=(fastWalk?3:1.5)*dt/(Math.hypot(forward,right)||1);moveDancer(forward*distance,right*distance);
       }else syncDancer();
     }
-    const scene=vrScene(performance.now()/1000);
+    const sceneStart=performance.now(),scene=vrScene(sceneStart/1000);
+    lastRenderedScene=scene;
+    fpsSetupMs+=sceneStart-frameStart;
+    fpsSceneMs+=performance.now()-sceneStart;fpsLights=scene.lights.filter(l=>['moving','spot','bar'].includes(l.type)).length;
     outputTrace.push(performance.now(),music.streams||[],[...lights,...moving],scene.lights);
     const renderStart=performance.now();
     ctx.setTransform(scale,0,0,scale,0,0);renderer(ctx,width,height,scene.layout,scene.lights,camera,scene.crowd,scene.motion);
-    renderAverage=renderAverage*.9+(performance.now()-renderStart)*.1;
-    slowFrames=renderAverage>16?slowFrames+1:0;fastFrames=renderAverage<8?fastFrames+1:0;
-    // Hysteresis keeps quality stable; only rendering resolution changes, never show timing.
-    if(slowFrames>=30&&resolution>.75){resolution=Math.max(.75,Math.min(scale,resolution)-.25);slowFrames=fastFrames=0;}
-    else if(fastFrames>=180&&resolution<1.5){resolution=Math.min(1.5,resolution+.25);slowFrames=fastFrames=0;}
-    if(walkingKeys.size||planner?.active&&planner.moving||roomMotors.active()||movingFrames.active(performance.now()))requestDraw();
+    fpsGeometryMs+=graphics?.timings?.geometryMs||0;fpsSubmitMs+=graphics?.timings?.submitMs||0;fpsOverlayMs+=graphics?.timings?.overlayMs||0;
+    fpsFrames++;
+    if(scene.previewFocus&&projectScene){
+      const p=projectScene(scene.layout,camera,width,height)([scene.previewFocus.x,scene.previewFocus.y,.035]);
+      if(p.depth>.08){ctx.save();ctx.strokeStyle='#ffd384';ctx.lineWidth=2;ctx.beginPath();ctx.arc(p.x,p.y,10,0,Math.PI*2);ctx.moveTo(p.x-15,p.y);ctx.lineTo(p.x+15,p.y);ctx.moveTo(p.x,p.y-15);ctx.lineTo(p.x,p.y+15);ctx.stroke();ctx.restore();}
+    }
+    const drawMs=performance.now()-renderStart;fpsDrawMs+=drawMs;
+    const animated=animationFocus.active||walkingKeys.size||planner?.active&&planner.moving||roomMotors.active()||movingFrames.active(performance.now());
+    const playing=music.streams?.some(s=>s.playing&&s.weight>0);
+    quality.record(frameStart,{drawMs,continuous:!!(animated||playing),pixelRatio:window.devicePixelRatio||1});
+    if(animated)requestDraw();
   }
   function vrScene(now,raw=false,interpolate=true){
     const heads=interpolate?movingFrames.sample(performance.now()):moving;
@@ -240,14 +301,25 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
     const mapped=planner?.active?[...lights,...heads]:room.value.enabled?roomLights([...lights,...heads],layout,room.value):[...lights,...previewMoving];
     if(!vr?.active)zones.update(mapped);
     const view=viewLayout();
-    if(planner?.active){const result={layout:{...layout},lights:mapped,crowd:crowdEnabled?crowd:[],motion:reducedMotion.matches?0:(crowdEnabled&&crowdMotion?crowdMotion(music,now):0)};return raw?result:planner.scene(result);}
-    const result={layout:{...view,positions:layout.positions,zones:zones.value.zones},lights:zoneMotion.update(mapped.map(light=>light.type==='moving'?light:zoneLights([light],view,zones.value)[0]),view,zones.value,now),crowd:crowdEnabled?crowd:[],motion:reducedMotion.matches?0:(crowdEnabled&&crowdMotion?crowdMotion(music,now):0)};
+    const space=planner?.active?planner.plan.id:`${view.width}:${view.depth}:${view.room}`;
+    if(focusSpace&&focusSpace!==space){animationFocus.reset();focusPointer=null;}focusSpace=space;
+    const previewFocus=animationFocus.sample(now);
+    if(planner?.active){
+      // Only current cues travel with the room frame; never send full song plans to XR.
+      const cueStreams=(music.streams||[]).map(s=>({frame:s.frame,weight:s.weight,beat:s.beat,songTime:s.songTime,movingPlan:{sectionLighting:(s.movingPlan?.sectionLighting||[]).filter(e=>s.songTime>=e.start&&s.songTime<e.end&&e.fixtures?.length)}}));
+      const result={previewFocus,streams:cueStreams,layout:{...layout},lights:mapped,crowd:crowdEnabled?crowd:[],motion:reducedMotion.matches?0:(crowdEnabled&&crowdMotion?crowdMotion(music,now):0)};return raw?result:planner.scene(result);
+    }
+    const result={previewFocus,layout:{...view,positions:layout.positions,zones:zones.value.zones},lights:zoneMotion.update(mapped.map(light=>light.type==='moving'?light:zoneLights([light],view,zones.value)[0]),view,zones.value,now),crowd:crowdEnabled?crowd:[],motion:reducedMotion.matches?0:(crowdEnabled&&crowdMotion?crowdMotion(music,now):0)};
     result.lights=alignRoomFormation(result.lights.map(light=>q('dancer-aim').checked?light:roomMusicalAim(light,result.layout)),result.layout).map(light=>respectRoomVolumes(roomMotors(light,result.layout,now),result.layout));
+    if(previewFocus){
+      const focused=focusAnimation(mapped.map(light=>q('dancer-aim').checked?light:roomMusicalAim(light,result.layout)),view,previewFocus);
+      result.lights=focusZoneMotion.update(focused.map(light=>light.type==='moving'?light:zoneLights([light],view,zones.value)[0]),view,zones.value,now).map(light=>respectRoomVolumes(focusMotors(light,result.layout,now),result.layout));
+    }else{focusMotors.reset();focusZoneMotion.reset();}
     return raw?result:planner?.scene(result)||result;
   }
   async function activate(value=!enabled,{expandView=true}={}){
     enabled=value;panel.hidden=!enabled;toggle.textContent=enabled?'3D-Bühne ausschalten':'3D-Bühne einschalten';toggle.setAttribute('aria-pressed',String(enabled));
-    if(!enabled){void vr?.stop();stopWalking();cancelAnimationFrame(raf);raf=0;if(isOpen())closeShow();}onToggle(enabled);
+    if(!enabled){releaseFocus();void vr?.stop();stopWalking();cancelAnimationFrame(raf);raf=0;if(isOpen())closeShow();}onToggle(enabled);
     if(!enabled)return;
     if(expandView&&!isOpen()){expand.click();returnFocus=toggle;}
     if(!ctx){status.textContent='Die 3D-Vorschau ist in diesem Browser nicht verfügbar.';return;}
@@ -255,7 +327,7 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
       loading??=import('./dmx-stage-desktop.js').then(async module=>{
         const value=await module.createDesktopRenderer(canvas,{onInvalidate:requestDraw});
         if(disposed){value.destroy();return;}
-        graphics=value;renderer=value.render;moveCamera=module.moveStageCamera;crowdMotion??=module.createCrowdMotion();
+        graphics=value;renderer=value.render;moveCamera=module.moveStageCamera;pickFloor=module.stageFloorPoint;projectScene=module.stageCamera;crowdMotion??=module.createCrowdMotion();
       });
       await loading;if(!disposed)requestDraw();
     }
@@ -264,7 +336,7 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
   toggle.onclick=()=>activate();
   function change(action){
     if(camera.mode==='dancer'){
-      if(action==='reset'){const layout=viewLayout();dancer.x=0;dancer.y=layout.room?layout.depth*.25:-Math.min(3,layout.depth);dancer.eyeHeight=1.7;q('dancer-height').value='1.7';dancer.yaw=0;dancer.pitch=0;syncDancer();requestDraw();return;}
+      if(action==='reset'){Object.assign(dancer,roomSpectatorView(viewLayout()));syncDancer();requestDraw();return;}
       if(action==='in'||action==='out'){moveDancer(action==='in'?.6:-.6,0);requestDraw();return;}
       setDancer(false);
     }
@@ -282,8 +354,9 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
   }
   panel.querySelectorAll('[data-camera]').forEach(b=>b.onclick=()=>change(b.dataset.camera));
   canvas.oncontextmenu=e=>{if(enabled)e.preventDefault();};
-  canvas.onpointerdown=e=>{if(![0,2].includes(e.button)||drag)return;e.preventDefault();drag={id:e.pointerId,button:e.button,x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});};
+  canvas.onpointerdown=e=>{if(focusMode){e.preventDefault();if(e.button===0&&focusPointer===null){canvas.focus({preventScroll:true});if(focusAt(e)){focusPointer=e.pointerId;canvas.setPointerCapture(e.pointerId);}}return;}if(![0,2].includes(e.button)||drag)return;e.preventDefault();drag={id:e.pointerId,button:e.button,x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);canvas.focus({preventScroll:true});};
   canvas.onpointermove=e=>{
+    if(focusMode){if(focusPointer===e.pointerId){e.preventDefault();if(!(e.buttons&1)){endFocus();return;}focusAt(e);}return;}
     if(!drag||drag.id!==e.pointerId)return;
     if(!(e.buttons&(drag.button===2?2:1))){drag=null;return;}
     const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
@@ -303,7 +376,7 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
     }
     drag={...drag,x:e.clientX,y:e.clientY};requestDraw();
   };
-  canvas.onpointerup=canvas.onpointercancel=canvas.onlostpointercapture=e=>{if(drag?.id===e.pointerId)drag=null;};
+  canvas.onpointerup=canvas.onpointercancel=canvas.onlostpointercapture=e=>{if(focusPointer===e.pointerId)endFocus();if(drag?.id===e.pointerId)drag=null;};
   const movementAction=e=>({KeyW:'forward',KeyS:'back',KeyA:'left',KeyD:'right',ArrowUp:'forward',ArrowDown:'back',ArrowLeft:'left',ArrowRight:'right'}[e.code]||{w:'forward',s:'back',a:'left',d:'right',ArrowUp:'forward',ArrowDown:'back',ArrowLeft:'left',ArrowRight:'right'}[e.key]);
   function navigateKey(e){
     if(e.ctrlKey||e.metaKey||e.isComposing)return false;
@@ -321,7 +394,7 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
     }
     return false;
   }
-  canvas.onkeydown=e=>{if(!e.defaultPrevented)navigateKey(e);};
+  canvas.onkeydown=e=>{if(e.key==='Escape'&&focusMode){e.preventDefault();setFocusMode(false);return;}if(!e.defaultPrevented)navigateKey(e);};
   const releaseKey=e=>{const action=movementAction(e);if(action)walkingKeys.delete(action);if(e.key==='Shift')fastWalk=false;if(!walkingKeys.size)lastWalkTime=0;};
   window.addEventListener('keyup',releaseKey);
   window.addEventListener('blur',stopWalking);
@@ -329,16 +402,17 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
   canvas.addEventListener('wheel',e=>{
     if(e.ctrlKey||e.metaKey||!enabled)return;
     e.preventDefault();
+    if(focusMode)return;
     const unit=e.deltaMode===1?16:e.deltaMode===2?(viewportSize?.height||600):1;
     if(camera.mode==='dancer')moveDancer(clamp(-e.deltaY*unit*.006,-.8,.8)*(e.shiftKey?3:1),clamp(e.deltaX*unit*.006,-.8,.8)*(e.shiftKey?3:1));
     else advanceCamera(clamp(-e.deltaY*unit*.01,-3,3)*(e.shiftKey?3:1),clamp(e.deltaX*unit*.01,-3,3)*(e.shiftKey?3:1));
     requestDraw();
   },{passive:false});
   const resize=new ResizeObserver(entries=>{const {width,height}=entries[0].contentRect;viewportSize={width,height};requestDraw();});resize.observe(canvas);
-  const intersection=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible)requestDraw();else{stopWalking();cancelAnimationFrame(raf);raf=0;}});intersection.observe(canvas);
-  const visibility=()=>{if(document.hidden){saveCamera();stopWalking();cancelAnimationFrame(raf);raf=0;}else requestDraw();};document.addEventListener('visibilitychange',visibility);
-  workspace=createStageWorkspace(panel,{mountLighting,transport,zones,onFit:()=>requestDraw()});
-  planner=createARPlanner(panel.querySelector('[data-workspace-page=room]'),{onStartAR:()=>arButton.click(),getScene:()=>vrScene(performance.now()/1000,true),onChange:()=>{panel.querySelector('.stage-3d-room').hidden=planner.active;syncDancer();requestDraw();}});
+  const intersection=new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;if(visible)requestDraw();else{releaseFocus();stopWalking();cancelAnimationFrame(raf);raf=0;}});intersection.observe(canvas);
+  const visibility=()=>{if(document.hidden){releaseFocus();saveCamera();stopWalking();cancelAnimationFrame(raf);raf=0;}else requestDraw();};document.addEventListener('visibilitychange',visibility);
+  workspace=createStageWorkspace(panel,{mountLighting,transport,zones,getPreviewLights:()=>({room:lastRenderedScene?.lights||[],patch:[...lights,...moving]}),onFit:()=>requestDraw()});
+  planner=createARPlanner(panel.querySelector('[data-workspace-page=room]'),{onStartAR:()=>arButton.click(),getScene:()=>vrScene(performance.now()/1000,true),onChange:()=>{panel.querySelector('.stage-3d-room').hidden=planner.active;syncCameraRoom();syncDancer();requestDraw();}});
   panel.querySelector('.stage-3d-room').hidden=planner.active;
   workspace.setRoomPlanner(planner);
   const onXRCommand=command=>{if(command.action==='room-plan'){planner.use(command.plan);return;}return transport.vrCommand(command);};
@@ -358,14 +432,24 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
     status.textContent='Easter Egg entdeckt · Tanzende Gäste lassen sich über die Werkzeugleiste ein- und ausschalten oder platzieren.';
   };
   // Restore after the room planner and controls exist, before the first visible frame.
+  let cameraRestored=false;
+  activeCameraRoom=cameraRoomKey();
   try{
     const saved=JSON.parse(localStorage.getItem(cameraKey)||'null');
+    if(saved?.rooms&&typeof saved.rooms==='object')for(const [key,value]of Object.entries(saved.rooms).slice(-24)){
+      const view=cleanCamera(value,true);if(view)roomCameras.set(key,view);
+    }
     const savedOverview=cleanCamera(saved?.overview),savedDancer=cleanCamera(saved?.dancer,true);
     if(saved?.version===1&&typeof saved.ego==='boolean'&&savedOverview&&savedDancer){
-      camera=savedOverview;overview={...savedOverview};Object.assign(dancer,savedDancer);
+      camera=savedOverview;overview={...savedOverview};Object.assign(dancer,roomCameras.get(activeCameraRoom)??(!saved.roomId||saved.roomId===activeCameraRoom?savedDancer:roomSpectatorView(viewLayout())));
       if(saved.ego)setDancer(true);else syncDancer();
+      cameraRestored=true;
     }
   }catch{}
+  if(!cameraRestored){
+    Object.assign(dancer,roomSpectatorView(viewLayout()));
+    setDancer(true);
+  }
   const quickFull=document.createElement('button');
   quickFull.type='button';quickFull.className='button secondary stage-3d-quick-full';
   quickFull.setAttribute('aria-label','3D-Vorschau direkt im Vollbild öffnen');
@@ -376,7 +460,7 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
   cameraStorageReady=true;
   window.addEventListener('pagehide',saveCamera);
   return {
-    getDiagnostics:()=>outputTrace.snapshot(),
+    getDiagnostics:()=>({...outputTrace.snapshot(),performance:frameDiagnostics}),
     get isOpen(){return isOpen();},
     setEnabled:value=>activate(value,{expandView:false}),
     open:trigger=>{if(!isOpen())openShow(trigger||expand);},
@@ -403,6 +487,6 @@ export function createStage3d(host,controls,{getLayout,mountLighting,onFixturePo
         });
       });requestDraw();
     },
-    destroy(){disposed=true;graphics?.destroy();saveCamera();cameraStorageReady=false;window.removeEventListener('pagehide',saveCamera);planner?.destroy();arStylesheet.remove();share?.destroy();vrSetup.destroy();vr?.destroy();stopWalking();window.removeEventListener('keyup',releaseKey);window.removeEventListener('blur',stopWalking);workspace.destroy();zoneMotion.reset();zones.destroy();room.destroy();transport.destroy();fullTransport.destroy();disposed=true;cancelAnimationFrame(raf);resize.disconnect();intersection.disconnect();document.removeEventListener('visibilitychange',visibility);closeShow();dialog.remove();marker.remove();panel.remove();toggle.remove();stylesheet.remove();}
+    destroy(){disposed=true;clearInterval(fpsTimer);releaseFocus();window.removeEventListener('blur',endFocus);canvas.removeEventListener('blur',endFocus);graphics?.destroy();saveCamera();cameraStorageReady=false;window.removeEventListener('pagehide',saveCamera);planner?.destroy();arStylesheet.remove();share?.destroy();vrSetup.destroy();vr?.destroy();stopWalking();window.removeEventListener('keyup',releaseKey);window.removeEventListener('blur',stopWalking);workspace.destroy();zoneMotion.reset();zones.destroy();room.destroy();transport.destroy();fullTransport.destroy();disposed=true;cancelAnimationFrame(raf);resize.disconnect();intersection.disconnect();document.removeEventListener('visibilitychange',visibility);closeShow();dialog.remove();marker.remove();panel.remove();toggle.remove();stylesheet.remove();}
   };
 }

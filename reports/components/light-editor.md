@@ -59,10 +59,9 @@ Der DJ-Adapter pausiert die DJ-Wiedergabe beim Öffnen und übernimmt mit einer
 eigenen Audioquelle. Die vorhandene Bühne wird für die Dauer der Bearbeitung
 in den Editor versetzt. Der Entwurf liefert dieselben Frames, Paletten und
 Musikparameter wie die normale DJ-Ausgabe. Bereits aktivierte DMX-Ausgabe
-folgt dem Entwurf; eine ausgewählte WiZ-Lampe startet beim Anhören über eine
-eigene Sitzung. Pause hält den Abspielpunkt, auch Scrubbing aktualisiert das
+folgt dem Entwurf. Pause hält den Abspielpunkt, auch Scrubbing aktualisiert das
 Licht. Regler und Farbauswahl liefern Vorschauen bereits auf input-Ereignisse.
-Beim Schließen werden Audio, Timer und WiZ-Sitzung beendet und die Bühne
+Beim Schließen werden Audio und Vorschautimer beendet und die Bühne
 zurückgegeben. Die DJ-Wiedergabe wird nicht automatisch fortgesetzt.
 
 Die Geräteausgabe bleibt an vorhandene Geräteverbindungen gebunden. Die

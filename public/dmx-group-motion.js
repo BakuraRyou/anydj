@@ -1,4 +1,5 @@
 import {strobeComposition} from './dmx-strobe-score.js';
+import {musicalStageScore} from './dmx-musical-score.js';
 import {selectGroupScore,SONG_MOVEMENT_VERSION,movementAccentEnvelope,SPATIAL_MOTIONS,AUTO_FORMATIONS} from './song-movement-plan.js';
 export {GROUP_COMPOSITIONS,GROUP_MOTIONS} from './song-movement-plan.js';
 const clamp=v=>Math.max(0,Math.min(1,v));
@@ -9,7 +10,7 @@ export function automaticGroupScore(plan,expanded=false){
  const selectedCache=expanded?expandedCache:cache;
  if(!plan)return [];
  if(selectedCache.has(plan))return selectedCache.get(plan);
- const score=expanded?selectGroupScore(plan,true):plan.songMovement?.version===SONG_MOVEMENT_VERSION
+ const score=expanded?musicalStageScore(plan).map(p=>({...p})):plan.songMovement?.version===SONG_MOVEMENT_VERSION
   ?plan.songMovement.passages.map(p=>({...p,intent:p}))
   :selectGroupScore(plan);
  // Fit entrances once, including velocity direction; playback and seeks
@@ -89,6 +90,8 @@ export function automaticGroupMotionAt(plan,time,expanded=false){
  const current=describe(p,start+(end-start)*clamp((sample-p.start)/duration));
  current.amount=edit?.movement===0?1:Math.max(0,Math.min(1,edit?.movement??1));
  if(connected){
+  // Leave the body of each passage to its own figure. A handover spanning a
+  // whole short passage keeps Automatic blending instead of developing it.
   const overlap=Math.min(p.intent?.transition?.overlap??1.4,duration*.25,(previous.end-previous.start)*.25);
   if(sample-p.start<overlap){
    const before=score[lo-3],previousStart=before?.motion&&before.end===previous.start ? .12 : 0;
@@ -110,7 +113,9 @@ export function showGroupMotionAt(plan,time,picture){
  const adapt=m=>{
   const gentle=!!m.intent?.developing;
   return {...m,amount:(m.amount??1)*(gentle?.35:1),composition:m.composition==='traveling-group'?'parallel-sweep':m.composition,presentation:'show',
-   intent:{...m.intent,symmetry:'paired',articulation:gentle?.08:Math.max(.55,m.intent?.articulation??0),...(gentle?{surface:'floor'}:{})},
+   // Show develops its figures inside the stage/room movement areas. Inheriting
+   // a wall/rise request redirected the rear trusses into decorative wall rows.
+   intent:{...m.intent,symmetry:'paired',surface:'floor',articulation:gentle?.08:Math.max(.55,m.intent?.articulation??0)},
    ...(m.from?{from:adapt(m.from)}:{})};
  };
  return adapt(motion);
@@ -169,7 +174,7 @@ export function presenceGroupOffset(presence,rank,count,row){
 // Position, membership and motion share one description and one crossfade.
 const ease=v=>{v=clamp(v);return v*v*(3-2*v);};
 export function groupComposition(motion,rank,count,row=0,groups=1){
- if(motion?.presentation==='strobe')return strobeComposition(motion,rank,count,row,groups);
+ if(motion?.presentation==='strobe')return strobeComposition(motion,rank,count,motion.rigRow??row,motion.rigGroups??groups);
  if(!motion?.composition||count<2)return null;
  if(motion.from){
   const {from,blend,...current}=motion;
@@ -378,13 +383,14 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
 export function presenceComposition(presence,rank,count,row=0,groups=1){
  if(!presence)return null;
  if(!presence.layers)return groupComposition(presence.groupMotion,rank,count,row,groups);
- let sum=0,x=0,y=0,level=0,weight=0,articulation=0,paired=0,wallBlend=0;
+ let sum=0,x=0,y=0,level=0,weight=0,articulation=0,paired=0,wallBlend=0,visibleMotion=false,beamPicture=false,paletteIndex,paletteWeight=-1,beamFocus=0,focusWeight=0;
  for(const layer of presence.layers){
   const w=layer.weight??1,c=presenceComposition(layer,rank,count,row,groups);sum+=w;
   level+=(c?.level??1)*w;
-  if(c){const amount=c.weight*w;weight+=amount;wallBlend+=(c.wallBlend??0)*amount;paired+=(c.paired??0)*amount;articulation+=c.articulation*amount;x+=c.x*amount;y+=c.y*amount;}
+  if(Number.isFinite(c?.beamFocus)){beamFocus+=c.beamFocus*c.weight*w;focusWeight+=c.weight*w;}
+  if(c){const amount=c.weight*w;if(Number.isFinite(c.paletteIndex)&&amount>paletteWeight){paletteIndex=c.paletteIndex;paletteWeight=amount;}weight+=amount;wallBlend+=(c.wallBlend??0)*amount;paired+=(c.paired??0)*amount;articulation+=c.articulation*amount;x+=c.x*amount;y+=c.y*amount;if(c.visibleMotion&&amount>.5)visibleMotion=true;if(c.beamPicture&&amount>.5)beamPicture=true;}
  }
- return weight>0?{wallBlend:wallBlend/weight,paired:paired/weight,x:x/weight,y:y/weight,level:level/Math.max(.0001,sum),weight:weight/Math.max(.0001,sum),articulation:articulation/weight}:null;
+ return weight>0?{...(focusWeight>0?{beamFocus:beamFocus/focusWeight}:{}),...(Number.isFinite(paletteIndex)?{paletteIndex}:{}),...(visibleMotion?{visibleMotion:true}:{}),...(beamPicture?{beamPicture:true}:{}),wallBlend:wallBlend/weight,paired:paired/weight,x:x/weight,y:y/weight,level:level/Math.max(.0001,sum),weight:weight/Math.max(.0001,sum),articulation:articulation/weight}:null;
 }
 
 // Stable groups from actual mounts, not device enumeration or repeated source IDs.

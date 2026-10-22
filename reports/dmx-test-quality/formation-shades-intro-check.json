@@ -1,0 +1,93 @@
+{
+  "source": "Shades.mp3, saved local analysis",
+  "interval": [
+    0,
+    32
+  ],
+  "cause": "Held sections discarded melodic action despite detected notes; sustain texture additionally bypassed note selection.",
+  "intro": [
+    {
+      "start": 0,
+      "end": 1.92,
+      "sectionMotion": "suspend",
+      "action": "hold",
+      "source": "melody",
+      "cues": [
+        0.4,
+        1.6
+      ],
+      "from": "horizontal-sheets",
+      "to": "horizontal-sheets",
+      "headsMovingMoreThanFourPercent": 16
+    },
+    {
+      "start": 1.92,
+      "end": 8.96,
+      "sectionMotion": "suspend",
+      "action": "develop",
+      "source": "melody",
+      "cues": [
+        1.92,
+        2.88,
+        3.6,
+        4.16,
+        4.72,
+        5.68,
+        6.640000000000001,
+        7.6000000000000005,
+        8.32,
+        8.8
+      ],
+      "from": "rising-arch",
+      "to": "vaulted-roof",
+      "headsMovingMoreThanFourPercent": 16
+    },
+    {
+      "start": 8.96,
+      "end": 16.92,
+      "sectionMotion": "suspend",
+      "action": "develop",
+      "source": "melody",
+      "cues": [
+        9.200000000000001,
+        11.120000000000001,
+        11.68,
+        12.24,
+        12.96,
+        14.08,
+        15.120000000000001,
+        16,
+        16.8
+      ],
+      "from": "horizontal-sheets",
+      "to": "rising-arch",
+      "headsMovingMoreThanFourPercent": 16
+    },
+    {
+      "start": 16.92,
+      "end": 31.92,
+      "sectionMotion": "suspend",
+      "action": "develop",
+      "source": "melody",
+      "cues": [
+        16.96,
+        19.92,
+        21.6,
+        22.56,
+        23.52,
+        24.48,
+        25.6,
+        26.64,
+        27.68,
+        28.72,
+        30.400000000000002,
+        31.68
+      ],
+      "from": "horizontal-sheets",
+      "to": "split-wings",
+      "headsMovingMoreThanFourPercent": 16
+    }
+  ],
+  "tests": 267,
+  "preview": "formation-shades-festival-open-intro-development.mp4"
+}

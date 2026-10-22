@@ -1,0 +1,1019 @@
+{
+  "title": "Dope Stars Inc. - Lies Irae.mp3",
+  "method": "Deterministic 50 Hz replay of exported plan, four representative spot roles, two requested colors; source palette, motion character and accents. Colors before room routing. No subjective audio assessment, rendered pixels or hardware measurement.",
+  "duration": 215.4489375,
+  "planVersion": 57,
+  "profile": "auto",
+  "sampleHz": 50,
+  "structureAvailable": false,
+  "sectionCount": 28,
+  "twoSecondSections": 15,
+  "largeColorJumpsWithNearlyUnchangedSource": 15,
+  "jumps": [
+    {
+      "time": 16,
+      "colorStep": 354.6505322144604,
+      "inputStep": 0,
+      "beforeLook": "flow",
+      "afterLook": "lift",
+      "beforeCount": 2,
+      "afterCount": 1,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 57,
+        "r": 252,
+        "g": 255,
+        "b": 0
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 55,
+        "r": 252,
+        "g": 255,
+        "b": 0
+      },
+      "colorsBefore": [
+        [
+          252,
+          255,
+          0
+        ],
+        [
+          252,
+          255,
+          0
+        ],
+        [
+          68,
+          91,
+          255
+        ],
+        [
+          68,
+          91,
+          255
+        ]
+      ],
+      "colorsAfter": [
+        [
+          252,
+          255,
+          0
+        ],
+        [
+          252,
+          255,
+          0
+        ],
+        [
+          252,
+          255,
+          0
+        ],
+        [
+          252,
+          255,
+          0
+        ]
+      ]
+    },
+    {
+      "time": 18,
+      "colorStep": 354.6505322144604,
+      "inputStep": 0,
+      "beforeLook": "lift",
+      "afterLook": "flow",
+      "beforeCount": 1,
+      "afterCount": 2,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 57,
+        "r": 252,
+        "g": 255,
+        "b": 0
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 60,
+        "r": 252,
+        "g": 255,
+        "b": 0
+      },
+      "colorsBefore": [
+        [
+          252,
+          255,
+          0
+        ],
+        [
+          252,
+          255,
+          0
+        ],
+        [
+          252,
+          255,
+          0
+        ],
+        [
+          252,
+          255,
+          0
+        ]
+      ],
+      "colorsAfter": [
+        [
+          252,
+          255,
+          0
+        ],
+        [
+          252,
+          255,
+          0
+        ],
+        [
+          68,
+          91,
+          255
+        ],
+        [
+          68,
+          91,
+          255
+        ]
+      ]
+    },
+    {
+      "time": 60,
+      "colorStep": 349.5540015505473,
+      "inputStep": 0,
+      "beforeLook": "flow",
+      "afterLook": "held",
+      "beforeCount": 2,
+      "afterCount": 1,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 31,
+        "r": 0,
+        "g": 255,
+        "b": 201
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 31,
+        "r": 0,
+        "g": 255,
+        "b": 201
+      },
+      "colorsBefore": [
+        [
+          1,
+          255,
+          202
+        ],
+        [
+          234,
+          1,
+          255
+        ],
+        [
+          234,
+          1,
+          255
+        ],
+        [
+          1,
+          255,
+          202
+        ]
+      ],
+      "colorsAfter": [
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          0,
+          255,
+          201
+        ]
+      ]
+    },
+    {
+      "time": 66,
+      "colorStep": 350.95013890864897,
+      "inputStep": 0,
+      "beforeLook": "held",
+      "afterLook": "flow",
+      "beforeCount": 1,
+      "afterCount": 2,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 23,
+        "r": 0,
+        "g": 255,
+        "b": 201
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 23,
+        "r": 0,
+        "g": 255,
+        "b": 201
+      },
+      "colorsBefore": [
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          0,
+          255,
+          201
+        ]
+      ],
+      "colorsAfter": [
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          235,
+          0,
+          255
+        ],
+        [
+          235,
+          0,
+          255
+        ],
+        [
+          0,
+          255,
+          201
+        ]
+      ]
+    },
+    {
+      "time": 68,
+      "colorStep": 385.9339321697433,
+      "inputStep": 0,
+      "beforeLook": "flow",
+      "afterLook": "lift",
+      "beforeCount": 2,
+      "afterCount": 1,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 37,
+        "r": 255,
+        "g": 87,
+        "b": 0
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 37,
+        "r": 255,
+        "g": 87,
+        "b": 0
+      },
+      "colorsBefore": [
+        [
+          0,
+          255,
+          236
+        ],
+        [
+          255,
+          87,
+          0
+        ],
+        [
+          0,
+          255,
+          236
+        ],
+        [
+          255,
+          87,
+          0
+        ]
+      ],
+      "colorsAfter": [
+        [
+          255,
+          87,
+          0
+        ],
+        [
+          255,
+          87,
+          0
+        ],
+        [
+          255,
+          87,
+          0
+        ],
+        [
+          255,
+          87,
+          0
+        ]
+      ]
+    },
+    {
+      "time": 70,
+      "colorStep": 385.9339321697433,
+      "inputStep": 0,
+      "beforeLook": "lift",
+      "afterLook": "peak",
+      "beforeCount": 1,
+      "afterCount": 2,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 70,
+        "r": 255,
+        "g": 87,
+        "b": 0
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 66,
+        "r": 255,
+        "g": 87,
+        "b": 0
+      },
+      "colorsBefore": [
+        [
+          255,
+          87,
+          0
+        ],
+        [
+          255,
+          87,
+          0
+        ],
+        [
+          255,
+          87,
+          0
+        ],
+        [
+          255,
+          87,
+          0
+        ]
+      ],
+      "colorsAfter": [
+        [
+          0,
+          255,
+          236
+        ],
+        [
+          255,
+          87,
+          0
+        ],
+        [
+          0,
+          255,
+          236
+        ],
+        [
+          255,
+          87,
+          0
+        ]
+      ]
+    },
+    {
+      "time": 90.5,
+      "colorStep": 271.9669097519035,
+      "inputStep": 0,
+      "beforeLook": "peak",
+      "afterLook": "peak",
+      "beforeCount": 2,
+      "afterCount": 2,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 36,
+        "r": 168,
+        "g": 255,
+        "b": 0
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 100,
+        "r": 168,
+        "g": 255,
+        "b": 0
+      },
+      "colorsBefore": [
+        [
+          168,
+          255,
+          0
+        ],
+        [
+          127,
+          58,
+          255
+        ],
+        [
+          168,
+          255,
+          0
+        ],
+        [
+          127,
+          58,
+          255
+        ]
+      ],
+      "colorsAfter": [
+        [
+          168,
+          255,
+          0
+        ],
+        [
+          202,
+          255,
+          98
+        ],
+        [
+          197,
+          165,
+          255
+        ],
+        [
+          127,
+          58,
+          255
+        ]
+      ]
+    },
+    {
+      "time": 110,
+      "colorStep": 350.95013890864897,
+      "inputStep": 0,
+      "beforeLook": "flow",
+      "afterLook": "lift",
+      "beforeCount": 2,
+      "afterCount": 1,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 72,
+        "r": 0,
+        "g": 255,
+        "b": 201
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 67,
+        "r": 0,
+        "g": 255,
+        "b": 201
+      },
+      "colorsBefore": [
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          235,
+          0,
+          255
+        ],
+        [
+          235,
+          0,
+          255
+        ]
+      ],
+      "colorsAfter": [
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          0,
+          255,
+          201
+        ]
+      ]
+    },
+    {
+      "time": 112,
+      "colorStep": 350.95013890864897,
+      "inputStep": 0,
+      "beforeLook": "lift",
+      "afterLook": "peak",
+      "beforeCount": 1,
+      "afterCount": 2,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 84,
+        "r": 0,
+        "g": 255,
+        "b": 201
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 79,
+        "r": 0,
+        "g": 255,
+        "b": 201
+      },
+      "colorsBefore": [
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          0,
+          255,
+          201
+        ]
+      ],
+      "colorsAfter": [
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          0,
+          255,
+          201
+        ],
+        [
+          235,
+          0,
+          255
+        ],
+        [
+          235,
+          0,
+          255
+        ]
+      ]
+    },
+    {
+      "time": 136,
+      "colorStep": 354.6505322144604,
+      "inputStep": 0,
+      "beforeLook": "flow",
+      "afterLook": "lift",
+      "beforeCount": 2,
+      "afterCount": 1,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 50,
+        "r": 252,
+        "g": 255,
+        "b": 0
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 48,
+        "r": 252,
+        "g": 255,
+        "b": 0
+      },
+      "colorsBefore": [
+        [
+          68,
+          91,
+          255
+        ],
+        [
+          252,
+          255,
+          0
+        ],
+        [
+          68,
+          91,
+          255
+        ],
+        [
+          252,
+          255,
+          0
+        ]
+      ],
+      "colorsAfter": [
+        [
+          252,
+          255,
+          0
+        ],
+        [
+          252,
+          255,
+          0
+        ],
+        [
+          252,
+          255,
+          0
+        ],
+        [
+          252,
+          255,
+          0
+        ]
+      ]
+    },
+    {
+      "time": 138,
+      "colorStep": 360.6258448863586,
+      "inputStep": 0,
+      "beforeLook": "lift",
+      "afterLook": "flow",
+      "beforeCount": 1,
+      "afterCount": 2,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 61,
+        "r": 255,
+        "g": 168,
+        "b": 0
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 64,
+        "r": 255,
+        "g": 168,
+        "b": 0
+      },
+      "colorsBefore": [
+        [
+          255,
+          168,
+          0
+        ],
+        [
+          255,
+          168,
+          0
+        ],
+        [
+          255,
+          168,
+          0
+        ],
+        [
+          255,
+          168,
+          0
+        ]
+      ],
+      "colorsAfter": [
+        [
+          0,
+          167,
+          255
+        ],
+        [
+          0,
+          167,
+          255
+        ],
+        [
+          255,
+          168,
+          0
+        ],
+        [
+          255,
+          168,
+          0
+        ]
+      ]
+    },
+    {
+      "time": 138.18,
+      "colorStep": 127.8632081562167,
+      "inputStep": 0,
+      "beforeLook": "flow",
+      "afterLook": "flow",
+      "beforeCount": 2,
+      "afterCount": 2,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 61,
+        "r": 255,
+        "g": 168,
+        "b": 0
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 64,
+        "r": 255,
+        "g": 168,
+        "b": 0
+      },
+      "colorsBefore": [
+        [
+          0,
+          167,
+          255
+        ],
+        [
+          0,
+          167,
+          255
+        ],
+        [
+          255,
+          168,
+          0
+        ],
+        [
+          255,
+          168,
+          0
+        ]
+      ],
+      "colorsAfter": [
+        [
+          107,
+          237,
+          255
+        ],
+        [
+          107,
+          237,
+          255
+        ],
+        [
+          255,
+          238,
+          107
+        ],
+        [
+          255,
+          238,
+          107
+        ]
+      ]
+    },
+    {
+      "time": 206,
+      "colorStep": 324.8307251477298,
+      "inputStep": 0,
+      "beforeLook": "peak",
+      "afterLook": "held",
+      "beforeCount": 2,
+      "afterCount": 1,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 38,
+        "r": 168,
+        "g": 255,
+        "b": 0
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 37,
+        "r": 168,
+        "g": 255,
+        "b": 0
+      },
+      "colorsBefore": [
+        [
+          168,
+          255,
+          0
+        ],
+        [
+          168,
+          255,
+          0
+        ],
+        [
+          127,
+          58,
+          255
+        ],
+        [
+          127,
+          58,
+          255
+        ]
+      ],
+      "colorsAfter": [
+        [
+          168,
+          255,
+          0
+        ],
+        [
+          168,
+          255,
+          0
+        ],
+        [
+          168,
+          255,
+          0
+        ],
+        [
+          168,
+          255,
+          0
+        ]
+      ]
+    },
+    {
+      "time": 208,
+      "colorStep": 324.8307251477298,
+      "inputStep": 1.4142135623730951,
+      "beforeLook": "held",
+      "afterLook": "flow",
+      "beforeCount": 1,
+      "afterCount": 2,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 62,
+        "r": 168,
+        "g": 255,
+        "b": 0
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 61,
+        "r": 167,
+        "g": 255,
+        "b": 1
+      },
+      "colorsBefore": [
+        [
+          168,
+          255,
+          0
+        ],
+        [
+          168,
+          255,
+          0
+        ],
+        [
+          168,
+          255,
+          0
+        ],
+        [
+          168,
+          255,
+          0
+        ]
+      ],
+      "colorsAfter": [
+        [
+          167,
+          255,
+          1
+        ],
+        [
+          171,
+          255,
+          12
+        ],
+        [
+          127,
+          58,
+          255
+        ],
+        [
+          134,
+          69,
+          255
+        ]
+      ]
+    },
+    {
+      "time": 212,
+      "colorStep": 316.77436764990944,
+      "inputStep": 0,
+      "beforeLook": "flow",
+      "afterLook": "held",
+      "beforeCount": 2,
+      "afterCount": 1,
+      "sourceBefore": {
+        "state": true,
+        "dimming": 22,
+        "r": 0,
+        "g": 255,
+        "b": 166
+      },
+      "sourceAfter": {
+        "state": true,
+        "dimming": 22,
+        "r": 0,
+        "g": 255,
+        "b": 166
+      },
+      "colorsBefore": [
+        [
+          0,
+          255,
+          166
+        ],
+        [
+          180,
+          10,
+          255
+        ],
+        [
+          180,
+          10,
+          255
+        ],
+        [
+          0,
+          255,
+          166
+        ]
+      ],
+      "colorsAfter": [
+        [
+          0,
+          255,
+          166
+        ],
+        [
+          0,
+          255,
+          166
+        ],
+        [
+          0,
+          255,
+          166
+        ],
+        [
+          0,
+          255,
+          166
+        ]
+      ]
+    }
+  ]
+}

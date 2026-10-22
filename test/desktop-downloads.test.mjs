@@ -18,3 +18,18 @@ test('website-only build ignores even broken local installers and creates no dow
  assert.match(html,/Noch kein vollständiges Installationspaket/);
  await assert.rejects(readFile(join(output,'downloads','AnyDj-0.1.0-win-x64.exe')),{code:'ENOENT'});
 });
+
+test('Mac downloads validate both architectures and label DMG links accurately',async t=>{
+ const root=await mkdtemp(join(tmpdir(),'anydj-mac-downloads-'));t.after(()=>rm(root,{recursive:true,force:true}));
+ for(const arch of ['x64','arm64']){
+  const dir=join(root,'darwin-'+arch);await mkdir(dir);
+  const name=`AnyDj-0.1.0-mac-${arch}.dmg`,file=join(dir,name);await writeFile(file,'test dmg');
+  await writeFile(join(dir,'manifest.json'),JSON.stringify({schema:1,platform:'darwin',arch,analysis:true,version:'0.1.0',files:[{name,size:8,sha256:await sha256(file)}]}));
+ }
+ const entries=await readDownloads(root);assert.deepEqual(entries.map(e=>e.arch),['x64','arm64']);
+ const html=await buildDownloads(root,join(root,'output'),'<!-- DOWNLOAD_CARDS -->');
+ assert.match(html,/macOS \(Apple Silicon\)/);assert.match(html,/macOS \(Intel\)/);
+ assert.equal((html.match(/href="\.\/downloads\//g)||[]).length,2);
+ const manifestPath=join(root,'darwin-arm64','manifest.json');const manifest=JSON.parse(await readFile(manifestPath));manifest.arch='x64';await writeFile(manifestPath,JSON.stringify(manifest));
+ await assert.rejects(readDownloads(root),/Ungültiges/);
+});

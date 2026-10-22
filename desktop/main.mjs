@@ -1,4 +1,7 @@
-import {app, BrowserWindow, dialog, session, shell} from 'electron';
+import {installLocalAudio,installLocalReadPermissions} from './local-audio.mjs';
+import {app, BrowserWindow, dialog, session, shell, ipcMain} from 'electron';
+import {fileURLToPath} from 'node:url';
+import {installWindowChrome,showAppWindow} from './window-chrome.mjs';
 import {randomBytes} from 'node:crypto';
 import {join} from 'node:path';
 import {createApp} from '../server.mjs';
@@ -11,7 +14,7 @@ const isolatedTest=process.argv.includes('--demo')&&process.argv.includes('--iso
 let backend, window, quitting=false;
 if(!app.requestSingleInstanceLock())app.quit();
 else {
-  app.on('second-instance',()=>{if(window?.isMinimized())window.restore();window?.show();window?.focus();});
+  app.on('second-instance',()=>{if(window)showAppWindow(window);});
   app.on('window-all-closed',()=>app.quit());
   app.on('before-quit',event=>{
     if(quitting||!backend)return;
@@ -33,11 +36,23 @@ else {
     await new Promise((resolve,reject)=>{backend.server.once('error',reject);backend.server.listen(isolatedTest?0:36931,'127.0.0.1',resolve);});
     if(isolatedTest)origin=`http://127.0.0.1:${backend.server.address().port}`;
     const browserSession=session.fromPartition('persist:anydj');
+    installLocalReadPermissions(browserSession,{origin,getWindow:()=>window});
+    await installLocalAudio({ipcMain,origin,getWindow:()=>window,directory:join(app.getPath('userData'),'data')});
     browserSession.webRequest.onBeforeSendHeaders({urls:[`${origin}/*`]},(details,callback)=>{
       callback({requestHeaders:{...details.requestHeaders,Authorization:`Bearer ${token}`}});
     });
-    window=new BrowserWindow({width:1440,height:960,minWidth:800,minHeight:600,title:'AnyDj',backgroundColor:'#12181c',
-      webPreferences:{session:browserSession,contextIsolation:true,nodeIntegration:false,sandbox:true}});
+    const appIcon=fileURLToPath(new URL('./icons/icon.png',import.meta.url));
+    if(process.platform==='darwin')app.dock?.setIcon(appIcon);
+    window=new BrowserWindow({show:false,icon:appIcon,width:1440,height:960,minWidth:800,minHeight:600,title:'AnyDj',backgroundColor:'#0b0c10',
+      frame:process.platform==='darwin',
+      ...(process.platform==='darwin'?{titleBarStyle:'hidden',trafficLightPosition:{x:12,y:10}}:{}),
+      webPreferences:{preload:fileURLToPath(new URL('./titlebar.cjs',import.meta.url)),session:browserSession,contextIsolation:true,nodeIntegration:false,sandbox:true}});
+    installWindowChrome(window,ipcMain,origin);
+    window.once('ready-to-show',()=>showAppWindow(window));
+    window.webContents.on('will-prevent-unload',event=>{
+      const response=dialog.showMessageBoxSync(window,{type:'question',title:'AnyDj verlassen?',message:'Es läuft noch eine Wiedergabe oder es gibt eine ungesicherte Aufnahme bzw. einen Export.',detail:'Beim Verlassen wird die Wiedergabe beendet. Nicht heruntergeladene Aufnahmen oder Exporte können verloren gehen.',buttons:['In AnyDj bleiben','Trotzdem verlassen'],defaultId:0,cancelId:0,noLink:true});
+      if(response===1)event.preventDefault();
+    });
     window.setMenuBarVisibility(false);
     window.webContents.setWindowOpenHandler(({url})=>{
       const target=new URL(url);

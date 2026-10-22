@@ -131,3 +131,23 @@ test('reachable detours never fade out, including routes around the corner of a 
  for(let i=1;i<800;i++){out=motion.update([light({x:2,y:2})],room,settings,i*.02)[0];assert.equal(out.power,1);assert.equal(out.zoneTransit,undefined);}
  assert.ok(Math.hypot(out.target.x-2,out.target.y-2)<.1,'the head finishes the real corner detour');
 });
+
+test('live formation paths clear of exclusion zones retain their musical trajectory',()=>{
+ const motion=createZoneMotion();
+ for(let i=0;i<300;i++){
+  const target={x:Math.sin(i/15)*3,y:1.5,z:.012};
+  const out=motion.update([{...light(target),motionPresentation:'strobe'}],layout,settings,i/60)[0];
+  assert.deepEqual(out.target,target,'a distant zone cannot impose a second floor-speed animation');
+  assert.equal(out.power,1);
+ }
+});
+test('formation paths crossing a protected area still route around it',()=>{
+ const motion=createZoneMotion(),boxes=zoneObstacles(layout,settings.zones);
+ let previous={x:-3,y:5};motion.update([{...light(previous),motionPresentation:'strobe'}],layout,settings,0);
+ for(let i=1;i<=600;i++){
+  const out=motion.update([{...light({x:3,y:5}),motionPresentation:'strobe'}],layout,settings,i/60)[0];
+  assert.equal(blockedSegment(previous,out.target,boxes),false,'the direct musical path cannot bypass the zone');
+  previous=out.target;
+ }
+ assert.ok(previous.x>2.9,'the detour eventually reaches the requested side');
+});

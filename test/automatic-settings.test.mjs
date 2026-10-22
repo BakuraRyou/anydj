@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { automaticSettings } from '../public/automatic-settings.js';
 import { compileShow } from '../public/show-plan.js';
-import { settings, MusicSession } from '../lib/music.mjs';
+import { settings } from '../lib/music.mjs';
 
 const quiet=Array.from({length:1000},()=>({rms:.08,bass:.01,flatness:.1,harmonicConfidence:.1,beatSeq:0}));
 const melodic=quiet.map(w=>({...w,harmonicConfidence:.85,leadConfidence:.8}));
@@ -38,20 +38,4 @@ test('Automatik berechnet pro Lied neu; manuelle Werte und Beat-Zeitpunkte bleib
   assert.equal(manual.automatic,null);assert.equal(manual.effectiveOptions.saturation,20);
   const next=compileShow(quiet,20,settings({arrangement:'auto'}));
   assert.equal(next.automatic.kind,'calm');assert.ok(next.frames.at(-1).dimming>5);assert.ok(new Set(next.frames.slice(-40).map(f=>f.dimming)).size<=2);
-});
-test('Live-Automatik bestätigt Moduswechsel und lässt sich manuell übersteuern',async()=>{
-  const session=new MusicSession({inspect:async()=>({pilot:{state:false},capabilities:{color:true,brightness:true}}),exchange:async()=>({})},{tickMs:100000});
-  const {id}=await session.start('192.168.1.2','file',{arrangement:'auto'});
-  try {
-    const s=session.session;
-    for(let i=0;i<70;i++){
-      session.frame(id,{rms:.1,bass:.04,bpm:125,confidence:.9,beatSeq:i});
-      if(i===65)s.autoUpdated=0;
-      session.tick(s);await s.inFlight;
-      if(i===31)assert.equal(s.automatic.kind,'calm');
-    }
-    assert.equal(session.status(id).automatic.kind,'pulse');
-    session.configure(id,{arrangement:'manual',mode:'soft',saturation:25});
-    assert.equal(session.status(id).automatic,null);assert.equal(s.config.saturation,25);
-  } finally {await session.stop(id);}
 });

@@ -29,7 +29,7 @@ def main():
     with contextlib.redirect_stdout(sys.stderr):
         import numpy as np
         import onnxruntime as ort
-        from essentia.standard import FrameGenerator, TensorflowInputMusiCNN
+        from musicnn_frontend import mel_spectrogram
         ort.disable_telemetry_events()
         raw = sys.stdin.buffer.read(16000 * 900 * 4 + 1)
         if len(raw) % 4 or not 16000 * 4 <= len(raw) <= 16000 * 900 * 4:
@@ -43,8 +43,7 @@ def main():
         options.intra_op_num_threads = min(2, os.cpu_count() or 1)
         options.inter_op_num_threads = 1
         session = ort.InferenceSession(args.checkpoint, sess_options=options, providers=['CPUExecutionProvider'])
-        frontend = TensorflowInputMusiCNN()
-        mel = np.stack([frontend(frame) for frame in FrameGenerator(audio, frameSize=512, hopSize=256, startFromZero=False)])
+        mel = mel_spectrogram(audio)
         families = ['electronic', 'rock', 'pop', 'groove', 'acoustic', 'orchestral', 'ambient']
         indices = {name: [i for i, label in enumerate(classes) if family(label) == name] for name in families}
         segments = []

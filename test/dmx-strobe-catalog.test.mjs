@@ -95,7 +95,7 @@ test('Lichtshow profile activates Strobo and restores the stage mode when switch
  const {stageModeForStreams}=await import('../public/dmx-auto.js');
  const {readFile}=await import('node:fs/promises');
  assert.ok(SHOW_PROFILES.includes('strobe'));
- assert.match(await readFile(new URL('../public/dj.html',import.meta.url),'utf8'),/<option value="strobe">Strobo<\/option>/);
+ assert.match(await readFile(new URL('../public/dj.html',import.meta.url),'utf8'),/<option value="strobe">Formationen<\/option>/);
  const base=planFor('impact',2),before=structuredClone(base),plan=applyShowProfile(base,'strobe');
  assert.deepEqual(base,before);assert.equal(plan.showProfile,'strobe');
  const stream=source(plan,1),normal=source(applyShowProfile(base,'auto'),1);
@@ -111,10 +111,10 @@ test('measured weak peaks stay restrained and strong rhythmic flow gets a groove
  assert.equal(strobeAnimationAt(source(weak,1)).animation.family,'calm');
  assert.equal(strobeAnimationAt(source(planFor('groove',2),1)).animation.family,'groove');
 });
-test('flicker zero removes both flashes and their white color override',()=>{
+test('flicker zero removes flashes while retaining the configured colors',()=>{
  const plan=planFor('impact',1);plan.arrangement.times=[1];plan.arrangement.eventSalience=[.95];
  for(const t of [1.01,1.15,1.8]){
-  const frames=automaticStage([{...source(plan,t),flicker:0}],2,undefined,'strobe').frames.flat();
-  assert.ok(frames.every(f=>f.dimming===65&&f.r===40&&f.g===150&&f.b===255));
+  const result=automaticStage([{...source(plan,t),flicker:0}],2,undefined,'strobe');
+  assert.ok(result.frames.flat().every(f=>f.dimming===65&&result.palette.some(c=>c.every((v,i)=>v===[f.r,f.g,f.b][i]))));
  }
 });

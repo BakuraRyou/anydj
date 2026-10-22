@@ -1,0 +1,9023 @@
+{
+  "method": "Physical room preview, WebGL renderer (SwiftShader), normal playback score, 53 percent flicker, no hardware validation.",
+  "source": "Shades.mp3, local audio analysis",
+  "interval": [
+    30,
+    42
+  ],
+  "library": {
+    "selectedPreserved": true,
+    "editsPreserved": true,
+    "addedOnce": true,
+    "listed": true
+  },
+  "scenes": [
+    {
+      "start": 0,
+      "end": 1.92,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.8641688508561574,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "horizontal-sheets/ensemble",
+        "shape": "horizontal-sheets",
+        "layout": "ensemble",
+        "name": "horizontal-sheets · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "hold",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "horizontal-sheets",
+        "to": "horizontal-sheets",
+        "movingOpening": false,
+        "start": 0,
+        "end": 1.92,
+        "cues": [
+          {
+            "time": 0.4,
+            "strength": 0.7,
+            "group": 0
+          },
+          {
+            "time": 1.6,
+            "strength": 0.7,
+            "group": 1
+          }
+        ],
+        "clock": [
+          {
+            "time": 0,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 0.4,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 1.6,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 1.92,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.156,
+        "direction": 1,
+        "reason": "Getragenes Lichtbild"
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0,
+        "energy": 0.09445900570771555,
+        "tone": 0.486792757999003,
+        "drums": 0.000518369219890422,
+        "bass": 0.0006024554865134434,
+        "voice": 0.05631526005043934,
+        "pitchConfidence": 0.0555388277081307,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 1.92,
+      "end": 8.96,
+      "formationId": "rising-arch",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9062932665021682,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "rising-arch/terraces",
+        "shape": "rising-arch",
+        "layout": "terraces",
+        "name": "rising-arch · Drei Höhenebenen",
+        "motions": [
+          "relay",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "develop",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "rising-arch",
+        "to": "vaulted-roof",
+        "movingOpening": false,
+        "start": 1.92,
+        "end": 8.96,
+        "cues": [
+          {
+            "time": 1.92,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 2
+          },
+          {
+            "time": 2.88,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 3
+          },
+          {
+            "time": 3.6,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 4
+          },
+          {
+            "time": 4.16,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 5
+          },
+          {
+            "time": 4.72,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 6
+          },
+          {
+            "time": 5.68,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 7
+          },
+          {
+            "time": 6.640000000000001,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 8
+          },
+          {
+            "time": 7.6000000000000005,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 9
+          },
+          {
+            "time": 8.32,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 10
+          },
+          {
+            "time": 8.8,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 11
+          }
+        ],
+        "clock": [
+          {
+            "time": 1.92,
+            "position": 0,
+            "velocity": 0.11574074074074073
+          },
+          {
+            "time": 2.88,
+            "position": 0.1111111111111111,
+            "velocity": 0.13227513227513224
+          },
+          {
+            "time": 3.6,
+            "position": 0.2222222222222222,
+            "velocity": 0.17361111111111108
+          },
+          {
+            "time": 4.16,
+            "position": 0.3333333333333333,
+            "velocity": 0.19841269841269846
+          },
+          {
+            "time": 4.72,
+            "position": 0.4444444444444444,
+            "velocity": 0.1461988304093568
+          },
+          {
+            "time": 5.68,
+            "position": 0.5555555555555556,
+            "velocity": 0.11574074074074069
+          },
+          {
+            "time": 6.640000000000001,
+            "position": 0.6666666666666666,
+            "velocity": 0.11574074074074069
+          },
+          {
+            "time": 7.6000000000000005,
+            "position": 0.7777777777777778,
+            "velocity": 0.1322751322751323
+          },
+          {
+            "time": 8.32,
+            "position": 0.8888888888888888,
+            "velocity": 0.18518518518518512
+          },
+          {
+            "time": 8.8,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 8.96,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.38400000000000034,
+        "direction": 1,
+        "reason": "Melodiegeführte Entfaltung",
+        "entry": {
+          "shape": "horizontal-sheets",
+          "progress": 0.6499999999999999
+        },
+        "entryGroup": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessene Tonhöhenbewegung",
+        "texture": "melody",
+        "movementDrive": 0,
+        "energy": 0.3752884433477886,
+        "tone": 0.4623518130413198,
+        "drums": 0.001359067571829018,
+        "bass": 0.001332110007852419,
+        "voice": 0.3896688264218187,
+        "pitchConfidence": 0.5684022005540524,
+        "pitchRise": -0.012123313474872166,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 8.96,
+      "end": 16.92,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.908745989145253,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "horizontal-sheets/ensemble",
+        "shape": "horizontal-sheets",
+        "layout": "ensemble",
+        "name": "horizontal-sheets · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "develop",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "horizontal-sheets",
+        "to": "rising-arch",
+        "movingOpening": false,
+        "start": 8.96,
+        "end": 16.92,
+        "cues": [
+          {
+            "time": 9.200000000000001,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 12
+          },
+          {
+            "time": 11.120000000000001,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 13
+          },
+          {
+            "time": 11.68,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 14
+          },
+          {
+            "time": 12.24,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 15
+          },
+          {
+            "time": 12.96,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 16
+          },
+          {
+            "time": 14.08,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 17
+          },
+          {
+            "time": 15.120000000000001,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 18
+          },
+          {
+            "time": 16,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 19
+          },
+          {
+            "time": 16.8,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 20
+          }
+        ],
+        "clock": [
+          {
+            "time": 8.96,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 9.200000000000001,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 11.120000000000001,
+            "position": 0.125,
+            "velocity": 0.10080645161290328
+          },
+          {
+            "time": 11.68,
+            "position": 0.25,
+            "velocity": 0.22321428571428586
+          },
+          {
+            "time": 12.24,
+            "position": 0.375,
+            "velocity": 0.19531249999999983
+          },
+          {
+            "time": 12.96,
+            "position": 0.5,
+            "velocity": 0.13586956521739132
+          },
+          {
+            "time": 14.08,
+            "position": 0.625,
+            "velocity": 0.11574074074074073
+          },
+          {
+            "time": 15.120000000000001,
+            "position": 0.75,
+            "velocity": 0.13020833333333334
+          },
+          {
+            "time": 16,
+            "position": 0.875,
+            "velocity": 0.14880952380952384
+          },
+          {
+            "time": 16.8,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 16.92,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.447999999999999,
+        "direction": 1,
+        "reason": "Melodiegeführte Entfaltung",
+        "entry": {
+          "shape": "vaulted-roof",
+          "progress": 1
+        },
+        "entryGroup": 3
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0,
+        "energy": 0.3916399276350197,
+        "tone": 0.5132633905995885,
+        "drums": 0.0019264639892514728,
+        "bass": 0.002422211286191816,
+        "voice": 0.36752737024177357,
+        "pitchConfidence": 0.34410387166015177,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 16.92,
+      "end": 31.92,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9126450376930473,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "horizontal-sheets/ensemble",
+        "shape": "horizontal-sheets",
+        "layout": "ensemble",
+        "name": "horizontal-sheets · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "develop",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "horizontal-sheets",
+        "to": "split-wings",
+        "movingOpening": false,
+        "start": 16.92,
+        "end": 31.92,
+        "cues": [
+          {
+            "time": 16.96,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 21
+          },
+          {
+            "time": 19.92,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 22
+          },
+          {
+            "time": 21.6,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 23
+          },
+          {
+            "time": 22.56,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 24
+          },
+          {
+            "time": 23.52,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 25
+          },
+          {
+            "time": 24.48,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 26
+          },
+          {
+            "time": 25.6,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 27
+          },
+          {
+            "time": 26.64,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 28
+          },
+          {
+            "time": 27.68,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 29
+          },
+          {
+            "time": 28.72,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 30
+          },
+          {
+            "time": 30.400000000000002,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 31
+          },
+          {
+            "time": 31.68,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 32
+          }
+        ],
+        "clock": [
+          {
+            "time": 16.92,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 16.96,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 19.92,
+            "position": 0.09090909090909091,
+            "velocity": 0.03918495297805642
+          },
+          {
+            "time": 21.6,
+            "position": 0.18181818181818182,
+            "velocity": 0.06887052341597803
+          },
+          {
+            "time": 22.56,
+            "position": 0.2727272727272727,
+            "velocity": 0.0946969696969698
+          },
+          {
+            "time": 23.52,
+            "position": 0.36363636363636365,
+            "velocity": 0.09469696969696961
+          },
+          {
+            "time": 24.48,
+            "position": 0.45454545454545453,
+            "velocity": 0.08741258741258731
+          },
+          {
+            "time": 25.6,
+            "position": 0.5454545454545454,
+            "velocity": 0.08417508417508418
+          },
+          {
+            "time": 26.64,
+            "position": 0.6363636363636364,
+            "velocity": 0.08741258741258752
+          },
+          {
+            "time": 27.68,
+            "position": 0.7272727272727273,
+            "velocity": 0.08741258741258752
+          },
+          {
+            "time": 28.72,
+            "position": 0.8181818181818182,
+            "velocity": 0.06684491978609618
+          },
+          {
+            "time": 30.400000000000002,
+            "position": 0.9090909090909091,
+            "velocity": 0.06142506142506138
+          },
+          {
+            "time": 31.68,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 31.92,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.7679999999999979,
+        "direction": 1,
+        "reason": "Melodiegeführte Entfaltung",
+        "entry": {
+          "shape": "rising-arch",
+          "progress": 1
+        },
+        "entryGroup": 0
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0,
+        "energy": 0.417633584620315,
+        "tone": 0.5726462825913614,
+        "drums": 0.014966869096285756,
+        "bass": 0.020928820950880597,
+        "voice": 0.16980861432071565,
+        "pitchConfidence": 0.051144434076358776,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 31.92,
+      "end": 39.46,
+      "formationId": "nested-gates",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.9631783305037345,
+        "amplitude": 0.05518088813432919,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "nested-gates/corridor",
+        "shape": "nested-gates",
+        "layout": "corridor",
+        "name": "nested-gates · Offener Mittelkorridor",
+        "motions": [
+          "relay",
+          "weave",
+          "bloom"
+        ]
+      },
+      "action": {
+        "kind": "opening",
+        "source": "bass",
+        "cueSource": "rhythm",
+        "from": "converging-lines",
+        "to": "nested-gates",
+        "path": [
+          {
+            "time": 31.92,
+            "shape": "nested-gates"
+          },
+          {
+            "time": 33.82,
+            "shape": "crossed-fans"
+          },
+          {
+            "time": 35.7,
+            "shape": "nested-gates"
+          },
+          {
+            "time": 37.58,
+            "shape": "crossed-fans"
+          },
+          {
+            "time": 39.46,
+            "shape": "nested-gates"
+          }
+        ],
+        "movingOpening": true,
+        "start": 31.92,
+        "end": 39.46,
+        "cues": [
+          {
+            "time": 31.94,
+            "strength": 0.7,
+            "group": 0
+          },
+          {
+            "time": 32.88,
+            "strength": 0.7,
+            "group": 1
+          },
+          {
+            "time": 33.82,
+            "strength": 0.7,
+            "group": 2
+          },
+          {
+            "time": 34.76,
+            "strength": 0.7,
+            "group": 3
+          },
+          {
+            "time": 35.7,
+            "strength": 0.7,
+            "group": 0
+          },
+          {
+            "time": 36.64,
+            "strength": 0.7,
+            "group": 1
+          },
+          {
+            "time": 37.58,
+            "strength": 0.7,
+            "group": 2
+          },
+          {
+            "time": 38.52,
+            "strength": 0.7,
+            "group": 3
+          }
+        ],
+        "clock": [
+          {
+            "time": 31.92,
+            "position": 0,
+            "velocity": 0.14880952380952367
+          },
+          {
+            "time": 32.88,
+            "position": 0.14285714285714285,
+            "velocity": 0.15037593984962416
+          },
+          {
+            "time": 33.82,
+            "position": 0.2857142857142857,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 34.76,
+            "position": 0.42857142857142855,
+            "velocity": 0.1519756838905773
+          },
+          {
+            "time": 35.7,
+            "position": 0.5714285714285714,
+            "velocity": 0.15197568389057733
+          },
+          {
+            "time": 36.64,
+            "position": 0.7142857142857143,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 37.58,
+            "position": 0.8571428571428571,
+            "velocity": 0.1519756838905773
+          },
+          {
+            "time": 38.52,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 39.46,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.09599999999999938,
+        "direction": 1,
+        "reason": "Gemeinsame Entfaltung"
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "movementDrive": 0.8828811654844342,
+        "energy": 0.7545222033582297,
+        "tone": 0.20249776224359525,
+        "drums": 0.5103988646822862,
+        "bass": 0.6000681382558767,
+        "voice": 0.001345869501699476,
+        "pitchConfidence": 0.2496941649340945,
+        "pitchRise": 0,
+        "density": 0.7073386383731212,
+        "irregularity": 0.021259416970305912,
+        "impulses": 16,
+        "sharedSequence": "opening"
+      }
+    },
+    {
+      "start": 39.46,
+      "end": 46.93,
+      "formationId": "opposed-diagonals",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "hinge",
+        "articulation": "stroke",
+        "key": "radial/hinge/stroke",
+        "spread": 0.952271750240744,
+        "amplitude": 0.052272466730865066,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "opposed-diagonals/corridor",
+        "shape": "opposed-diagonals",
+        "layout": "corridor",
+        "name": "opposed-diagonals · Offener Mittelkorridor",
+        "motions": [
+          "relay",
+          "weave",
+          "bloom"
+        ]
+      },
+      "action": {
+        "kind": "handoff",
+        "source": "bass",
+        "cueSource": "rhythm",
+        "from": "opposed-diagonals",
+        "to": "folding-blades",
+        "path": [
+          {
+            "time": 39.46,
+            "shape": "opposed-diagonals"
+          },
+          {
+            "time": 41.34,
+            "shape": "folding-blades"
+          },
+          {
+            "time": 43.2,
+            "shape": "opposed-diagonals"
+          },
+          {
+            "time": 45.08,
+            "shape": "folding-blades"
+          },
+          {
+            "time": 46.93,
+            "shape": "opposed-diagonals"
+          }
+        ],
+        "movingOpening": false,
+        "start": 39.46,
+        "end": 46.93,
+        "cues": [
+          {
+            "time": 39.46,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 8
+          },
+          {
+            "time": 40.4,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 9
+          },
+          {
+            "time": 41.34,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 10
+          },
+          {
+            "time": 42.28,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 11
+          },
+          {
+            "time": 43.2,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 12
+          },
+          {
+            "time": 44.14,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 13
+          },
+          {
+            "time": 45.08,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 14
+          },
+          {
+            "time": 46.02,
+            "strength": 0.5331180502031871,
+            "group": 3,
+            "ordinal": 15
+          }
+        ],
+        "clock": [
+          {
+            "time": 39.46,
+            "position": 0,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 40.4,
+            "position": 0.14285714285714285,
+            "velocity": 0.1519756838905773
+          },
+          {
+            "time": 41.34,
+            "position": 0.2857142857142857,
+            "velocity": 0.1519756838905773
+          },
+          {
+            "time": 42.28,
+            "position": 0.42857142857142855,
+            "velocity": 0.1536098310291859
+          },
+          {
+            "time": 43.2,
+            "position": 0.5714285714285714,
+            "velocity": 0.15360983102918593
+          },
+          {
+            "time": 44.14,
+            "position": 0.7142857142857143,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 45.08,
+            "position": 0.8571428571428571,
+            "velocity": 0.1519756838905773
+          },
+          {
+            "time": 46.02,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 46.93,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.09200000000000018,
+        "direction": 1,
+        "reason": "Übergabe zwischen benachbarten Lichtgruppen",
+        "entry": {
+          "shape": "nested-gates",
+          "progress": 1
+        },
+        "entryGroup": 3
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "movementDrive": 0.8470946628838738,
+        "energy": 0.6818116682716265,
+        "tone": 0.2674897730376388,
+        "drums": 0.4351392023018876,
+        "bass": 0.5883047770487441,
+        "voice": 0.008333875150873124,
+        "pitchConfidence": 0.19299711899394828,
+        "pitchRise": 0,
+        "density": 0.7585899152164214,
+        "irregularity": 0.18124226699223814,
+        "impulses": 17,
+        "sharedSequence": "wave",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 46.93,
+      "end": 54.44,
+      "formationId": "lattice",
+      "program": "dialogue",
+      "story": "dialogue",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "hinge",
+        "articulation": "stroke",
+        "key": "radial/hinge/stroke",
+        "spread": 0.963310806166358,
+        "amplitude": 0.055216214977695494,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "lattice/ensemble",
+        "shape": "lattice",
+        "layout": "ensemble",
+        "name": "lattice · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "answer",
+        "source": "bass",
+        "cueSource": "rhythm",
+        "from": "lattice",
+        "to": "crossed-sheets",
+        "path": [
+          {
+            "time": 46.93,
+            "shape": "lattice"
+          },
+          {
+            "time": 48.82,
+            "shape": "crossed-sheets"
+          },
+          {
+            "time": 50.7,
+            "shape": "lattice"
+          },
+          {
+            "time": 52.58,
+            "shape": "crossed-sheets"
+          },
+          {
+            "time": 54.44,
+            "shape": "lattice"
+          }
+        ],
+        "movingOpening": false,
+        "start": 46.93,
+        "end": 54.44,
+        "cues": [
+          {
+            "time": 46.94,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 16
+          },
+          {
+            "time": 47.9,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 17
+          },
+          {
+            "time": 48.82,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 18
+          },
+          {
+            "time": 49.76,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 19
+          },
+          {
+            "time": 50.7,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 20
+          },
+          {
+            "time": 51.64,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 21
+          },
+          {
+            "time": 52.58,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 22
+          },
+          {
+            "time": 53.5,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 23
+          }
+        ],
+        "clock": [
+          {
+            "time": 46.93,
+            "position": 0,
+            "velocity": 0.14727540500736394
+          },
+          {
+            "time": 47.9,
+            "position": 0.14285714285714285,
+            "velocity": 0.15117157974300827
+          },
+          {
+            "time": 48.82,
+            "position": 0.2857142857142857,
+            "velocity": 0.1536098310291859
+          },
+          {
+            "time": 49.76,
+            "position": 0.42857142857142855,
+            "velocity": 0.1519756838905773
+          },
+          {
+            "time": 50.7,
+            "position": 0.5714285714285714,
+            "velocity": 0.15197568389057733
+          },
+          {
+            "time": 51.64,
+            "position": 0.7142857142857143,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 52.58,
+            "position": 0.8571428571428571,
+            "velocity": 0.1536098310291859
+          },
+          {
+            "time": 53.5,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 54.44,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.09200000000000018,
+        "direction": 1,
+        "reason": "Musikalischer Ruf mit räumlicher Antwort",
+        "entry": {
+          "shape": "opposed-diagonals",
+          "progress": 1
+        },
+        "entryGroup": 3
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "movementDrive": 0.9449853001979911,
+        "energy": 0.7554053744423872,
+        "tone": 0.24268440800829774,
+        "drums": 0.5520006465932117,
+        "bass": 0.5946335994311193,
+        "voice": 0.07760541361504163,
+        "pitchConfidence": 0.1245841034868025,
+        "pitchRise": 0,
+        "density": 0.7101642254771418,
+        "irregularity": 0.02125941697030644,
+        "impulses": 16,
+        "sharedSequence": "exchange",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 54.44,
+      "end": 61.93,
+      "formationId": "open-fan",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.951203588230645,
+        "amplitude": 0.051987623528171996,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "open-fan/ensemble",
+        "shape": "open-fan",
+        "layout": "ensemble",
+        "name": "open-fan · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "opening",
+        "source": "drums",
+        "cueSource": "rhythm",
+        "from": "converging-lines",
+        "to": "open-fan",
+        "movingOpening": false,
+        "start": 54.44,
+        "end": 61.93,
+        "cues": [
+          {
+            "time": 54.44,
+            "strength": 0.7,
+            "group": 0
+          },
+          {
+            "time": 55.38,
+            "strength": 0.7,
+            "group": 1
+          },
+          {
+            "time": 56.32,
+            "strength": 0.7,
+            "group": 2
+          },
+          {
+            "time": 57.26,
+            "strength": 0.7,
+            "group": 3
+          },
+          {
+            "time": 58.2,
+            "strength": 0.7,
+            "group": 0
+          },
+          {
+            "time": 59.14,
+            "strength": 0.7,
+            "group": 1
+          },
+          {
+            "time": 60.08,
+            "strength": 0.677355621253918,
+            "group": 2
+          },
+          {
+            "time": 61,
+            "strength": 0.3053210649451906,
+            "group": 3
+          }
+        ],
+        "clock": [
+          {
+            "time": 54.44,
+            "position": 0,
+            "velocity": 0.15197568389057672
+          },
+          {
+            "time": 55.38,
+            "position": 0.14285714285714285,
+            "velocity": 0.1519756838905773
+          },
+          {
+            "time": 56.32,
+            "position": 0.2857142857142857,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 57.26,
+            "position": 0.42857142857142855,
+            "velocity": 0.1519756838905773
+          },
+          {
+            "time": 58.2,
+            "position": 0.5714285714285714,
+            "velocity": 0.15197568389057733
+          },
+          {
+            "time": 59.14,
+            "position": 0.7142857142857143,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 60.08,
+            "position": 0.8571428571428571,
+            "velocity": 0.1536098310291859
+          },
+          {
+            "time": 61,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 61.93,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.09200000000000018,
+        "direction": 1,
+        "reason": "Gemeinsame Entfaltung"
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "movementDrive": 0.7922511031159737,
+        "energy": 0.6746905882042998,
+        "tone": 0.30599925810002143,
+        "drums": 0.474419163487815,
+        "bass": 0.522044698041246,
+        "voice": 0.07187153223428742,
+        "pitchConfidence": 0.12850965436333245,
+        "pitchRise": 0,
+        "density": 0.7120605251446371,
+        "irregularity": 0.02125941697030644,
+        "impulses": 16,
+        "sharedSequence": "opening"
+      }
+    },
+    {
+      "start": 61.93,
+      "end": 69.46,
+      "formationId": "twin-fans",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.9626802811522857,
+        "amplitude": 0.05504807497394284,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "twin-fans/islands",
+        "shape": "twin-fans",
+        "layout": "islands",
+        "name": "twin-fans · Vier Lichtgruppen",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave"
+        ]
+      },
+      "action": {
+        "kind": "handoff",
+        "source": "drums",
+        "cueSource": "rhythm",
+        "from": "twin-fans",
+        "to": "split-wings",
+        "path": [
+          {
+            "time": 61.93,
+            "shape": "twin-fans"
+          },
+          {
+            "time": 63.82,
+            "shape": "split-wings"
+          },
+          {
+            "time": 65.7,
+            "shape": "twin-fans"
+          },
+          {
+            "time": 67.58,
+            "shape": "split-wings"
+          },
+          {
+            "time": 69.46,
+            "shape": "twin-fans"
+          }
+        ],
+        "movingOpening": false,
+        "start": 61.93,
+        "end": 69.46,
+        "cues": [
+          {
+            "time": 61.94,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 8
+          },
+          {
+            "time": 62.88,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 9
+          },
+          {
+            "time": 63.82,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 10
+          },
+          {
+            "time": 64.76,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 11
+          },
+          {
+            "time": 65.7,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 12
+          },
+          {
+            "time": 66.64,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 13
+          },
+          {
+            "time": 67.58,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 14
+          },
+          {
+            "time": 68.52,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 15
+          }
+        ],
+        "clock": [
+          {
+            "time": 61.93,
+            "position": 0,
+            "velocity": 0.1503759398496236
+          },
+          {
+            "time": 62.88,
+            "position": 0.14285714285714285,
+            "velocity": 0.15117157974300827
+          },
+          {
+            "time": 63.82,
+            "position": 0.2857142857142857,
+            "velocity": 0.1519756838905773
+          },
+          {
+            "time": 64.76,
+            "position": 0.42857142857142855,
+            "velocity": 0.1519756838905773
+          },
+          {
+            "time": 65.7,
+            "position": 0.5714285714285714,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 66.64,
+            "position": 0.7142857142857143,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 67.58,
+            "position": 0.8571428571428571,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 68.52,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 69.46,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.09599999999999796,
+        "direction": 1,
+        "reason": "Übergabe zwischen benachbarten Lichtgruppen",
+        "entry": {
+          "a": {
+            "shape": "converging-lines",
+            "progress": 0.9972269919139849
+          },
+          "b": {
+            "shape": "open-fan",
+            "progress": 0.9972269919139849
+          },
+          "join": 0.9999769739249657,
+          "opening": 0.9972269919139849
+        },
+        "entryGroup": 3
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "movementDrive": 0.9399946264126561,
+        "energy": 0.7512018743485709,
+        "tone": 0.31857223474019297,
+        "drums": 0.5586811639154476,
+        "bass": 0.5175278572845823,
+        "voice": 0.0014696628756636961,
+        "pitchConfidence": 0.13777462531624254,
+        "pitchRise": 0,
+        "density": 0.7082779991146531,
+        "irregularity": 0.02125941697030143,
+        "impulses": 16,
+        "sharedSequence": "wave",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 69.46,
+      "end": 76.93,
+      "formationId": "open-fan",
+      "program": "dialogue",
+      "story": "dialogue",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "split",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "split/sweep/stroke",
+        "spread": 0.9526040606793398,
+        "amplitude": 0.05236108284782395,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "open-fan/islands",
+        "shape": "open-fan",
+        "layout": "islands",
+        "name": "open-fan · Vier Lichtgruppen",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave"
+        ]
+      },
+      "action": {
+        "kind": "answer",
+        "source": "drums",
+        "cueSource": "rhythm",
+        "from": "open-fan",
+        "to": "crossed-fans",
+        "path": [
+          {
+            "time": 69.46,
+            "shape": "open-fan"
+          },
+          {
+            "time": 71.32,
+            "shape": "crossed-fans"
+          },
+          {
+            "time": 73.2,
+            "shape": "open-fan"
+          },
+          {
+            "time": 75.08,
+            "shape": "crossed-fans"
+          },
+          {
+            "time": 76.93,
+            "shape": "open-fan"
+          }
+        ],
+        "movingOpening": false,
+        "start": 69.46,
+        "end": 76.93,
+        "cues": [
+          {
+            "time": 69.46,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 16
+          },
+          {
+            "time": 70.38,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 17
+          },
+          {
+            "time": 71.32,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 18
+          },
+          {
+            "time": 72.26,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 19
+          },
+          {
+            "time": 73.2,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 20
+          },
+          {
+            "time": 74.14,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 21
+          },
+          {
+            "time": 75.08,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 22
+          },
+          {
+            "time": 76.02,
+            "strength": 0.32654542074109816,
+            "group": 3,
+            "ordinal": 23
+          }
+        ],
+        "clock": [
+          {
+            "time": 69.46,
+            "position": 0,
+            "velocity": 0.15527950310558977
+          },
+          {
+            "time": 70.38,
+            "position": 0.14285714285714285,
+            "velocity": 0.1536098310291859
+          },
+          {
+            "time": 71.32,
+            "position": 0.2857142857142857,
+            "velocity": 0.1519756838905767
+          },
+          {
+            "time": 72.26,
+            "position": 0.42857142857142855,
+            "velocity": 0.1519756838905767
+          },
+          {
+            "time": 73.2,
+            "position": 0.5714285714285714,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 74.14,
+            "position": 0.7142857142857143,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 75.08,
+            "position": 0.8571428571428571,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 76.02,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 76.93,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.0920000000000016,
+        "direction": 1,
+        "reason": "Musikalischer Ruf mit räumlicher Antwort",
+        "entry": {
+          "shape": "twin-fans",
+          "progress": 1
+        },
+        "entryGroup": 3
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "movementDrive": 0.8261273125557597,
+        "energy": 0.6840270711955988,
+        "tone": 0.36668098839044827,
+        "drums": 0.47401674486333517,
+        "bass": 0.49583542736898284,
+        "voice": 0.004187161962050376,
+        "pitchConfidence": 0.13236658575539748,
+        "pitchRise": 0,
+        "density": 0.7139669790272188,
+        "irregularity": 0.020935809767375045,
+        "impulses": 16,
+        "sharedSequence": "exchange",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 76.93,
+      "end": 84.44,
+      "formationId": "lattice",
+      "program": "sweep",
+      "story": "weave",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.9628165004864107,
+        "amplitude": 0.055084400129709506,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "lattice/islands",
+        "shape": "lattice",
+        "layout": "islands",
+        "name": "lattice · Vier Lichtgruppen",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave"
+        ]
+      },
+      "action": {
+        "kind": "crossing",
+        "source": "drums",
+        "cueSource": "rhythm",
+        "from": "lattice",
+        "to": "crossed-sheets",
+        "path": [
+          {
+            "time": 76.93,
+            "shape": "lattice"
+          },
+          {
+            "time": 78.82,
+            "shape": "crossed-sheets"
+          },
+          {
+            "time": 80.7,
+            "shape": "lattice"
+          },
+          {
+            "time": 82.58,
+            "shape": "crossed-sheets"
+          },
+          {
+            "time": 84.44,
+            "shape": "lattice"
+          }
+        ],
+        "movingOpening": false,
+        "start": 76.93,
+        "end": 84.44,
+        "cues": [
+          {
+            "time": 76.94,
+            "strength": 0.6770761568249002,
+            "group": 0,
+            "ordinal": 24
+          },
+          {
+            "time": 77.88,
+            "strength": 0.699415438245774,
+            "group": 1,
+            "ordinal": 25
+          },
+          {
+            "time": 78.82,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 26
+          },
+          {
+            "time": 79.76,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 27
+          },
+          {
+            "time": 80.7,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 28
+          },
+          {
+            "time": 81.64,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 29
+          },
+          {
+            "time": 82.58,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 30
+          },
+          {
+            "time": 83.52,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 31
+          }
+        ],
+        "clock": [
+          {
+            "time": 76.93,
+            "position": 0,
+            "velocity": 0.15037593984962586
+          },
+          {
+            "time": 77.88,
+            "position": 0.14285714285714285,
+            "velocity": 0.1511715797430094
+          },
+          {
+            "time": 78.82,
+            "position": 0.2857142857142857,
+            "velocity": 0.1519756838905767
+          },
+          {
+            "time": 79.76,
+            "position": 0.42857142857142855,
+            "velocity": 0.1519756838905767
+          },
+          {
+            "time": 80.7,
+            "position": 0.5714285714285714,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 81.64,
+            "position": 0.7142857142857143,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 82.58,
+            "position": 0.8571428571428571,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 83.52,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 84.44,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.0920000000000016,
+        "direction": 1,
+        "reason": "Gemeinsame Kreuzung zweier Strahlenbilder",
+        "entry": {
+          "shape": "open-fan",
+          "progress": 1
+        },
+        "entryGroup": 3
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "movementDrive": 0.9399726597651369,
+        "energy": 0.7521100032427376,
+        "tone": 0.3386239695714861,
+        "drums": 0.5513556823516947,
+        "bass": 0.5344476855681505,
+        "voice": 0.06936802000493161,
+        "pitchConfidence": 0.13337972714189913,
+        "pitchRise": 0,
+        "density": 0.7101642254771424,
+        "irregularity": 0.02125941697030547,
+        "impulses": 16,
+        "sharedSequence": "sweep",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 84.44,
+      "end": 91.93,
+      "formationId": "converging-lines",
+      "program": "resolve",
+      "story": "gather",
+      "act": "resolve",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "hinge",
+        "articulation": "stroke",
+        "key": "radial/hinge/stroke",
+        "spread": 0.9116799498706408,
+        "amplitude": 0.041447986632170884,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "converging-lines/ensemble",
+        "shape": "converging-lines",
+        "layout": "ensemble",
+        "name": "converging-lines · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "closing",
+        "source": "lead",
+        "cueSource": "lead",
+        "from": "converging-lines",
+        "to": "converging-lines",
+        "movingOpening": false,
+        "start": 84.44,
+        "end": 91.93,
+        "cues": [
+          {
+            "time": 84.44,
+            "strength": 0.6050335373216514,
+            "group": 0
+          },
+          {
+            "time": 85.38,
+            "strength": 0.36905313977113047,
+            "group": 1
+          },
+          {
+            "time": 86.32,
+            "strength": 0.42511939425546186,
+            "group": 2
+          },
+          {
+            "time": 87.26,
+            "strength": 0.37009678016365405,
+            "group": 3
+          },
+          {
+            "time": 88.2,
+            "strength": 0.3065457668514721,
+            "group": 0
+          },
+          {
+            "time": 89.14,
+            "strength": 0.31576831197134136,
+            "group": 1
+          },
+          {
+            "time": 90.06,
+            "strength": 0.4150998084449926,
+            "group": 2
+          },
+          {
+            "time": 91,
+            "strength": 0.41773444912848795,
+            "group": 3
+          }
+        ],
+        "clock": [
+          {
+            "time": 84.44,
+            "position": 0,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 85.38,
+            "position": 0.14285714285714285,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 86.32,
+            "position": 0.2857142857142857,
+            "velocity": 0.1519756838905767
+          },
+          {
+            "time": 87.26,
+            "position": 0.42857142857142855,
+            "velocity": 0.1519756838905767
+          },
+          {
+            "time": 88.2,
+            "position": 0.5714285714285714,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 89.14,
+            "position": 0.7142857142857143,
+            "velocity": 0.1536098310291859
+          },
+          {
+            "time": 90.06,
+            "position": 0.8571428571428571,
+            "velocity": 0.1536098310291859
+          },
+          {
+            "time": 91,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 91.93,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.27600000000000474,
+        "direction": 1,
+        "reason": "Gemeinsame Zusammenführung",
+        "entry": {
+          "shape": "lattice",
+          "progress": 1
+        }
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0.14807139151958632,
+        "energy": 0.4111996658042721,
+        "tone": 0.5704476889752653,
+        "drums": 0.1760686746231192,
+        "bass": 0.214848101030801,
+        "voice": 0.12395488985160552,
+        "pitchConfidence": 0.11152730605565823,
+        "pitchRise": 0,
+        "density": 0.7120605251446364,
+        "irregularity": 0.021259416970313565,
+        "impulses": 16,
+        "sharedSequence": "settle"
+      }
+    },
+    {
+      "start": 91.93,
+      "end": 106.69,
+      "formationId": "split-foci",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.8843235845154682,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "split-foci/ensemble",
+        "shape": "split-foci",
+        "layout": "ensemble",
+        "name": "split-foci · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "develop",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "split-foci",
+        "to": "split-wings",
+        "movingOpening": false,
+        "start": 91.93,
+        "end": 106.69,
+        "cues": [
+          {
+            "time": 92.48,
+            "strength": 0.7,
+            "group": 0
+          },
+          {
+            "time": 93.68,
+            "strength": 0.7,
+            "group": 1
+          },
+          {
+            "time": 94.64,
+            "strength": 0.7,
+            "group": 2
+          },
+          {
+            "time": 96.8,
+            "strength": 0.7,
+            "group": 3
+          },
+          {
+            "time": 98.32000000000001,
+            "strength": 0.7,
+            "group": 0
+          },
+          {
+            "time": 99.76,
+            "strength": 0.7,
+            "group": 1
+          },
+          {
+            "time": 100.72,
+            "strength": 0.7,
+            "group": 2
+          },
+          {
+            "time": 101.68,
+            "strength": 0.7,
+            "group": 3
+          },
+          {
+            "time": 102.96000000000001,
+            "strength": 0.7,
+            "group": 0
+          },
+          {
+            "time": 106.24000000000001,
+            "strength": 0.7,
+            "group": 1
+          }
+        ],
+        "clock": [
+          {
+            "time": 91.93,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 92.48,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 93.68,
+            "position": 0.1111111111111111,
+            "velocity": 0.10288065843621415
+          },
+          {
+            "time": 94.64,
+            "position": 0.2222222222222222,
+            "velocity": 0.07122507122507145
+          },
+          {
+            "time": 96.8,
+            "position": 0.3333333333333333,
+            "velocity": 0.06038647342995158
+          },
+          {
+            "time": 98.32000000000001,
+            "position": 0.4444444444444444,
+            "velocity": 0.0750750750750749
+          },
+          {
+            "time": 99.76,
+            "position": 0.5555555555555556,
+            "velocity": 0.09259259259259293
+          },
+          {
+            "time": 100.72,
+            "position": 0.6666666666666666,
+            "velocity": 0.11574074074074064
+          },
+          {
+            "time": 101.68,
+            "position": 0.7777777777777778,
+            "velocity": 0.09920634920634878
+          },
+          {
+            "time": 102.96000000000001,
+            "position": 0.8888888888888888,
+            "velocity": 0.04873294346978556
+          },
+          {
+            "time": 106.24000000000001,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 106.69,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.767999999999995,
+        "direction": 1,
+        "reason": "Melodiegeführte Entfaltung",
+        "entry": {
+          "a": {
+            "shape": "lattice",
+            "progress": 1
+          },
+          "b": {
+            "shape": "converging-lines",
+            "progress": 1
+          },
+          "join": 1,
+          "closing": 1
+        }
+      },
+      "musicalEvidence": {
+        "reason": "Führende Stimme",
+        "texture": "voice",
+        "movementDrive": 0.0021182027481012247,
+        "energy": 0.2288238967697883,
+        "tone": 0.5693458388206089,
+        "drums": 0.0330394254838341,
+        "bass": 0.0012925747060166777,
+        "voice": 0.7217163086464552,
+        "pitchConfidence": 0.07978792018790487,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 106.69,
+      "end": 113.24,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9082029326610894,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "horizontal-sheets/ensemble",
+        "shape": "horizontal-sheets",
+        "layout": "ensemble",
+        "name": "horizontal-sheets · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "develop",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "horizontal-sheets",
+        "to": "horizontal-sheets",
+        "movingOpening": false,
+        "start": 106.69,
+        "end": 113.24,
+        "cues": [
+          {
+            "time": 107.28,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 10
+          },
+          {
+            "time": 108.88,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 11
+          },
+          {
+            "time": 109.92,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 12
+          },
+          {
+            "time": 110.88,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 13
+          },
+          {
+            "time": 112,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 14
+          },
+          {
+            "time": 113.04,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 15
+          }
+        ],
+        "clock": [
+          {
+            "time": 106.69,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 107.28,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 108.88,
+            "position": 0.2,
+            "velocity": 0.1515151515151515
+          },
+          {
+            "time": 109.92,
+            "position": 0.4,
+            "velocity": 0.2
+          },
+          {
+            "time": 110.88,
+            "position": 0.6,
+            "velocity": 0.19230769230769246
+          },
+          {
+            "time": 112,
+            "position": 0.8,
+            "velocity": 0.18518518518518426
+          },
+          {
+            "time": 113.04,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 113.24,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.767999999999995,
+        "direction": 1,
+        "reason": "Melodiegeführte Entfaltung",
+        "entry": {
+          "shape": "split-wings",
+          "progress": 1
+        },
+        "entryGroup": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 4.7844220311225113e-32,
+        "energy": 0.38801955107393005,
+        "tone": 0.5577975007046978,
+        "drums": 0.14294258856584074,
+        "bass": 0.34936670982984425,
+        "voice": 0.28934093482042705,
+        "pitchConfidence": 0.06903622566251812,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 113.24,
+      "end": 122.4,
+      "formationId": "radial-wheel",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9061442267416158,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "radial-wheel/ensemble",
+        "shape": "radial-wheel",
+        "layout": "ensemble",
+        "name": "radial-wheel · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "develop",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "radial-wheel",
+        "to": "split-wings",
+        "movingOpening": false,
+        "start": 113.24,
+        "end": 122.4,
+        "cues": [
+          {
+            "time": 114.16,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 16
+          },
+          {
+            "time": 116.8,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 17
+          },
+          {
+            "time": 120.48,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 18
+          },
+          {
+            "time": 122,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 19
+          }
+        ],
+        "clock": [
+          {
+            "time": 113.24,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 114.16,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 116.8,
+            "position": 0.3333333333333333,
+            "velocity": 0.10548523206751043
+          },
+          {
+            "time": 120.48,
+            "position": 0.6666666666666666,
+            "velocity": 0.12820512820512814
+          },
+          {
+            "time": 122,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 122.4,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.85,
+        "direction": 1,
+        "reason": "Melodiegeführte Entfaltung",
+        "entry": {
+          "shape": "horizontal-sheets",
+          "progress": 1
+        },
+        "entryGroup": 3
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 3.211819515668542e-45,
+        "energy": 0.3742948449441054,
+        "tone": 0.706525020641857,
+        "drums": 0.09156933022780431,
+        "bass": 0.10847296794072055,
+        "voice": 0.23889792439539753,
+        "pitchConfidence": 8.564417685081322e-7,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 122.4,
+      "end": 123.5,
+      "formationId": "parallel-lines",
+      "program": "rest",
+      "story": "rest",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": null,
+      "scene": null,
+      "action": {
+        "kind": "rest",
+        "source": "lead",
+        "cueSource": "lead",
+        "from": "parallel-lines",
+        "to": "parallel-lines",
+        "movingOpening": false,
+        "start": 122.4,
+        "end": 123.5,
+        "cues": [],
+        "clock": [
+          {
+            "time": 122.4,
+            "position": 0,
+            "velocity": 0.9090909090909138
+          },
+          {
+            "time": 123.5,
+            "position": 1,
+            "velocity": 0.9090909090909138
+          }
+        ],
+        "overlap": 0.28800000000000237,
+        "direction": 1,
+        "reason": "Getragenes Lichtbild"
+      },
+      "musicalEvidence": {
+        "reason": "Musikalische Pause",
+        "texture": "sustain",
+        "movementDrive": 1.8399436044349799e-62,
+        "energy": 0.06803455327498008,
+        "tone": 0.7668386824006415,
+        "drums": 0.005681687504495788,
+        "bass": 0.0003523297592087419,
+        "voice": 0.009270701772518182,
+        "pitchConfidence": 4.9062674501170356e-24,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 123.5,
+      "end": 125.67,
+      "formationId": "split-foci",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.873342362121943,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "split-foci/ensemble",
+        "shape": "split-foci",
+        "layout": "ensemble",
+        "name": "split-foci · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "hold",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "split-foci",
+        "to": "split-foci",
+        "movingOpening": false,
+        "start": 123.5,
+        "end": 125.67,
+        "cues": [
+          {
+            "time": 123.68,
+            "strength": 0.7,
+            "group": 0
+          }
+        ],
+        "clock": [
+          {
+            "time": 123.5,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 123.68,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 125.67,
+            "position": 1,
+            "velocity": 0.5025125628140716
+          }
+        ],
+        "overlap": 0.27600000000000474,
+        "direction": 1,
+        "reason": "Getragenes Lichtbild"
+      },
+      "musicalEvidence": {
+        "reason": "Führende Stimme",
+        "texture": "voice",
+        "movementDrive": 6.537483181018148e-65,
+        "energy": 0.15561574747962015,
+        "tone": 0.6238375879802487,
+        "drums": 0.002303276271390406,
+        "bass": 0.0005527448468383605,
+        "voice": 0.874085772738849,
+        "pitchConfidence": 0.11170016439725321,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 125.67,
+      "end": 133.18,
+      "formationId": "converging-lines",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.8967906799543557,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "converging-lines/ensemble",
+        "shape": "converging-lines",
+        "layout": "ensemble",
+        "name": "converging-lines · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "develop",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "converging-lines",
+        "to": "rising-arch",
+        "movingOpening": false,
+        "start": 125.67,
+        "end": 133.18,
+        "cues": [
+          {
+            "time": 125.68,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 1
+          },
+          {
+            "time": 127.60000000000001,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 2
+          },
+          {
+            "time": 128.56,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 3
+          },
+          {
+            "time": 129.92000000000002,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 4
+          },
+          {
+            "time": 130.88,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 5
+          },
+          {
+            "time": 131.84,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 6
+          }
+        ],
+        "clock": [
+          {
+            "time": 125.67,
+            "position": 0,
+            "velocity": 0.10362694300518098
+          },
+          {
+            "time": 127.60000000000001,
+            "position": 0.2,
+            "velocity": 0.13840830449826988
+          },
+          {
+            "time": 128.56,
+            "position": 0.4,
+            "velocity": 0.1724137931034477
+          },
+          {
+            "time": 129.92000000000002,
+            "position": 0.6,
+            "velocity": 0.1724137931034488
+          },
+          {
+            "time": 130.88,
+            "position": 0.8,
+            "velocity": 0.2083333333333347
+          },
+          {
+            "time": 131.84,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 133.18,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.7679999999999837,
+        "direction": 1,
+        "reason": "Melodiegeführte Entfaltung",
+        "entry": {
+          "shape": "split-foci",
+          "progress": 0.6499999999999999
+        },
+        "entryGroup": 0
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "movementDrive": 1.3093671587990344e-69,
+        "energy": 0.31193786636237175,
+        "tone": 0.4858576062401727,
+        "drums": 0.012346734273945767,
+        "bass": 0.36512709252114056,
+        "voice": 0.0863882731119008,
+        "pitchConfidence": 0.5555010970179682,
+        "pitchRise": 0.015694384914701154,
+        "density": 0.04438526409232132,
+        "irregularity": 0,
+        "impulses": 1
+      }
+    },
+    {
+      "start": 133.18,
+      "end": 140.67,
+      "formationId": "rising-arch",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9166888928813841,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "rising-arch/ensemble",
+        "shape": "rising-arch",
+        "layout": "ensemble",
+        "name": "rising-arch · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "develop",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "rising-arch",
+        "to": "vaulted-roof",
+        "movingOpening": false,
+        "start": 133.18,
+        "end": 140.67,
+        "cues": [
+          {
+            "time": 133.2,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 7
+          },
+          {
+            "time": 134.64000000000001,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 8
+          },
+          {
+            "time": 136.16,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 9
+          },
+          {
+            "time": 137.76,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 10
+          }
+        ],
+        "clock": [
+          {
+            "time": 133.18,
+            "position": 0,
+            "velocity": 0.2283105022831038
+          },
+          {
+            "time": 134.64000000000001,
+            "position": 0.3333333333333333,
+            "velocity": 0.22371364653243925
+          },
+          {
+            "time": 136.16,
+            "position": 0.6666666666666666,
+            "velocity": 0.2136752136752153
+          },
+          {
+            "time": 137.76,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 140.67,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.85,
+        "direction": 1,
+        "reason": "Melodiegeführte Entfaltung",
+        "entry": {
+          "shape": "rising-arch",
+          "progress": 1
+        },
+        "entryGroup": 2
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0.09452428624443257,
+        "energy": 0.44459261920922777,
+        "tone": 0.6066851574996374,
+        "drums": 0.2958502601664656,
+        "bass": 0.04545048145461952,
+        "voice": 0.13388985080160326,
+        "pitchConfidence": 0.07694934130970346,
+        "pitchRise": 0,
+        "density": 0.7120605251446391,
+        "irregularity": 0.021259416970327634,
+        "impulses": 16,
+        "sharedSequence": "breath",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 140.67,
+      "end": 148.2,
+      "formationId": "nested-gates",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.9629621738013087,
+        "amplitude": 0.05512324634701565,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "nested-gates/corridor",
+        "shape": "nested-gates",
+        "layout": "corridor",
+        "name": "nested-gates · Offener Mittelkorridor",
+        "motions": [
+          "relay",
+          "weave",
+          "bloom"
+        ]
+      },
+      "action": {
+        "kind": "opening",
+        "source": "bass",
+        "cueSource": "rhythm",
+        "from": "converging-lines",
+        "to": "nested-gates",
+        "path": [
+          {
+            "time": 140.67,
+            "shape": "nested-gates"
+          },
+          {
+            "time": 142.58,
+            "shape": "crossed-fans"
+          },
+          {
+            "time": 144.46,
+            "shape": "nested-gates"
+          },
+          {
+            "time": 146.32,
+            "shape": "crossed-fans"
+          },
+          {
+            "time": 148.2,
+            "shape": "nested-gates"
+          }
+        ],
+        "movingOpening": true,
+        "start": 140.67,
+        "end": 148.2,
+        "cues": [
+          {
+            "time": 140.7,
+            "strength": 0.7,
+            "group": 0
+          },
+          {
+            "time": 141.64,
+            "strength": 0.7,
+            "group": 1
+          },
+          {
+            "time": 142.58,
+            "strength": 0.7,
+            "group": 2
+          },
+          {
+            "time": 143.52,
+            "strength": 0.7,
+            "group": 3
+          },
+          {
+            "time": 144.46,
+            "strength": 0.7,
+            "group": 0
+          },
+          {
+            "time": 145.38,
+            "strength": 0.7,
+            "group": 1
+          },
+          {
+            "time": 146.32,
+            "strength": 0.7,
+            "group": 2
+          },
+          {
+            "time": 147.26,
+            "strength": 0.7,
+            "group": 3
+          }
+        ],
+        "clock": [
+          {
+            "time": 140.67,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 140.7,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 141.64,
+            "position": 0.14285714285714285,
+            "velocity": 0.15197568389057559
+          },
+          {
+            "time": 142.58,
+            "position": 0.2857142857142857,
+            "velocity": 0.15197568389057559
+          },
+          {
+            "time": 143.52,
+            "position": 0.42857142857142855,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 144.46,
+            "position": 0.5714285714285714,
+            "velocity": 0.1536098310291871
+          },
+          {
+            "time": 145.38,
+            "position": 0.7142857142857143,
+            "velocity": 0.1536098310291871
+          },
+          {
+            "time": 146.32,
+            "position": 0.8571428571428571,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 147.26,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 148.2,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.0920000000000016,
+        "direction": 1,
+        "reason": "Gemeinsame Entfaltung"
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "movementDrive": 0.8731632928154159,
+        "energy": 0.7530811586753912,
+        "tone": 0.24854929883665933,
+        "drums": 0.5121222461684666,
+        "bass": 0.566091254625949,
+        "voice": 0.0025018583294555683,
+        "pitchConfidence": 0.22548570165471607,
+        "pitchRise": 0,
+        "density": 0.7082779991146525,
+        "irregularity": 0.021259416970331863,
+        "impulses": 16,
+        "sharedSequence": "opening"
+      }
+    },
+    {
+      "start": 148.2,
+      "end": 155.68,
+      "formationId": "parallel-lines",
+      "program": "cascade",
+      "story": "relay",
+      "act": "answer",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "hinge",
+        "articulation": "stroke",
+        "key": "radial/hinge/stroke",
+        "spread": 0.952360747622093,
+        "amplitude": 0.052296199365891485,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "parallel-lines/islands",
+        "shape": "parallel-lines",
+        "layout": "islands",
+        "name": "parallel-lines · Vier Lichtgruppen",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave"
+        ]
+      },
+      "action": {
+        "kind": "handoff",
+        "source": "bass",
+        "cueSource": "rhythm",
+        "from": "parallel-lines",
+        "to": "diagonal-plane",
+        "path": [
+          {
+            "time": 148.2,
+            "shape": "parallel-lines"
+          },
+          {
+            "time": 150.08,
+            "shape": "diagonal-plane"
+          },
+          {
+            "time": 151.96,
+            "shape": "parallel-lines"
+          },
+          {
+            "time": 153.82,
+            "shape": "diagonal-plane"
+          },
+          {
+            "time": 155.68,
+            "shape": "parallel-lines"
+          }
+        ],
+        "movingOpening": false,
+        "start": 148.2,
+        "end": 155.68,
+        "cues": [
+          {
+            "time": 148.2,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 8
+          },
+          {
+            "time": 149.14,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 9
+          },
+          {
+            "time": 150.08,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 10
+          },
+          {
+            "time": 151.02,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 11
+          },
+          {
+            "time": 151.96,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 12
+          },
+          {
+            "time": 152.88,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 13
+          },
+          {
+            "time": 153.82,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 14
+          },
+          {
+            "time": 154.76,
+            "strength": 0.5440549004349452,
+            "group": 3,
+            "ordinal": 15
+          }
+        ],
+        "clock": [
+          {
+            "time": 148.2,
+            "position": 0,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 149.14,
+            "position": 0.14285714285714285,
+            "velocity": 0.15197568389057559
+          },
+          {
+            "time": 150.08,
+            "position": 0.2857142857142857,
+            "velocity": 0.15197568389057559
+          },
+          {
+            "time": 151.02,
+            "position": 0.42857142857142855,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 151.96,
+            "position": 0.5714285714285714,
+            "velocity": 0.1536098310291871
+          },
+          {
+            "time": 152.88,
+            "position": 0.7142857142857143,
+            "velocity": 0.1536098310291871
+          },
+          {
+            "time": 153.82,
+            "position": 0.8571428571428571,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 154.76,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 155.68,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.0920000000000016,
+        "direction": 1,
+        "reason": "Übergabe zwischen benachbarten Lichtgruppen",
+        "entry": {
+          "shape": "nested-gates",
+          "progress": 1
+        },
+        "entryGroup": 3
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "movementDrive": 0.8522861662066983,
+        "energy": 0.6824049841472871,
+        "tone": 0.2928323440719447,
+        "drums": 0.4448496230257626,
+        "bass": 0.5755665211929483,
+        "voice": 0.003983861900648026,
+        "pitchConfidence": 0.21164018237071747,
+        "pitchRise": 0,
+        "density": 0.7130124777183583,
+        "irregularity": 0.021259416970339954,
+        "impulses": 16,
+        "sharedSequence": "wave",
+        "phrase": 1,
+        "development": "Antwort der nächsten Phrase"
+      }
+    },
+    {
+      "start": 155.68,
+      "end": 163.2,
+      "formationId": "split-wings",
+      "program": "dialogue",
+      "story": "dialogue",
+      "act": "answer",
+      "chapter": 0,
+      "variation": {
+        "path": "split",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "split/sweep/stroke",
+        "spread": 0.9604754984995879,
+        "amplitude": 0.05446013293322345,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "split-wings/ensemble",
+        "shape": "split-wings",
+        "layout": "ensemble",
+        "name": "split-wings · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "answer",
+        "source": "drums",
+        "cueSource": "rhythm",
+        "from": "split-wings",
+        "to": "twin-fans",
+        "path": [
+          {
+            "time": 155.68,
+            "shape": "split-wings"
+          },
+          {
+            "time": 157.58,
+            "shape": "twin-fans"
+          },
+          {
+            "time": 159.46,
+            "shape": "split-wings"
+          },
+          {
+            "time": 161.32,
+            "shape": "twin-fans"
+          },
+          {
+            "time": 163.2,
+            "shape": "split-wings"
+          }
+        ],
+        "movingOpening": false,
+        "start": 155.68,
+        "end": 163.2,
+        "cues": [
+          {
+            "time": 155.7,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 16
+          },
+          {
+            "time": 156.64,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 17
+          },
+          {
+            "time": 157.58,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 18
+          },
+          {
+            "time": 158.52,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 19
+          },
+          {
+            "time": 159.46,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 20
+          },
+          {
+            "time": 160.38,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 21
+          },
+          {
+            "time": 161.32,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 22
+          },
+          {
+            "time": 162.26,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 23
+          }
+        ],
+        "clock": [
+          {
+            "time": 155.68,
+            "position": 0,
+            "velocity": 0.14880952380952697
+          },
+          {
+            "time": 156.64,
+            "position": 0.14285714285714285,
+            "velocity": 0.1503759398496236
+          },
+          {
+            "time": 157.58,
+            "position": 0.2857142857142857,
+            "velocity": 0.15197568389057559
+          },
+          {
+            "time": 158.52,
+            "position": 0.42857142857142855,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 159.46,
+            "position": 0.5714285714285714,
+            "velocity": 0.1536098310291871
+          },
+          {
+            "time": 160.38,
+            "position": 0.7142857142857143,
+            "velocity": 0.1536098310291871
+          },
+          {
+            "time": 161.32,
+            "position": 0.8571428571428571,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 162.26,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 163.2,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.0920000000000016,
+        "direction": 1,
+        "reason": "Musikalischer Ruf mit räumlicher Antwort",
+        "entry": {
+          "shape": "parallel-lines",
+          "progress": 1
+        },
+        "entryGroup": 3
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "movementDrive": 0.9144345413670056,
+        "energy": 0.7365033233305863,
+        "tone": 0.3026056354211153,
+        "drums": 0.5411297093913826,
+        "bass": 0.5491914963560635,
+        "voice": 0.12691932304360662,
+        "pitchConfidence": 0.11001819361066241,
+        "pitchRise": 0,
+        "density": 0.7092198581560302,
+        "irregularity": 0.021259416970339954,
+        "impulses": 16,
+        "sharedSequence": "exchange",
+        "phrase": 1,
+        "development": "Antwort der nächsten Phrase"
+      }
+    },
+    {
+      "start": 163.2,
+      "end": 170.68,
+      "formationId": "twin-fans",
+      "program": "sweep",
+      "story": "weave",
+      "act": "answer",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.95068509231229,
+        "amplitude": 0.051849357949944004,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "twin-fans/ensemble",
+        "shape": "twin-fans",
+        "layout": "ensemble",
+        "name": "twin-fans · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "crossing",
+        "source": "drums",
+        "cueSource": "rhythm",
+        "from": "twin-fans",
+        "to": "split-wings",
+        "path": [
+          {
+            "time": 163.2,
+            "shape": "twin-fans"
+          },
+          {
+            "time": 165.08,
+            "shape": "twin-fans"
+          },
+          {
+            "time": 166.96,
+            "shape": "split-wings"
+          },
+          {
+            "time": 168.82,
+            "shape": "twin-fans"
+          },
+          {
+            "time": 170.68,
+            "shape": "split-wings"
+          }
+        ],
+        "movingOpening": false,
+        "start": 163.2,
+        "end": 170.68,
+        "cues": [
+          {
+            "time": 163.2,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 24
+          },
+          {
+            "time": 164.14,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 25
+          },
+          {
+            "time": 165.08,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 26
+          },
+          {
+            "time": 166.02,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 27
+          },
+          {
+            "time": 166.96,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 28
+          },
+          {
+            "time": 167.88,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 29
+          },
+          {
+            "time": 168.82,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 30
+          },
+          {
+            "time": 169.76,
+            "strength": 0.4309048547395111,
+            "group": 3,
+            "ordinal": 31
+          }
+        ],
+        "clock": [
+          {
+            "time": 163.2,
+            "position": 0,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 164.14,
+            "position": 0.14285714285714285,
+            "velocity": 0.15197568389057559
+          },
+          {
+            "time": 165.08,
+            "position": 0.2857142857142857,
+            "velocity": 0.15197568389057559
+          },
+          {
+            "time": 166.02,
+            "position": 0.42857142857142855,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 166.96,
+            "position": 0.5714285714285714,
+            "velocity": 0.1536098310291871
+          },
+          {
+            "time": 167.88,
+            "position": 0.7142857142857143,
+            "velocity": 0.1536098310291871
+          },
+          {
+            "time": 168.82,
+            "position": 0.8571428571428571,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 169.76,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 170.68,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.0920000000000016,
+        "direction": 1,
+        "reason": "Gemeinsame Kreuzung zweier Strahlenbilder",
+        "entry": {
+          "shape": "split-wings",
+          "progress": 1
+        },
+        "entryGroup": 3
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "movementDrive": 0.7723225700237609,
+        "energy": 0.6712339487486001,
+        "tone": 0.3861406726926584,
+        "drums": 0.45877291085454636,
+        "bass": 0.4839356722499301,
+        "voice": 0.12109815056659837,
+        "pitchConfidence": 0.13314459002773857,
+        "pitchRise": 0,
+        "density": 0.7130124777183583,
+        "irregularity": 0.02093580976739984,
+        "impulses": 16,
+        "sharedSequence": "sweep",
+        "phrase": 1,
+        "development": "Antwort der nächsten Phrase"
+      }
+    },
+    {
+      "start": 170.68,
+      "end": 178.2,
+      "formationId": "open-fan",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.9619882274362641,
+        "amplitude": 0.05486352731633712,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "open-fan/ensemble",
+        "shape": "open-fan",
+        "layout": "ensemble",
+        "name": "open-fan · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "opening",
+        "source": "drums",
+        "cueSource": "rhythm",
+        "from": "converging-lines",
+        "to": "open-fan",
+        "path": [
+          {
+            "time": 170.68,
+            "shape": "open-fan"
+          },
+          {
+            "time": 172.58,
+            "shape": "crossed-fans"
+          },
+          {
+            "time": 174.46,
+            "shape": "open-fan"
+          },
+          {
+            "time": 176.32,
+            "shape": "crossed-fans"
+          },
+          {
+            "time": 178.2,
+            "shape": "open-fan"
+          }
+        ],
+        "movingOpening": true,
+        "start": 170.68,
+        "end": 178.2,
+        "cues": [
+          {
+            "time": 170.7,
+            "strength": 0.7,
+            "group": 0
+          },
+          {
+            "time": 171.64,
+            "strength": 0.7,
+            "group": 1
+          },
+          {
+            "time": 172.58,
+            "strength": 0.7,
+            "group": 2
+          },
+          {
+            "time": 173.52,
+            "strength": 0.7,
+            "group": 3
+          },
+          {
+            "time": 174.46,
+            "strength": 0.7,
+            "group": 0
+          },
+          {
+            "time": 175.38,
+            "strength": 0.7,
+            "group": 1
+          },
+          {
+            "time": 176.32,
+            "strength": 0.7,
+            "group": 2
+          },
+          {
+            "time": 177.26,
+            "strength": 0.7,
+            "group": 3
+          }
+        ],
+        "clock": [
+          {
+            "time": 170.68,
+            "position": 0,
+            "velocity": 0.14880952380952697
+          },
+          {
+            "time": 171.64,
+            "position": 0.14285714285714285,
+            "velocity": 0.1503759398496236
+          },
+          {
+            "time": 172.58,
+            "position": 0.2857142857142857,
+            "velocity": 0.15197568389057559
+          },
+          {
+            "time": 173.52,
+            "position": 0.42857142857142855,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 174.46,
+            "position": 0.5714285714285714,
+            "velocity": 0.1536098310291871
+          },
+          {
+            "time": 175.38,
+            "position": 0.7142857142857143,
+            "velocity": 0.1536098310291871
+          },
+          {
+            "time": 176.32,
+            "position": 0.8571428571428571,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 177.26,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 178.2,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.0920000000000016,
+        "direction": 1,
+        "reason": "Gemeinsame Entfaltung"
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "movementDrive": 0.909047886777541,
+        "energy": 0.7465881829084279,
+        "tone": 0.29476621975718215,
+        "drums": 0.5531318241652373,
+        "bass": 0.5595303981784927,
+        "voice": 0.06206454748537989,
+        "pitchConfidence": 0.07876979024769681,
+        "pitchRise": 0,
+        "density": 0.7092198581560302,
+        "irregularity": 0.021259416970331863,
+        "impulses": 16,
+        "sharedSequence": "opening"
+      }
+    },
+    {
+      "start": 178.2,
+      "end": 185.68,
+      "formationId": "open-fan",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "hinge",
+        "articulation": "stroke",
+        "key": "radial/hinge/stroke",
+        "spread": 0.9520450398245143,
+        "amplitude": 0.05221201061987049,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "open-fan/corridor",
+        "shape": "open-fan",
+        "layout": "corridor",
+        "name": "open-fan · Offener Mittelkorridor",
+        "motions": [
+          "relay",
+          "weave",
+          "bloom"
+        ]
+      },
+      "action": {
+        "kind": "handoff",
+        "source": "bass",
+        "cueSource": "rhythm",
+        "from": "open-fan",
+        "to": "crossed-fans",
+        "path": [
+          {
+            "time": 178.2,
+            "shape": "open-fan"
+          },
+          {
+            "time": 180.08,
+            "shape": "crossed-fans"
+          },
+          {
+            "time": 181.96,
+            "shape": "open-fan"
+          },
+          {
+            "time": 183.82,
+            "shape": "crossed-fans"
+          },
+          {
+            "time": 185.68,
+            "shape": "open-fan"
+          }
+        ],
+        "movingOpening": false,
+        "start": 178.2,
+        "end": 185.68,
+        "cues": [
+          {
+            "time": 178.2,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 8
+          },
+          {
+            "time": 179.14,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 9
+          },
+          {
+            "time": 180.08,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 10
+          },
+          {
+            "time": 181.02,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 11
+          },
+          {
+            "time": 181.96,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 12
+          },
+          {
+            "time": 182.88,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 13
+          },
+          {
+            "time": 183.82,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 14
+          },
+          {
+            "time": 184.76,
+            "strength": 0.5925543930308828,
+            "group": 3,
+            "ordinal": 15
+          }
+        ],
+        "clock": [
+          {
+            "time": 178.2,
+            "position": 0,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 179.14,
+            "position": 0.14285714285714285,
+            "velocity": 0.15197568389057559
+          },
+          {
+            "time": 180.08,
+            "position": 0.2857142857142857,
+            "velocity": 0.15197568389057559
+          },
+          {
+            "time": 181.02,
+            "position": 0.42857142857142855,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 181.96,
+            "position": 0.5714285714285714,
+            "velocity": 0.1536098310291871
+          },
+          {
+            "time": 182.88,
+            "position": 0.7142857142857143,
+            "velocity": 0.1536098310291871
+          },
+          {
+            "time": 183.82,
+            "position": 0.8571428571428571,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 184.76,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 185.68,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.0920000000000016,
+        "direction": 1,
+        "reason": "Übergabe zwischen benachbarten Lichtgruppen",
+        "entry": {
+          "shape": "open-fan",
+          "progress": 1
+        },
+        "entryGroup": 3
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "movementDrive": 0.8221888515397696,
+        "energy": 0.6803002654967621,
+        "tone": 0.33368127827817273,
+        "drums": 0.49585746315708346,
+        "bass": 0.5466798004909441,
+        "voice": 0.05627786986371485,
+        "pitchConfidence": 0.07197403305000748,
+        "pitchRise": 0,
+        "density": 0.7130124777183583,
+        "irregularity": 0.021259416970339954,
+        "impulses": 16,
+        "sharedSequence": "wave",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 185.68,
+      "end": 193.2,
+      "formationId": "lattice",
+      "program": "dialogue",
+      "story": "dialogue",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "split",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "split/sweep/stroke",
+        "spread": 0.9624921183932247,
+        "amplitude": 0.054997898238193246,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "lattice/islands",
+        "shape": "lattice",
+        "layout": "islands",
+        "name": "lattice · Vier Lichtgruppen",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave"
+        ]
+      },
+      "action": {
+        "kind": "answer",
+        "source": "drums",
+        "cueSource": "rhythm",
+        "from": "lattice",
+        "to": "crossed-sheets",
+        "path": [
+          {
+            "time": 185.68,
+            "shape": "lattice"
+          },
+          {
+            "time": 187.58,
+            "shape": "crossed-sheets"
+          },
+          {
+            "time": 189.46,
+            "shape": "lattice"
+          },
+          {
+            "time": 191.32,
+            "shape": "crossed-sheets"
+          },
+          {
+            "time": 193.2,
+            "shape": "lattice"
+          }
+        ],
+        "movingOpening": false,
+        "start": 185.68,
+        "end": 193.2,
+        "cues": [
+          {
+            "time": 185.7,
+            "strength": 0.6758732891673331,
+            "group": 0,
+            "ordinal": 16
+          },
+          {
+            "time": 186.64,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 17
+          },
+          {
+            "time": 187.58,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 18
+          },
+          {
+            "time": 188.52,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 19
+          },
+          {
+            "time": 189.46,
+            "strength": 0.7,
+            "group": 0,
+            "ordinal": 20
+          },
+          {
+            "time": 190.38,
+            "strength": 0.7,
+            "group": 1,
+            "ordinal": 21
+          },
+          {
+            "time": 191.32,
+            "strength": 0.7,
+            "group": 2,
+            "ordinal": 22
+          },
+          {
+            "time": 192.26,
+            "strength": 0.7,
+            "group": 3,
+            "ordinal": 23
+          }
+        ],
+        "clock": [
+          {
+            "time": 185.68,
+            "position": 0,
+            "velocity": 0.14880952380952697
+          },
+          {
+            "time": 186.64,
+            "position": 0.14285714285714285,
+            "velocity": 0.1503759398496236
+          },
+          {
+            "time": 187.58,
+            "position": 0.2857142857142857,
+            "velocity": 0.15197568389057559
+          },
+          {
+            "time": 188.52,
+            "position": 0.42857142857142855,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 189.46,
+            "position": 0.5714285714285714,
+            "velocity": 0.1536098310291871
+          },
+          {
+            "time": 190.38,
+            "position": 0.7142857142857143,
+            "velocity": 0.1536098310291871
+          },
+          {
+            "time": 191.32,
+            "position": 0.8571428571428571,
+            "velocity": 0.15197568389057786
+          },
+          {
+            "time": 192.26,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 193.2,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.0920000000000016,
+        "direction": 1,
+        "reason": "Musikalischer Ruf mit räumlicher Antwort",
+        "entry": {
+          "shape": "open-fan",
+          "progress": 1
+        },
+        "entryGroup": 3
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "movementDrive": 0.9741670956748341,
+        "energy": 0.749947455954831,
+        "tone": 0.3565622176180752,
+        "drums": 0.5532259351764254,
+        "bass": 0.5491873885352527,
+        "voice": 0.007138746035471599,
+        "pitchConfidence": 0.12524119970557024,
+        "pitchRise": 0,
+        "density": 0.7092198581560302,
+        "irregularity": 0.021259416970339954,
+        "impulses": 16,
+        "sharedSequence": "exchange",
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 193.2,
+      "end": 200.68,
+      "formationId": "radial-wheel",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9128000073174122,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "radial-wheel/ensemble",
+        "shape": "radial-wheel",
+        "layout": "ensemble",
+        "name": "radial-wheel · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "develop",
+        "source": "melody",
+        "cueSource": "melody",
+        "from": "radial-wheel",
+        "to": "split-wings",
+        "movingOpening": false,
+        "start": 193.2,
+        "end": 200.68,
+        "cues": [
+          {
+            "time": 194,
+            "strength": 0.7,
+            "group": 0
+          },
+          {
+            "time": 195.28,
+            "strength": 0.7,
+            "group": 1
+          },
+          {
+            "time": 196.24,
+            "strength": 0.7,
+            "group": 2
+          },
+          {
+            "time": 197.68,
+            "strength": 0.7,
+            "group": 3
+          },
+          {
+            "time": 199.52,
+            "strength": 0.7,
+            "group": 0
+          }
+        ],
+        "clock": [
+          {
+            "time": 193.2,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 194,
+            "position": 0,
+            "velocity": 0
+          },
+          {
+            "time": 195.28,
+            "position": 0.25,
+            "velocity": 0.2232142857142848
+          },
+          {
+            "time": 196.24,
+            "position": 0.5,
+            "velocity": 0.20833333333333284
+          },
+          {
+            "time": 197.68,
+            "position": 0.75,
+            "velocity": 0.15243902439024384
+          },
+          {
+            "time": 199.52,
+            "position": 1,
+            "velocity": 0
+          },
+          {
+            "time": 200.68,
+            "position": 1,
+            "velocity": 0
+          }
+        ],
+        "overlap": 0.7680000000000065,
+        "direction": 1,
+        "reason": "Melodiegeführte Entfaltung",
+        "entry": {
+          "shape": "lattice",
+          "progress": 1
+        }
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0.13623360615541424,
+        "energy": 0.4186667154494144,
+        "tone": 0.6334163502843608,
+        "drums": 0.17663638028984552,
+        "bass": 0.22178369752079932,
+        "voice": 0.0041654335637092595,
+        "pitchConfidence": 0.030411838290104163,
+        "pitchRise": 0,
+        "density": 0.6684491978609609,
+        "irregularity": 0.2433021744350923,
+        "impulses": 15,
+        "phrase": 0,
+        "development": "Musikalisches Grundbild"
+      }
+    },
+    {
+      "start": 200.68,
+      "end": 200.8,
+      "formationId": "radial-wheel",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.8807680740184674,
+        "amplitude": 0.02,
+        "phaseSpan": 1
+      },
+      "scene": {
+        "id": "radial-wheel/ensemble",
+        "shape": "radial-wheel",
+        "layout": "ensemble",
+        "name": "radial-wheel · Gesamtbild",
+        "motions": [
+          "relay",
+          "dialogue",
+          "weave",
+          "suspend",
+          "bloom",
+          "gather"
+        ]
+      },
+      "action": {
+        "kind": "hold",
+        "source": "lead",
+        "cueSource": "lead",
+        "from": "radial-wheel",
+        "to": "radial-wheel",
+        "movingOpening": false,
+        "start": 200.68,
+        "end": 200.8,
+        "cues": [],
+        "clock": [
+          {
+            "time": 200.68,
+            "position": 0,
+            "velocity": 8.333333333333018
+          },
+          {
+            "time": 200.8,
+            "position": 1,
+            "velocity": 8.333333333333018
+          }
+        ],
+        "overlap": 0.3,
+        "direction": 1,
+        "reason": "Getragenes Lichtbild",
+        "entry": {
+          "shape": "split-wings",
+          "progress": 1
+        }
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "movementDrive": 0.000029679241300008978,
+        "energy": 0.20512049345644912,
+        "tone": 0.7589487427024997,
+        "drums": 0.16008698947780814,
+        "bass": 0.0010893747709930228,
+        "voice": 0.0010688518838258007,
+        "pitchConfidence": 7.435646618809061e-10,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 200.8,
+      "end": 204.460375,
+      "formationId": "parallel-lines",
+      "program": "rest",
+      "story": "rest",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": null,
+      "scene": null,
+      "action": {
+        "kind": "rest",
+        "source": "lead",
+        "cueSource": "lead",
+        "from": "parallel-lines",
+        "to": "parallel-lines",
+        "movingOpening": false,
+        "start": 200.8,
+        "end": 204.460375,
+        "cues": [],
+        "clock": [
+          {
+            "time": 200.8,
+            "position": 0,
+            "velocity": 0.2731960523170449
+          },
+          {
+            "time": 204.460375,
+            "position": 1,
+            "velocity": 0.2731960523170449
+          }
+        ],
+        "overlap": 0.3,
+        "direction": 1,
+        "reason": "Getragenes Lichtbild"
+      },
+      "musicalEvidence": {
+        "reason": "Musikalische Pause",
+        "texture": "sustain",
+        "movementDrive": 0.000001112533199122441,
+        "energy": 0.022409122341745837,
+        "tone": 0.6789181483140491,
+        "drums": 0.009141177016467905,
+        "bass": 0.00038354432431327425,
+        "voice": 0.00047052668662154264,
+        "pitchConfidence": 0.08760687741724721,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    }
+  ],
+  "states": [
+    {
+      "time": 10,
+      "targets": [
+        [
+          -134421,
+          219732,
+          0
+        ],
+        [
+          -122732,
+          228774,
+          0
+        ],
+        [
+          -111044,
+          237815,
+          0
+        ],
+        [
+          -99355,
+          246853,
+          0
+        ],
+        [
+          -87666,
+          255890,
+          0
+        ],
+        [
+          -75977,
+          264925,
+          0
+        ],
+        [
+          -64288,
+          273959,
+          0
+        ],
+        [
+          -52600,
+          282991,
+          0
+        ],
+        [
+          -40911,
+          292021,
+          0
+        ],
+        [
+          -29222,
+          301049,
+          0
+        ],
+        [
+          -17533,
+          310076,
+          0
+        ],
+        [
+          -5844,
+          319101,
+          0
+        ],
+        [
+          5844,
+          319101,
+          0
+        ],
+        [
+          17533,
+          310076,
+          0
+        ],
+        [
+          29222,
+          301049,
+          0
+        ],
+        [
+          40911,
+          292021,
+          0
+        ],
+        [
+          52600,
+          282991,
+          0
+        ],
+        [
+          64288,
+          273959,
+          0
+        ],
+        [
+          75977,
+          264925,
+          0
+        ],
+        [
+          87666,
+          255890,
+          0
+        ],
+        [
+          99355,
+          246853,
+          0
+        ],
+        [
+          111044,
+          237815,
+          0
+        ],
+        [
+          122732,
+          228774,
+          0
+        ],
+        [
+          134421,
+          219732,
+          0
+        ],
+        [
+          -65781,
+          272806,
+          0
+        ],
+        [
+          -71501,
+          268385,
+          0
+        ],
+        [
+          -77221,
+          263964,
+          0
+        ],
+        [
+          -44807,
+          289011,
+          0
+        ],
+        [
+          -82941,
+          259543,
+          0
+        ],
+        [
+          -88661,
+          255121,
+          0
+        ],
+        [
+          -8580,
+          316989,
+          0
+        ],
+        [
+          -14300,
+          312573,
+          0
+        ],
+        [
+          -20020,
+          308156,
+          0
+        ],
+        [
+          -25740,
+          303738,
+          0
+        ],
+        [
+          -31460,
+          299321,
+          0
+        ],
+        [
+          -37180,
+          294902,
+          0
+        ],
+        [
+          -134421,
+          219732,
+          0
+        ],
+        [
+          -134421,
+          219732,
+          0
+        ],
+        [
+          -100101,
+          246276,
+          0
+        ],
+        [
+          -94381,
+          250699,
+          0
+        ],
+        [
+          -134421,
+          219732,
+          0
+        ],
+        [
+          -54341,
+          281646,
+          0
+        ],
+        [
+          -48620,
+          286065,
+          0
+        ],
+        [
+          -42900,
+          290484,
+          0
+        ],
+        [
+          65781,
+          272806,
+          0
+        ],
+        [
+          71501,
+          268385,
+          0
+        ],
+        [
+          77221,
+          263964,
+          0
+        ],
+        [
+          44807,
+          289011,
+          0
+        ],
+        [
+          82941,
+          259543,
+          0
+        ],
+        [
+          88661,
+          255121,
+          0
+        ],
+        [
+          8580,
+          316989,
+          0
+        ],
+        [
+          14300,
+          312573,
+          0
+        ],
+        [
+          20020,
+          308156,
+          0
+        ],
+        [
+          25740,
+          303738,
+          0
+        ],
+        [
+          31460,
+          299321,
+          0
+        ],
+        [
+          37180,
+          294902,
+          0
+        ],
+        [
+          134421,
+          219732,
+          0
+        ],
+        [
+          134421,
+          219732,
+          0
+        ],
+        [
+          100101,
+          246276,
+          0
+        ],
+        [
+          94381,
+          250699,
+          0
+        ],
+        [
+          134421,
+          219732,
+          0
+        ],
+        [
+          54341,
+          281646,
+          0
+        ],
+        [
+          48620,
+          286065,
+          0
+        ],
+        [
+          42900,
+          290484,
+          0
+        ],
+        [
+          128701,
+          224157,
+          0
+        ],
+        [
+          44807,
+          289011,
+          0
+        ],
+        [
+          80653,
+          261311,
+          0
+        ],
+        [
+          26884,
+          302855,
+          0
+        ],
+        [
+          -26884,
+          302855,
+          0
+        ],
+        [
+          -80653,
+          261311,
+          0
+        ],
+        [
+          -44807,
+          289011,
+          0
+        ],
+        [
+          -128701,
+          224157,
+          0
+        ],
+        [
+          -122981,
+          228582,
+          0
+        ],
+        [
+          -117261,
+          233006,
+          0
+        ],
+        [
+          -134421,
+          219732,
+          0
+        ],
+        [
+          -44807,
+          289011,
+          0
+        ],
+        [
+          44807,
+          289011,
+          0
+        ],
+        [
+          134421,
+          219732,
+          0
+        ],
+        [
+          117261,
+          233006,
+          0
+        ],
+        [
+          122981,
+          228582,
+          0
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.1580560921758847,
+      "rows": [
+        {
+          "y": 40.4,
+          "visible": 0,
+          "colors": [
+            "rgb(245,255,0)"
+          ]
+        },
+        {
+          "y": 53.1,
+          "visible": 0,
+          "colors": [
+            "rgb(245,255,0)"
+          ]
+        },
+        {
+          "y": 50.1,
+          "visible": 0,
+          "colors": [
+            "rgb(245,255,0)"
+          ]
+        },
+        {
+          "y": 54.8,
+          "visible": 0,
+          "colors": [
+            "rgb(245,255,0)"
+          ]
+        },
+        {
+          "y": 54.349999999999994,
+          "visible": 0,
+          "colors": [
+            "rgb(245,255,0)"
+          ]
+        },
+        {
+          "y": 53.9,
+          "visible": 0,
+          "colors": [
+            "rgb(245,255,0)"
+          ]
+        },
+        {
+          "y": 53.449999999999996,
+          "visible": 0,
+          "colors": [
+            "rgb(245,255,0)"
+          ]
+        },
+        {
+          "y": 53,
+          "visible": 0,
+          "colors": [
+            "rgb(245,255,0)"
+          ]
+        },
+        {
+          "y": 52.55,
+          "visible": 0,
+          "colors": [
+            "rgb(245,255,0)"
+          ]
+        },
+        {
+          "y": 52.099999999999994,
+          "visible": 0,
+          "colors": [
+            "rgb(245,255,0)"
+          ]
+        },
+        {
+          "y": 51.65,
+          "visible": 0,
+          "colors": [
+            "rgb(245,255,0)"
+          ]
+        },
+        {
+          "y": 54.7,
+          "visible": 0,
+          "colors": [
+            "rgb(245,255,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 43,
+      "targets": [
+        [
+          -121710,
+          180190,
+          0
+        ],
+        [
+          -111126,
+          183013,
+          0
+        ],
+        [
+          -100543,
+          185837,
+          0
+        ],
+        [
+          -89959,
+          188661,
+          0
+        ],
+        [
+          -79376,
+          188905,
+          0
+        ],
+        [
+          -68792,
+          191729,
+          0
+        ],
+        [
+          -58209,
+          194553,
+          0
+        ],
+        [
+          -47626,
+          197376,
+          0
+        ],
+        [
+          -37042,
+          197620,
+          0
+        ],
+        [
+          -26459,
+          200444,
+          0
+        ],
+        [
+          -15875,
+          203268,
+          0
+        ],
+        [
+          -5292,
+          206092,
+          0
+        ],
+        [
+          5292,
+          206335,
+          0
+        ],
+        [
+          15875,
+          209159,
+          0
+        ],
+        [
+          26459,
+          211983,
+          0
+        ],
+        [
+          37042,
+          214807,
+          0
+        ],
+        [
+          47626,
+          215050,
+          0
+        ],
+        [
+          58209,
+          217874,
+          0
+        ],
+        [
+          68792,
+          220698,
+          0
+        ],
+        [
+          79376,
+          223522,
+          0
+        ],
+        [
+          89959,
+          223766,
+          0
+        ],
+        [
+          100543,
+          226589,
+          0
+        ],
+        [
+          111126,
+          229413,
+          0
+        ],
+        [
+          121710,
+          232237,
+          0
+        ],
+        [
+          -84744,
+          312348,
+          0
+        ],
+        [
+          -86269,
+          288694,
+          0
+        ],
+        [
+          -87793,
+          315771,
+          0
+        ],
+        [
+          -79154,
+          292380,
+          0
+        ],
+        [
+          -89318,
+          285272,
+          0
+        ],
+        [
+          -90843,
+          316613,
+          0
+        ],
+        [
+          -114304,
+          280573,
+          0
+        ],
+        [
+          -115829,
+          275663,
+          0
+        ],
+        [
+          -117353,
+          281415,
+          0
+        ],
+        [
+          -118878,
+          274821,
+          0
+        ],
+        [
+          -120403,
+          284838,
+          0
+        ],
+        [
+          -121927,
+          271398,
+          0
+        ],
+        [
+          -80637,
+          337838,
+          0
+        ],
+        [
+          -91092,
+          284365,
+          0
+        ],
+        [
+          -92399,
+          326010,
+          0
+        ],
+        [
+          -101329,
+          287043,
+          0
+        ],
+        [
+          -122456,
+          274284,
+          0
+        ],
+        [
+          -111566,
+          307399,
+          0
+        ],
+        [
+          -120496,
+          285491,
+          0
+        ],
+        [
+          -129426,
+          297255,
+          0
+        ],
+        [
+          84744,
+          289761,
+          0
+        ],
+        [
+          86269,
+          313415,
+          0
+        ],
+        [
+          87793,
+          286338,
+          0
+        ],
+        [
+          79154,
+          309729,
+          0
+        ],
+        [
+          89318,
+          316837,
+          0
+        ],
+        [
+          90843,
+          285496,
+          0
+        ],
+        [
+          114304,
+          276729,
+          0
+        ],
+        [
+          115829,
+          281639,
+          0
+        ],
+        [
+          117353,
+          275887,
+          0
+        ],
+        [
+          118878,
+          282481,
+          0
+        ],
+        [
+          120403,
+          272464,
+          0
+        ],
+        [
+          121927,
+          285904,
+          0
+        ],
+        [
+          80637,
+          288371,
+          0
+        ],
+        [
+          91092,
+          336413,
+          0
+        ],
+        [
+          92399,
+          288047,
+          0
+        ],
+        [
+          101329,
+          320293,
+          0
+        ],
+        [
+          122456,
+          326331,
+          0
+        ],
+        [
+          111566,
+          286496,
+          0
+        ],
+        [
+          120496,
+          301682,
+          0
+        ],
+        [
+          129426,
+          283197,
+          0
+        ],
+        [
+          56644,
+          337315,
+          0
+        ],
+        [
+          30882,
+          321678,
+          0
+        ],
+        [
+          34152,
+          297002,
+          0
+        ],
+        [
+          11610,
+          308959,
+          0
+        ],
+        [
+          -11610,
+          318337,
+          0
+        ],
+        [
+          -34152,
+          327714,
+          0
+        ],
+        [
+          -30882,
+          304328,
+          0
+        ],
+        [
+          -56644,
+          288690,
+          0
+        ],
+        [
+          -55120,
+          336249,
+          0
+        ],
+        [
+          -50194,
+          292113,
+          0
+        ],
+        [
+          -48484,
+          337091,
+          0
+        ],
+        [
+          -16387,
+          321032,
+          0
+        ],
+        [
+          16387,
+          304973,
+          0
+        ],
+        [
+          48484,
+          288914,
+          0
+        ],
+        [
+          50194,
+          333893,
+          0
+        ],
+        [
+          55120,
+          289757,
+          0
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.7764569061120835,
+      "rows": [
+        {
+          "y": 40.4,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 53.1,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 50.1,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 54.8,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 54.349999999999994,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 53.9,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 53.449999999999996,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 53,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 52.55,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 52.099999999999994,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 51.65,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 54.7,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 65,
+      "targets": [
+        [
+          -157999,
+          256264,
+          0
+        ],
+        [
+          -157999,
+          262358,
+          0
+        ],
+        [
+          -157999,
+          268452,
+          0
+        ],
+        [
+          -145519,
+          274546,
+          0
+        ],
+        [
+          -129263,
+          280640,
+          0
+        ],
+        [
+          -113006,
+          286734,
+          0
+        ],
+        [
+          -96749,
+          288286,
+          0
+        ],
+        [
+          -80492,
+          276210,
+          0
+        ],
+        [
+          -64235,
+          264135,
+          0
+        ],
+        [
+          -47979,
+          252059,
+          0
+        ],
+        [
+          -31722,
+          239984,
+          0
+        ],
+        [
+          -15465,
+          227908,
+          0
+        ],
+        [
+          15465,
+          227908,
+          0
+        ],
+        [
+          31722,
+          239984,
+          0
+        ],
+        [
+          47979,
+          252059,
+          0
+        ],
+        [
+          64235,
+          264135,
+          0
+        ],
+        [
+          80492,
+          276210,
+          0
+        ],
+        [
+          96749,
+          288286,
+          0
+        ],
+        [
+          113006,
+          286734,
+          0
+        ],
+        [
+          129263,
+          280640,
+          0
+        ],
+        [
+          145519,
+          274546,
+          0
+        ],
+        [
+          157999,
+          268452,
+          0
+        ],
+        [
+          157999,
+          262358,
+          0
+        ],
+        [
+          157999,
+          256264,
+          0
+        ],
+        [
+          -98824,
+          289827,
+          0
+        ],
+        [
+          -106780,
+          289068,
+          0
+        ],
+        [
+          -114735,
+          286086,
+          0
+        ],
+        [
+          -69654,
+          268160,
+          0
+        ],
+        [
+          -122691,
+          283104,
+          0
+        ],
+        [
+          -130646,
+          280121,
+          0
+        ],
+        [
+          -19270,
+          230734,
+          0
+        ],
+        [
+          -27225,
+          236644,
+          0
+        ],
+        [
+          -35181,
+          242553,
+          0
+        ],
+        [
+          -43136,
+          248462,
+          0
+        ],
+        [
+          -51092,
+          254372,
+          0
+        ],
+        [
+          -59047,
+          260281,
+          0
+        ],
+        [
+          -157999,
+          256264,
+          0
+        ],
+        [
+          -157999,
+          256264,
+          0
+        ],
+        [
+          -146557,
+          274157,
+          0
+        ],
+        [
+          -138602,
+          277139,
+          0
+        ],
+        [
+          -157999,
+          256264,
+          0
+        ],
+        [
+          -82913,
+          278009,
+          0
+        ],
+        [
+          -74958,
+          272099,
+          0
+        ],
+        [
+          -67002,
+          266190,
+          0
+        ],
+        [
+          98824,
+          289827,
+          0
+        ],
+        [
+          106780,
+          289068,
+          0
+        ],
+        [
+          114735,
+          286086,
+          0
+        ],
+        [
+          69654,
+          268160,
+          0
+        ],
+        [
+          122691,
+          283104,
+          0
+        ],
+        [
+          130646,
+          280121,
+          0
+        ],
+        [
+          19270,
+          230734,
+          0
+        ],
+        [
+          27225,
+          236644,
+          0
+        ],
+        [
+          35181,
+          242553,
+          0
+        ],
+        [
+          43136,
+          248462,
+          0
+        ],
+        [
+          51092,
+          254372,
+          0
+        ],
+        [
+          59047,
+          260281,
+          0
+        ],
+        [
+          157999,
+          256264,
+          0
+        ],
+        [
+          157999,
+          256264,
+          0
+        ],
+        [
+          146557,
+          274157,
+          0
+        ],
+        [
+          138602,
+          277139,
+          0
+        ],
+        [
+          157999,
+          256264,
+          0
+        ],
+        [
+          82913,
+          278009,
+          0
+        ],
+        [
+          74958,
+          272099,
+          0
+        ],
+        [
+          67002,
+          266190,
+          0
+        ],
+        [
+          157999,
+          259247,
+          0
+        ],
+        [
+          69654,
+          268160,
+          0
+        ],
+        [
+          119509,
+          284296,
+          0
+        ],
+        [
+          44727,
+          249644,
+          0
+        ],
+        [
+          -44727,
+          249644,
+          0
+        ],
+        [
+          -119509,
+          284296,
+          0
+        ],
+        [
+          -69654,
+          268160,
+          0
+        ],
+        [
+          -157999,
+          259247,
+          0
+        ],
+        [
+          -157999,
+          262229,
+          0
+        ],
+        [
+          -157999,
+          265211,
+          0
+        ],
+        [
+          -157999,
+          256264,
+          0
+        ],
+        [
+          -69654,
+          268160,
+          0
+        ],
+        [
+          69654,
+          268160,
+          0
+        ],
+        [
+          157999,
+          256264,
+          0
+        ],
+        [
+          157999,
+          265211,
+          0
+        ],
+        [
+          157999,
+          262229,
+          0
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.7729971822318805,
+      "rows": [
+        {
+          "y": 40.4,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 53.1,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 50.1,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 54.8,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 54.349999999999994,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 53.9,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 53.449999999999996,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 53,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 52.55,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 52.099999999999994,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 51.65,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 54.7,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 89,
+      "targets": [
+        [
+          510,
+          239847,
+          0
+        ],
+        [
+          466,
+          239894,
+          0
+        ],
+        [
+          422,
+          239847,
+          0
+        ],
+        [
+          377,
+          239894,
+          0
+        ],
+        [
+          333,
+          239847,
+          0
+        ],
+        [
+          288,
+          239894,
+          0
+        ],
+        [
+          244,
+          239847,
+          0
+        ],
+        [
+          200,
+          239894,
+          0
+        ],
+        [
+          155,
+          239847,
+          0
+        ],
+        [
+          111,
+          239894,
+          0
+        ],
+        [
+          67,
+          239847,
+          0
+        ],
+        [
+          22,
+          239894,
+          0
+        ],
+        [
+          -22,
+          239847,
+          0
+        ],
+        [
+          -67,
+          239894,
+          0
+        ],
+        [
+          -111,
+          239847,
+          0
+        ],
+        [
+          -155,
+          239894,
+          0
+        ],
+        [
+          -200,
+          239847,
+          0
+        ],
+        [
+          -244,
+          239894,
+          0
+        ],
+        [
+          -288,
+          239847,
+          0
+        ],
+        [
+          -333,
+          239894,
+          0
+        ],
+        [
+          -377,
+          239847,
+          0
+        ],
+        [
+          -422,
+          239894,
+          0
+        ],
+        [
+          -466,
+          239847,
+          0
+        ],
+        [
+          -510,
+          239894,
+          0
+        ],
+        [
+          250,
+          240278,
+          0
+        ],
+        [
+          271,
+          240364,
+          0
+        ],
+        [
+          293,
+          240356,
+          0
+        ],
+        [
+          170,
+          240285,
+          0
+        ],
+        [
+          315,
+          240442,
+          0
+        ],
+        [
+          337,
+          240435,
+          0
+        ],
+        [
+          33,
+          239886,
+          0
+        ],
+        [
+          54,
+          239972,
+          0
+        ],
+        [
+          76,
+          239965,
+          0
+        ],
+        [
+          98,
+          240051,
+          0
+        ],
+        [
+          119,
+          240043,
+          0
+        ],
+        [
+          141,
+          240129,
+          0
+        ],
+        [
+          510,
+          240748,
+          0
+        ],
+        [
+          510,
+          240552,
+          0
+        ],
+        [
+          380,
+          240513,
+          0
+        ],
+        [
+          358,
+          240520,
+          0
+        ],
+        [
+          510,
+          240239,
+          0
+        ],
+        [
+          206,
+          240200,
+          0
+        ],
+        [
+          185,
+          240207,
+          0
+        ],
+        [
+          163,
+          240121,
+          0
+        ],
+        [
+          -250,
+          240325,
+          0
+        ],
+        [
+          -271,
+          240317,
+          0
+        ],
+        [
+          -293,
+          240403,
+          0
+        ],
+        [
+          -170,
+          240239,
+          0
+        ],
+        [
+          -315,
+          240395,
+          0
+        ],
+        [
+          -337,
+          240481,
+          0
+        ],
+        [
+          -33,
+          239933,
+          0
+        ],
+        [
+          -54,
+          239926,
+          0
+        ],
+        [
+          -76,
+          240011,
+          0
+        ],
+        [
+          -98,
+          240004,
+          0
+        ],
+        [
+          -119,
+          240090,
+          0
+        ],
+        [
+          -141,
+          240082,
+          0
+        ],
+        [
+          -510,
+          240794,
+          0
+        ],
+        [
+          -510,
+          240599,
+          0
+        ],
+        [
+          -380,
+          240560,
+          0
+        ],
+        [
+          -358,
+          240474,
+          0
+        ],
+        [
+          -510,
+          240285,
+          0
+        ],
+        [
+          -206,
+          240246,
+          0
+        ],
+        [
+          -185,
+          240160,
+          0
+        ],
+        [
+          -163,
+          240168,
+          0
+        ],
+        [
+          -489,
+          240709,
+          0
+        ],
+        [
+          -170,
+          240552,
+          0
+        ],
+        [
+          -306,
+          240748,
+          0
+        ],
+        [
+          -102,
+          240794,
+          0
+        ],
+        [
+          102,
+          240748,
+          0
+        ],
+        [
+          306,
+          240794,
+          0
+        ],
+        [
+          170,
+          240599,
+          0
+        ],
+        [
+          489,
+          240755,
+          0
+        ],
+        [
+          467,
+          240669,
+          0
+        ],
+        [
+          445,
+          240677,
+          0
+        ],
+        [
+          510,
+          240591,
+          0
+        ],
+        [
+          170,
+          240638,
+          0
+        ],
+        [
+          -170,
+          240591,
+          0
+        ],
+        [
+          -510,
+          240638,
+          0
+        ],
+        [
+          -445,
+          240630,
+          0
+        ],
+        [
+          -467,
+          240716,
+          0
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.003055209519372629,
+      "rows": [
+        {
+          "y": 40.4,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 53.1,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 50.1,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 54.8,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 54.349999999999994,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 53.9,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 53.449999999999996,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 53,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 52.55,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 52.099999999999994,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 51.65,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        },
+        {
+          "y": 54.7,
+          "visible": 0,
+          "colors": [
+            "rgb(255,40,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 110,
+      "targets": [
+        [
+          -105439,
+          243319,
+          0
+        ],
+        [
+          -101684,
+          238960,
+          0
+        ],
+        [
+          -97929,
+          234601,
+          0
+        ],
+        [
+          -94174,
+          230243,
+          0
+        ],
+        [
+          -90419,
+          225884,
+          0
+        ],
+        [
+          -86664,
+          221525,
+          0
+        ],
+        [
+          -82910,
+          217167,
+          0
+        ],
+        [
+          -79155,
+          212808,
+          0
+        ],
+        [
+          -75400,
+          208449,
+          0
+        ],
+        [
+          -71645,
+          204091,
+          0
+        ],
+        [
+          -67890,
+          199732,
+          0
+        ],
+        [
+          -64135,
+          195373,
+          0
+        ],
+        [
+          60334,
+          195373,
+          0
+        ],
+        [
+          64089,
+          199732,
+          0
+        ],
+        [
+          67844,
+          204091,
+          0
+        ],
+        [
+          71599,
+          208449,
+          0
+        ],
+        [
+          75354,
+          212808,
+          0
+        ],
+        [
+          79108,
+          217167,
+          0
+        ],
+        [
+          82863,
+          221525,
+          0
+        ],
+        [
+          86618,
+          225884,
+          0
+        ],
+        [
+          90373,
+          230243,
+          0
+        ],
+        [
+          94128,
+          234601,
+          0
+        ],
+        [
+          97883,
+          238960,
+          0
+        ],
+        [
+          101637,
+          243319,
+          0
+        ],
+        [
+          -96052,
+          278513,
+          0
+        ],
+        [
+          -96052,
+          281837,
+          0
+        ],
+        [
+          -96052,
+          285161,
+          0
+        ],
+        [
+          -96052,
+          269501,
+          0
+        ],
+        [
+          -96052,
+          288485,
+          0
+        ],
+        [
+          -96052,
+          291809,
+          0
+        ],
+        [
+          -118581,
+          234007,
+          0
+        ],
+        [
+          -118581,
+          237331,
+          0
+        ],
+        [
+          -118581,
+          240655,
+          0
+        ],
+        [
+          -118581,
+          243979,
+          0
+        ],
+        [
+          -118581,
+          247303,
+          0
+        ],
+        [
+          -118581,
+          250627,
+          0
+        ],
+        [
+          -84787,
+          324786,
+          0
+        ],
+        [
+          -90044,
+          317140,
+          0
+        ],
+        [
+          -95301,
+          301461,
+          0
+        ],
+        [
+          -100557,
+          296448,
+          0
+        ],
+        [
+          -105814,
+          302542,
+          0
+        ],
+        [
+          -111071,
+          269799,
+          0
+        ],
+        [
+          -116328,
+          264785,
+          0
+        ],
+        [
+          -121584,
+          259771,
+          0
+        ],
+        [
+          92250,
+          278513,
+          0
+        ],
+        [
+          92250,
+          281837,
+          0
+        ],
+        [
+          92250,
+          285161,
+          0
+        ],
+        [
+          92250,
+          269501,
+          0
+        ],
+        [
+          92250,
+          288485,
+          0
+        ],
+        [
+          92250,
+          291809,
+          0
+        ],
+        [
+          114779,
+          234007,
+          0
+        ],
+        [
+          114779,
+          237331,
+          0
+        ],
+        [
+          114779,
+          240655,
+          0
+        ],
+        [
+          114779,
+          243979,
+          0
+        ],
+        [
+          114779,
+          247303,
+          0
+        ],
+        [
+          114779,
+          250627,
+          0
+        ],
+        [
+          80986,
+          324786,
+          0
+        ],
+        [
+          86243,
+          317140,
+          0
+        ],
+        [
+          91499,
+          301461,
+          0
+        ],
+        [
+          96756,
+          296448,
+          0
+        ],
+        [
+          102013,
+          302542,
+          0
+        ],
+        [
+          107270,
+          269799,
+          0
+        ],
+        [
+          112527,
+          264785,
+          0
+        ],
+        [
+          117783,
+          259771,
+          0
+        ],
+        [
+          69689,
+          321086,
+          0
+        ],
+        [
+          67979,
+          285038,
+          0
+        ],
+        [
+          64819,
+          304360,
+          0
+        ],
+        [
+          60691,
+          284310,
+          0
+        ],
+        [
+          -64492,
+          284310,
+          0
+        ],
+        [
+          -68621,
+          304360,
+          0
+        ],
+        [
+          -71780,
+          285038,
+          0
+        ],
+        [
+          -73490,
+          321086,
+          0
+        ],
+        [
+          -73490,
+          317762,
+          0
+        ],
+        [
+          -71780,
+          314438,
+          0
+        ],
+        [
+          -68621,
+          319645,
+          0
+        ],
+        [
+          -64492,
+          286229,
+          0
+        ],
+        [
+          60691,
+          286229,
+          0
+        ],
+        [
+          64819,
+          319645,
+          0
+        ],
+        [
+          67979,
+          314438,
+          0
+        ],
+        [
+          69689,
+          317762,
+          0
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.5115392928471512,
+      "rows": [
+        {
+          "y": 40.4,
+          "visible": 0,
+          "colors": [
+            "rgb(255,226,0)"
+          ]
+        },
+        {
+          "y": 53.1,
+          "visible": 0,
+          "colors": [
+            "rgb(255,226,0)"
+          ]
+        },
+        {
+          "y": 50.1,
+          "visible": 0,
+          "colors": [
+            "rgb(255,226,0)"
+          ]
+        },
+        {
+          "y": 54.8,
+          "visible": 0,
+          "colors": [
+            "rgb(255,226,0)"
+          ]
+        },
+        {
+          "y": 54.349999999999994,
+          "visible": 0,
+          "colors": [
+            "rgb(255,226,0)"
+          ]
+        },
+        {
+          "y": 53.9,
+          "visible": 0,
+          "colors": [
+            "rgb(255,226,0)"
+          ]
+        },
+        {
+          "y": 53.449999999999996,
+          "visible": 0,
+          "colors": [
+            "rgb(255,226,0)"
+          ]
+        },
+        {
+          "y": 53,
+          "visible": 0,
+          "colors": [
+            "rgb(255,226,0)"
+          ]
+        },
+        {
+          "y": 52.55,
+          "visible": 0,
+          "colors": [
+            "rgb(255,226,0)"
+          ]
+        },
+        {
+          "y": 52.099999999999994,
+          "visible": 0,
+          "colors": [
+            "rgb(255,226,0)"
+          ]
+        },
+        {
+          "y": 51.65,
+          "visible": 0,
+          "colors": [
+            "rgb(255,226,0)"
+          ]
+        },
+        {
+          "y": 54.7,
+          "visible": 0,
+          "colors": [
+            "rgb(255,226,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 135,
+      "targets": [
+        [
+          -140432,
+          222551,
+          0
+        ],
+        [
+          -128221,
+          238154,
+          0
+        ],
+        [
+          -116009,
+          252541,
+          0
+        ],
+        [
+          -103798,
+          265712,
+          0
+        ],
+        [
+          -91586,
+          277666,
+          0
+        ],
+        [
+          -79375,
+          288405,
+          0
+        ],
+        [
+          -67163,
+          297926,
+          0
+        ],
+        [
+          -54952,
+          306232,
+          0
+        ],
+        [
+          -42740,
+          313321,
+          0
+        ],
+        [
+          -30529,
+          319194,
+          0
+        ],
+        [
+          -18317,
+          323850,
+          0
+        ],
+        [
+          -6106,
+          327291,
+          0
+        ],
+        [
+          6106,
+          327291,
+          0
+        ],
+        [
+          18317,
+          323850,
+          0
+        ],
+        [
+          30529,
+          319194,
+          0
+        ],
+        [
+          42740,
+          313321,
+          0
+        ],
+        [
+          54952,
+          306232,
+          0
+        ],
+        [
+          67163,
+          297926,
+          0
+        ],
+        [
+          79375,
+          288405,
+          0
+        ],
+        [
+          91586,
+          277666,
+          0
+        ],
+        [
+          103798,
+          265712,
+          0
+        ],
+        [
+          116009,
+          252541,
+          0
+        ],
+        [
+          128221,
+          238154,
+          0
+        ],
+        [
+          140432,
+          222551,
+          0
+        ],
+        [
+          -68722,
+          296779,
+          0
+        ],
+        [
+          -74698,
+          292195,
+          0
+        ],
+        [
+          -80674,
+          287320,
+          0
+        ],
+        [
+          -46811,
+          311093,
+          0
+        ],
+        [
+          -86650,
+          282154,
+          0
+        ],
+        [
+          -92625,
+          276696,
+          0
+        ],
+        [
+          -8964,
+          326594,
+          0
+        ],
+        [
+          -14940,
+          324924,
+          0
+        ],
+        [
+          -20915,
+          322961,
+          0
+        ],
+        [
+          -26891,
+          320708,
+          0
+        ],
+        [
+          -32867,
+          318163,
+          0
+        ],
+        [
+          -38843,
+          315327,
+          0
+        ],
+        [
+          -140432,
+          222551,
+          0
+        ],
+        [
+          -140432,
+          222551,
+          0
+        ],
+        [
+          -104577,
+          264908,
+          0
+        ],
+        [
+          -98601,
+          270948,
+          0
+        ],
+        [
+          -140432,
+          222551,
+          0
+        ],
+        [
+          -56770,
+          305072,
+          0
+        ],
+        [
+          -50795,
+          308782,
+          0
+        ],
+        [
+          -44819,
+          312200,
+          0
+        ],
+        [
+          68722,
+          296779,
+          0
+        ],
+        [
+          74698,
+          292195,
+          0
+        ],
+        [
+          80674,
+          287320,
+          0
+        ],
+        [
+          46811,
+          311093,
+          0
+        ],
+        [
+          86650,
+          282154,
+          0
+        ],
+        [
+          92625,
+          276696,
+          0
+        ],
+        [
+          8964,
+          326594,
+          0
+        ],
+        [
+          14940,
+          324924,
+          0
+        ],
+        [
+          20915,
+          322961,
+          0
+        ],
+        [
+          26891,
+          320708,
+          0
+        ],
+        [
+          32867,
+          318163,
+          0
+        ],
+        [
+          38843,
+          315327,
+          0
+        ],
+        [
+          140432,
+          222551,
+          0
+        ],
+        [
+          140432,
+          222551,
+          0
+        ],
+        [
+          104577,
+          264908,
+          0
+        ],
+        [
+          98601,
+          270948,
+          0
+        ],
+        [
+          140432,
+          222551,
+          0
+        ],
+        [
+          56770,
+          305072,
+          0
+        ],
+        [
+          50795,
+          308782,
+          0
+        ],
+        [
+          44819,
+          312200,
+          0
+        ],
+        [
+          134456,
+          230339,
+          0
+        ],
+        [
+          46811,
+          311093,
+          0
+        ],
+        [
+          84259,
+          284255,
+          0
+        ],
+        [
+          28086,
+          320222,
+          0
+        ],
+        [
+          -28086,
+          320222,
+          0
+        ],
+        [
+          -84259,
+          284255,
+          0
+        ],
+        [
+          -46811,
+          311093,
+          0
+        ],
+        [
+          -134456,
+          230339,
+          0
+        ],
+        [
+          -128480,
+          237835,
+          0
+        ],
+        [
+          -122505,
+          245040,
+          0
+        ],
+        [
+          -140432,
+          222551,
+          0
+        ],
+        [
+          -46811,
+          311093,
+          0
+        ],
+        [
+          46811,
+          311093,
+          0
+        ],
+        [
+          140432,
+          222551,
+          0
+        ],
+        [
+          122505,
+          245040,
+          0
+        ],
+        [
+          128480,
+          237835,
+          0
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.5487805995505489,
+      "rows": [
+        {
+          "y": 40.4,
+          "visible": 0,
+          "colors": [
+            "rgb(185,255,0)"
+          ]
+        },
+        {
+          "y": 53.1,
+          "visible": 0,
+          "colors": [
+            "rgb(185,255,0)"
+          ]
+        },
+        {
+          "y": 50.1,
+          "visible": 0,
+          "colors": [
+            "rgb(185,255,0)"
+          ]
+        },
+        {
+          "y": 54.8,
+          "visible": 0,
+          "colors": [
+            "rgb(185,255,0)"
+          ]
+        },
+        {
+          "y": 54.349999999999994,
+          "visible": 0,
+          "colors": [
+            "rgb(185,255,0)"
+          ]
+        },
+        {
+          "y": 53.9,
+          "visible": 0,
+          "colors": [
+            "rgb(185,255,0)"
+          ]
+        },
+        {
+          "y": 53.449999999999996,
+          "visible": 0,
+          "colors": [
+            "rgb(185,255,0)"
+          ]
+        },
+        {
+          "y": 53,
+          "visible": 0,
+          "colors": [
+            "rgb(185,255,0)"
+          ]
+        },
+        {
+          "y": 52.55,
+          "visible": 0,
+          "colors": [
+            "rgb(185,255,0)"
+          ]
+        },
+        {
+          "y": 52.099999999999994,
+          "visible": 0,
+          "colors": [
+            "rgb(185,255,0)"
+          ]
+        },
+        {
+          "y": 51.65,
+          "visible": 0,
+          "colors": [
+            "rgb(185,255,0)"
+          ]
+        },
+        {
+          "y": 54.7,
+          "visible": 0,
+          "colors": [
+            "rgb(185,255,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 173,
+      "targets": [
+        [
+          114454,
+          238498,
+          0
+        ],
+        [
+          106203,
+          239052,
+          0
+        ],
+        [
+          97953,
+          239606,
+          0
+        ],
+        [
+          89702,
+          240160,
+          0
+        ],
+        [
+          81452,
+          240714,
+          0
+        ],
+        [
+          73201,
+          241268,
+          0
+        ],
+        [
+          64951,
+          241822,
+          0
+        ],
+        [
+          56700,
+          242376,
+          0
+        ],
+        [
+          48450,
+          242930,
+          0
+        ],
+        [
+          40199,
+          243484,
+          0
+        ],
+        [
+          31949,
+          244038,
+          0
+        ],
+        [
+          23698,
+          244592,
+          0
+        ],
+        [
+          -23698,
+          244592,
+          0
+        ],
+        [
+          -31949,
+          244038,
+          0
+        ],
+        [
+          -40199,
+          243484,
+          0
+        ],
+        [
+          -48450,
+          242930,
+          0
+        ],
+        [
+          -56700,
+          242376,
+          0
+        ],
+        [
+          -64951,
+          241822,
+          0
+        ],
+        [
+          -73201,
+          241268,
+          0
+        ],
+        [
+          -81452,
+          240714,
+          0
+        ],
+        [
+          -89702,
+          240160,
+          0
+        ],
+        [
+          -97953,
+          239606,
+          0
+        ],
+        [
+          -106203,
+          239052,
+          0
+        ],
+        [
+          -114454,
+          238498,
+          0
+        ],
+        [
+          66004,
+          259663,
+          0
+        ],
+        [
+          70042,
+          261020,
+          0
+        ],
+        [
+          74079,
+          262377,
+          0
+        ],
+        [
+          51200,
+          259029,
+          0
+        ],
+        [
+          78117,
+          263735,
+          0
+        ],
+        [
+          82154,
+          265092,
+          0
+        ],
+        [
+          25629,
+          246091,
+          0
+        ],
+        [
+          29667,
+          247448,
+          0
+        ],
+        [
+          33704,
+          248805,
+          0
+        ],
+        [
+          37742,
+          250163,
+          0
+        ],
+        [
+          41779,
+          251520,
+          0
+        ],
+        [
+          45817,
+          252877,
+          0
+        ],
+        [
+          114454,
+          275949,
+          0
+        ],
+        [
+          114454,
+          267808,
+          0
+        ],
+        [
+          90229,
+          267806,
+          0
+        ],
+        [
+          86192,
+          266449,
+          0
+        ],
+        [
+          114454,
+          254781,
+          0
+        ],
+        [
+          57929,
+          256949,
+          0
+        ],
+        [
+          53892,
+          255591,
+          0
+        ],
+        [
+          49854,
+          254234,
+          0
+        ],
+        [
+          -66004,
+          259663,
+          0
+        ],
+        [
+          -70042,
+          261020,
+          0
+        ],
+        [
+          -74079,
+          262377,
+          0
+        ],
+        [
+          -51200,
+          259029,
+          0
+        ],
+        [
+          -78117,
+          263735,
+          0
+        ],
+        [
+          -82154,
+          265092,
+          0
+        ],
+        [
+          -25629,
+          246091,
+          0
+        ],
+        [
+          -29667,
+          247448,
+          0
+        ],
+        [
+          -33704,
+          248805,
+          0
+        ],
+        [
+          -37742,
+          250163,
+          0
+        ],
+        [
+          -41779,
+          251520,
+          0
+        ],
+        [
+          -45817,
+          252877,
+          0
+        ],
+        [
+          -114454,
+          275949,
+          0
+        ],
+        [
+          -114454,
+          267808,
+          0
+        ],
+        [
+          -90229,
+          267806,
+          0
+        ],
+        [
+          -86192,
+          266449,
+          0
+        ],
+        [
+          -114454,
+          254781,
+          0
+        ],
+        [
+          -57929,
+          256949,
+          0
+        ],
+        [
+          -53892,
+          255591,
+          0
+        ],
+        [
+          -49854,
+          254234,
+          0
+        ],
+        [
+          -110417,
+          274592,
+          0
+        ],
+        [
+          -51200,
+          272055,
+          0
+        ],
+        [
+          -76502,
+          278498,
+          0
+        ],
+        [
+          -38549,
+          281047,
+          0
+        ],
+        [
+          38549,
+          281047,
+          0
+        ],
+        [
+          76502,
+          278498,
+          0
+        ],
+        [
+          51200,
+          272055,
+          0
+        ],
+        [
+          110417,
+          274592,
+          0
+        ],
+        [
+          106379,
+          273235,
+          0
+        ],
+        [
+          102342,
+          271878,
+          0
+        ],
+        [
+          114454,
+          269436,
+          0
+        ],
+        [
+          51200,
+          273684,
+          0
+        ],
+        [
+          -51200,
+          273684,
+          0
+        ],
+        [
+          -114454,
+          269436,
+          0
+        ],
+        [
+          -102342,
+          271878,
+          0
+        ],
+        [
+          -106379,
+          273235,
+          0
+        ]
+      ],
+      "visible": 12,
+      "maximum": 0.9199426937013022,
+      "rows": [
+        {
+          "y": 40.4,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 53.1,
+          "visible": 8,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 50.1,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 54.8,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 54.349999999999994,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 53.9,
+          "visible": 2,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 53.449999999999996,
+          "visible": 2,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 53,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 52.55,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 52.099999999999994,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 51.65,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 54.7,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 189,
+      "targets": [
+        [
+          108263,
+          206209,
+          0
+        ],
+        [
+          99881,
+          275463,
+          0
+        ],
+        [
+          91499,
+          208119,
+          0
+        ],
+        [
+          83116,
+          277373,
+          0
+        ],
+        [
+          74734,
+          210029,
+          0
+        ],
+        [
+          66352,
+          279283,
+          0
+        ],
+        [
+          57970,
+          211939,
+          0
+        ],
+        [
+          49588,
+          281194,
+          0
+        ],
+        [
+          41206,
+          213850,
+          0
+        ],
+        [
+          32824,
+          283104,
+          0
+        ],
+        [
+          24442,
+          215760,
+          0
+        ],
+        [
+          16060,
+          285014,
+          0
+        ],
+        [
+          7677,
+          217670,
+          0
+        ],
+        [
+          -705,
+          286924,
+          0
+        ],
+        [
+          -9087,
+          219580,
+          0
+        ],
+        [
+          -17469,
+          288834,
+          0
+        ],
+        [
+          -25851,
+          221490,
+          0
+        ],
+        [
+          -34233,
+          290745,
+          0
+        ],
+        [
+          -42615,
+          223401,
+          0
+        ],
+        [
+          -50997,
+          292655,
+          0
+        ],
+        [
+          -59380,
+          225311,
+          0
+        ],
+        [
+          -67762,
+          294565,
+          0
+        ],
+        [
+          -76144,
+          227221,
+          0
+        ],
+        [
+          -84526,
+          296475,
+          0
+        ],
+        [
+          31248,
+          227089,
+          0
+        ],
+        [
+          59675,
+          294921,
+          0
+        ],
+        [
+          40629,
+          226154,
+          0
+        ],
+        [
+          37787,
+          297102,
+          0
+        ],
+        [
+          69056,
+          293986,
+          0
+        ],
+        [
+          50009,
+          225219,
+          0
+        ],
+        [
+          -22870,
+          228155,
+          0
+        ],
+        [
+          5557,
+          295987,
+          0
+        ],
+        [
+          -13489,
+          227221,
+          0
+        ],
+        [
+          14938,
+          295052,
+          0
+        ],
+        [
+          -4109,
+          226286,
+          0
+        ],
+        [
+          24319,
+          294118,
+          0
+        ],
+        [
+          91139,
+          223524,
+          0
+        ],
+        [
+          113193,
+          222983,
+          0
+        ],
+        [
+          59631,
+          225246,
+          0
+        ],
+        [
+          76994,
+          293472,
+          0
+        ],
+        [
+          108143,
+          221360,
+          0
+        ],
+        [
+          17058,
+          227362,
+          0
+        ],
+        [
+          34421,
+          295588,
+          0
+        ],
+        [
+          4310,
+          227215,
+          0
+        ],
+        [
+          -54985,
+          306138,
+          0
+        ],
+        [
+          -35938,
+          238306,
+          0
+        ],
+        [
+          -64366,
+          307073,
+          0
+        ],
+        [
+          -14050,
+          236125,
+          0
+        ],
+        [
+          -45319,
+          239241,
+          0
+        ],
+        [
+          -73746,
+          308007,
+          0
+        ],
+        [
+          -867,
+          297857,
+          0
+        ],
+        [
+          18180,
+          230025,
+          0
+        ],
+        [
+          -10248,
+          298791,
+          0
+        ],
+        [
+          8799,
+          230960,
+          0
+        ],
+        [
+          -19628,
+          299726,
+          0
+        ],
+        [
+          -582,
+          231894,
+          0
+        ],
+        [
+          -114876,
+          313791,
+          0
+        ],
+        [
+          -89456,
+          313250,
+          0
+        ],
+        [
+          -83367,
+          309904,
+          0
+        ],
+        [
+          -53257,
+          240597,
+          0
+        ],
+        [
+          -84406,
+          311626,
+          0
+        ],
+        [
+          -40794,
+          304542,
+          0
+        ],
+        [
+          -10684,
+          235234,
+          0
+        ],
+        [
+          -28047,
+          302525,
+          0
+        ],
+        [
+          -90067,
+          244904,
+          0
+        ],
+        [
+          -21823,
+          238049,
+          0
+        ],
+        [
+          -75965,
+          240978,
+          0
+        ],
+        [
+          -33198,
+          304884,
+          0
+        ],
+        [
+          9461,
+          232191,
+          0
+        ],
+        [
+          52228,
+          296097,
+          0
+        ],
+        [
+          45560,
+          299026,
+          0
+        ],
+        [
+          113804,
+          292171,
+          0
+        ],
+        [
+          85377,
+          224339,
+          0
+        ],
+        [
+          104971,
+          293105,
+          0
+        ],
+        [
+          96317,
+          223404,
+          0
+        ],
+        [
+          24157,
+          299026,
+          0
+        ],
+        [
+          -47894,
+          238049,
+          0
+        ],
+        [
+          -120054,
+          313671,
+          0
+        ],
+        [
+          -81234,
+          243969,
+          0
+        ],
+        [
+          -109113,
+          312736,
+          0
+        ]
+      ],
+      "visible": 22,
+      "maximum": 0.9116607208904063,
+      "rows": [
+        {
+          "y": 40.4,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 53.1,
+          "visible": 6,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 50.1,
+          "visible": 0,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 54.8,
+          "visible": 1,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 54.349999999999994,
+          "visible": 1,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 53.9,
+          "visible": 1,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 53.449999999999996,
+          "visible": 1,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 53,
+          "visible": 1,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 52.55,
+          "visible": 1,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 52.099999999999994,
+          "visible": 1,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 51.65,
+          "visible": 1,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        },
+        {
+          "y": 54.7,
+          "visible": 8,
+          "colors": [
+            "rgb(255,0,218)"
+          ]
+        }
+      ]
+    }
+  ],
+  "frames": 122,
+  "videoBytes": 730483,
+  "motionSamples": [
+    {
+      "time": 30.10690000000596,
+      "meanDegreesPerSecond": 6.49350676530729,
+      "visible": 80
+    },
+    {
+      "time": 30.2075,
+      "meanDegreesPerSecond": 1.666056471389254,
+      "visible": 80
+    },
+    {
+      "time": 30.309,
+      "meanDegreesPerSecond": 1.6668704217497823,
+      "visible": 80
+    },
+    {
+      "time": 30.40440000000596,
+      "meanDegreesPerSecond": 1.6771357881297972,
+      "visible": 80
+    },
+    {
+      "time": 30.497099999994038,
+      "meanDegreesPerSecond": 1.8637424156697648,
+      "visible": 80
+    },
+    {
+      "time": 30.59079999999702,
+      "meanDegreesPerSecond": 2.119598218768694,
+      "visible": 80
+    },
+    {
+      "time": 30.687,
+      "meanDegreesPerSecond": 2.2829142367215973,
+      "visible": 80
+    },
+    {
+      "time": 30.7865,
+      "meanDegreesPerSecond": 2.3551845894977923,
+      "visible": 80
+    },
+    {
+      "time": 30.88059999999404,
+      "meanDegreesPerSecond": 2.3075102642352117,
+      "visible": 80
+    },
+    {
+      "time": 30.97729999999702,
+      "meanDegreesPerSecond": 2.2196276037626963,
+      "visible": 80
+    },
+    {
+      "time": 31.07929999999702,
+      "meanDegreesPerSecond": 2.065018416469175,
+      "visible": 80
+    },
+    {
+      "time": 31.17390000000596,
+      "meanDegreesPerSecond": 1.8101402629270562,
+      "visible": 80
+    },
+    {
+      "time": 31.27890000000596,
+      "meanDegreesPerSecond": 1.9244979127657693,
+      "visible": 80
+    },
+    {
+      "time": 31.37329999999702,
+      "meanDegreesPerSecond": 13.293932859731234,
+      "visible": 80
+    },
+    {
+      "time": 31.46909999999404,
+      "meanDegreesPerSecond": 27.226970497603684,
+      "visible": 80
+    },
+    {
+      "time": 31.55909999999404,
+      "meanDegreesPerSecond": 35.36720424163748,
+      "visible": 80
+    },
+    {
+      "time": 31.65720000000298,
+      "meanDegreesPerSecond": 38.257987885945845,
+      "visible": 80
+    },
+    {
+      "time": 31.75459999999404,
+      "meanDegreesPerSecond": 34.38701560837171,
+      "visible": 80
+    },
+    {
+      "time": 31.84929999999702,
+      "meanDegreesPerSecond": 22.899338674924252,
+      "visible": 80
+    },
+    {
+      "time": 31.94290000000596,
+      "meanDegreesPerSecond": 8.530689496820044,
+      "visible": 80
+    },
+    {
+      "time": 32.03590000000596,
+      "meanDegreesPerSecond": 3.6777047515560484,
+      "visible": 80
+    },
+    {
+      "time": 32.13029999999702,
+      "meanDegreesPerSecond": 8.256388431377003,
+      "visible": 80
+    },
+    {
+      "time": 32.22079999999702,
+      "meanDegreesPerSecond": 13.689636405719146,
+      "visible": 80
+    },
+    {
+      "time": 32.3145,
+      "meanDegreesPerSecond": 18.787309312279476,
+      "visible": 80
+    },
+    {
+      "time": 32.408,
+      "meanDegreesPerSecond": 22.904950696222155,
+      "visible": 80
+    },
+    {
+      "time": 32.50120000000298,
+      "meanDegreesPerSecond": 26.25982468322307,
+      "visible": 80
+    },
+    {
+      "time": 32.597,
+      "meanDegreesPerSecond": 28.716400566651437,
+      "visible": 80
+    },
+    {
+      "time": 32.69729999999702,
+      "meanDegreesPerSecond": 30.14319712068418,
+      "visible": 80
+    },
+    {
+      "time": 32.799,
+      "meanDegreesPerSecond": 30.866670226258304,
+      "visible": 80
+    },
+    {
+      "time": 32.9045,
+      "meanDegreesPerSecond": 30.142778401044815,
+      "visible": 80
+    },
+    {
+      "time": 33.00520000000298,
+      "meanDegreesPerSecond": 28.81981342834024,
+      "visible": 80
+    },
+    {
+      "time": 33.10670000000298,
+      "meanDegreesPerSecond": 25.764569276316905,
+      "visible": 80
+    },
+    {
+      "time": 33.208,
+      "meanDegreesPerSecond": 22.774776253176118,
+      "visible": 80
+    },
+    {
+      "time": 33.31020000000298,
+      "meanDegreesPerSecond": 19.651993684074704,
+      "visible": 80
+    },
+    {
+      "time": 33.41270000000298,
+      "meanDegreesPerSecond": 16.97495873530986,
+      "visible": 80
+    },
+    {
+      "time": 33.51609999999404,
+      "meanDegreesPerSecond": 12.885646548028069,
+      "visible": 80
+    },
+    {
+      "time": 33.61659999999404,
+      "meanDegreesPerSecond": 8.215410070332124,
+      "visible": 80
+    },
+    {
+      "time": 33.71559999999404,
+      "meanDegreesPerSecond": 4.456186632836299,
+      "visible": 80
+    },
+    {
+      "time": 33.814200000002984,
+      "meanDegreesPerSecond": 1.3828610699348585,
+      "visible": 80
+    },
+    {
+      "time": 33.91420000000298,
+      "meanDegreesPerSecond": 3.2862383814613887,
+      "visible": 80
+    },
+    {
+      "time": 34.01640000000596,
+      "meanDegreesPerSecond": 7.99565584340228,
+      "visible": 80
+    },
+    {
+      "time": 34.11879999999702,
+      "meanDegreesPerSecond": 12.08567476745422,
+      "visible": 80
+    },
+    {
+      "time": 34.21609999999404,
+      "meanDegreesPerSecond": 15.5056066563103,
+      "visible": 80
+    },
+    {
+      "time": 34.3165,
+      "meanDegreesPerSecond": 18.263250573407085,
+      "visible": 80
+    },
+    {
+      "time": 34.42109999999404,
+      "meanDegreesPerSecond": 20.677444995302185,
+      "visible": 80
+    },
+    {
+      "time": 34.52770000000298,
+      "meanDegreesPerSecond": 24.008664265676675,
+      "visible": 80
+    },
+    {
+      "time": 34.63129999999702,
+      "meanDegreesPerSecond": 27.31192723590478,
+      "visible": 80
+    },
+    {
+      "time": 34.73540000000596,
+      "meanDegreesPerSecond": 29.20264044631413,
+      "visible": 80
+    },
+    {
+      "time": 34.83809999999404,
+      "meanDegreesPerSecond": 30.7090879445567,
+      "visible": 80
+    },
+    {
+      "time": 34.93929999999702,
+      "meanDegreesPerSecond": 31.055324264423056,
+      "visible": 80
+    },
+    {
+      "time": 35.038,
+      "meanDegreesPerSecond": 30.278411894320946,
+      "visible": 80
+    },
+    {
+      "time": 35.136799999997024,
+      "meanDegreesPerSecond": 28.425093016307386,
+      "visible": 80
+    },
+    {
+      "time": 35.2325,
+      "meanDegreesPerSecond": 25.49637551843639,
+      "visible": 80
+    },
+    {
+      "time": 35.32790000000596,
+      "meanDegreesPerSecond": 21.84807899280594,
+      "visible": 80
+    },
+    {
+      "time": 35.42240000000596,
+      "meanDegreesPerSecond": 17.425621552702463,
+      "visible": 80
+    },
+    {
+      "time": 35.51479999999702,
+      "meanDegreesPerSecond": 12.329201947650512,
+      "visible": 80
+    },
+    {
+      "time": 35.60820000000298,
+      "meanDegreesPerSecond": 6.946961373296489,
+      "visible": 80
+    },
+    {
+      "time": 35.69670000000298,
+      "meanDegreesPerSecond": 1.267655305784227,
+      "visible": 80
+    },
+    {
+      "time": 35.789500000000004,
+      "meanDegreesPerSecond": 4.57056414365299,
+      "visible": 80
+    },
+    {
+      "time": 35.883,
+      "meanDegreesPerSecond": 10.199636488392205,
+      "visible": 80
+    },
+    {
+      "time": 35.9765,
+      "meanDegreesPerSecond": 15.303611567723099,
+      "visible": 80
+    },
+    {
+      "time": 36.06840000000596,
+      "meanDegreesPerSecond": 19.751381573188052,
+      "visible": 80
+    },
+    {
+      "time": 36.16090000000596,
+      "meanDegreesPerSecond": 23.687567205451973,
+      "visible": 80
+    },
+    {
+      "time": 36.25779999999702,
+      "meanDegreesPerSecond": 26.978134374612956,
+      "visible": 80
+    },
+    {
+      "time": 36.356,
+      "meanDegreesPerSecond": 29.371011748449195,
+      "visible": 80
+    },
+    {
+      "time": 36.46320000000298,
+      "meanDegreesPerSecond": 30.328100973437994,
+      "visible": 80
+    },
+    {
+      "time": 36.56440000000596,
+      "meanDegreesPerSecond": 32.031354754829366,
+      "visible": 80
+    },
+    {
+      "time": 36.67270000000298,
+      "meanDegreesPerSecond": 30.355243524539,
+      "visible": 80
+    },
+    {
+      "time": 36.779400000005964,
+      "meanDegreesPerSecond": 29.232516569577633,
+      "visible": 80
+    },
+    {
+      "time": 36.88579999999702,
+      "meanDegreesPerSecond": 26.253452120540523,
+      "visible": 80
+    },
+    {
+      "time": 36.9895,
+      "meanDegreesPerSecond": 23.22188530481866,
+      "visible": 80
+    },
+    {
+      "time": 37.09340000000596,
+      "meanDegreesPerSecond": 19.66888206977702,
+      "visible": 80
+    },
+    {
+      "time": 37.19509999999404,
+      "meanDegreesPerSecond": 15.906649463231304,
+      "visible": 80
+    },
+    {
+      "time": 37.297,
+      "meanDegreesPerSecond": 11.737016061628134,
+      "visible": 80
+    },
+    {
+      "time": 37.40520000000298,
+      "meanDegreesPerSecond": 7.61737703797232,
+      "visible": 80
+    },
+    {
+      "time": 37.508,
+      "meanDegreesPerSecond": 4.153158675482383,
+      "visible": 80
+    },
+    {
+      "time": 37.61220000000298,
+      "meanDegreesPerSecond": 0.548722287179072,
+      "visible": 80
+    },
+    {
+      "time": 37.71340000000596,
+      "meanDegreesPerSecond": 5.178683454037197,
+      "visible": 80
+    },
+    {
+      "time": 37.81520000000298,
+      "meanDegreesPerSecond": 9.626606416183574,
+      "visible": 80
+    },
+    {
+      "time": 37.92120000000298,
+      "meanDegreesPerSecond": 13.262701429169894,
+      "visible": 80
+    },
+    {
+      "time": 38.022999999999996,
+      "meanDegreesPerSecond": 16.40537937852366,
+      "visible": 80
+    },
+    {
+      "time": 38.1245,
+      "meanDegreesPerSecond": 19.610866451846015,
+      "visible": 80
+    },
+    {
+      "time": 38.23129999999702,
+      "meanDegreesPerSecond": 22.669623130825855,
+      "visible": 80
+    },
+    {
+      "time": 38.334,
+      "meanDegreesPerSecond": 26.304731502128856,
+      "visible": 80
+    },
+    {
+      "time": 38.439200000002984,
+      "meanDegreesPerSecond": 27.98768196305999,
+      "visible": 80
+    },
+    {
+      "time": 38.54190000000596,
+      "meanDegreesPerSecond": 30.119381169897345,
+      "visible": 80
+    },
+    {
+      "time": 38.64420000000298,
+      "meanDegreesPerSecond": 30.87540096811165,
+      "visible": 80
+    },
+    {
+      "time": 38.74879999999702,
+      "meanDegreesPerSecond": 30.653712172517693,
+      "visible": 80
+    },
+    {
+      "time": 38.85290000000596,
+      "meanDegreesPerSecond": 29.62644349633178,
+      "visible": 80
+    },
+    {
+      "time": 38.95070000000298,
+      "meanDegreesPerSecond": 27.089308547306835,
+      "visible": 80
+    },
+    {
+      "time": 39.04320000000298,
+      "meanDegreesPerSecond": 23.45974975228687,
+      "visible": 80
+    },
+    {
+      "time": 39.139799999997024,
+      "meanDegreesPerSecond": 19.577691136628026,
+      "visible": 80
+    },
+    {
+      "time": 39.24140000000596,
+      "meanDegreesPerSecond": 14.64391541928805,
+      "visible": 80
+    },
+    {
+      "time": 39.332900000005964,
+      "meanDegreesPerSecond": 8.895473485952,
+      "visible": 80
+    },
+    {
+      "time": 39.42959999999404,
+      "meanDegreesPerSecond": 3.224591899972198,
+      "visible": 80
+    },
+    {
+      "time": 39.52129999999702,
+      "meanDegreesPerSecond": 1.9231041625916636,
+      "visible": 80
+    },
+    {
+      "time": 39.62559999999404,
+      "meanDegreesPerSecond": 4.384779118033565,
+      "visible": 80
+    },
+    {
+      "time": 39.73170000000298,
+      "meanDegreesPerSecond": 6.42005175493099,
+      "visible": 80
+    },
+    {
+      "time": 39.82629999999702,
+      "meanDegreesPerSecond": 7.914823789931726,
+      "visible": 80
+    },
+    {
+      "time": 39.91990000000596,
+      "meanDegreesPerSecond": 8.649883981153408,
+      "visible": 80
+    },
+    {
+      "time": 40.03220000000298,
+      "meanDegreesPerSecond": 9.10315124942598,
+      "visible": 80
+    },
+    {
+      "time": 40.12720000000298,
+      "meanDegreesPerSecond": 9.607050126377377,
+      "visible": 80
+    },
+    {
+      "time": 40.22120000000298,
+      "meanDegreesPerSecond": 9.4012359323146,
+      "visible": 80
+    },
+    {
+      "time": 40.324299999997024,
+      "meanDegreesPerSecond": 9.084766286011165,
+      "visible": 80
+    },
+    {
+      "time": 40.41759999999404,
+      "meanDegreesPerSecond": 8.437706130665898,
+      "visible": 80
+    },
+    {
+      "time": 40.51379999999702,
+      "meanDegreesPerSecond": 7.965015031226646,
+      "visible": 80
+    },
+    {
+      "time": 40.608000000000004,
+      "meanDegreesPerSecond": 7.313751419902293,
+      "visible": 80
+    },
+    {
+      "time": 40.707200000002985,
+      "meanDegreesPerSecond": 6.618090983810182,
+      "visible": 80
+    },
+    {
+      "time": 40.803,
+      "meanDegreesPerSecond": 5.755602012545838,
+      "visible": 80
+    },
+    {
+      "time": 40.89590000000596,
+      "meanDegreesPerSecond": 4.865296008238244,
+      "visible": 80
+    },
+    {
+      "time": 41.00479999999702,
+      "meanDegreesPerSecond": 4.044883486586658,
+      "visible": 80
+    },
+    {
+      "time": 41.1035,
+      "meanDegreesPerSecond": 2.9226735213302524,
+      "visible": 80
+    },
+    {
+      "time": 41.20579999999702,
+      "meanDegreesPerSecond": 2.283486444121979,
+      "visible": 34
+    },
+    {
+      "time": 41.30309999999404,
+      "meanDegreesPerSecond": 0.917585603095287,
+      "visible": 14
+    },
+    {
+      "time": 41.39829999999702,
+      "meanDegreesPerSecond": 0.32916889983437486,
+      "visible": 14
+    },
+    {
+      "time": 41.49509999999404,
+      "meanDegreesPerSecond": 0.8068250696577751,
+      "visible": 12
+    },
+    {
+      "time": 41.58879999999702,
+      "meanDegreesPerSecond": 1.333941624116357,
+      "visible": 12
+    },
+    {
+      "time": 41.69020000000298,
+      "meanDegreesPerSecond": 1.7874302432006601,
+      "visible": 12
+    },
+    {
+      "time": 41.81190000000596,
+      "meanDegreesPerSecond": 2.151722825336415,
+      "visible": 12
+    },
+    {
+      "time": 41.90470000000298,
+      "meanDegreesPerSecond": 1.8714270267940771,
+      "visible": 32
+    },
+    {
+      "time": 41.99,
+      "meanDegreesPerSecond": 2.464203268112355,
+      "visible": 12
+    }
+  ]
+}

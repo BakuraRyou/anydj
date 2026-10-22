@@ -1,0 +1,7 @@
+{
+  "host": "mac-build.local",
+  "user": "anydj-build",
+  "port": 22,
+  "identityFile": "/home/YOUR_USER/.ssh/anydj-build",
+  "buildRoot": "/Users/anydj-build/AnyDjBuild"
+}

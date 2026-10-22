@@ -93,9 +93,12 @@ export function createRoomMotors(){
       const nextPose=resolve(Math.hypot(next[0],next[1])<1e-7?yaw:Math.atan2(next[0],-next[1]),Math.atan2(next[2],Math.hypot(next[0],next[1])),{yaw,pitch}),nextYaw=nextPose.yaw,nextPitch=nextPose.pitch;
       feedYaw=Math.atan2(Math.sin(nextYaw-yaw),Math.cos(nextYaw-yaw))/ahead.seconds;
       feedPitch=(nextPitch-pitch)/ahead.seconds;
-    }else if(!protectedPath&&elapsed>1e-5){
+    }else if(elapsed>1e-5&&(!protectedPath||light.motionPresentation==='strobe'&&light.strobeVisibleMotion&&!light.zoneTransit)){
       // Follow feasible live trajectories without a second low-pass delay.
       // Discontinuities (seeks, routing changes) retain the bounded fallback.
+      // Visible formations may track the already routed goal even with zones.
+      // This uses past routed poses, never the direct path's future sample;
+      // dark protected transfers still retain their conservative controller.
       const dy=Math.atan2(Math.sin(yaw-state.goalYaw),Math.cos(yaw-state.goalYaw)),dp=pitch-state.goalPitch;
       if(Math.abs(dy)<=70*rad*elapsed*1.5)feedYaw=dy/elapsed;
       if(Math.abs(dp)<=60*rad*elapsed*1.5)feedPitch=dp/elapsed;
@@ -113,6 +116,10 @@ export function createRoomMotors(){
     state.active=Math.abs(yaw-state.yaw)+Math.abs(pitch-state.pitch)+Math.abs(state.vy)+Math.abs(state.vp)>.001;
     const {distance,...surface}=hit;
     const value={...light,...surface,emissionHeight:height,aimed:true,aimRotation:state.yaw/rad};
+    // Strobo prepares held beam directions in darkness. A fixture may reopen
+    // only after its real motor has reached the requested angle, not merely
+    // because the authored transition timer elapsed.
+    if(light.motionPresentation==='strobe'&&!light.strobeVisibleMotion&&!light.previewFocus&&Math.abs(yaw-state.yaw)+Math.abs(pitch-state.pitch)>.025)value.power=0;
     state.aim=remember(value);return value;
   };
   update.mirror=(sourceId,targetId,reflected)=>{const state=states.get(sourceId);if(state)states.set(targetId,{...state,yaw:-state.yaw,goalYaw:-state.goalYaw,vy:-state.vy,aim:reflected?{target:{...reflected.target},targetSurface:reflected.targetSurface,wallIndex:reflected.wallIndex,aimRotation:reflected.aimRotation,aimed:reflected.aimed,emissionHeight:reflected.emissionHeight}:undefined});};

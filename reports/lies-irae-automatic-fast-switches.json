@@ -1,0 +1,1058 @@
+{
+  "duration": 215.4489375,
+  "sampleHz": 100,
+  "threshold": "At least 8 heads change power by >0.25 in one 10 ms sample interval",
+  "limitations": "Offline preset room; source-dimmer replay excludes saved equipment, RGB output, motor shutters and GPU rendering.",
+  "current": {
+    "constant": {
+      "fixtureCount": 48,
+      "fastTicks": 0,
+      "maxHeadStep": 0.07884087791499222,
+      "example": [
+        {
+          "time": 76,
+          "lit": 48,
+          "totalPower": 45.60000000000002
+        },
+        {
+          "time": 76.02,
+          "lit": 48,
+          "totalPower": 45.60000000000002
+        },
+        {
+          "time": 76.04,
+          "lit": 48,
+          "totalPower": 46.100080002833685
+        },
+        {
+          "time": 76.06,
+          "lit": 48,
+          "totalPower": 47.153265404047474
+        },
+        {
+          "time": 76.08,
+          "lit": 48,
+          "totalPower": 47.44125000000004
+        },
+        {
+          "time": 76.1,
+          "lit": 48,
+          "totalPower": 47.62921859538598
+        },
+        {
+          "time": 76.12,
+          "lit": 48,
+          "totalPower": 47.62921859538591
+        },
+        {
+          "time": 76.14,
+          "lit": 48,
+          "totalPower": 47.441249999999926
+        },
+        {
+          "time": 76.16,
+          "lit": 48,
+          "totalPower": 47.15326540404739
+        },
+        {
+          "time": 76.18,
+          "lit": 48,
+          "totalPower": 46.10008000283267
+        },
+        {
+          "time": 76.2,
+          "lit": 48,
+          "totalPower": 45.60000000000002
+        },
+        {
+          "time": 76.22,
+          "lit": 48,
+          "totalPower": 45.60000000000002
+        },
+        {
+          "time": 76.24,
+          "lit": 48,
+          "totalPower": 46.100080002833
+        },
+        {
+          "time": 76.26,
+          "lit": 48,
+          "totalPower": 47.153265404047474
+        },
+        {
+          "time": 76.28,
+          "lit": 48,
+          "totalPower": 47.44125000000004
+        },
+        {
+          "time": 76.3,
+          "lit": 48,
+          "totalPower": 47.62921859538598
+        },
+        {
+          "time": 76.32,
+          "lit": 48,
+          "totalPower": 47.629218595386014
+        },
+        {
+          "time": 76.34,
+          "lit": 48,
+          "totalPower": 47.441249999999926
+        },
+        {
+          "time": 76.36,
+          "lit": 48,
+          "totalPower": 47.15326540404739
+        },
+        {
+          "time": 76.38,
+          "lit": 48,
+          "totalPower": 46.10008000283335
+        },
+        {
+          "time": 76.4,
+          "lit": 48,
+          "totalPower": 45.60000000000002
+        },
+        {
+          "time": 76.42,
+          "lit": 48,
+          "totalPower": 45.60000000000002
+        },
+        {
+          "time": 76.44,
+          "lit": 48,
+          "totalPower": 46.100080002833
+        },
+        {
+          "time": 76.46,
+          "lit": 48,
+          "totalPower": 47.15326540404726
+        },
+        {
+          "time": 76.48,
+          "lit": 48,
+          "totalPower": 47.44125000000004
+        },
+        {
+          "time": 76.5,
+          "lit": 48,
+          "totalPower": 47.62921859538598
+        },
+        {
+          "time": 76.52,
+          "lit": 48,
+          "totalPower": 47.62921859538602
+        },
+        {
+          "time": 76.54,
+          "lit": 48,
+          "totalPower": 47.441249999999926
+        },
+        {
+          "time": 76.56,
+          "lit": 48,
+          "totalPower": 47.15326540404739
+        },
+        {
+          "time": 76.58,
+          "lit": 48,
+          "totalPower": 46.100080002833344
+        },
+        {
+          "time": 76.6,
+          "lit": 48,
+          "totalPower": 45.60000000000002
+        },
+        {
+          "time": 76.62,
+          "lit": 48,
+          "totalPower": 45.60000000000002
+        },
+        {
+          "time": 76.64,
+          "lit": 48,
+          "totalPower": 45.60000000000002
+        },
+        {
+          "time": 76.66,
+          "lit": 48,
+          "totalPower": 46.100080002833
+        },
+        {
+          "time": 76.68,
+          "lit": 48,
+          "totalPower": 47.153265404047474
+        },
+        {
+          "time": 76.7,
+          "lit": 48,
+          "totalPower": 47.44125000000004
+        },
+        {
+          "time": 76.72,
+          "lit": 48,
+          "totalPower": 47.62921859538598
+        },
+        {
+          "time": 76.74,
+          "lit": 48,
+          "totalPower": 47.629218595386014
+        },
+        {
+          "time": 76.76,
+          "lit": 48,
+          "totalPower": 47.441249999999926
+        },
+        {
+          "time": 76.78,
+          "lit": 48,
+          "totalPower": 47.15326540404739
+        },
+        {
+          "time": 76.8,
+          "lit": 48,
+          "totalPower": 46.10008000283335
+        },
+        {
+          "time": 76.82,
+          "lit": 48,
+          "totalPower": 45.60000000000002
+        },
+        {
+          "time": 76.84,
+          "lit": 48,
+          "totalPower": 45.60000000000002
+        },
+        {
+          "time": 76.86,
+          "lit": 48,
+          "totalPower": 45.60000000000002
+        },
+        {
+          "time": 76.88,
+          "lit": 48,
+          "totalPower": 46.100080002833
+        },
+        {
+          "time": 76.9,
+          "lit": 48,
+          "totalPower": 47.153265404047474
+        },
+        {
+          "time": 76.92,
+          "lit": 48,
+          "totalPower": 47.44125000000004
+        },
+        {
+          "time": 76.94,
+          "lit": 48,
+          "totalPower": 47.62921859538598
+        },
+        {
+          "time": 76.96,
+          "lit": 48,
+          "totalPower": 47.62921859538602
+        },
+        {
+          "time": 76.98,
+          "lit": 48,
+          "totalPower": 47.441249999999926
+        },
+        {
+          "time": 77,
+          "lit": 48,
+          "totalPower": 47.15326540404739
+        }
+      ]
+    },
+    "sourceDimmer": {
+      "fixtureCount": 48,
+      "fastTicks": 203,
+      "maxHeadStep": 0.627,
+      "example": [
+        {
+          "time": 76,
+          "lit": 48,
+          "totalPower": 20.51999999999999
+        },
+        {
+          "time": 76.02,
+          "lit": 48,
+          "totalPower": 20.063999999999982
+        },
+        {
+          "time": 76.04,
+          "lit": 48,
+          "totalPower": 21.20603680130348
+        },
+        {
+          "time": 76.06,
+          "lit": 48,
+          "totalPower": 23.10510004798326
+        },
+        {
+          "time": 76.08,
+          "lit": 48,
+          "totalPower": 24.195037500000037
+        },
+        {
+          "time": 76.1,
+          "lit": 48,
+          "totalPower": 25.24348585555458
+        },
+        {
+          "time": 76.12,
+          "lit": 48,
+          "totalPower": 25.243485855554564
+        },
+        {
+          "time": 76.14,
+          "lit": 48,
+          "totalPower": 24.669449999999955
+        },
+        {
+          "time": 76.16,
+          "lit": 48,
+          "totalPower": 24.04816535606417
+        },
+        {
+          "time": 76.18,
+          "lit": 48,
+          "totalPower": 23.050040001416335
+        },
+        {
+          "time": 76.2,
+          "lit": 48,
+          "totalPower": 22.80000000000001
+        },
+        {
+          "time": 76.22,
+          "lit": 48,
+          "totalPower": 22.343999999999987
+        },
+        {
+          "time": 76.24,
+          "lit": 48,
+          "totalPower": 22.128038401359827
+        },
+        {
+          "time": 76.26,
+          "lit": 48,
+          "totalPower": 22.162034739902307
+        },
+        {
+          "time": 76.28,
+          "lit": 48,
+          "totalPower": 22.297387500000006
+        },
+        {
+          "time": 76.3,
+          "lit": 48,
+          "totalPower": 21.909440553877563
+        },
+        {
+          "time": 76.32,
+          "lit": 48,
+          "totalPower": 21.43314836792369
+        },
+        {
+          "time": 76.34,
+          "lit": 48,
+          "totalPower": 21.348562499999968
+        },
+        {
+          "time": 76.36,
+          "lit": 48,
+          "totalPower": 21.218969431821318
+        },
+        {
+          "time": 76.38,
+          "lit": 48,
+          "totalPower": 21.667037601331682
+        },
+        {
+          "time": 76.4,
+          "lit": 48,
+          "totalPower": 21.88799999999998
+        },
+        {
+          "time": 76.42,
+          "lit": 48,
+          "totalPower": 21.88799999999998
+        },
+        {
+          "time": 76.44,
+          "lit": 48,
+          "totalPower": 21.667037601331515
+        },
+        {
+          "time": 76.46,
+          "lit": 48,
+          "totalPower": 22.162034739902207
+        },
+        {
+          "time": 76.48,
+          "lit": 48,
+          "totalPower": 21.822975000000014
+        },
+        {
+          "time": 76.5,
+          "lit": 48,
+          "totalPower": 21.433148367923664
+        },
+        {
+          "time": 76.52,
+          "lit": 48,
+          "totalPower": 21.433148367923685
+        },
+        {
+          "time": 76.54,
+          "lit": 48,
+          "totalPower": 20.874149999999986
+        },
+        {
+          "time": 76.56,
+          "lit": 48,
+          "totalPower": 20.747436777780848
+        },
+        {
+          "time": 76.58,
+          "lit": 48,
+          "totalPower": 19.823034401218337
+        },
+        {
+          "time": 76.6,
+          "lit": 48,
+          "totalPower": 19.608
+        },
+        {
+          "time": 76.62,
+          "lit": 48,
+          "totalPower": 19.15199999999999
+        },
+        {
+          "time": 76.64,
+          "lit": 48,
+          "totalPower": 19.15199999999999
+        },
+        {
+          "time": 76.66,
+          "lit": 48,
+          "totalPower": 19.82303440121819
+        },
+        {
+          "time": 76.68,
+          "lit": 48,
+          "totalPower": 21.690502085861866
+        },
+        {
+          "time": 76.7,
+          "lit": 48,
+          "totalPower": 23.246212500000013
+        },
+        {
+          "time": 76.72,
+          "lit": 48,
+          "totalPower": 24.29090148364685
+        },
+        {
+          "time": 76.74,
+          "lit": 48,
+          "totalPower": 24.76719366960071
+        },
+        {
+          "time": 76.76,
+          "lit": 48,
+          "totalPower": 25.143862499999962
+        },
+        {
+          "time": 76.78,
+          "lit": 48,
+          "totalPower": 24.519698010104634
+        },
+        {
+          "time": 76.8,
+          "lit": 48,
+          "totalPower": 23.511040801445034
+        },
+        {
+          "time": 76.82,
+          "lit": 48,
+          "totalPower": 22.80000000000001
+        },
+        {
+          "time": 76.84,
+          "lit": 48,
+          "totalPower": 22.343999999999987
+        },
+        {
+          "time": 76.86,
+          "lit": 48,
+          "totalPower": 22.343999999999987
+        },
+        {
+          "time": 76.88,
+          "lit": 48,
+          "totalPower": 22.12803840135983
+        },
+        {
+          "time": 76.9,
+          "lit": 48,
+          "totalPower": 22.162034739902307
+        },
+        {
+          "time": 76.92,
+          "lit": 48,
+          "totalPower": 21.822975000000014
+        },
+        {
+          "time": 76.94,
+          "lit": 48,
+          "totalPower": 21.909440553877563
+        },
+        {
+          "time": 76.96,
+          "lit": 48,
+          "totalPower": 21.433148367923685
+        },
+        {
+          "time": 76.98,
+          "lit": 48,
+          "totalPower": 21.348562499999968
+        },
+        {
+          "time": 77,
+          "lit": 48,
+          "totalPower": 21.690502085861795
+        }
+      ]
+    }
+  },
+  "before": {
+    "constant": {
+      "fixtureCount": 48,
+      "fastTicks": 1541,
+      "maxHeadStep": 1,
+      "example": [
+        {
+          "time": 76,
+          "lit": 48,
+          "totalPower": 34.80685714285714
+        },
+        {
+          "time": 76.02,
+          "lit": 24,
+          "totalPower": 23.06550874152751
+        },
+        {
+          "time": 76.04,
+          "lit": 24,
+          "totalPower": 23.06550874152751
+        },
+        {
+          "time": 76.06,
+          "lit": 24,
+          "totalPower": 23.08303409959393
+        },
+        {
+          "time": 76.08,
+          "lit": 48,
+          "totalPower": 44.07567324913223
+        },
+        {
+          "time": 76.1,
+          "lit": 48,
+          "totalPower": 46.13101748305505
+        },
+        {
+          "time": 76.12,
+          "lit": 48,
+          "totalPower": 43.857371070162976
+        },
+        {
+          "time": 76.14,
+          "lit": 48,
+          "totalPower": 36.417339774688266
+        },
+        {
+          "time": 76.16,
+          "lit": 48,
+          "totalPower": 35.20917756602014
+        },
+        {
+          "time": 76.18,
+          "lit": 48,
+          "totalPower": 42.085156394174696
+        },
+        {
+          "time": 76.2,
+          "lit": 48,
+          "totalPower": 34.80685714285714
+        },
+        {
+          "time": 76.22,
+          "lit": 24,
+          "totalPower": 22.971632212613095
+        },
+        {
+          "time": 76.24,
+          "lit": 24,
+          "totalPower": 22.971632212613095
+        },
+        {
+          "time": 76.26,
+          "lit": 24,
+          "totalPower": 22.989086242541845
+        },
+        {
+          "time": 76.28,
+          "lit": 48,
+          "totalPower": 43.896285434167396
+        },
+        {
+          "time": 76.3,
+          "lit": 48,
+          "totalPower": 45.94326442522618
+        },
+        {
+          "time": 76.32,
+          "lit": 48,
+          "totalPower": 43.6788717442034
+        },
+        {
+          "time": 76.34,
+          "lit": 48,
+          "totalPower": 36.26912134652979
+        },
+        {
+          "time": 76.36,
+          "lit": 48,
+          "totalPower": 35.06587635324963
+        },
+        {
+          "time": 76.38,
+          "lit": 48,
+          "totalPower": 41.91386997489404
+        },
+        {
+          "time": 76.4,
+          "lit": 48,
+          "totalPower": 34.80685714285714
+        },
+        {
+          "time": 76.42,
+          "lit": 24,
+          "totalPower": 23.462700996655315
+        },
+        {
+          "time": 76.44,
+          "lit": 24,
+          "totalPower": 23.462700996655315
+        },
+        {
+          "time": 76.46,
+          "lit": 24,
+          "totalPower": 23.480528144573466
+        },
+        {
+          "time": 76.48,
+          "lit": 48,
+          "totalPower": 44.83466435790321
+        },
+        {
+          "time": 76.5,
+          "lit": 48,
+          "totalPower": 46.92540199331066
+        },
+        {
+          "time": 76.52,
+          "lit": 48,
+          "totalPower": 44.61260297571707
+        },
+        {
+          "time": 76.54,
+          "lit": 48,
+          "totalPower": 37.04445298831625
+        },
+        {
+          "time": 76.56,
+          "lit": 48,
+          "totalPower": 35.815486006703445
+        },
+        {
+          "time": 76.58,
+          "lit": 48,
+          "totalPower": 42.809870440710895
+        },
+        {
+          "time": 76.6,
+          "lit": 48,
+          "totalPower": 46.92540199331066
+        },
+        {
+          "time": 76.62,
+          "lit": 48,
+          "totalPower": 34.80685714285714
+        },
+        {
+          "time": 76.64,
+          "lit": 24,
+          "totalPower": 24
+        },
+        {
+          "time": 76.66,
+          "lit": 24,
+          "totalPower": 24
+        },
+        {
+          "time": 76.68,
+          "lit": 24,
+          "totalPower": 24.018235392000555
+        },
+        {
+          "time": 76.7,
+          "lit": 48,
+          "totalPower": 45.861384192001985
+        },
+        {
+          "time": 76.72,
+          "lit": 48,
+          "totalPower": 48
+        },
+        {
+          "time": 76.74,
+          "lit": 48,
+          "totalPower": 45.634237574345875
+        },
+        {
+          "time": 76.76,
+          "lit": 48,
+          "totalPower": 37.892775935998586
+        },
+        {
+          "time": 76.78,
+          "lit": 48,
+          "totalPower": 36.63566544548375
+        },
+        {
+          "time": 76.8,
+          "lit": 48,
+          "totalPower": 43.79022222222092
+        },
+        {
+          "time": 76.82,
+          "lit": 48,
+          "totalPower": 48
+        },
+        {
+          "time": 76.84,
+          "lit": 48,
+          "totalPower": 34.80685714285714
+        },
+        {
+          "time": 76.86,
+          "lit": 24,
+          "totalPower": 24
+        },
+        {
+          "time": 76.88,
+          "lit": 24,
+          "totalPower": 24
+        },
+        {
+          "time": 76.9,
+          "lit": 24,
+          "totalPower": 24.018235392000555
+        },
+        {
+          "time": 76.92,
+          "lit": 48,
+          "totalPower": 45.86138419200199
+        },
+        {
+          "time": 76.94,
+          "lit": 48,
+          "totalPower": 48
+        },
+        {
+          "time": 76.96,
+          "lit": 48,
+          "totalPower": 45.634237574345875
+        },
+        {
+          "time": 76.98,
+          "lit": 48,
+          "totalPower": 37.89277593599858
+        },
+        {
+          "time": 77,
+          "lit": 48,
+          "totalPower": 36.63566544548375
+        }
+      ]
+    },
+    "sourceDimmer": {
+      "fixtureCount": 48,
+      "fastTicks": 903,
+      "maxHeadStep": 0.99,
+      "example": [
+        {
+          "time": 76,
+          "lit": 48,
+          "totalPower": 15.66308571428571
+        },
+        {
+          "time": 76.02,
+          "lit": 24,
+          "totalPower": 10.148823846272098
+        },
+        {
+          "time": 76.04,
+          "lit": 24,
+          "totalPower": 10.61013402110265
+        },
+        {
+          "time": 76.06,
+          "lit": 24,
+          "totalPower": 11.310686708801029
+        },
+        {
+          "time": 76.08,
+          "lit": 48,
+          "totalPower": 22.478593357057427
+        },
+        {
+          "time": 76.1,
+          "lit": 48,
+          "totalPower": 24.449439266019166
+        },
+        {
+          "time": 76.12,
+          "lit": 48,
+          "totalPower": 23.244406667186382
+        },
+        {
+          "time": 76.14,
+          "lit": 48,
+          "totalPower": 18.937016682837882
+        },
+        {
+          "time": 76.16,
+          "lit": 48,
+          "totalPower": 17.956680558670268
+        },
+        {
+          "time": 76.18,
+          "lit": 48,
+          "totalPower": 21.042578197087348
+        },
+        {
+          "time": 76.2,
+          "lit": 48,
+          "totalPower": 17.40342857142857
+        },
+        {
+          "time": 76.22,
+          "lit": 24,
+          "totalPower": 11.256099784180421
+        },
+        {
+          "time": 76.24,
+          "lit": 24,
+          "totalPower": 11.026383462054286
+        },
+        {
+          "time": 76.26,
+          "lit": 24,
+          "totalPower": 10.804870533994672
+        },
+        {
+          "time": 76.28,
+          "lit": 48,
+          "totalPower": 20.631254154058674
+        },
+        {
+          "time": 76.3,
+          "lit": 48,
+          "totalPower": 21.13390163560405
+        },
+        {
+          "time": 76.32,
+          "lit": 48,
+          "totalPower": 19.65549228489156
+        },
+        {
+          "time": 76.34,
+          "lit": 48,
+          "totalPower": 16.321104605938423
+        },
+        {
+          "time": 76.36,
+          "lit": 48,
+          "totalPower": 15.779644358962353
+        },
+        {
+          "time": 76.38,
+          "lit": 48,
+          "totalPower": 19.699518888200195
+        },
+        {
+          "time": 76.4,
+          "lit": 48,
+          "totalPower": 16.707291428571423
+        },
+        {
+          "time": 76.42,
+          "lit": 24,
+          "totalPower": 11.262096478394554
+        },
+        {
+          "time": 76.44,
+          "lit": 24,
+          "totalPower": 11.027469468428006
+        },
+        {
+          "time": 76.46,
+          "lit": 24,
+          "totalPower": 11.035848227949538
+        },
+        {
+          "time": 76.48,
+          "lit": 48,
+          "totalPower": 20.62394560463548
+        },
+        {
+          "time": 76.5,
+          "lit": 48,
+          "totalPower": 21.116430896989804
+        },
+        {
+          "time": 76.52,
+          "lit": 48,
+          "totalPower": 20.075671339072695
+        },
+        {
+          "time": 76.54,
+          "lit": 48,
+          "totalPower": 16.299559314859152
+        },
+        {
+          "time": 76.56,
+          "lit": 48,
+          "totalPower": 15.758813842949515
+        },
+        {
+          "time": 76.58,
+          "lit": 48,
+          "totalPower": 18.408244289505678
+        },
+        {
+          "time": 76.6,
+          "lit": 48,
+          "totalPower": 20.17792285712358
+        },
+        {
+          "time": 76.62,
+          "lit": 48,
+          "totalPower": 14.618879999999999
+        },
+        {
+          "time": 76.64,
+          "lit": 24,
+          "totalPower": 10.08
+        },
+        {
+          "time": 76.66,
+          "lit": 24,
+          "totalPower": 10.319999999999997
+        },
+        {
+          "time": 76.68,
+          "lit": 24,
+          "totalPower": 11.048388280320266
+        },
+        {
+          "time": 76.7,
+          "lit": 48,
+          "totalPower": 22.472078254080962
+        },
+        {
+          "time": 76.72,
+          "lit": 48,
+          "totalPower": 24.48000000000002
+        },
+        {
+          "time": 76.74,
+          "lit": 48,
+          "totalPower": 23.72980353865984
+        },
+        {
+          "time": 76.76,
+          "lit": 48,
+          "totalPower": 20.083171246079228
+        },
+        {
+          "time": 76.78,
+          "lit": 48,
+          "totalPower": 19.05054603165155
+        },
+        {
+          "time": 76.8,
+          "lit": 48,
+          "totalPower": 22.333013333332698
+        },
+        {
+          "time": 76.82,
+          "lit": 48,
+          "totalPower": 24
+        },
+        {
+          "time": 76.84,
+          "lit": 48,
+          "totalPower": 17.055360000000004
+        },
+        {
+          "time": 76.86,
+          "lit": 24,
+          "totalPower": 11.760000000000003
+        },
+        {
+          "time": 76.88,
+          "lit": 24,
+          "totalPower": 11.520000000000007
+        },
+        {
+          "time": 76.9,
+          "lit": 24,
+          "totalPower": 11.288570634240273
+        },
+        {
+          "time": 76.92,
+          "lit": 48,
+          "totalPower": 21.096236728320928
+        },
+        {
+          "time": 76.94,
+          "lit": 48,
+          "totalPower": 22.080000000000027
+        },
+        {
+          "time": 76.96,
+          "lit": 48,
+          "totalPower": 20.535406908455617
+        },
+        {
+          "time": 76.98,
+          "lit": 48,
+          "totalPower": 17.051749171199344
+        },
+        {
+          "time": 77,
+          "lit": 48,
+          "totalPower": 16.852406104922537
+        }
+      ]
+    }
+  }
+}

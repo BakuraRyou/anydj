@@ -1,0 +1,122 @@
+{
+  "beamBounds": {
+    "hardwareComparison": {
+      "device": "ANGLE (Intel, Mesa Intel(R) Graphics (RPL-S), OpenGL 4.6)",
+      "size": [
+        1280,
+        720
+      ],
+      "fixtures": 192,
+      "result": [
+        {
+          "y": 1,
+          "before": {
+            "medianMs": 0.9000000059604645,
+            "p95Ms": 2,
+            "beams": 192
+          },
+          "after": {
+            "medianMs": 0.9000000059604645,
+            "p95Ms": 1.0999999940395355,
+            "beams": 192
+          },
+          "changedChannels": 5008,
+          "meanDifference": 0.001360134548611111,
+          "maxDelta": 2
+        },
+        {
+          "y": 12.5,
+          "before": {
+            "medianMs": 0.9000000059604645,
+            "p95Ms": 1.199999988079071,
+            "beams": 180
+          },
+          "after": {
+            "medianMs": 0.9000000059604645,
+            "p95Ms": 1.2999999970197678,
+            "beams": 174
+          },
+          "changedChannels": 4074,
+          "meanDifference": 0.0011051432291666666,
+          "maxDelta": 1
+        },
+        {
+          "y": 25,
+          "before": {
+            "medianMs": 0.5999999940395355,
+            "p95Ms": 1.2000000029802322,
+            "beams": 132
+          },
+          "after": {
+            "medianMs": 0.9000000059604645,
+            "p95Ms": 1.2000000029802322,
+            "beams": 108
+          },
+          "changedChannels": 1459,
+          "meanDifference": 0.0003957790798611111,
+          "maxDelta": 1
+        }
+      ]
+    },
+    "coveredScreenArea": [
+      {
+        "cameraY": 1,
+        "before": 75.95527606679546,
+        "after": 73.70898545713698
+      },
+      {
+        "cameraY": 12.5,
+        "before": 116.6453357149439,
+        "after": 97.47162360295259
+      },
+      {
+        "cameraY": 25,
+        "before": 110.62285465678067,
+        "after": 74.83650843464095
+      }
+    ],
+    "note": "Tighter conservative hull bounds reduce fragments tested. These hardware samples do not establish faster end-to-end FPS."
+  },
+  "waveform": {
+    "opaqueBackgroundPixelComparison": [
+      {
+        "w": 640,
+        "h": 80,
+        "color": "#f6ac7b",
+        "changed": 0,
+        "maxDelta": 0
+      },
+      {
+        "w": 1024,
+        "h": 80,
+        "color": "#77d2dc",
+        "changed": 0,
+        "maxDelta": 0
+      },
+      {
+        "w": 640,
+        "h": 100,
+        "color": "#77d2dc",
+        "changed": 0,
+        "maxDelta": 0
+      }
+    ],
+    "note": "Static waveform raster is cached per canvas; position and cue marks are redrawn every update."
+  },
+  "validation": {
+    "unitTestsPassed": 24,
+    "graphicsBackends": [
+      "WebGL",
+      "WebGPU",
+      "Canvas"
+    ],
+    "contextLossAndDisposalPassed": true
+  },
+  "live": {
+    "fixtures": 144,
+    "observedFPS": 25,
+    "geometryMs": 11,
+    "frameMs": 40.3,
+    "note": "Different song and camera activity prevent a controlled before/after FPS claim."
+  }
+}

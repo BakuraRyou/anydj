@@ -126,6 +126,14 @@ export function createZoneMotion(){
     if(initial){const start=zoneCandidates(s.p,motionLayout,s.boxes).end;if(start)s.p={...start};}
    }
    const boxes=s.boxes,free=(a,b)=>roomSegment(a,b,motionLayout)&&!blockedSegment(a,b,boxes),safe=free(s.p,s.p);
+   // A live formation already supplies a continuous trajectory. On a clear
+   // segment, preserve it and let the angular motors enforce device limits.
+   // The 2 m/s detour planner is for obstacles, not a second musical clock.
+   if(light.motionPresentation==='strobe'&&!s.transfer&&safe&&free(s.p,requested)){
+    s.p={...requested};s.last={...requested};s.v={x:0,y:0};s.route=[];
+    s.blockedFor=0;s.level=1;s.regional=false;s.region=null;
+    return {...light,target:{...requested}};
+   }
    if(!s.transfer){
     if(!safe){s.v={x:0,y:0};s.route=[];s.level=0;}
     let reachable=safe&&free(s.p,requested),requestedFree=free(requested,requested);

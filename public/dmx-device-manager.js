@@ -1,3 +1,4 @@
+import {syncSelectOptions,setControlDisabled} from './select-state.js';
 // Compact the room planner's device step without replacing its controls or map.
 export function compactDeviceManager(root){
  const style=document.createElement('link');style.rel='stylesheet';style.href=new URL('./dmx-device-manager.css',import.meta.url).href;document.head.append(style);
@@ -68,7 +69,7 @@ export function compactDeviceManager(root){
    for(const key of ['position','motion','size'])buttons.get(key).disabled=!fixture||(key==='motion'&&!moving);
    if(buttons.get(active).disabled)select('devices');
    chooser.hidden=active==='devices'||active==='zones'||active==='import';
-   const value=importChoice.value;importChoice.replaceChildren(...[...q('available').children].map((b,i)=>new Option(b.textContent.replace(/^\+ /,''),String(i))));if([...importChoice.options].some(o=>o.value===value))importChoice.value=value;importChoice.disabled=importButton.disabled=!importChoice.options.length;
+   const choices=[...q('available').children].map((b,i)=>({label:b.textContent.replace(/^\+ /,''),value:String(i)})),value=importChoice.value;syncSelectOptions(importChoice,choices,choices.some(o=>o.value===value)?value:choices[0]?.value||'');setControlDisabled(importChoice,!choices.length);importButton.disabled=!choices.length;
    paginate(fixture);
   },
   destroy(){resize.disconnect();style.remove();}

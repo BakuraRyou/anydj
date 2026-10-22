@@ -14,3 +14,12 @@ test('shared overlap length respects both source rates and duration limits',()=>
  assert.equal(timelineEdit(pair,'duration',-1),.1);
  assert.equal(timelineEdit({...pair,plan:{...pair.plan,cue:78}},'duration',8),2);
 });
+test('dragging never selects an overlap across deleted passages',()=>{
+ const input={from:{duration:100,rate:1,audioCuts:[[30,50],[90,100]]},to:{duration:80,rate:2,audioCuts:[[0,10],[40,60]]},plan:{time:70,cue:12,duration:8}};
+ assert.equal(timelineEdit(input,'time',35),22);
+ assert.equal(timelineEdit(input,'time',48),50);
+ assert.equal(timelineEdit(input,'time',Infinity),82);
+ assert.equal(timelineEdit(input,'cue',0),10);
+ assert.equal(timelineEdit(input,'cue',50),60);
+ assert.equal(timelineEdit(input,'duration',60),14);
+});

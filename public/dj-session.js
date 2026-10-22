@@ -20,9 +20,11 @@ export function createDJSession({decks, root=document, updateGains, drawDeck, re
     try{localStorage.setItem(autoKey,String(autoPreference));}catch{storageError();}
     save();
   });
-  const status=document.createElement('p');status.className='small muted';status.setAttribute('role','status');
-  (root.querySelector('.dj-statusbar')||root.querySelector('#decks')).append(status);
-  function storageError(){if(!warned){status.textContent='Der Browser kann den letzten Stand nicht speichern. Bitte lokalen Speicher freigeben.';warned=true;}}
+  function storageError(){
+    if(warned)return;warned=true;
+    const status=root.querySelector('#djStatus');
+    if(status){status.textContent='Der Browser kann den letzten Stand nicht speichern. Bitte lokalen Speicher freigeben.';status.className='notice warning';status.hidden=false;}
+  }
   function values(scope,selectors){return Object.fromEntries(selectors.map(s=>{const n=scope.querySelector(s);return [s,n?.type==='checkbox'?n.checked:n?.value];}));}
   function apply(scope,selectors,values){
     for(const s of selectors){const n=scope.querySelector(s),v=values?.[s];if(!n||n.disabled||v===undefined)continue;
@@ -58,12 +60,13 @@ export function createDJSession({decks, root=document, updateGains, drawDeck, re
         d.track=track;d.cue=Math.min(finite(saved.cue),track.plan?.duration||Infinity);d.resumeTime=Math.min(finite(saved.time),track.plan?.duration||Infinity);
         d.panel.querySelector('.dj-track-title').textContent=track.name;d.panel.querySelector('.dj-track-title').title=track.name;
         d.panel.querySelector('.dj-cue').textContent=d.cue?`Cue ${Math.floor(d.cue/60)}:${String(Math.floor(d.cue%60)).padStart(2,'0')}`:'Cue';
-        d.resumeButton.hidden=false;drawDeck(d);
-        // Permission prompts require a deliberate click, never a page reload.
-        try{if(track.handle&&await track.handle.queryPermission({mode:'read'})==='granted')await restoreFile(d);}catch{}
+        d.resumeButton.hidden=true;d.restoring=true;drawDeck(d);
+        // A folder scan may already have supplied the File. Otherwise try the
+        // stored handle directly; a failed read leaves the explicit reconnect
+        // action available, without requesting permission during page startup.
+        try{if(track.file||track.handle||globalThis.anydjFiles)await restoreFile(d,{requestPermission:false});}catch{}finally{d.restoring=false;d.resumeButton.hidden=d.resumeTime==null;}
       }
       apply(root,mixerSelectors,{...snapshot.mixer,'#autoCrossfade':autoPreference});updateGains();
-      if(decks.some(d=>d.track))status.textContent='Letzter Stand wiederhergestellt · Wiedergabe pausiert.';
     }
     ready=true;
   }

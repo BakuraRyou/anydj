@@ -1,3 +1,4 @@
+import {syncSelectOptions,setControlDisabled} from './select-state.js';
 const time=value=>`${Math.floor(Math.max(0,value)/60)}:${String(Math.floor(Math.max(0,value)%60)).padStart(2,'0')}`;
 export function createStageTransport(host,{isVisible}){
   const section=document.createElement('section');section.className='stage-3d-transport';section.setAttribute('aria-label','Songsteuerung');section.hidden=true;
@@ -9,11 +10,11 @@ export function createStageTransport(host,{isVisible}){
   const heading=document.createElement('h3');heading.textContent='Einzelnes Deck';deckTools.prepend(heading);
   host.append(section);const controls=new Map(),q=key=>{if(!controls.has(key))controls.set(key,section.querySelector(`[data-song-${key}]`));return controls.get(key);};
   const text=(key,value)=>{const node=q(key);if(node.textContent!==value)node.textContent=value;};
-  let api=null,selected='',snapshot=null,listSignature='',listEntriesSignature='',listBusy=false,listError='';
+  let api=null,selected='',snapshot=null,listEntriesSignature='',listBusy=false,listError='';
   q('list').onchange=()=>{listError='';api?.selectPlaylist?.(q('list').value);update();};
   q('list-start').onclick=async()=>{if(listBusy)return;listError='';listBusy=true;update();try{await api?.startPlaylist?.();}catch(error){listError=error.message;}finally{listBusy=false;update();}};
   const seek=value=>{if(snapshot?.canSeek){api.seek(snapshot.id,Math.max(0,Math.min(snapshot.duration,value)));update();}};
-  const picker=section.querySelector('.stage-3d-song-picker');let trackSignature='',busy=false;
+  const picker=section.querySelector('.stage-3d-song-picker');let busy=false;
   q('library').onclick=()=>{picker.hidden=!picker.hidden;q('library').setAttribute('aria-expanded',String(!picker.hidden));update();};
   q('import').onclick=()=>q('files').click();
   q('files').onchange=async()=>{try{await api?.importFiles?.([...q('files').files]);q('feedback').textContent='Dateien hinzugefügt. Nach der Vorbereitung kannst du den Song laden.';}catch(error){q('feedback').textContent=error.message;}q('files').value='';update();};
@@ -30,9 +31,8 @@ export function createStageTransport(host,{isVisible}){
     section.hidden=!api;if(!api||!isVisible())return;
     const playlists=api.getPlaylists?.();playlist.hidden=!playlists;
     if(playlists){
-      const signature=JSON.stringify(playlists.lists);
-      if(signature!==listSignature){q('list').replaceChildren(...playlists.lists.map(list=>new Option(list.name,list.id)));listSignature=signature;}
-      q('list').value=playlists.selected;q('list').disabled=!playlists.ready||listBusy;
+      syncSelectOptions(q('list'),playlists.lists.map(list=>({label:list.name,value:list.id})),playlists.selected);
+      setControlDisabled(q('list'),!playlists.ready||listBusy);
       q('list-start').disabled=listBusy||!playlists.canStart;
       text('list-start',listBusy?'Wird gestartet …':playlists.running?'Playlist-Automatik pausieren':playlists.canResume?'Playlist fortsetzen':'Playlist starten');
       text('list-count',playlists.entries.length+' Titel');
@@ -45,14 +45,13 @@ export function createStageTransport(host,{isVisible}){
     }
     const decks=api.getDecks();
     if(!decks.some(d=>d.id===selected))selected=(decks.find(d=>d.playing)||decks.find(d=>d.duration)||decks[0])?.id||'';
-    const signature=decks.map(d=>d.id).join('|');
-    if(q('deck').dataset.signature!==signature){q('deck').replaceChildren(...decks.map(d=>new Option(`Deck ${d.id}`,d.id)));q('deck').dataset.signature=signature;}
-    q('deck').value=selected;snapshot=decks.find(d=>d.id===selected);
+    syncSelectOptions(q('deck'),decks.map(d=>({label:`Deck ${d.id}`,value:d.id})),selected);
+    snapshot=decks.find(d=>d.id===selected);
     const d=snapshot||{duration:0,position:0,rate:1};
     q('library').hidden=!api.getTracks;
     if(!picker.hidden&&api.getTracks){
-      const tracks=api.getTracks(),signature=JSON.stringify(tracks);
-      if(trackSignature!==signature){const previous=q('track').value;q('track').replaceChildren(...tracks.map(t=>{const o=new Option(t.title+(t.ready?'':' · wird vorbereitet / nicht verfügbar'),t.id);o.disabled=!t.ready;return o;}));if(tracks.some(t=>t.id===previous))q('track').value=previous;trackSignature=signature;}
+      const tracks=api.getTracks();
+      const previous=q('track').value;syncSelectOptions(q('track'),tracks.map(t=>({label:t.title+(t.ready?'':' · wird vorbereitet / nicht verfügbar'),value:t.id,disabled:!t.ready})),tracks.some(t=>t.id===previous)?previous:tracks[0]?.id||'');
       q('load').disabled=busy||!d.canLoad||!q('track').value||Boolean(q('track').selectedOptions[0]?.disabled);
       if(!d.canLoad&&!busy)q('feedback').textContent='Deck pausieren, um einen anderen Song zu laden.';
       q('import').disabled=busy;

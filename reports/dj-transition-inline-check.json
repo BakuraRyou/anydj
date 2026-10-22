@@ -1,0 +1,20 @@
+{
+  "embeddedWithoutModalSwitch": true,
+  "partialRestoration": [
+    "0:04,00 – 0:05,00",
+    "0:07,00 – 0:08,00",
+    "0:10,00 – 0:12,00"
+  ],
+  "draftPreserved": true,
+  "customCurvePreserved": true,
+  "footerVisible": true,
+  "cancelDiscards": true,
+  "transitionAdapted": {
+    "cue": "3",
+    "duration": "1.5",
+    "status": "Schnitte gespeichert und für die Hörprobe aktualisiert. Songstellen oder Dauer wurden an die hörbaren Bereiche angepasst. Übergang bitte probehören und übernehmen."
+  },
+  "queueAndLiveSave": true,
+  "mobileOverflow": false,
+  "browserErrors": 0
+}

@@ -6,6 +6,7 @@ import json
 import os
 from pathlib import Path
 import socket
+import sys
 
 root = Path(__file__).resolve().parent.parent
 cache = root / 'data/structure'
@@ -23,10 +24,15 @@ if not args.download:
     socket.socket.connect_ex = offline
 
 import torch
-from allin1_infer.models.loaders import load_pretrained_model
+from allin1_infer.models import loaders
 from demucs_infer.pretrained import get_model
 torch.set_num_threads(8)
-load_pretrained_model('harmonix-all', device='cpu')
+# The ensemble starts eight Hub downloads concurrently. On a fresh Windows
+# cache, their atomic writes to refs/main can race (WinError 5). Warm that
+# shared reference with one completed download before starting the ensemble.
+if args.download and sys.platform == 'win32':
+    loaders._download_checkpoint(loaders.ENSEMBLE_MODELS['harmonix-all'][0], None)
+loaders.load_pretrained_model('harmonix-all', device='cpu')
 get_model('htdemucs')
 files = list((cache/'huggingface/hub').rglob('*.pth')) + list((cache/'torch').rglob('*.th'))
 manifest = dict(version=1, model='harmonix-all', separator='htdemucs',

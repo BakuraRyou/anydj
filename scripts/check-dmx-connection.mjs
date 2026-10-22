@@ -15,11 +15,10 @@ const dmx=new DmxConnection({pollMs:150,transport:{
 const app=await createApp({demo:true,dmx});
 app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
-await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
 
 const requests=[];
 app.server.on('request',req=>requests.push(req.url));
-const profile=await mkdtemp(join(tmpdir(),'wiz-dj-connection-'));
+const profile=await mkdtemp(join(tmpdir(),'anydj-dj-check-'));
 const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking','--no-first-run','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
 let ws;
 try {

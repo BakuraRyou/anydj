@@ -261,23 +261,23 @@ export function bassPresence(scene,plan,time){
  return {level:.85+.15*event.strength,spread:1,mask:'bass-chase',phase:event.phase,age,duration};
 }
 
-export function scenePresence(scene,plan,time){
+export function scenePresence(scene,plan,time,{articulation=true}={}){
  const progress=clamp((time-scene.start)/Math.max(.001,scene.end-scene.start));
  const edit=plan.sectionLighting?.find(s=>time>=s.start&&time<s.end);
  const rhythm=edit?.rhythm;
  if(scene.cinematic){const energy=cinematicSample(scene,time).energy;return {level:.5+.45*energy,spread:energy,mask:'expand'};}
- const bass=(!rhythm||rhythm==='auto')&&bassPresence(scene,plan,time);
+ const bass=articulation&&(!rhythm||rhythm==='auto')&&bassPresence(scene,plan,time);
  if(bass)return bass;
  const events=rhythm==='none'?[]:rhythm==='strong'?edit.events||[]:plan.beatGrid?.downbeats||[];
  const bars=events.filter(t=>t>=Math.max(scene.start,edit?.start??0)&&t<=time);
  const latest=bars.at(-1),bar=bars.length?bars.length-1:0;
  const age=Number.isFinite(latest)?time-latest:Infinity;
  const t=clamp(age/.16),fade=t*t*(3-2*t);
- const gesture=rhythm&&rhythm!=='auto'?null:lightingGestureAt(plan,time);
+ const gesture=!articulation||rhythm&&rhythm!=='auto'?null:lightingGestureAt(plan,time);
  if(gesture&&['groove','impact'].includes(scene.kind)){
   const elapsed=time-gesture.time,emphasis=1-clamp(elapsed/.6);
   const levels=[0,1,2,3].map(i=>gesture.lead.includes(i)?1:.66);
-  return {level:scene.kind==='impact'?.9:.75+.1*emphasis,spread:1,mask:'roles',roles:levels};
+  return {level:scene.kind==='impact'?.9:.75+.1*emphasis,spread:1,mask:'roles',roles:levels,accentAge:elapsed,accentDuration:.6};
  }
  switch(scene.kind){
   case 'silence':return {level:0,spread:0,mask:'center'};

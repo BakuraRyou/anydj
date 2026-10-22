@@ -1,4 +1,4 @@
-import {selectProvider,providerKeys} from './provider-tabs.js';
+import {selectProvider,providerKeys,setProviderConnected} from './provider-tabs.js';
 import {createSpotifyPlayback} from './spotify-playback.js';
 import {SPOTIFY_CLIENT_ID,createSpotifyClient,callbackURL,randomString,spotifyImage,spotifyTrack,playlistID,localSuggestions} from './spotify-client.js';
 import {readSpotifyLinks,saveSpotifyLinks} from './dj-library.js';
@@ -18,8 +18,9 @@ export function createSpotifyLibrary({getTracks,enqueueTracks,saveList,loadLocal
     tab.onkeydown=providerKeys;
   }
   tabs.append(localTab,spotifyTab);
-  const connectButton=button('+ Verbinden',()=>{if(document.getElementById('tidalTab')?.getAttribute('aria-selected')==='true')root.dispatchEvent(new Event('providerconnect'));else{select(true);showConnection();}});
-  const tabbar=node('div',null,'provider-tabbar');tabbar.append(tabs,connectButton);heading.append(tabbar);root.append(local,panel);
+  const connectButton=button('Spotify verbinden',()=>{document.getElementById('libraryImportPopover').hidePopover();showConnection();});
+  const tabbar=node('div',null,'provider-tabbar');tabbar.append(tabs);heading.insertBefore(tabbar,heading.querySelector('.dj-import-options'));
+  connectButton.textContent='Spotify verbinden';connectButton.classList.add('dj-connect-provider');document.getElementById('libraryImportPopover').append(connectButton);root.append(local,panel);
   const brand=node('span','Spotify');brand.className='spotify-brand';
   // Spotify icon, displayed beside all Spotify-sourced metadata.
   const icon=document.createElementNS('http://www.w3.org/2000/svg','svg');icon.setAttribute('viewBox','0 0 24 24');icon.setAttribute('aria-hidden','true');
@@ -59,6 +60,7 @@ export function createSpotifyLibrary({getTracks,enqueueTracks,saveList,loadLocal
   function select(spotify){selectProvider(spotify?'spotifyLibrary':'localLibrary');}
   root.addEventListener('providerchange',e=>{active=e.detail==='spotifyLibrary';if(active){renderRows();if(!entered&&client.connected){entered=true;void run(()=>showPlaylists());}}});
   function updateControls(){
+    setProviderConnected(spotifyTab,client.connected);connectButton.hidden=client.connected;
     account.textContent=client.connected?(client.canStream?'Verbunden · Wiedergabe freigegeben':'Verbunden · Wiedergabe noch freigeben'):'Nicht verbunden';
     for(const control of [source,refresh,query,searchButton])control.disabled=busy||!client.connected;
     enqueue.disabled=save.disabled=busy||!mappedRows().length;
@@ -97,7 +99,7 @@ export function createSpotifyLibrary({getTracks,enqueueTracks,saveList,loadLocal
     renderRows();
   }
   let dragging=false;
-  list.addEventListener('dragstart',event=>{if(!event.defaultPrevented&&[...(event.dataTransfer?.types||[])].some(type=>['application/x-wiz-track','application/x-anydj-provider-track'].includes(type)))dragging=true;});
+  list.addEventListener('dragstart',event=>{if(!event.defaultPrevented&&[...(event.dataTransfer?.types||[])].some(type=>['application/x-anydj-track','application/x-anydj-provider-track'].includes(type)))dragging=true;});
   document.addEventListener('dragend',()=>{if(dragging){dragging=false;renderRows();}});
   function renderRows(){
     if(dragging)return;
@@ -192,7 +194,7 @@ export function createSpotifyLibrary({getTracks,enqueueTracks,saveList,loadLocal
         channel.onmessage=event=>{
           const data=event.data;
           if(!data?.token&&!data?.error)return;
-          try{if(data.error)throw Error(data.error);playback.stop();client.install(data.token);revision++;controller?.abort();rows=[];next=null;renderRows();d.box.close();void run(()=>showPlaylists());}
+          try{if(data.error)throw Error(data.error);playback.stop();client.install(data.token);revision++;controller?.abort();rows=[];next=null;renderRows();d.box.close();entered=true;select(true);void run(()=>showPlaylists());}
           catch(e){error.textContent=e.message;}finally{cancelAuth();updateControls();}
         };
         auth.timer=setInterval(()=>{if(Date.now()-started>600000){cancelAuth();error.textContent='Anmeldung abgelaufen. Bitte erneut anmelden.';}},1000);

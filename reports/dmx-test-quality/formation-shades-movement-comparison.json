@@ -1,0 +1,56 @@
+{
+  "source": "Shades.mp3, saved local analysis",
+  "method": "Mean normalized target displacement per second, 30 Hz, twelve moving heads across three layers, normal formation score. Geometry measurements, not physical motor speeds.",
+  "sections": [
+    {
+      "start": 34,
+      "end": 38,
+      "before": 0.015886700898154683,
+      "after": 0.48822805368557676
+    },
+    {
+      "start": 47.5,
+      "end": 53.5,
+      "before": 0.1231753212552596,
+      "after": 0.6000619114845496
+    },
+    {
+      "start": 55,
+      "end": 61,
+      "before": 0.1248282567462847,
+      "after": 0.4270216930624888
+    },
+    {
+      "start": 77.5,
+      "end": 83.5,
+      "before": 0.019906302646197152,
+      "after": 0.7517042147638622
+    },
+    {
+      "start": 94,
+      "end": 104,
+      "before": 0.0071897671912005195,
+      "after": 0.02916338562890336
+    },
+    {
+      "start": 108,
+      "end": 118,
+      "before": 0.008693369880547483,
+      "after": 0.056987964516004116
+    },
+    {
+      "start": 149,
+      "end": 155,
+      "before": 0.04906655003601193,
+      "after": 0.6485680595713003
+    },
+    {
+      "start": 171,
+      "end": 177,
+      "before": 0.0542526426060823,
+      "after": 0.45746481474911566
+    }
+  ],
+  "tests": 213,
+  "preview": "formation-shades-combined-tempo-flow.mp4"
+}

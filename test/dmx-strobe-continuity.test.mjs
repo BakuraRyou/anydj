@@ -24,7 +24,9 @@ test('internal scene boundaries preserve beat phase, targets and exposure',()=>{
   for(let rank=0;rank<8;rank++){
    const x=strobeComposition(a,rank,8),y=strobeComposition(b,rank,8);
    assert.ok(Math.hypot(x.x-y.x,x.y-y.y)<1e-5);
-   assert.ok(Math.abs(x.level-y.level)<1e-4);
+   // A shutter-score phrase may deliberately start a different fixture role.
+   // Internal analysis boundaries within that same phrase must stay continuous.
+   if(a.music.sequence?.index===b.music.sequence?.index)assert.ok(Math.abs(x.level-y.level)<1e-4);
   }
   checked++;
  }

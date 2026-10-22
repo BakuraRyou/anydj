@@ -57,3 +57,16 @@ test('show reserves spatial rows for the climax and preserves blackout, shutter 
  assert.ok(mixed.every(l=>l.power===.4),'deck blends retain independent row selections');
  assert.deepEqual(render(.5),partial,'seeking does not depend on previous frames');
 });
+
+test('song device color and aim apply after room expansion and retain exclusion zones',async()=>{
+ const {cleanLook}=await import('../public/dmx-show.js');
+ const {respectRoomVolumes,roomPlanLayout}=await import('../public/dmx-ar-model.js');
+ const room=newRoomPlan(8,6,3);room.positions={lamp:{type:'moving',x:0,y:1,height:2.5,rotation:0,size:{width:.3,depth:.3,height:.3}}};
+ const cue={target:`room:${room.id}:lamp`,look:cleanLook({mode:'fixed',colors:['#ff0000','#ff0000'],animation:'follow',brightness:50}),aim:{x:1,y:4}};
+ const stream={frame:{state:true,r:0,g:255,b:0,dimming:100},weight:1,beat:0,songTime:2,movingPlan:{sectionLighting:[{start:1,end:3,fixtures:[cue]}]}};
+ const result=applyRoomPlan({...source(),streams:[stream]},room).lights[0];
+ assert.equal(result.color,'rgb(255,0,0)');assert.equal(result.power,.5);assert.deepEqual(result.target,{x:1,y:4,z:0});assert.equal(result.authoredAim,true);
+ room.zones=[{id:'quiet',x:.5,y:.5,width:.4,depth:.4}];
+ assert.equal(respectRoomVolumes(result,roomPlanLayout(room)).power,0);
+ const after=applyRoomPlan({...source(),streams:[{...stream,songTime:3}]},room).lights[0];assert.notEqual(after.authoredAim,true);
+});

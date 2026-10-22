@@ -4,11 +4,12 @@ import {colorCount,STAGE_PRESETS} from './dmx-auto.js';
 import {COLOR_MODES,validColorMode} from './dj-color-modes.js';
 import {GROUPS,cleanLook,cleanStageSettings,resolvedLook} from './dmx-show.js';
 const KEY='anydj-stage-design-v1';
-export function createStageEditor(host,onChange){
+export function createStageEditor(host,onChange,{songDriven=false}={}){
   let equipment=stageEquipment(),config=cleanStageSettings(undefined,4),mode='shared',count=2,sectionKey='',sectionName='',selected='global';
   let storageWarning='';
   try{const saved=JSON.parse(localStorage.getItem(KEY)||'null');equipment=stageEquipment(saved?.equipment);config=cleanStageSettings(saved?.config,equipment.devices.length);if(saved?.equipment&&!saved.equipment.devices){const indices=saved.equipment.type==='bar'?[4]:equipment.devices.map((_,i)=>i);const old=cleanStageSettings(saved.config);config.members=indices.map(i=>old.members[i]);config.fixtures=indices.map(i=>old.fixtures[i]);for(const [key,layer] of Object.entries(old.sections))config.sections[key]={...layer,fixtures:indices.map(i=>layer.fixtures[i])};}mode=['shared',...Object.keys(STAGE_PRESETS),'design'].includes(saved?.mode)?saved.mode:saved?.enabled===true?'design':'shared';count=colorCount(saved?.count);}
   catch{storageWarning='Gespeicherte Gestaltung konnte nicht geladen werden.';}
+  if(songDriven)mode='auto';
   // One-time migration preserves the old four virtual heads and their position IDs.
   if(!equipment.unified){
     equipment=stageEquipment({unified:true,devices:[...equipment.devices,...Array.from({length:4},(_,i)=>({id:`moving-${i}`,type:'moving',cells:1}))]});
@@ -83,8 +84,8 @@ export function createStageEditor(host,onChange){
     q('mode').value=mode;q('editor').hidden=mode!=='design';q('auto').hidden=!Object.hasOwn(STAGE_PRESETS,mode);q('count').value=count;
     q('count').closest('label').hidden=mode==='strobe';
     q('auto').querySelector('.stage-explanation').hidden=mode==='strobe';
-    q('auto-title').textContent=STAGE_PRESETS[mode]?.name||'Die Musik gestaltet deine Bühne';
-    q('auto-help').textContent=STAGE_PRESETS[mode]?.help||'';
+    q('auto-title').textContent=songDriven?'Farben der Songshow':STAGE_PRESETS[mode]?.name||'Die Musik gestaltet deine Bühne';
+    q('auto-help').textContent=songDriven?'Begrenze die gleichzeitig sichtbaren Farben. Das Lichtshow-Profil wählst du am Song im Deck.':STAGE_PRESETS[mode]?.help||'';
     q('target').value=selected;q('membership').hidden=selected[0]!=='f';
     if(selected[0]==='f')q('group').value=config.members[+selected.slice(1)];
     q('scope').options[1].disabled=!sectionKey;if(!sectionKey)q('scope').value='all';
@@ -120,7 +121,7 @@ export function createStageEditor(host,onChange){
   q('add-moving').onclick=()=>changeEquipment(()=>({devices:[...equipment.devices,{id:crypto.randomUUID(),type:'moving',cells:1}]}));
   q('add-spot').onclick=()=>changeEquipment(()=>({devices:[...equipment.devices,{id:crypto.randomUUID(),type:'spot',cells:1}]}));
   q('add-bar').onclick=()=>changeEquipment(()=>({devices:[...equipment.devices,{id:crypto.randomUUID(),type:'bar',cells:8}]}));
-  q('mode').onchange=()=>{mode=q('mode').value;refresh();save();};
+  q('mode').onchange=()=>{mode=songDriven?'auto':q('mode').value;refresh();save();};
   q('count').onchange=()=>{count=colorCount(+q('count').value);refresh();save();};
   q('target').onchange=()=>{selected=q('target').value;refresh();onChange();};
   q('scope').onchange=refresh;
@@ -140,7 +141,7 @@ export function createStageEditor(host,onChange){
       if(Number.isInteger(changes.group))for(const i of indices)config.members[i]=changes.group;
       changeEquipment(()=>({...equipment,devices:equipment.devices.map((d,i)=>indices.includes(i)?{...d,...changes}:d)}));
     },get equipment(){return equipment;},get config(){return config;},get enabled(){return mode!=='shared';},get mode(){return mode;},get count(){return count;},get selected(){return selected;},
-    select(index){if(Object.hasOwn(STAGE_PRESETS,mode)){q(mode==='strobe'?'mode':'count').focus();return;}selected=`f${index}`;mode='design';refresh();save();q('target').focus();},
+    select(index){if(songDriven){q('count').focus();return;}if(Object.hasOwn(STAGE_PRESETS,mode)){q(mode==='strobe'?'mode':'count').focus();return;}selected=`f${index}`;mode='design';refresh();save();q('target').focus();},
     preview(palette,description){const signature=JSON.stringify(palette);if(q('palette').dataset.colors!==signature){q('palette').dataset.colors=signature;q('palette').replaceChildren(...palette.map((rgb,i)=>{const chip=document.createElement('span');chip.style.background=`rgb(${rgb.join(',')})`;chip.setAttribute('role','img');chip.setAttribute('aria-label',`Farbe ${i+1}: RGB ${rgb.join(', ')}`);return chip;}));}if(q('auto-status').textContent!==description)q('auto-status').textContent=description;},
     context(key,name){key=key||'';if(sectionKey===key)return;sectionKey=key;sectionName=name||'';refresh();},
   };

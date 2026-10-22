@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { compileShow, showFrameAt } from '../public/show-plan.js';
-import { settings, MusicSession } from '../lib/music.mjs';
+import { settings } from '../lib/music.mjs';
 const options = settings();
 const windows = Array.from({length:600},(_,i)=>({rms:i<200?0.005:i<400?0.06:0.2,bass:0.01,beatSeq:Math.floor(i/25)}));
 test('Vorab-Show nutzt den ganzen Verlauf, bleibt deterministisch und hält Helligkeitsgrenzen ein', () => {
@@ -20,25 +20,6 @@ test('Stille erzeugt ruhiges Licht statt erfundener Beats', () => {
   const p=compileShow(Array.from({length:100},()=>({rms:0,bass:0,beatSeq:0})),2,options);
   assert.equal(p.beats,0); assert.ok(p.frames.every(f=>f.dimming===options.minimum));
 });
-test('Show-Sitzung validiert Lichtbilder, berücksichtigt Weißlampen und stellt Ausgangszustand wieder her', async () => {
-  const calls=[], original={state:false,dimming:40,temp:2700};
-  const music=new MusicSession({inspect:async()=>({pilot:original,capabilities:{brightness:true,color:false}}),exchange:async(ip,m,p)=>calls.push(p)},{tickMs:100000});
-  const {id}=await music.start('192.168.1.2','show',options);
-  assert.throws(()=>music.frame(id,{params:{state:true,sceneId:1}}));
-  music.frame(id,{params:compileShow(windows,12,options).frames[0]});music.tick(music.session);await music.session.inFlight;
-  assert.equal(calls[0].r,undefined);assert.equal(calls[0].state,true);
-  await music.stop(id);assert.deepEqual(calls.at(-1),original);
-});
-
-test('Ausbleibende Show-Bilder beenden den Ablauf und stellen das Licht wieder her', async () => {
-  const original={state:false,dimming:30,temp:2700}, calls=[];
-  const music=new MusicSession({inspect:async()=>({pilot:original}),exchange:async(ip,m,p)=>calls.push(p)},{tickMs:100000});
-  const {id}=await music.start('192.168.1.2','show',options);
-  music.frame(id,{params:compileShow(windows,12,options).frames[0]});
-  const session=music.session;session.lastFrame=Date.now()-2000;music.tick(session);await session.stopPromise;
-  assert.equal(music.session,null);assert.deepEqual(calls.at(-1),original);
-});
-
 test('Wiederkehrende Klangabschnitte erhalten dieselbe Farbfamilie statt fortlaufendem Farbkreis', () => {
   const samples=Array.from({length:800},(_,i)=>({rms:i>=300&&i<500?0.25:0.08,bass:i>=300&&i<500?0.16:0.03,tone:i>=300&&i<500?0.7:0.3,beatSeq:Math.floor(i/25)}));
   const p=compileShow(samples,16,options);
@@ -91,18 +72,4 @@ test('Klangverlauf nutzt beide Palettenenden und erhält kräftige Farben bei 10
   const desaturated=compileShow(samples,24,settings({saturation:20}));
   assert.ok(desaturated.frames.every(f=>Math.min(f.r,f.g,f.b)>=200));
   assert.deepEqual(p.frames.map(f=>f.dimming),desaturated.frames.map(f=>f.dimming));
-});
-
-test('Vorbereitete Bilder werden ohne zusätzlichen Timer weitergeleitet, aber nicht unbegrenzt gesendet',async()=>{
-  const calls=[];
-  const music=new MusicSession({inspect:async()=>({pilot:{state:false},capabilities:{color:true}}),exchange:async(ip,m,p)=>calls.push(p)},{tickMs:100000});
-  const {id}=await music.start('192.168.1.2','show',options);
-  music.frame(id,{params:{state:true,r:255,g:1,b:1,dimming:70}});
-  await music.session.inFlight;
-  assert.equal(calls.length,1);
-  music.frame(id,{params:{state:true,r:1,g:1,b:255,dimming:30}});
-  assert.equal(calls.length,1);
-  music.session.lastDispatch-=101;music.tick(music.session);await music.session.inFlight;
-  assert.equal(calls.length,2);assert.equal(calls[1].dimming,30);
-  await music.stop(id);
 });

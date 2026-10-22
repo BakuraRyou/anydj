@@ -31,3 +31,10 @@ test('near-song-end selections search backwards for a full overlap',()=>{
  const input=pair();input.plan.time=209;input.plan.cue=209;input.plan.duration=20;
  const result=alignTransition(input);assert.equal(result.time,190);assert.equal(result.cue,190);assert.equal(result.duration,20);
 });
+test('beat alignment avoids deleted passages on both sides without losing custom curves',()=>{
+ const input=pair();input.from.audioCuts=[[180,195]];input.to.audioCuts=[[0,20]];
+ input.plan.points=[[[0,1],[1,0]],[[0,0],[1,1]]];
+ const result=alignTransition(input);
+ assert.ok(result.time+result.duration<=180||result.time>=195);
+ assert.ok(result.cue>=20);assert.deepEqual(result.points,input.plan.points);
+});

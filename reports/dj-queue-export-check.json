@@ -1,0 +1,32 @@
+{
+  "twoLocalTracks": true,
+  "mp3": {
+    "programs": [],
+    "stream_groups": [],
+    "streams": [
+      {
+        "codec_name": "mp3",
+        "sample_rate": "44100",
+        "channels": 2
+      }
+    ],
+    "format": {
+      "duration": "16.039167"
+    }
+  },
+  "cutEditor": {
+    "undo": true,
+    "persisted": true,
+    "restored": true,
+    "mobileOverflow": false
+  },
+  "liveSkipsRemovedPassages": true,
+  "automaticCutCrossfade": true,
+  "originalsUnchanged": true,
+  "queueRetained": true,
+  "mp3Decodes": true,
+  "audioOrderVerified": true,
+  "chunkBoundaryWithoutSilence": true,
+  "cancelled": true,
+  "browserErrors": 0
+}

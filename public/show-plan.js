@@ -3,7 +3,7 @@ import {flickerLimit} from './light-flicker.js';
 import {planColorDirection,applyColorDirection} from './color-direction.js';
 import {songPalettes} from './song-palette.js';
 import {choreographColors,colorFrameAt} from './color-choreography.js';
-import {sectionFrameAt} from './section-lighting.js';
+import {sectionFrameAt,sectionPlanAt} from './section-lighting.js';
 import {validateMusicStyle,musicStyleAt} from './music-style.js';
 import {arrangeShow,refineSpectralBuilds,arrangementLevelAt,arrangementMotionAt} from './show-arrangement.js';
 import { analyzeMood, MOOD_PALETTES } from './mood-analysis.js';
@@ -12,7 +12,7 @@ import { validateBeatGrid } from './beat-grid.js';
 import { automaticSettings } from './automatic-settings.js';
 import { validateStructure, structureTheme, STRUCTURE_LABELS } from './song-structure.js';
 // Bump whenever generated show data or its interpretation changes.
-export const SHOW_PLAN_VERSION = 56;
+export const SHOW_PLAN_VERSION = 57;
 const clamp = v => Math.max(0, Math.min(1, v));
 const quantile = (sorted, p) => sorted[Math.floor((sorted.length - 1) * p)] || 0;
 const colors = {
@@ -249,6 +249,7 @@ export function compileShow(windows, duration, options, beatGrid = null, structu
   return applyColorDirection({...legacy,colorDirection,legacyColors:{frames:legacy.frames,choreographyBaseFrames:legacy.choreographyBaseFrames,colorEvents:legacy.colorEvents,soundPalettes:legacy.soundPalettes}});
 }
 export function showFrameAt(plan,time,maxFlicker=100) {
+  plan=sectionPlanAt(plan,time);
   const flicker=flickerLimit(maxFlicker)/100;
   if(!Number.isFinite(time)) throw Error('Ungültige Wiedergabezeit.');
   const index=Math.max(0,Math.min(plan.frames.length-1,Math.floor(time/plan.step)));

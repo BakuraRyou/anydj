@@ -67,6 +67,18 @@ export function moveStageCamera(layout,camera,width,height,forward,right=0,up=0)
   const position=eye.map((v,i)=>v+direction[i]*forward+sideways[i]*right+vertical[i]*up);
   return camera.mode==='dancer'?{...camera,x:position[0],y:position[1],eyeHeight:position[2]}:{...camera,eye:position};
 }
+export function stageFloorPoint(layout,camera,width,height,x,y){
+ const eye=stageCamera(layout,camera,width,height).eye;
+ const forward=[-Math.sin(camera.yaw)*Math.cos(camera.pitch),Math.cos(camera.yaw)*Math.cos(camera.pitch),-Math.sin(camera.pitch)];
+ const right=unit(cross(forward,[0,0,1])),up=cross(right,forward);
+ const focal=camera.mode==='dancer'?width/(2*Math.tan(Math.PI/5)):Math.min(width,height)*1.2;
+ const ray=add(forward,add(mul(right,(x-width/2)/focal),mul(up,(height/2-y)/focal)));
+ if(ray[2]>=-1e-6)return null;
+ const distance=-eye[2]/ray[2];if(distance<=0)return null;
+ const p=add(eye,mul(ray,distance));
+ if(Math.abs(p[0])>layout.width/2||p[1]>(layout.depth)||p[1]<(layout.room?0:-Math.max(4,layout.depth)))return null;
+ return {x:p[0],y:p[1]};
+}
 // Follow the audible deck, retaining it around equal crossfader weights.
 // Beat positions may be numbers (demo) or interpolated beat-grid samples.
 export function createCrowdMotion(){
@@ -337,6 +349,8 @@ export function drawStageLabel(ctx,width,height,layout,camera,project=stageCamer
 }
 
 const fixtureBoxes=new Map();
+const boxFaces=[[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[8,9,10,11]];
+const boxColors=['#222b34','#303c47','#151d25','#1b252e','#46535e'];
 const lensCircles=new Map([8,16].map(n=>[n,Array.from({length:n},(_,i)=>[Math.cos(i*Math.PI*2/n),Math.sin(i*Math.PI*2/n)])]));
 // Shared world geometry: desktop canvas and stereoscopic WebXR use the same scene.
 export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{},thickness=()=>1,footprint=null,beam=null,lens=null,floorSurface=null,surfacePatch=null,surfaceLayers=undefined,projectSurfaces=beamSurfacePatches,fixtureDetail=()=>true,wallVisible=()=>true,eye=null}){
@@ -346,14 +360,15 @@ export function drawStageGeometry(layout,lights,crowd,time,{polygon,paint=()=>{}
   polygon=(points,fill,alpha=1,stroke=null,lineWidth=.7,emissive=false)=>rawPolygon(points,emissive?fill:fill&&points.length>=3?surfaceLight(points,fill):dim(fill),alpha,emissive?stroke:dim(stroke),lineWidth,emissive);
   const line=(a,b,color)=>polygon([a,b],null,1,color);
   const box=(p,size,rotation=0,pitch=0)=>{
-    const key=[...p,...size,rotation,pitch].join(',');let v=fixtureBoxes.get(key);
-    if(v){fixtureBoxes.delete(key);fixtureBoxes.set(key,v);}else{
+    const key=[...p,...size,rotation,pitch].join(',');let faces=fixtureBoxes.get(key);
+    if(faces){fixtureBoxes.delete(key);fixtureBoxes.set(key,faces);}else{
     const [x,y,z]=p,[w,d,h]=size;
-    v=[[-w,-d,0],[w,-d,0],[w,d,0],[-w,d,0],[-w,-d,h*.88],[w,-d,h*.88],[w,d,h*.88],[-w,d,h*.88],[-w*.85,-d*.85,h],[w*.85,-d*.85,h],[w*.85,d*.85,h],[-w*.85,d*.85,h]].map(v=>[v[0],v[1]*Math.cos(pitch)-(v[2]-h/2)*Math.sin(pitch),v[1]*Math.sin(pitch)+(v[2]-h/2)*Math.cos(pitch)+h/2]).map(v=>add([v[0]*Math.cos(rotation)-v[1]*Math.sin(rotation),v[0]*Math.sin(rotation)+v[1]*Math.cos(rotation),v[2]],[x,y,z]));
-    fixtureBoxes.set(key,v);if(fixtureBoxes.size>1024)fixtureBoxes.delete(fixtureBoxes.keys().next().value);
+    const v=[[-w,-d,0],[w,-d,0],[w,d,0],[-w,d,0],[-w,-d,h*.88],[w,-d,h*.88],[w,d,h*.88],[-w,d,h*.88],[-w*.85,-d*.85,h],[w*.85,-d*.85,h],[w*.85,d*.85,h],[-w*.85,d*.85,h]].map(v=>[v[0],v[1]*Math.cos(pitch)-(v[2]-h/2)*Math.sin(pitch),v[1]*Math.sin(pitch)+(v[2]-h/2)*Math.cos(pitch)+h/2]).map(v=>add([v[0]*Math.cos(rotation)-v[1]*Math.sin(rotation),v[0]*Math.sin(rotation)+v[1]*Math.cos(rotation),v[2]],[x,y,z]));
+    // Reuse complete faces as well as corners while the housing is stationary.
+    faces=Array.from({length:4},(_,i)=>[v[4+i],v[4+(i+1)%4],v[8+(i+1)%4],v[8+i]]).concat(boxFaces.map(face=>face.map(j=>v[j])));
+    fixtureBoxes.set(key,faces);if(fixtureBoxes.size>1024)fixtureBoxes.delete(fixtureBoxes.keys().next().value);
     }
-    for(let i=0;i<4;i++)polygon([v[4+i],v[4+(i+1)%4],v[8+(i+1)%4],v[8+i]],'#394650');
-    [[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[8,9,10,11]].forEach((face,i)=>polygon(face.map(j=>v[j]),['#222b34','#303c47','#151d25','#1b252e','#46535e'][i],1,null));
+    for(let i=0;i<faces.length;i++)polygon(faces[i],i<4?'#394650':boxColors[i-4],1,null);
   };
   const w=layout.width/2,d=layout.depth,danceDepth=layout.room?0:Math.max(4,d);
   const styleId=roomStyleId(layout.roomPlan?.style||layout.style),material=roomStyles[styleId];

@@ -9,11 +9,10 @@ import {createApp} from '../server.mjs';
 const app=await createApp({demo:true,previewPort:0});
 app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
-await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
 
 const requests=[];
 app.server.on('request',req=>requests.push(req.url));
-const profile=await mkdtemp(join(tmpdir(),'wiz-dj-connection-'));
+const profile=await mkdtemp(join(tmpdir(),'anydj-dj-check-'));
 const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking','--no-first-run','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
 let ws;
 try {
@@ -51,6 +50,10 @@ try {
   assert.equal(await evaluate("document.querySelector('[data-ar-room]').disabled"),false);
   const initialClub=(await stored()).plans.find(p=>p.name==='Großclub · 192 Lichter');
   assert.ok(initialClub);
+  const defaults=await stored(),defaultRoom=defaults.plans.find(p=>p.id===defaults.selected);
+  assert.equal(defaultRoom.name,'Club-Bühne · ohne Ruhezonen');
+  assert.deepEqual(defaultRoom.zones,[]);assert.equal(defaults.enabled,true);
+  assert.equal(await evaluate("document.querySelector('[data-dancer]').getAttribute('aria-pressed')"),'true');
   await evaluate("document.querySelector('[data-ar-new-room]').click()");
   await change('name','Wohnzimmer');
   await evaluate("document.querySelector('[data-ar-step=\"2\"]').click();document.querySelector('[data-ar-template=moving]').click();document.querySelector('[data-workspace-tab=room]').click();document.querySelector('.ar-room-zones [data-zone-add]').click()");

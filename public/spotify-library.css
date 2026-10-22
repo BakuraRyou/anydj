@@ -45,3 +45,5 @@
 
 .spotify-deck-brand{width:20px;height:20px;margin-left:8px;color:#1ed760;vertical-align:middle}
 .spotify-deck-link{display:inline-block;margin:8px;font-size:12px}
+/* Connected sources only; explicit display rules must respect hidden. */
+.provider-tabs [role=tab][hidden],.provider-tabbar[hidden],.dj-import-panel .dj-connect-provider[hidden]{display:none!important}

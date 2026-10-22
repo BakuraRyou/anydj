@@ -9,11 +9,10 @@ import {createApp} from '../server.mjs';
 const app=await createApp({demo:true,previewPort:0});
 app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
-await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
 
 const requests=[];
 app.server.on('request',req=>requests.push(req.url));
-const profile=await mkdtemp(join(tmpdir(),'wiz-dj-connection-'));
+const profile=await mkdtemp(join(tmpdir(),'anydj-dj-check-'));
 const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking','--no-first-run','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
 let ws;
 try {
@@ -67,6 +66,15 @@ try {
   for(const [width,height] of [[1280,900],[390,844]]){
    await c('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<600});
    await evaluate("document.querySelector('#libraryTools').scrollIntoView({block:'center'})");
+   const listTop=await evaluate("document.querySelector('#trackList').getBoundingClientRect().top");
+   await evaluate("document.querySelector('[popovertarget=libraryImportPopover]').click()");
+   await wait("document.querySelector('#libraryImportPopover').matches(':popover-open')");
+   assert.equal(await evaluate("document.querySelector('#trackList').getBoundingClientRect().top"),listTop,'Import menu must not displace the tracks');
+   assert.equal(await evaluate("['addTracks','linkFolder'].every(id=>{const r=document.getElementById(id).getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight;})"),true,'Import actions stay within the viewport');
+   await evaluate("document.querySelector('#spotifyTab').click()");
+   await wait("!document.querySelector('#libraryImportPopover').matches(':popover-open')");
+   assert.equal(await evaluate("document.querySelector('[popovertarget=libraryImportPopover]').checkVisibility()"),false);
+   await evaluate("document.querySelector('#localTab').click();document.querySelector('#libraryTools').scrollIntoView({block:'center'})");
    assert.equal(await evaluate("document.querySelector('#trackFilter').checkVisibility()"),false);
    await evaluate("document.querySelector('#libraryFilterButton').click()");
    await wait("document.querySelector('#libraryFilterButton').getAttribute('aria-expanded')==='true'");

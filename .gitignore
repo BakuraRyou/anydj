@@ -14,3 +14,10 @@ __pycache__/
 dist/
 .build/
 .certs/
+
+# Local Windows build connection
+builder/windows-vm.json
+builder/mac-build.json
+
+# Local SSH build targets
+/deploy-all.json

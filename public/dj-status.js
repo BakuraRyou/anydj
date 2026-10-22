@@ -24,6 +24,7 @@ export function transitionStatus({from,to,plan,musical=true,structureEnabled=tru
  if([from,to].some(t=>t.failed&&!t.plan))return {kind:'warning',text:'Analyse fehlgeschlagen · Übergang nicht bereit'};
  if(!from.plan||!to.plan)return {kind:'working',text:'Titel werden vorbereitet …'};
  if(!plan?.label)return {kind:'working',text:'Nächster Titel wird geladen …'};
+ if(Number.isFinite(plan.duration)&&plan.duration<.1)return {kind:'warning',text:'Kein Platz für den Übergang · Schnitte und Überblenddauer prüfen'};
  const duration=Number.isFinite(plan.duration)?` · ${plan.duration.toFixed(1)} s`:'';
  if(!musical)return {kind:'ready',text:'Bereit · Crossfade'+duration};
  if(plan.confidence==='analyzed')return {kind:'ready',text:'Bereit · '+plan.label+duration};

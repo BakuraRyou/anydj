@@ -32,7 +32,7 @@ for(const lan of [false,true])test(`HTTPS ${lan?'LAN':'localhost'} serves TLS an
   assert.equal((await request('/.certs/localhost-key.pem')).status,404);
   await new Promise(resolve=>app.server.close(resolve));
 
-  const child=spawn(process.execPath,['scripts/dev-https.mjs','--demo',...(lan?['--lan']:[])],{env:{...process.env,PORT:String(port),SSL_CERT_FILE:certFile,SSL_KEY_FILE:keyFile,WIZ_DATA_DIR:join(dir,'cli-data')},stdio:['ignore','pipe','pipe']});
+  const child=spawn(process.execPath,['scripts/dev-https.mjs','--demo',...(lan?['--lan']:[])],{env:{...process.env,PORT:String(port),SSL_CERT_FILE:certFile,SSL_KEY_FILE:keyFile,ANYDJ_DATA_DIR:join(dir,'cli-data')},stdio:['ignore','pipe','pipe']});
   t.after(async()=>{if(child.exitCode===null){child.kill('SIGTERM');await once(child,'exit');}});
   await new Promise((resolve,reject)=>{
     const timer=setTimeout(()=>reject(Error('HTTPS dev command did not start')),10000);

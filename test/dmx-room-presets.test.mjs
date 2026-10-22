@@ -1,8 +1,24 @@
 import {beamSurfacePatches,roomBeamHit} from '../public/dmx-light-geometry.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {upgradeFestivalLighting,festivalStageRoom,villageBarnRoom,largeHallRoomWithDJQuietZone,largeClubRoom,clubStageRoom,clubStageRoomWithoutQuietZones} from '../public/dmx-room-presets.js';
+import {upgradeFormationStage,strobeStageRoom,upgradeFestivalLighting,festivalStageRoom,villageBarnRoom,largeHallRoomWithDJQuietZone,largeClubRoom,clubStageRoom,clubStageRoomWithoutQuietZones} from '../public/dmx-room-presets.js';
 import {createRoomPreview,applyRoomPlan,validateRoomPlan} from '../public/dmx-ar-model.js';
+
+test('Strobo stage exports three complete mirrored mounting rows without overwriting another room',()=>{
+ const plan=strobeStageRoom(),second=strobeStageRoom();
+ assert.notEqual(plan.id,second.id);
+ assert.deepEqual(validateRoomPlan(JSON.parse(JSON.stringify(plan))),plan);
+ const heads=Object.values(plan.positions).filter(p=>p.type==='moving');
+ assert.equal(heads.length,48);
+ assert.equal(Object.values(plan.positions).filter(p=>p.type==='bar').length,8);
+ assert.equal(new Set(heads.map(p=>p.y)).size,3);
+ assert.equal(new Set(heads.map(p=>p.height)).size,3);
+ for(const p of heads)assert.ok(heads.some(q=>Math.abs(q.x+p.x)<1e-8&&q.y===p.y&&q.height===p.height));
+ const scene={layout:{width:8,depth:6,positions:{}},lights:[{id:'source',type:'moving',position:{x:0,y:4,height:3},target:{x:0,y:2},color:'#ffffff',power:1}]};
+ const expanded=applyRoomPlan(scene,plan);
+ assert.equal(expanded.lights.filter(l=>l.type==='moving').length,48);
+ assert.ok(plan.mesh.triangles.length<5000);
+});
 
 test('large club is a portable, independent room with 192 supported lights',()=>{
   const plan=largeClubRoom(),second=largeClubRoom();
@@ -162,4 +178,12 @@ test('saved festival rooms acquire outdoor mode even with current or edited rigs
   assert.equal(roomBeamHit({width:updated.width,depth:updated.depth,height:updated.height,roomPlan:updated},[0,40,2],[0,0,1]),null);
  }
  const indoor=clubStageRoom();assert.equal(upgradeFestivalLighting(indoor),indoor);
+});
+
+test('renaming the supplied formation stage preserves fixtures, identity and user edits',()=>{
+ const plan=strobeStageRoom();plan.name='Strobo-Bühne · 3 Ebenen';plan.positions['strobe-head-0-0'].x=-9;
+ const updated=upgradeFormationStage(plan);
+ assert.equal(updated.name,'Formationsbühne · 3 Ebenen');assert.equal(updated.id,plan.id);
+ assert.deepEqual(updated.positions,plan.positions);
+ const renamed={...plan,name:'Meine Bühne'};assert.equal(upgradeFormationStage(renamed),renamed);
 });

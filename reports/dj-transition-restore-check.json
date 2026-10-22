@@ -1,0 +1,65 @@
+{
+  "directTimelinePlacement": true,
+  "dragPlacement": true,
+  "saveLabelFits": true,
+  "keyboardPlacement": true,
+  "restoreUndo": true,
+  "noWritesBeforeAccept": true,
+  "cancelDiscards": true,
+  "persisted": [
+    {
+      "name": "test.mp3",
+      "cuts": [
+        [
+          0,
+          2
+        ],
+        [
+          6.000000319974607,
+          7
+        ]
+      ]
+    },
+    {
+      "name": "test.wav",
+      "cuts": [
+        [
+          4,
+          5.000000319974607
+        ],
+        [
+          6.000000319974607,
+          8
+        ],
+        [
+          10,
+          12
+        ]
+      ]
+    }
+  ],
+  "realAudition": [
+    {
+      "starts": [
+        2,
+        5
+      ],
+      "seeks": [
+        2,
+        5
+      ]
+    },
+    {
+      "starts": [
+        5,
+        7
+      ],
+      "seeks": [
+        5,
+        7
+      ]
+    }
+  ],
+  "mobileOverflow": false,
+  "browserErrors": 0
+}

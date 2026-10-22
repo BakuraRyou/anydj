@@ -9,11 +9,10 @@ import {createApp} from '../server.mjs';
 const app=await createApp({demo:true,previewPort:0});
 app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
-await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
 
 const requests=[];
 app.server.on('request',req=>requests.push(req.url));
-const profile=await mkdtemp(join(tmpdir(),'wiz-dj-connection-'));
+const profile=await mkdtemp(join(tmpdir(),'anydj-dj-check-'));
 const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--no-sandbox',...(process.env.ANYDJ_TEST_GPU?['--use-angle=swiftshader','--enable-unsafe-swiftshader']:['--disable-gpu']),'--disable-background-networking','--no-first-run','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
 let ws;
 try {
@@ -52,8 +51,12 @@ try {
   const read=()=>evaluate("JSON.parse(localStorage.getItem('anydj-3d-camera-v1'))");
   const reload=async()=>{await c('Page.navigate',{url:base+'/camera-check?reload='+Date.now()});await wait("document.readyState==='complete'&&!window.stage");await evaluate(mount);await ready();};
   await evaluate(mount);await ready();
+  assert.equal(await evaluate("document.querySelector('[data-dancer]').getAttribute('aria-pressed')"),'true','New profiles start inside the room');
+  // Keep the legacy stage coordinates for the camera round-trip checks below.
+  await evaluate("stage.destroy();const rooms=JSON.parse(localStorage.getItem('anydj-ar-rooms-v1'));rooms.enabled=false;localStorage.setItem('anydj-ar-rooms-v1',JSON.stringify(rooms));localStorage.removeItem('anydj-3d-camera-v1')");
+  await reload();
   if(process.env.ANYDJ_TEST_GPU)assert.equal(await evaluate("document.querySelector('.stage-3d canvas').dataset.renderer"),'webgl');
-  await evaluate("document.querySelector('[data-camera=in]').click();document.querySelector('[data-dancer]').click();for(const [key,value] of [['x','1.25'],['distance','2.4'],['height','1.9']]){const e=document.querySelector('[data-dancer-'+key+']');e.value=value;e.dispatchEvent(new Event(key==='height'?'change':'input'));}");
+  await evaluate("document.querySelector('[data-dancer]').click();document.querySelector('[data-camera=in]').click();document.querySelector('[data-dancer]').click();for(const [key,value] of [['x','1.25'],['distance','2.4'],['height','1.9']]){const e=document.querySelector('[data-dancer-'+key+']');e.value=value;e.dispatchEvent(new Event(key==='height'?'change':'input'));}");
   const rect=await evaluate("(()=>{const r=document.querySelector('.stage-3d canvas').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2};})()");
   await c('Input.dispatchMouseEvent',{type:'mousePressed',...rect,button:'left',buttons:1,clickCount:1});
   await c('Input.dispatchMouseEvent',{type:'mouseMoved',x:rect.x+40,y:rect.y+20,button:'left',buttons:1});
@@ -74,21 +77,43 @@ try {
   await evaluate("window.dispatchEvent(new PageTransitionEvent('pagehide'))");assert.deepEqual(await read(),overview);
   // Corrupt browser storage falls back to usable defaults.
   await evaluate("stage.destroy();localStorage.setItem('anydj-3d-camera-v1','{broken')");
-  await reload();assert.equal(await evaluate("document.querySelector('[data-dancer]').getAttribute('aria-pressed')"),'false');
-  await evaluate("document.querySelector('[data-dancer]').click();document.querySelector('[data-dancer-map]').scrollIntoView({block:'center'})");
+  await reload();assert.equal(await evaluate("document.querySelector('[data-dancer]').getAttribute('aria-pressed')"),'true');
+  await evaluate("document.querySelector('[data-dancer-map]').scrollIntoView({block:'center'})");
   await new Promise(r=>setTimeout(r,300));
   const map=await evaluate("(()=>{const m=document.querySelector('[data-dancer-map]').getScreenCTM(),p=new DOMPoint(120,82).matrixTransform(m),t=new DOMPoint(185,82).matrixTransform(m);return {x:p.x,y:p.y,tx:t.x,ty:t.y};})()");
   assert.equal(await evaluate(`document.querySelector('[data-dancer-map]').contains(document.elementFromPoint(${map.x},${map.y}))`),true,'map is reachable');
   const oldX=await evaluate("document.querySelector('[data-dancer-x]').value");
   await c('Input.dispatchMouseEvent',{type:'mousePressed',x:map.x,y:map.y,button:'left',buttons:1,clickCount:1});
-  await c('Input.dispatchMouseEvent',{type:'mouseMoved',x:map.tx,y:map.ty,buttons:1});
+  await c('Input.dispatchMouseEvent',{type:'mouseMoved',x:map.tx,y:map.ty,button:'left',buttons:1});
   assert.equal(await evaluate("document.querySelector('[data-dancer-x]').value"),oldX,'drag only previews until release');
   await c('Input.dispatchMouseEvent',{type:'mouseReleased',x:map.tx,y:map.ty,button:'left',buttons:0,clickCount:1});
   await wait("Math.abs(JSON.parse(localStorage.getItem('anydj-3d-camera-v1')||'{}').dancer?.yaw+Math.PI/2)<.01");
   const aimed=await read();assert.ok(Math.abs(aimed.dancer.x)<.01);assert.ok(Math.abs(aimed.dancer.y+3)<.01);
   await reload();assert.ok(Math.abs((await read()).dancer.yaw+Math.PI/2)<.01,'aim persists');
+  // Exercise the actual room select and Fit control for every bundled map.
+  const rooms=await evaluate("JSON.parse(localStorage.getItem('anydj-ar-rooms-v1')).plans.map(p=>({id:p.id,name:p.name}))");
+  const selectRoom=async id=>{await evaluate(`(()=>{const e=document.querySelector('[data-ar-room]');e.value=${JSON.stringify(id)};e.dispatchEvent(new Event('change'));window.dispatchEvent(new PageTransitionEvent('pagehide'));})()`);};
+  const fitted=[];
+  for(const room of rooms){
+    await selectRoom(room.id);
+    const expected=await evaluate(`(async()=>{const {roomSpectatorView}=await import('/dmx-room-presets.js');const {roomPlanLayout}=await import('/dmx-ar-model.js');const p=JSON.parse(localStorage.getItem('anydj-ar-rooms-v1')).plans.find(p=>p.id===${JSON.stringify(room.id)});return roomSpectatorView(roomPlanLayout(p));})()`);
+    assert.deepEqual((await read()).dancer,expected,room.name+' gets its own audience location on first selection');
+    await evaluate("(()=>{const x=document.querySelector('[data-dancer-x]');x.value='1.1';x.dispatchEvent(new Event('input'));document.querySelector('[data-camera=reset]').click();window.dispatchEvent(new PageTransitionEvent('pagehide'));})()");
+    assert.deepEqual((await read()).dancer,expected,room.name+' fits to the audience, not the shared depth fraction');
+    fitted.push({name:room.name,...expected});
+  }
+  const first=rooms[0],second=rooms[1];
+  await selectRoom(first.id);
+  await evaluate("(()=>{const e=document.querySelector('[data-dancer-x]');e.value='1.2';e.dispatchEvent(new Event('input'));window.dispatchEvent(new PageTransitionEvent('pagehide'));})()");
+  const firstView=(await read()).dancer;
+  await selectRoom(second.id);
+  assert.notDeepEqual((await read()).dancer,firstView,'another map cannot inherit this manual position');
+  await selectRoom(first.id);assert.deepEqual((await read()).dancer,firstView,'returning restores the chosen location per map');
+  await reload();assert.deepEqual((await read()).dancer,firstView,'room location survives restart');
+  await evaluate("document.querySelector('[data-ar-name]').value='Umbenannte Karte';document.querySelector('[data-ar-name]').dispatchEvent(new Event('change'));window.dispatchEvent(new PageTransitionEvent('pagehide'))");
+  assert.deepEqual((await read()).dancer,firstView,'editing the same room does not reset the viewer');
   await evaluate('stage.destroy()');assert.deepEqual(errors,[]);
-  console.log('Camera persistence passed: position, yaw/pitch, height, Ego mode, overview dolly, immediate pagehide save, reload and malformed storage.');
+  console.log(JSON.stringify({result:'Camera persistence and all-map spectator fitting passed',fitted},null,2));
 } finally {
   ws?.close();chrome.kill('SIGKILL');app.server.closeAllConnections();
   await new Promise(resolve=>app.server.close(resolve));

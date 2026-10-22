@@ -111,17 +111,8 @@
         {
           "id": "transport",
           "title": "Pause oder ganz stoppen?",
-          "text": "Play/Pause findest du direkt in jedem Deck. „Stopp“ oben beendet beide Decks und stellt das vorherige Lampenlicht wieder her.",
+          "text": "Play/Pause findest du direkt in jedem Deck. „Stopp“ oben stoppt beide Decks und die Lichtshow.",
           "target": "#djStop"
-        },
-        {
-          "id": "light",
-          "title": "Musik mit oder ohne Licht",
-          "text": "Oben wählst du unter „Licht“ eine verfügbare Lampe aus. „Nur Audio“ spielt ohne diese Lampensteuerung. Hinweise zur Verbindung findest du am unteren Rand.",
-          "target": "#djLamp",
-          "when": {
-            "target": "#djLamp:not([hidden])"
-          }
         },
         {
           "id": "stage",
@@ -266,17 +257,8 @@
         {
           "id": "transport",
           "title": "Pause oder ganz stoppen?",
-          "text": "Play/Pause findest du direkt in jedem Deck. „Stopp“ oben beendet beide Decks und stellt das vorherige Lampenlicht wieder her.",
+          "text": "Play/Pause findest du direkt in jedem Deck. „Stopp“ oben stoppt beide Decks und die Lichtshow.",
           "target": "#djStop"
-        },
-        {
-          "id": "light",
-          "title": "Musik mit oder ohne Licht",
-          "text": "Oben wählst du unter „Licht“ eine verfügbare Lampe aus. „Nur Audio“ spielt ohne diese Lampensteuerung. Hinweise zur Verbindung findest du am unteren Rand.",
-          "target": "#djLamp",
-          "when": {
-            "target": "#djLamp:not([hidden])"
-          }
         },
         {
           "id": "stage",

@@ -143,7 +143,7 @@ test('show pulse does not animate a silent or steady pad even with a beat grid',
 });
 
 
-test('show action shares exact musical timing, symmetric groups and smooth color waves',async()=>{
+test('show action keeps exact musical timing while holding its color picture',async()=>{
  const {showActionAt}=await import('../public/show-action.js');
  const {spatialColors}=await import('../public/dmx-auto.js');
  const {movingPresenceLevel}=await import('../public/dmx-activity.js');
@@ -153,7 +153,10 @@ test('show action shares exact musical timing, symmetric groups and smooth color
  for(const count of [1,2,7,8]){
   const colors=spatialColors({movingPlan:plan,songTime:2.537},count,[[255,30,0],[0,80,255]]);
   assert.equal(colors.length,count);
-  assert.deepEqual(colors,[...colors].reverse(),'color gradient mirrors the formation');
+  assert.ok(colors.every(c=>[[255,30,0],[0,80,255]].some(p=>p.every((v,i)=>v===c[i]))),'show uses the supplied palette');
+  if(count>1)assert.equal(new Set(colors.map(c=>c.join(','))).size,2,'multiple colors remain visible');
+  if(count>=3)assert.deepEqual(colors,[...colors].reverse(),'color groups mirror the formation');
+  assert.deepEqual(colors,spatialColors({movingPlan:plan,songTime:3.036},count,[[255,30,0],[0,80,255]]),'action cues do not flash or rotate the palette');
   assert.ok(colors.every(c=>Math.max(...c)===255),'complementary transition keeps brightness');
   const levels=Array.from({length:count},(_,rank)=>movingPresenceLevel({level:1,mask:'show-action',action:'launch',progress:.3,amount:1},rank,count));
   assert.deepEqual(levels,[...levels].reverse());
@@ -161,19 +164,40 @@ test('show action shares exact musical timing, symmetric groups and smooth color
   if(count>2)assert.ok(levels[Math.floor(count/2)]>levels[0],'build opens from the center');
  }
  const source={movingPlan:plan,songTime:3.036};
- assert.ok(spatialColors(source,8,[[255,30,0],[0,80,255]]).every(c=>c[0]===255&&c[2]<=1),'color wave settles without a discontinuity');
+ assert.deepEqual(spatialColors(source,8,[[255,30,0]]),Array(8).fill([255,30,0]),'single-color setting stays monochrome');
  const limited={level:.8,mask:'show-action',action:'answer',phase:0,progress:.4,amount:0};
  assert.deepEqual(Array.from({length:8},(_,i)=>movingPresenceLevel(limited,i,8)),Array(8).fill(.8),'flicker zero removes group switching');
+});
+test('show respects the configured color ceiling on small and large rigs',async()=>{
+ const {automaticStage}=await import('../public/dmx-auto.js');
+ const palette=[[255,30,0],[0,80,255],[0,255,30],[255,0,200]];
+ const stream={frame:{r:255,g:30,b:0,dimming:80,state:true},weight:1,look:'peak',songTime:1,
+  movingPlan:{showProfile:'show'},palette};
+ for(const units of [1,2,4,8,16]){
+  const equipment={devices:Array.from({length:units},(_,i)=>({id:String(i),type:'spot',cells:1}))};
+  for(const count of [1,2,3,4]){
+   const result=automaticStage([stream],count,equipment);
+   const colors=result.frames.flat().map(f=>[f.r,f.g,f.b].join(','));
+   assert.equal(new Set(colors).size,Math.min(count,units),`${units} fixtures, ${count} colors`);
+  }
+  const calm=automaticStage([{...stream,look:'quiet'}],4,equipment);
+  assert.equal(new Set(calm.frames.flat().map(f=>[f.r,f.g,f.b].join(','))).size,1,'quiet passages may reduce the configured maximum');
+ }
 });
 test('show group actions respect manual rhythm and deterministic playback',async()=>{
  const {movingPresenceAt}=await import('../public/dmx-activity.js');
  const plan=applyShowProfile(make(windows),'show');
  const cue=plan.showCues.find(c=>c.action==='answer');assert.ok(cue);
  const source={movingPlan:plan,songTime:cue.time+.1,movingMood:'show',flicker:.4};
- const expected=movingPresenceAt(source);assert.equal(expected.mask,'show-action');assert.equal(expected.amount,.4);
+ const expected=movingPresenceAt(source);assert.equal(expected.mask,'show-score');assert.equal(expected.amount,undefined,'answer cues no longer add another group shutter');
  movingPresenceAt({...source,songTime:15});assert.deepEqual(movingPresenceAt(source),expected);
  const manual={...plan,sectionLighting:[{start:0,end:16,rhythm:'none'}]};
  assert.equal(movingPresenceAt({...source,movingPlan:manual}).mask,'all');
+ const launch={...plan,showCues:plan.showCues.map(c=>({...c,action:'launch'}))};
+ for(const flicker of [0,1,25,50,100]){
+  const presence=movingPresenceAt({...source,movingPlan:launch,flicker});
+  assert.equal(presence.amount,flicker/100,'Show group impulses use the same percentage scale as the control');
+ }
 });
 
 test('show lateral bearings reach both side walls including the center head',async()=>{

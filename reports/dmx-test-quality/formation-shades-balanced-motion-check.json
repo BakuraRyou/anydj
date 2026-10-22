@@ -1,0 +1,53 @@
+{
+  "source": "Shades.mp3, saved local analysis",
+  "room": "Festival-Bühne without exclusion zones",
+  "method": "Mean displayed target travel per second over 80 moving heads at 30 Hz; geometric measurements, not calibrated motor speeds.",
+  "changes": {
+    "motorCycleBeats": {
+      "before": 2,
+      "after": 8
+    },
+    "maximumAdditionalTranslation": {
+      "before": 0.13,
+      "after": 0.05
+    },
+    "weaveRotationRadians": {
+      "before": 0.32,
+      "after": 0.12
+    },
+    "lightingTransfer": "Beat phase retained",
+    "arrivals": "Prepared source cues and shared section boundaries retained"
+  },
+  "samples": [
+    {
+      "start": 34,
+      "end": 38,
+      "before": 13.066392417585291,
+      "after": 1.699262048249388,
+      "frozenHeads": 0
+    },
+    {
+      "start": 48,
+      "end": 52,
+      "before": 15.402732947530078,
+      "after": 1.9315423352985253,
+      "frozenHeads": 0
+    },
+    {
+      "start": 78,
+      "end": 82,
+      "before": 20.530862501016458,
+      "after": 2.636391000500074,
+      "frozenHeads": 0
+    },
+    {
+      "start": 94,
+      "end": 104,
+      "before": 0.8130525612161963,
+      "after": 0.2826213646779379,
+      "frozenHeads": 0
+    }
+  ],
+  "tests": 254,
+  "preview": "formation-shades-festival-open-balanced-motion.mp4"
+}

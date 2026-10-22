@@ -1,5 +1,14 @@
 import {validateSectionEdits} from './section-lighting.js';
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+export function isolateLightMoment(edits,time,duration,length=1){
+  const index=edits.findIndex(e=>time>=e.start&&time<e.end),source=edits[index];
+  const start=clamp(time,0,duration),end=Math.min(duration,start+length,source?.end??duration);
+  if(end<=start)throw Error('Wähle eine Position vor dem Songende.');
+  const phase={...(source||{name:'Moment',motif:'',rhythm:'auto',movement:1,colors:'auto',colorA:'#ff7700',colorB:'#7400ff'}),id:crypto.randomUUID(),start,end};
+  const result=edits.flatMap((e,i)=>i!==index?[e]:[...(e.start<start?[{...e,end:start}]:[]),phase,...(end<e.end?[{...e,id:crypto.randomUUID(),start:end}]:[])]);
+  if(index<0){const next=edits.find(e=>e.start>start);phase.end=Math.min(end,next?.start??duration);result.push(phase);result.sort((a,b)=>a.start-b.start);}
+  return {edits:validateSectionEdits(result,duration),index:result.indexOf(phase)};
+}
 export function editPhaseTime(edits,index,kind,value,plan,snap='beat') {
   if(!Number.isFinite(value))throw Error('Bitte eine gültige Zeit eingeben.');
   const result=structuredClone(edits),phase=result[index];

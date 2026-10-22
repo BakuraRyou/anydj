@@ -1,0 +1,101 @@
+{
+  "input": "RobbieWilliamsBoddies.mp3",
+  "excerpt": {
+    "start": 30,
+    "duration": 30
+  },
+  "desktopStructure": "schema fixture passed through real validation and show compilation; no model inference executed",
+  "browser": {
+    "sectionEnergy": [
+      0.6475748157142818,
+      0.6960430323610701
+    ],
+    "moodSegments": 15,
+    "moodEnergyRange": [
+      0.6094328833569362,
+      0.694546774461158
+    ],
+    "tags": [
+      "Düster",
+      "Treibend"
+    ],
+    "analysis": {
+      "version": 1,
+      "source": "browser",
+      "scores": {
+        "dark": 0.30333333333333334,
+        "driving": 0.9333333333333333
+      }
+    }
+  },
+  "withDesktopStructure": {
+    "sectionEnergy": [
+      null,
+      null
+    ],
+    "moodSegments": 15,
+    "moodEnergyRange": [
+      0.6094328833569362,
+      0.694546774461158
+    ],
+    "tags": [],
+    "analysis": {
+      "version": 1,
+      "source": "browser",
+      "scores": {}
+    }
+  },
+  "withOnlyMeasuredSectionEnergyRestored": {
+    "sectionEnergy": [
+      0.6475748157142818,
+      0.6960430323610701
+    ],
+    "moodSegments": 15,
+    "moodEnergyRange": [
+      0.6094328833569362,
+      0.694546774461158
+    ],
+    "tags": [
+      "Düster",
+      "Treibend"
+    ],
+    "analysis": {
+      "version": 1,
+      "source": "browser",
+      "scores": {
+        "dark": 0.30333333333333334,
+        "driving": 0.9333333333333333
+      }
+    }
+  },
+  "identicalMoodSegments": true,
+  "constantTone": {
+    "frequencyHz": 220,
+    "duration": 20,
+    "rhythm": false,
+    "sectionEnergy": [
+      0.9909760634321222
+    ],
+    "moodSegments": 10,
+    "moodEnergyRange": [
+      0.7441348450442139,
+      0.7455421594980872
+    ],
+    "tags": [
+      "Treibend",
+      "Wild"
+    ],
+    "analysis": {
+      "version": 1,
+      "source": "browser",
+      "scores": {
+        "driving": 1,
+        "wild": 0.75
+      }
+    }
+  },
+  "causes": [
+    "Desktop structure sections have no energy field; the feeling silence guard returns empty scores.",
+    "Mood drive uses within-song loudness normalization and tags a sustained tone as driving/wild without rhythm evidence."
+  ]
+}

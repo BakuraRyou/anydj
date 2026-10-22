@@ -3,9 +3,9 @@ import {pipeline} from 'node:stream/promises';
 import http from 'node:http';
 import {readFile,realpath,stat} from 'node:fs/promises';
 import {resolve,sep,extname,join} from 'node:path';
-import {randomUUID} from 'node:crypto';
+import {randomUUID,createHash} from 'node:crypto';
 
-const MIME={'.wav':'audio/wav','.mp3':'audio/mpeg','.ogg':'audio/ogg','.m4a':'audio/mp4','.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.ico':'image/x-icon','.json':'application/json; charset=utf-8','.AppImage':'application/octet-stream','.deb':'application/vnd.debian.binary-package','.exe':'application/octet-stream'};
+const MIME={'.xml':'application/xml; charset=utf-8','.txt':'text/plain; charset=utf-8','.wav':'audio/wav','.mp3':'audio/mpeg','.ogg':'audio/ogg','.m4a':'audio/mp4','.html':'text/html; charset=utf-8','.js':'text/javascript; charset=utf-8','.css':'text/css; charset=utf-8','.svg':'image/svg+xml','.png':'image/png','.webp':'image/webp','.ico':'image/x-icon','.json':'application/json; charset=utf-8','.AppImage':'application/octet-stream','.deb':'application/vnd.debian.binary-package','.exe':'application/octet-stream','.dmg':'application/x-apple-diskimage'};
 const CSP="default-src 'self'; script-src 'self' https://sdk.scdn.co https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://*.google-analytics.com https://*.analytics.google.com https://resources.tidal.com https://images.tidal.com https://*.scdn.co https://*.spotifycdn.com; media-src 'self' blob: https://*.scdn.co https://*.spotifycdn.com; connect-src 'self' https://www.googletagmanager.com https://*.google-analytics.com https://*.analytics.google.com https://openapi.tidal.com https://auth.tidal.com https://accounts.spotify.com https://api.spotify.com https://*.spotify.com wss://*.spotify.com https://*.scdn.co https://*.spotifycdn.com; frame-src https://sdk.scdn.co https://*.spotify.com; worker-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'; object-src 'none'";
 
 export async function watchCrashRestart(appRoot,{interval=1000}={}){
@@ -42,7 +42,14 @@ export async function createHostedServer({root,release='development',appRoot=roo
       const relative=pathname==='/'?'index.html':pathname==='/dj'?'dj.html':pathname==='/downloads'?'downloads.html':pathname.slice(1);
       const file=await realpath(resolve(publicRoot,relative));
       if(!file.startsWith(publicRoot+sep)||!(await stat(file)).isFile()||!MIME[extname(file)])throw Error('Not found');
-      const size=(await stat(file)).size,download=['.AppImage','.deb','.exe'].includes(extname(file));
+      const size=(await stat(file)).size,download=['.AppImage','.deb','.exe','.dmg'].includes(extname(file));
+      // Permit only the exact inert structured-data blocks emitted by the build.
+      if(extname(file)==='.html'){
+        const html=await readFile(file,'utf8');
+        const hashes=[...html.matchAll(/<script type="application\/ld\+json">([\s\S]*?)<\/script>/g)]
+          .map(match=>`'sha256-${createHash('sha256').update(match[1]).digest('base64')}'`);
+        if(hashes.length)res.setHeader('Content-Security-Policy',CSP.replace("script-src 'self'",`script-src 'self' ${hashes.join(' ')}`));
+      }
       if(download)res.setHeader('Content-Disposition','attachment');
       res.setHeader('Accept-Ranges','bytes');
       let start=0,end=size-1,status=200;

@@ -1,17 +1,24 @@
 import {matchesFeelings,DEFAULT_FEELINGS} from './feeling-tags.js';
 import {fileIdentity} from './dj-model.js';
 import {SHOW_PLAN_VERSION} from './show-plan.js';
+import {migrateLibraryDatabase} from './storage-migration.js';
 // IndexedDB contains file references, metadata and computed shows, never audio.
+// Desktop nativeFile indicates a separately registered reference, not an audio copy.
 let database;
 function openDatabase() {
   return database ??= new Promise((resolve,reject)=>{
-    const request=indexedDB.open(globalThis.document?.documentElement?.dataset.edition==='web'?'anydj-web-library':'wiz-dj-library',3);
+    const web=globalThis.document?.documentElement?.dataset.edition==='web';
+    const request=indexedDB.open(web?'anydj-web-library':'anydj-dj-library',3);
     request.onupgradeneeded=()=>{
       if(!request.result.objectStoreNames.contains('shows'))request.result.createObjectStore('shows');
       if(!request.result.objectStoreNames.contains('tracks'))request.result.createObjectStore('tracks',{keyPath:'id'});
       if(!request.result.objectStoreNames.contains('settings'))request.result.createObjectStore('settings');
     };
-    request.onsuccess=()=>{request.result.onversionchange=()=>request.result.close();resolve(request.result);};
+    request.onsuccess=async()=>{
+      const db=request.result;db.onversionchange=()=>db.close();
+      try{if(!web)await migrateLibraryDatabase(indexedDB,db);resolve(db);}
+      catch(error){db.close();reject(error);}
+    };
     request.onerror=()=>reject(request.error);
     request.onblocked=()=>reject(Error('Andere DJ-Tabs schließen und neu laden.'));
   });
@@ -24,8 +31,8 @@ async function transaction(mode,action,name='tracks') {
     tx.onerror=tx.onabort=()=>reject(tx.error||Error('Speichern fehlgeschlagen.'));
   });
 }
-const metadata=track=>({feelingAnalysis:track.feelingAnalysis||null,feelingAdded:track.feelingAdded||[],feelingExcluded:track.feelingExcluded||[],id:track.id,name:track.name,size:track.size,lastModified:track.lastModified,
-  cover:track.cover||null,coverKey:track.coverKey||null,hotCues:track.hotCues||null,colorMode:track.colorMode||null,showProfile:track.showProfile||null,sectionEdits:track.sectionEdits||null,order:track.order,addedAt:track.addedAt??null,handle:track.handle||null,folderId:track.folderId||null,relativePath:track.relativePath||null});
+const metadata=track=>({nativeFile:Boolean(track.nativeFile),feelingAnalysis:track.feelingAnalysis||null,feelingAdded:track.feelingAdded||[],feelingExcluded:track.feelingExcluded||[],id:track.id,name:track.name,size:track.size,lastModified:track.lastModified,
+  cover:track.cover||null,coverKey:track.coverKey||null,audioCuts:track.audioCuts||null,audioCutJoins:track.audioCutJoins||null,hotCues:track.hotCues||null,colorMode:track.colorMode||null,showProfile:track.showProfile||null,sectionEdits:track.sectionEdits||null,order:track.order,addedAt:track.addedAt??null,handle:track.handle||null,folderId:track.folderId||null,relativePath:track.relativePath||null});
 export const readFeelingCatalog=()=>transaction('readonly',store=>store.get('feelingCatalog'),'settings');
 export const saveFeelingCatalog=catalog=>transaction('readwrite',store=>store.put(catalog,'feelingCatalog'),'settings');
 export const readLibrary=()=>transaction('readonly',store=>store.getAll());
@@ -79,7 +86,7 @@ export const saveTransitionLibrary=value=>transaction('readwrite',store=>store.p
 // View preferences never reorder the stored library or an existing queue.
 export function libraryTracks(tracks,{query='',filter='all',sort='newest',feelings=[],catalog=DEFAULT_FEELINGS}={}){
  const text=query.trim().toLocaleLowerCase();
- const problem=t=>Boolean(t.missing||t.pendingChange||t.failed||t.queuePreparationError||(!t.file&&!t.handle));
+ const problem=t=>Boolean(t.missing||t.pendingChange||t.failed||t.queuePreparationError||(!t.file&&!t.handle&&!t.nativeFile));
  const ready=t=>Boolean(t.plan&&!t.phase&&!t.recalculate&&!problem(t));
  const rows=tracks.filter(t=>!t.deleted&&matchesFeelings(t,feelings,catalog)&&`${t.name} ${t.relativePath||''}`.toLocaleLowerCase().includes(text)&&
   (filter==='ready'?ready(t):filter==='pending'?!problem(t)&&!ready(t):filter==='problems'?problem(t):filter==='folder'?Boolean(t.folderId):filter==='files'?!t.folderId:true));

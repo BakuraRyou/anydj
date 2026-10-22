@@ -30,20 +30,21 @@ export function movingCues(plan,mode,mood='balanced'){
   return patternMovingCues(plan,mode,mood);
 }
 const strobeMotionCache=new WeakMap();
-// Sample the independent motif geometry; shutter events do not restart motors.
+// Compile the Strobo poses, including held pictures and dark repositioning.
 export function strobeMovingCues(plan){
  if(strobeMotionCache.has(plan))return strobeMotionCache.get(plan);
  const result=[],score=strobeScore(plan);
  const times=[...new Set([...score.flatMap(f=>[0,.08,.3,.55,.78,.9,1].map(p=>f.start+(f.end-f.start)*p)),
   ...strobeConductor(plan).events.filter(e=>e.advance).flatMap(e=>[e.time,Math.min(plan.duration,e.time+e.duration)])])].sort((a,b)=>a-b);
  for(const time of times){
-  const figure=strobeScoreAt(plan,time)??score.at(-1);if(!figure)continue;
+  const figure=strobeScoreAt(plan,Math.min(time,plan.duration-1e-7))??score.at(-1);if(!figure)continue;
   if(result.length&&time<=result.at(-1).time)continue;
   const edit=plan.sectionLighting?.find(s=>time>=s.start&&time<s.end);
   const target=Array.from({length:4},(_,i)=>{const p=strobeComposition(figure,i,4);return {pan:(p.x-.5)*80,tilt:.5+p.y*.55};});
   const previous=result.at(-1),travel=previous?time-previous.time:0,reach=previous?motionReach(previous.pose,target,travel,.8):1;
   const pose=edit?.movement===0&&previous?previous.pose:target.map((p,i)=>previous?{pan:previous.pose[i].pan+(p.pan-previous.pose[i].pan)*reach,tilt:previous.pose[i].tilt+(p.tilt-previous.pose[i].tilt)*reach}:p);
-  result.push({time,travel,pose,formation:figure.id,coordinated:true});
+  const flowing=!!figure.music?.sequence?.formationStory&&figure.music.sequence.role!=='silence'&&edit?.movement!==0&&edit?.rhythm!=='none';
+  result.push({time,travel,pose,formation:figure.id,coordinated:true,...(flowing?{continuous:true}: {})});
  }
  if(!result.length)result.push({time:0,travel:0,pose:restingHeads()});
  strobeMotionCache.set(plan,result);return result;

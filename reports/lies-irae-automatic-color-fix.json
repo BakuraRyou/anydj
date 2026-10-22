@@ -1,0 +1,286 @@
+{
+  "song": "Dope Stars Inc. - Lies Irae.mp3",
+  "method": "Same exported Automatic plan; four spot roles plus eight bar cells; 50 Hz offline before/after replay before room routing. Large jumps: RGB Euclidean step >=100 while source color step <=10. No listening or physical fixture assessment.",
+  "results": [
+    {
+      "colorLimit": 1,
+      "sampleHz": 50,
+      "checkedFrames": 10773,
+      "beforeLargeColorJumps": 0,
+      "afterLargeColorJumps": 0,
+      "maxDimmerDelta": 0,
+      "examples": [
+        {
+          "time": 16,
+          "beforeStep": 0,
+          "afterStep": 0
+        },
+        {
+          "time": 18,
+          "beforeStep": 0,
+          "afterStep": 0
+        },
+        {
+          "time": 60,
+          "beforeStep": 0,
+          "afterStep": 0
+        },
+        {
+          "time": 66,
+          "beforeStep": 0,
+          "afterStep": 0
+        },
+        {
+          "time": 68,
+          "beforeStep": 0,
+          "afterStep": 0
+        },
+        {
+          "time": 70,
+          "beforeStep": 0,
+          "afterStep": 0
+        },
+        {
+          "time": 90.5,
+          "beforeStep": 0,
+          "afterStep": 0
+        },
+        {
+          "time": 110,
+          "beforeStep": 0,
+          "afterStep": 0
+        },
+        {
+          "time": 112,
+          "beforeStep": 0,
+          "afterStep": 0
+        },
+        {
+          "time": 136,
+          "beforeStep": 0,
+          "afterStep": 0
+        },
+        {
+          "time": 138,
+          "beforeStep": 0,
+          "afterStep": 0
+        },
+        {
+          "time": 138.18,
+          "beforeStep": 0,
+          "afterStep": 0
+        }
+      ]
+    },
+    {
+      "colorLimit": 2,
+      "sampleHz": 50,
+      "checkedFrames": 10773,
+      "beforeLargeColorJumps": 15,
+      "afterLargeColorJumps": 0,
+      "maxDimmerDelta": 0,
+      "examples": [
+        {
+          "time": 16,
+          "beforeStep": 354.6505322144604,
+          "afterStep": 0
+        },
+        {
+          "time": 18,
+          "beforeStep": 354.6505322144604,
+          "afterStep": 0
+        },
+        {
+          "time": 60,
+          "beforeStep": 349.5540015505473,
+          "afterStep": 1.4142135623730951
+        },
+        {
+          "time": 66,
+          "beforeStep": 350.95013890864897,
+          "afterStep": 0
+        },
+        {
+          "time": 68,
+          "beforeStep": 385.9339321697433,
+          "afterStep": 0
+        },
+        {
+          "time": 70,
+          "beforeStep": 385.9339321697433,
+          "afterStep": 0
+        },
+        {
+          "time": 90.5,
+          "beforeStep": 271.9669097519035,
+          "afterStep": 0
+        },
+        {
+          "time": 110,
+          "beforeStep": 350.95013890864897,
+          "afterStep": 0
+        },
+        {
+          "time": 112,
+          "beforeStep": 350.95013890864897,
+          "afterStep": 0
+        },
+        {
+          "time": 136,
+          "beforeStep": 354.6505322144604,
+          "afterStep": 0
+        },
+        {
+          "time": 138,
+          "beforeStep": 360.6258448863586,
+          "afterStep": 0
+        },
+        {
+          "time": 138.18,
+          "beforeStep": 127.8632081562167,
+          "afterStep": 0
+        }
+      ]
+    },
+    {
+      "colorLimit": 3,
+      "sampleHz": 50,
+      "checkedFrames": 10773,
+      "beforeLargeColorJumps": 26,
+      "afterLargeColorJumps": 0,
+      "maxDimmerDelta": 0,
+      "examples": [
+        {
+          "time": 16,
+          "beforeStep": 354.6505322144604,
+          "afterStep": 0
+        },
+        {
+          "time": 18,
+          "beforeStep": 0,
+          "afterStep": 0
+        },
+        {
+          "time": 60,
+          "beforeStep": 349.5540015505473,
+          "afterStep": 1.4142135623730951
+        },
+        {
+          "time": 66,
+          "beforeStep": 350.95013890864897,
+          "afterStep": 0
+        },
+        {
+          "time": 68,
+          "beforeStep": 385.9339321697433,
+          "afterStep": 0
+        },
+        {
+          "time": 70,
+          "beforeStep": 385.9339321697433,
+          "afterStep": 0
+        },
+        {
+          "time": 90.5,
+          "beforeStep": 271.9669097519035,
+          "afterStep": 0
+        },
+        {
+          "time": 110,
+          "beforeStep": 350.95013890864897,
+          "afterStep": 0
+        },
+        {
+          "time": 112,
+          "beforeStep": 350.95013890864897,
+          "afterStep": 0
+        },
+        {
+          "time": 136,
+          "beforeStep": 354.6505322144604,
+          "afterStep": 0
+        },
+        {
+          "time": 138,
+          "beforeStep": 0,
+          "afterStep": 0
+        },
+        {
+          "time": 138.18,
+          "beforeStep": 127.8632081562167,
+          "afterStep": 15.811388300841896
+        }
+      ]
+    },
+    {
+      "colorLimit": 4,
+      "sampleHz": 50,
+      "checkedFrames": 10773,
+      "beforeLargeColorJumps": 32,
+      "afterLargeColorJumps": 0,
+      "maxDimmerDelta": 0,
+      "examples": [
+        {
+          "time": 16,
+          "beforeStep": 354.6505322144604,
+          "afterStep": 0
+        },
+        {
+          "time": 18,
+          "beforeStep": 354.6505322144604,
+          "afterStep": 0
+        },
+        {
+          "time": 60,
+          "beforeStep": 349.5540015505473,
+          "afterStep": 1.4142135623730951
+        },
+        {
+          "time": 66,
+          "beforeStep": 350.95013890864897,
+          "afterStep": 0
+        },
+        {
+          "time": 68,
+          "beforeStep": 385.9339321697433,
+          "afterStep": 0
+        },
+        {
+          "time": 70,
+          "beforeStep": 385.9339321697433,
+          "afterStep": 0
+        },
+        {
+          "time": 90.5,
+          "beforeStep": 198.00252523642217,
+          "afterStep": 0
+        },
+        {
+          "time": 110,
+          "beforeStep": 350.95013890864897,
+          "afterStep": 0
+        },
+        {
+          "time": 112,
+          "beforeStep": 350.95013890864897,
+          "afterStep": 0
+        },
+        {
+          "time": 136,
+          "beforeStep": 354.6505322144604,
+          "afterStep": 0
+        },
+        {
+          "time": 138,
+          "beforeStep": 360.6258448863586,
+          "afterStep": 0
+        },
+        {
+          "time": 138.18,
+          "beforeStep": 127.8632081562167,
+          "afterStep": 39.92492955535426
+        }
+      ]
+    }
+  ]
+}

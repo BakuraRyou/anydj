@@ -1,0 +1,19 @@
+{
+  "reference": "HEAD room rendering before focus integration",
+  "source": "Timecode - lightshow - Atomic Damage -MA3D.mp3",
+  "scope": "Full saved-song replay, 10 Hz, club room. Same source cues and participation in both runs; compares only room target projection and motor/routing output without focus. Does not establish equivalence of the complete app or its frame cadence.",
+  "rows": [
+    {
+      "mood": "balanced",
+      "frames": 1120,
+      "mismatches": 0,
+      "maxTargetErrorMetres": 0
+    },
+    {
+      "mood": "show",
+      "frames": 1120,
+      "mismatches": 0,
+      "maxTargetErrorMetres": 0
+    }
+  ]
+}

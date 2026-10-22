@@ -1,5 +1,5 @@
 import {TIDAL_CLIENT_ID,createTidalClient,callbackURL,nonce,apiURL,resources,normalizeResource,playlistID} from './tidal-client.js';
-import {selectProvider,providerKeys} from './provider-tabs.js';
+import {selectProvider,providerKeys,setProviderConnected} from './provider-tabs.js';
 const node=(tag,text,cls)=>{const n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;};
 const button=(text,action)=>{const b=node('button',text,'button secondary');b.type='button';b.onclick=action;return b;};
 const link=(text,url)=>{const a=node('a',text);a.href=url;a.target='_blank';a.rel='noopener noreferrer';return a;};
@@ -8,6 +8,7 @@ export function createTidalLibrary({getTracks,enqueueTracks,loadLocal}){
  const panel=node('section',null,'provider-panel spotify-panel');panel.id='tidalLibrary';panel.hidden=true;panel.setAttribute('role','tabpanel');panel.setAttribute('aria-labelledby','tidalTab');
  const tab=button('TIDAL',()=>selectProvider(panel.id));tab.id='tidalTab';tab.setAttribute('role','tab');tab.setAttribute('aria-controls',panel.id);tab.setAttribute('aria-selected','false');tab.tabIndex=-1;tab.onkeydown=providerKeys;
  root.querySelector('[role=tablist]').append(tab);root.append(panel);
+ const connect=button('TIDAL verbinden',()=>{document.getElementById('libraryImportPopover').hidePopover();showConnection();});connect.classList.add('dj-connect-provider');document.getElementById('libraryImportPopover').append(connect);
  const top=node('div',null,'spotify-toolbar'),brand=node('strong','TIDAL'),account=node('span',null,'small muted');
  top.append(brand,account,button('Verbindung',showConnection),button('Info',()=>{const d=dialog('TIDAL');d.append(node('p','Playlists, Lieblingssongs und Suche sind verfügbar, soweit deine TIDAL-App dafür freigegeben ist. Für die Decks eine eigene lokale Datei zuordnen. TIDAL-Streaming ist hier noch nicht freigeschaltet.'));}));
  const refresh=button('↻',()=>run(()=>currentPath?showPage(currentPath,mode,title.textContent):collection(source.value)));refresh.setAttribute('aria-label','TIDAL aktualisieren');refresh.title='TIDAL aktualisieren';top.append(refresh);
@@ -30,8 +31,7 @@ export function createTidalLibrary({getTracks,enqueueTracks,loadLocal}){
  let active=false,entered=false,busy=false,revision=0,controller=new AbortController(),auth=null,rows=[],next=null,currentPath='',mode='playlists',country='DE',links={};
  try{links=JSON.parse(sessionStorage.getItem('anydj-tidal-links'))||{};}catch{}
  root.addEventListener('providerchange',e=>{active=e.detail===panel.id;if(active){render();if(!entered&&client.connected){entered=true;void run(()=>collection('playlists'));}}});
- root.addEventListener('providerconnect',()=>{if(active)showConnection();});
- function controls(){account.textContent=client.connected?'Verbunden':'Nicht verbunden';for(const c of [source,query,submit,refresh])c.disabled=busy||Boolean(auth)||!client.connected;more.disabled=busy;more.hidden=!next;enqueue.hidden=mode!=='tracks';enqueue.disabled=busy||!rows.some(mapped);panel.setAttribute('aria-busy',String(busy));}
+ function controls(){setProviderConnected(tab,client.connected);connect.hidden=client.connected;account.textContent=client.connected?'Verbunden':'Nicht verbunden';for(const c of [source,query,submit,refresh])c.disabled=busy||Boolean(auth)||!client.connected;more.disabled=busy;more.hidden=!next;enqueue.hidden=mode!=='tracks';enqueue.disabled=busy||!rows.some(mapped);panel.setAttribute('aria-busy',String(busy));}
  async function run(action){
   if(busy)return;busy=true;const generation=revision;status.textContent='Lädt …';controls();
   try{await action();if(generation===revision&&status.textContent==='Lädt …')status.textContent='';}
@@ -62,7 +62,7 @@ export function createTidalLibrary({getTracks,enqueueTracks,loadLocal}){
  }
  function mapped(remote){const id=links[remote.id];return remote.type==='tracks'?getTracks().find(t=>t.id===id&&!t.missing&&!t.pendingChange&&(t.file||t.handle)):null;}
  let dragging=false;
- list.addEventListener('dragstart',event=>{if(!event.defaultPrevented&&[...(event.dataTransfer?.types||[])].some(type=>['application/x-wiz-track','application/x-anydj-provider-track'].includes(type)))dragging=true;});
+ list.addEventListener('dragstart',event=>{if(!event.defaultPrevented&&[...(event.dataTransfer?.types||[])].some(type=>['application/x-anydj-track','application/x-anydj-provider-track'].includes(type)))dragging=true;});
  document.addEventListener('dragend',()=>{if(dragging){dragging=false;render();}});
  function render(){
   if(dragging)return;
@@ -80,7 +80,7 @@ export function createTidalLibrary({getTracks,enqueueTracks,loadLocal}){
     extra.append(button('Datei zuordnen',()=>chooseMapping(remote)));
     if(local)for(const deck of ['A','B'])extra.append(button('Auf Deck '+deck,()=>run(()=>loadLocal(deck,mapped(remote)))));
     actions.append(queue,extra);row.append(art,info,actions);
-    row.draggable=Boolean(local);row.ondragstart=e=>{const track=mapped(remote);if(!track){e.preventDefault();return;}e.dataTransfer.effectAllowed='copy';e.dataTransfer.setData('application/x-wiz-track',track.id);};
+    row.draggable=Boolean(local);row.ondragstart=e=>{const track=mapped(remote);if(!track){e.preventDefault();return;}e.dataTransfer.effectAllowed='copy';e.dataTransfer.setData('application/x-anydj-track',track.id);};
    }list.append(row);
   }
   if(!rows.length)list.append(node('li',client.connected?'Keine Einträge. Suche einen Titel oder öffne eine Playlist.':'TIDAL noch nicht verbunden.','dj-empty'));controls();
@@ -110,7 +110,7 @@ export function createTidalLibrary({getTracks,enqueueTracks,loadLocal}){
     localStorage.setItem('anydj-tidal-client-id',clientId);cancelAuth();const channelId=nonce(),channel=new BroadcastChannel('anydj-tidal-'+channelId);
     const popup=window.open(callback+'#'+new URLSearchParams({client:clientId,channel:channelId}),'anydj-tidal-login','popup,width=520,height=760');if(!popup){channel.close();throw Error('Bitte Popups für AnyDj erlauben.');}
     auth={channel,popup};controls();const started=Date.now();error.textContent='Anmeldung im neuen Fenster abschließen …';
-    channel.onmessage=e=>{if(!e.data?.token&&!e.data?.error)return;try{if(e.data.error)throw Error(e.data.error);client.install(e.data.token);reset();links={};sessionStorage.removeItem('anydj-tidal-links');render();d.box.close();entered=true;void run(()=>collection('playlists'));}catch(err){error.textContent=err.message;}finally{cancelAuth();controls();}};
+    channel.onmessage=e=>{if(!e.data?.token&&!e.data?.error)return;try{if(e.data.error)throw Error(e.data.error);client.install(e.data.token);reset();links={};sessionStorage.removeItem('anydj-tidal-links');render();d.box.close();entered=true;selectProvider(panel.id);void run(()=>collection('playlists'));}catch(err){error.textContent=err.message;}finally{cancelAuth();controls();}};
     auth.timer=setInterval(()=>{if(Date.now()-started>600000){cancelAuth();controls();error.textContent='Anmeldung abgelaufen. Bitte erneut anmelden.';}},1000);
    }catch(e){error.textContent=e.message;}
   });

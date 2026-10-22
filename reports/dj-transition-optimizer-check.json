@@ -1,0 +1,28 @@
+{
+  "bulk": {
+    "status": "2 Schnittübergänge optimiert · 36 Kombinationen verglichen · eingeschränkte Analysedaten. Bitte probehören und speichern.",
+    "joins": [
+      "Übergang · 1,00 s",
+      "Übergang · 1,00 s"
+    ],
+    "workers": 2
+  },
+  "internal": {
+    "status": "Optimiert: A ab 0:00 · B ab 0:04 · 1.0 s · Sanfter Übergang. 24 Kombinationen verglichen · eingeschränkte Analysedaten. Bitte probehören und übernehmen.",
+    "duration": 1,
+    "time": 0.25,
+    "cue": 4
+  },
+  "rich": {
+    "status": "Optimiert: A ab 1:00 · B ab 0:00 · 8.0 s · Bassübergabe. 8.033 Kombinationen verglichen. Bitte probehören und übernehmen.",
+    "time": 60,
+    "cue": 0,
+    "duration": 8,
+    "workers": 4
+  },
+  "atomicBulkUndo": true,
+  "manualEditCancels": true,
+  "workerExecution": true,
+  "mobileOverflow": false,
+  "browserErrors": 0
+}

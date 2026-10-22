@@ -29,7 +29,7 @@ try {
 
  if(process.argv.includes('--capture-product')){
   await c('Emulation.setDeviceMetricsOverride',{width:1440,height:920,deviceScaleFactor:1,mobile:false});
-  await c('Page.navigate',{url:base+'dj.html'});await wait("typeof document.querySelector('#demoTracks')?.onclick==='function'&&document.querySelector('#queueNew')?.disabled===false");
+  await c('Page.navigate',{url:base+'dj.html'});await wait("typeof document.querySelector('#demoTracks')?.onclick==='function'&&document.querySelector('#queueSelect')?.dataset.lists&&document.querySelector('#queueSelect').disabled===false");
   await evaluate("document.querySelector('#demoTracks').click()");
 
   await wait("document.querySelectorAll('#trackList small').length===2&&[...document.querySelectorAll('#trackList small')].every(n=>n.dataset.analysis==='complete')");
@@ -44,6 +44,8 @@ try {
  }else{
   for(const page of ['index.html','downloads.html','impressum.html','datenschutz.html']){
    await c('Page.navigate',{url:base+page});await wait("document.querySelector('h1')&&document.readyState==='complete'");
+   // Load below-the-fold product images before checking assets and capturing the page.
+   await evaluate("Promise.all([...document.images].map(image=>{image.loading='eager';return image.decode()}))");
    for(const width of [1440,768,390,320]){
     await c('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width<500});
     if(!await evaluate('document.documentElement.scrollWidth<=innerWidth'))throw Error('Horizontal overflow: '+page+' '+width);

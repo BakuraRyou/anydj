@@ -1,0 +1,169 @@
+.dj-cut-editor,.dj-export-dialog{width:min(940px,94vw);max-height:90vh;overflow:auto;background:var(--panel,#151c26);color:var(--text,#eef4fa);border:1px solid #526471;border-radius:18px;padding:24px;box-sizing:border-box}
+.dj-cut-editor::backdrop,.dj-export-dialog::backdrop{background:#000b}
+.dj-export-dialog header{display:flex;align-items:center;justify-content:space-between;gap:16px}
+.dj-export-dialog h2{margin:0}
+.cut-actions{display:flex;align-items:end;flex-wrap:wrap;gap:12px;margin:16px 0}
+.dj-cut-editor label,.dj-export-dialog label{display:flex;flex-direction:column;gap:6px;min-width:0}
+.dj-cut-editor input,.dj-cut-editor select,.dj-export-dialog select{color:inherit;background:#0b111c;border:1px solid #526471;border-radius:8px;padding:9px;font:inherit;max-width:100%;box-sizing:border-box}
+.dj-cut-editor input[type=range]{width:100%;padding:0}
+.dj-export-dialog progress{width:100%;margin-top:18px;accent-color:#79ced8}
+.dj-export-dialog [data-tracks]{max-height:30vh;overflow:auto}
+.dj-export-dialog [data-status]{min-height:1.5em}
+
+.dj-cut-editor{width:min(1040px,96vw);max-height:92dvh;padding:0;scroll-padding-top:85px;scroll-padding-bottom:90px;isolation:isolate}
+.dj-cut-editor [hidden]{display:none!important}
+.dj-cut-editor .cut-editor-header{position:sticky;top:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;background:var(--panel,#151c26);border-bottom:1px solid #ffffff12}
+.cut-editor-title{min-width:0}
+.dj-cut-editor h2{margin:0;font-size:23px;line-height:1.2}
+.cut-editor-title [data-title]{margin:5px 0 0;font-size:12px;color:var(--muted,#aabac3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dj-cut-editor .cut-close{display:grid;place-items:center;flex:none;width:40px;height:40px;min-height:40px;padding:0;border-color:transparent;background:transparent}
+.dj-cut-editor .cut-close:hover{background:#ffffff0b}
+.cut-editor-workspace{display:grid;grid-template-columns:minmax(0,1fr) 270px;grid-template-areas:"selection cuts" "audition audition";gap:14px;padding:18px}
+.cut-selection-card,.cut-cuts-card,.cut-preview-card{min-width:0;padding:16px;border:1px solid #ffffff12;border-radius:12px;background:#0c131b45}
+.cut-selection-card{grid-area:selection}
+.cut-cuts-card{grid-area:cuts;align-self:start}
+.cut-preview-card{grid-area:audition;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px;row-gap:10px;align-items:center}
+.dj-cut-editor h3{margin:0;font-size:15px;line-height:1.3;font-weight:650}
+.dj-cut-editor .cut-section-hint{font-size:12px;line-height:1.45;color:var(--muted,#aabac3);margin:5px 0 12px}
+.dj-cut-editor canvas{display:block;width:100%;height:128px;box-sizing:border-box;background:#0b111c;border:1px solid #526471;border-radius:8px;touch-action:none;cursor:crosshair}
+.cut-time-ruler{display:flex;justify-content:space-between;gap:6px;margin:5px 0 14px;font-size:11px;color:var(--muted,#aabac3);font-variant-numeric:tabular-nums}
+.dj-cut-editor .cut-fields{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 155px;gap:10px;margin:0;align-items:end}
+.dj-cut-editor .cut-fields label{font-size:12px;margin:0}
+.dj-cut-editor .cut-fields input,.dj-cut-editor .cut-fields select{width:100%;height:38px;font-size:13px;font-variant-numeric:tabular-nums}
+.dj-cut-editor .cut-fields input[aria-invalid=true]{border-color:#fa6466}
+.dj-cut-editor .cut-format-help{font-size:11px;line-height:1.4;color:var(--muted,#aabac3);margin:7px 0 0}
+.dj-cut-editor .cut-selection-readout{font-size:12px;line-height:1.4;min-height:17px;margin:12px 0;color:var(--text,#eef4fa);font-variant-numeric:tabular-nums}
+.dj-cut-editor .cut-selection-readout.is-invalid{color:#ffa2a4}
+.cut-selection-actions{display:flex;gap:8px;flex-wrap:wrap}
+.dj-cut-editor .cut-selection-actions .button{min-height:40px;padding:8px 12px;font-size:12px}
+.cut-section-picker{margin-top:12px;font-size:12px;color:var(--muted,#aabac3)}
+.cut-section-picker summary,.cut-help summary{cursor:pointer;width:fit-content}
+.cut-section-picker label{margin-top:10px;color:var(--text,#eef4fa)}
+.cut-section-picker select{width:100%;font-size:12px}
+.cut-card-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}
+.cut-count{display:inline-grid;place-items:center;min-width:24px;height:24px;padding:0 5px;border-radius:6px;background:#ffffff09;color:var(--muted,#aabac3);font-size:12px;box-sizing:border-box}
+.dj-cut-editor .cut-empty{margin:0 0 18px;color:var(--muted,#aabac3);font-size:12px;line-height:1.6}
+.dj-cut-editor [data-cuts]{list-style:none;padding:0;margin:0;max-height:260px;overflow:auto;scrollbar-width:thin}
+.dj-cut-editor [data-cuts] li{display:grid;grid-template-columns:minmax(0,1fr) 36px;gap:5px 6px;align-items:center;padding:10px 0;margin:0;border-bottom:1px solid #ffffff0e}
+.cut-row-range{font-size:12px;font-weight:600;font-variant-numeric:tabular-nums;grid-column:1;line-height:1.5}
+.cut-row-duration{grid-column:1;color:var(--muted,#aabac3);font-size:11px}
+.dj-cut-editor .cut-row-restore{grid-column:2;grid-row:1 / span 2;display:grid;place-items:center;padding:0;width:36px;height:36px;min-height:36px;border-color:transparent;background:transparent}
+.dj-cut-editor .cut-row-restore:hover{background:#ffffff0b}
+.dj-cut-editor .cut-row-join,.dj-cut-editor .cut-row-no-join{grid-column:1 / -1;justify-self:start;background:transparent;border-color:transparent;padding:4px 0;min-height:28px;font-size:11px;text-align:left}
+.dj-cut-editor .cut-row-join{color:var(--accent,#a7edc8)}
+.dj-cut-editor .cut-row-no-join{color:var(--muted,#aabac3)}
+.cut-history-actions{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 16px}
+.dj-cut-editor .cut-history-actions .button{font-size:11px;padding:6px 8px;min-height:34px;background:transparent}
+.cut-result{padding-top:14px;border-top:1px solid #ffffff12;margin-top:16px}
+.dj-cut-editor .cut-result h4{margin:0 0 10px;font-size:12px;font-weight:600}
+.cut-result dl{margin:0;font-size:12px}
+.cut-result dl>div{display:flex;justify-content:space-between;gap:8px;align-items:baseline;margin:6px 0}
+.cut-result dt{color:var(--muted,#aabac3)}
+.cut-result dd{margin:0;font-variant-numeric:tabular-nums}
+.cut-result .cut-result-total dd{font-size:19px;font-weight:600;color:var(--accent,#a7edc8)}
+.dj-cut-editor [data-shortened]{margin:6px 0 0;font-size:11px;color:var(--muted,#aabac3);text-align:right}
+.cut-help{margin-top:16px;font-size:11px;color:var(--muted,#aabac3)}
+.cut-help p{line-height:1.6;margin:8px 0 0}
+.cut-preview-card h3{grid-column:1;grid-row:1}
+.dj-cut-editor .cut-preview-card>.cut-section-hint{grid-column:2;grid-row:1;margin:0;font-size:11px}
+.cut-preview-controls{grid-column:1;grid-row:2;display:flex;gap:8px;align-items:end;min-width:0}
+.dj-cut-editor .cut-preview-controls .button{min-height:38px;padding:7px 10px;font-size:12px;white-space:nowrap}
+.dj-cut-editor .cut-preview-volume{font-size:11px;flex:1;max-width:140px;margin:0 0 2px 4px}
+.cut-preview-volume input{min-width:50px}
+.dj-cut-editor .cut-preview-seek{grid-column:2;grid-row:2;font-size:11px;margin:0}
+.cut-position{grid-column:2;grid-row:3;display:block;font-size:11px;color:var(--muted,#aabac3);font-variant-numeric:tabular-nums;line-height:1.4}
+.cut-output-row{grid-column:1;grid-row:3;display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0}
+.dj-cut-editor [data-output-info]{margin:0;color:var(--muted,#aabac3);font-size:11px;line-height:1.4;overflow-wrap:anywhere}
+.dj-cut-editor [data-audio-options]{min-height:28px;font-size:11px;padding:3px 0;color:var(--accent,#a7edc8);border:0;background:transparent;text-align:left}
+.dj-cut-editor [data-audio-host]{grid-column:1 / -1;grid-row:4;padding-top:8px}
+.dj-cut-editor .cut-editor-footer{position:sticky;bottom:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 20px;background:var(--panel,#151c26);border-top:1px solid #ffffff12;box-shadow:0 -8px 20px #0002}
+.cut-save-status{min-width:0;font-size:12px;color:var(--muted,#aabac3);line-height:1.4}
+.dj-cut-editor [data-status]{margin:4px 0 0;font-size:12px;color:var(--text,#eef4fa);overflow-wrap:anywhere}
+.dj-cut-editor [data-status]:empty{display:none}
+.cut-save-actions{display:flex;gap:8px;flex-shrink:0}
+.dj-cut-editor .cut-save-actions .button{min-height:40px;padding:9px 14px;font-size:12px}
+.dj-cut-editor button:focus-visible,.dj-cut-editor summary:focus-visible,.dj-cut-editor select:focus-visible,.dj-cut-editor input:focus-visible{outline:2px solid var(--accent,#a7edc8);outline-offset:2px}
+@media(max-width:760px){
+ .cut-editor-workspace{grid-template-columns:minmax(0,1fr);grid-template-areas:"selection" "cuts" "audition";padding:12px;gap:12px}
+ .cut-preview-card{display:block}
+ .dj-cut-editor .cut-preview-card>.cut-section-hint{margin:5px 0 12px}
+ .cut-preview-controls{margin-bottom:14px}
+ .cut-position{margin-top:6px}
+ .cut-output-row{margin-top:10px}
+ .dj-cut-editor .cut-preview-volume{max-width:none}
+ .dj-cut-editor [data-cuts]{max-height:220px}
+ .cut-result dl{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+ .cut-result dl>div{display:block;margin:0}
+ .cut-result dd{margin-top:4px;font-size:16px}
+ .dj-cut-editor .cut-editor-footer{padding:12px;gap:10px;flex-wrap:wrap}
+ .cut-save-status{flex-basis:100%}
+ .cut-save-actions{width:100%;justify-content:flex-end}
+ .dj-cut-editor{scroll-padding-bottom:120px}
+}
+@media(max-width:480px){
+ .dj-cut-editor .cut-editor-header{padding:14px 16px;align-items:flex-start}
+ .dj-cut-editor h2{font-size:21px}
+ .cut-selection-card,.cut-cuts-card,.cut-preview-card{padding:12px}
+ .dj-cut-editor canvas{height:104px}
+ .dj-cut-editor .cut-fields{grid-template-columns:1fr 1fr}
+ .dj-cut-editor .cut-format{grid-column:1 / -1;grid-row:1;max-width:none}
+ .cut-selection-actions .button{flex:1 1 120px}
+ .cut-preview-controls{flex-wrap:wrap}
+ .dj-cut-editor .cut-preview-volume{flex-basis:100%;margin:4px 0 0}
+ .cut-save-actions .button[data-save]{flex:1}
+ .cut-time-ruler{font-size:10px}
+ .dj-export-dialog{padding:16px}
+}
+
+/* The same cut workspace can be used without leaving the transition manager. */
+.dj-transition-preview .preview-track-cut{align-self:flex-start;min-height:36px;padding:6px 10px;font-size:12px;margin-top:8px}
+.preview-cut-host{margin:16px 0;min-width:0}
+.preview-cut-host[hidden]{display:none}
+.dj-cut-editor.cut-editor-embedded{display:block;position:relative;width:100%;max-height:none;margin:0;border:1px solid #526471;border-radius:12px;box-shadow:none;overflow:visible;isolation:auto}
+.cut-editor-embedded .cut-editor-header{position:static;padding:14px 16px;border-radius:12px 12px 0 0}
+.cut-editor-embedded .cut-editor-workspace{grid-template-columns:minmax(0,1fr) 230px;padding:12px;gap:12px}
+.cut-editor-embedded .cut-fields{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+.cut-editor-embedded .cut-format{grid-column:1 / -1;grid-row:1}
+.cut-editor-embedded .cut-editor-footer{position:static;padding:12px;border-radius:0 0 12px 12px;flex-wrap:wrap}
+.cut-editor-embedded .cut-save-actions{margin-left:auto}
+@media(max-width:760px){.cut-editor-embedded .cut-editor-workspace{grid-template-columns:minmax(0,1fr)}}
+.dj-transition-preview .cut-editor-embedded label{align-items:stretch}
+.dj-transition-preview .cut-editor-embedded button svg{width:18px;height:18px;margin:0}
+.dj-transition-preview .cut-editor-embedded [data-status]{min-height:0}
+.dj-transition-preview[data-cutting]>.preview-actions,.dj-transition-preview[data-cutting] .preview-key-hint{display:none}
+.dj-transition-preview .cut-editor-embedded .cut-editor-footer{position:sticky;bottom:0;z-index:4}
+@media(max-width:480px){
+ .dj-transition-preview .cut-editor-embedded .cut-save-actions{display:grid;grid-template-columns:1fr 1fr;width:100%;min-width:0;gap:8px}
+ .dj-transition-preview .cut-editor-embedded .cut-save-actions .button{min-width:0;white-space:normal;padding:8px;font-size:11px}
+}
+.transition-restore-notice{margin:12px 0;padding:12px 14px;border:1px solid #a7edc855;border-radius:10px;background:#a7edc80a;color:#c8efdd;font-size:12px}
+.transition-restore-notice[hidden]{display:none}
+.dj-transition-preview .transition-restore-notice p{margin:0 0 8px}
+.dj-transition-preview .transition-restore-notice .button{min-height:36px;font-size:12px}
+@media(max-width:500px){
+ .dj-transition-preview .preview-actions [data-choose]{white-space:normal;line-height:1.35;max-width:100%}
+}
+.dj-cut-editor [data-optimize-cuts]{width:100%;min-height:40px;white-space:normal;font-size:12px;margin:0 0 10px}
+.dj-cut-editor .cut-navigation-help{margin:-5px 0 14px;font-size:11px;line-height:1.5;color:var(--muted,#aabac3)}
+.dj-cut-editor canvas:focus-visible{outline:2px solid var(--accent,#a7edc8);outline-offset:3px}
+.cut-seek-tools{display:grid;grid-template-columns:44px minmax(0,1fr) auto 44px;align-items:end;gap:6px;margin-top:12px}
+.dj-cut-editor .cut-seek-tools label{font-size:11px;line-height:1.3;min-width:0}
+.dj-cut-editor .cut-seek-tools input{width:100%;height:40px;font-size:13px;font-variant-numeric:tabular-nums}
+.dj-cut-editor .cut-seek-tools input[aria-invalid=true]{border-color:#fa6466}
+.dj-cut-editor .cut-seek-tools .button{min-height:40px;min-width:0;padding:8px;font-size:11px;white-space:nowrap}
+.dj-page #queueExport{flex:none;width:36px;min-height:34px;padding:0;font-size:23px;line-height:1;letter-spacing:2px}
+.dj-export-menu{position:fixed;inset:auto;margin:0;width:290px;max-width:calc(100vw - 24px);max-height:calc(100dvh - 24px);overflow:auto;padding:6px;border:1px solid var(--line,#3a3d49);border-radius:10px;background:var(--panel,#14151b);color:var(--text,#f4f5f7);box-shadow:0 14px 40px #0008}
+.dj-export-menu button{display:flex;flex-direction:column;align-items:start;gap:4px;width:100%;min-height:62px;padding:12px;border:0;border-radius:6px;background:transparent;color:inherit;text-align:left;cursor:pointer;font:inherit}
+.dj-export-menu button:hover,.dj-export-menu button:focus-visible{background:var(--surface-raised,#242630)}
+.dj-export-menu button:focus-visible{outline:2px solid var(--accent,#c4f567);outline-offset:-2px}
+.dj-export-menu strong{font-size:13px}.dj-export-menu span{font-size:11px;color:var(--muted,#a6a9b6)}
+.dj-export-options{display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start}
+.dj-export-options [data-format-info]{grid-column:1/-1;margin:0;color:var(--muted,#a6a9b6)}
+.dj-export-dialog [hidden]{display:none!important}
+@media(max-width:480px){.dj-export-options{grid-template-columns:1fr}.dj-page #queueExport{min-height:40px;width:40px}}
+.dj-cut-editor .cut-mark-transport{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 10px}
+.dj-cut-editor .cut-mark-transport .button{min-height:38px;font-size:12px}
+.dj-cut-editor .cut-mark-transport [hidden]{display:none!important}
+.dj-cut-editor .cut-shortcuts{margin:0 0 16px;font-size:12px;color:var(--muted,#aabac3)}
+.dj-cut-editor .cut-shortcuts>summary{cursor:pointer;padding:6px 0}
+.dj-cut-editor .cut-shortcuts p{line-height:1.7;margin:6px 0}

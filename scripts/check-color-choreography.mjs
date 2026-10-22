@@ -16,7 +16,7 @@ let rendered;
 globalThis.self={postMessage:data=>{if(data.error)throw Error(data.error);if(data.plan)rendered=data;}};
 await import('../public/show-worker.js');
 for(const file of process.argv.slice(2)){
- const work=await mkdtemp(join(tmpdir(),'wiz-instrument-benchmark-')),started=performance.now();
+ const work=await mkdtemp(join(tmpdir(),'anydj-instrument-benchmark-')),started=performance.now();
  try{
   await exec('ffmpeg',['-v','error','-i',file,'-ar','44100','-ac','2','-f','s16le',join(work,'input.pcm')]);
   await exec('ffmpeg',['-v','error','-i',file,'-ar','16000','-ac','1','-f','f32le',join(work,'mono.pcm')]);

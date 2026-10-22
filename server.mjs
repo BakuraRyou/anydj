@@ -1,16 +1,14 @@
+import { AppError } from './lib/app-error.mjs';
 import {createVRAuth} from './lib/vr-auth.mjs';
 import {createVRPreviewRelay} from './lib/vr-preview.mjs';
 import http from 'node:http';
 import https from 'node:https';
 import {DmxConnection} from './lib/dmx.mjs';
-import { readFile, mkdir, writeFile, rename } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join, resolve } from 'node:path';
-import { randomBytes, timingSafeEqual } from 'node:crypto';
+import { timingSafeEqual } from 'node:crypto';
 import { networkInterfaces } from 'node:os';
-import { AppError, WizClient, assertLocalIP, validatePilot, capabilities } from './lib/wiz.mjs';
-import { DemoClient } from './lib/demo.mjs';
-import { MusicSession } from './lib/music.mjs';
 import { BeatAnalysis } from './lib/beat-analysis.mjs';
 import { StyleAnalysis } from './lib/style-analysis.mjs';
 import { StructureAnalysis } from './lib/structure-analysis.mjs';
@@ -18,6 +16,27 @@ import { StructureAnalysis } from './lib/structure-analysis.mjs';
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const VERSION = '0.1.0';
 const STATIC = new Map([
+  ['/storage-migration.js', ['storage-migration.js', 'text/javascript; charset=utf-8']],
+  ['/local-access.js', ['local-access.js', 'text/javascript; charset=utf-8']],
+  ['/track-cut-playback.js', ['track-cut-playback.js', 'text/javascript; charset=utf-8']],
+  ['/track-cuts.js', ['track-cuts.js', 'text/javascript; charset=utf-8']],
+  ['/track-cut-editor.js', ['track-cut-editor.js', 'text/javascript; charset=utf-8']],
+  ['/queue-export-plan.js', ['queue-export-plan.js', 'text/javascript; charset=utf-8']],
+  ['/queue-audio-export.js', ['queue-audio-export.js', 'text/javascript; charset=utf-8']],
+  ['/queue-export-dialog.js', ['queue-export-dialog.js', 'text/javascript; charset=utf-8']],
+  ['/mp3-export-worker.js', ['mp3-export-worker.js', 'text/javascript; charset=utf-8']],
+  ['/audio-export-worker.js', ['audio-export-worker.js', 'text/javascript; charset=utf-8']],
+  ['/audio-export-formats.js', ['audio-export-formats.js', 'text/javascript; charset=utf-8']],
+  ['/lossless-audio-encoder.js', ['lossless-audio-encoder.js', 'text/javascript; charset=utf-8']],
+  ['/lame.min.js', ['lame.min.js', 'text/javascript; charset=utf-8']],
+  ['/lame-source.js', ['lame-source.js', 'text/javascript; charset=utf-8']],
+  ['/lame-license.txt', ['lame-license.txt', 'text/plain; charset=utf-8']],
+  ['/dj-edit-export.css', ['dj-edit-export.css', 'text/css; charset=utf-8']],
+  ['/app-settings.js', ['app-settings.js', 'text/javascript; charset=utf-8']],
+  ['/app-settings.css', ['app-settings.css', 'text/css; charset=utf-8']],
+  ['/dj-theme.css', ['dj-theme.css', 'text/css; charset=utf-8']],
+  ['/dj-mix-workspace.css', ['dj-mix-workspace.css', 'text/css; charset=utf-8']],
+  ['/design-tokens.css', ['design-tokens.css', 'text/css; charset=utf-8']],
   ['/vr-test', ['vr-view.html', 'text/html; charset=utf-8']],
   ['/vr-test/', ['vr-view.html', 'text/html; charset=utf-8']],
   ['/vr-view', ['vr-view.html', 'text/html; charset=utf-8']],
@@ -28,6 +47,8 @@ const STATIC = new Map([
   ['/brand.css', ['brand.css', 'text/css; charset=utf-8']],
   ['/transition-timeline.js', ['transition-timeline.js', 'text/javascript; charset=utf-8']],
   ['/transition-align.js', ['transition-align.js', 'text/javascript; charset=utf-8']],
+  ['/transition-optimizer.js', ['transition-optimizer.js', 'text/javascript; charset=utf-8']],
+  ['/transition-optimizer-worker.js', ['transition-optimizer-worker.js', 'text/javascript; charset=utf-8']],
   ['/animatus-small.svg', ['animatus-small.svg', 'image/svg+xml']],
   ['/transition-audio.js', ['transition-audio.js', 'text/javascript; charset=utf-8']],
   ['/transition-curve-editor.js', ['transition-curve-editor.js', 'text/javascript; charset=utf-8']],
@@ -35,16 +56,22 @@ const STATIC = new Map([
   ['/transition-links.js', ['transition-links.js', 'text/javascript; charset=utf-8']],
   ['/setlist-transition.js', ['setlist-transition.js', 'text/javascript; charset=utf-8']],
   ['/transition-preview.js', ['transition-preview.js', 'text/javascript; charset=utf-8']],
+  ['/transition-cut-save.js', ['transition-cut-save.js', 'text/javascript; charset=utf-8']],
   ['/musical-transition.js', ['musical-transition.js', 'text/javascript; charset=utf-8']],
   ['/stage-motion.js', ['stage-motion.js', 'text/javascript; charset=utf-8']],
   ['/stage-motifs.js', ['stage-motifs.js', 'text/javascript; charset=utf-8']],
   ['/dmx-connection.js', ['dmx-connection.js', 'text/javascript; charset=utf-8']],
   ['/song-movement-plan.js', ['song-movement-plan.js', 'text/javascript; charset=utf-8']],
   ['/dmx-group-motion.js', ['dmx-group-motion.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-musical-score.js', ['dmx-musical-score.js', 'text/javascript; charset=utf-8']],
   ['/dmx-activity.js', ['dmx-activity.js', 'text/javascript; charset=utf-8']],
   ['/dmx-participation.js', ['dmx-participation.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-focus.js', ['dmx-focus.js', 'text/javascript; charset=utf-8']],
   ['/dmx-auto.js', ['dmx-auto.js', 'text/javascript; charset=utf-8']],
   ['/dmx-strobe-conductor.js', ['dmx-strobe-conductor.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-strobe-choreography.js', ['dmx-strobe-choreography.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-formation-variations.js', ['dmx-formation-variations.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-formation-music.js', ['dmx-formation-music.js', 'text/javascript; charset=utf-8']],
   ['/dmx-strobe-space.js', ['dmx-strobe-space.js', 'text/javascript; charset=utf-8']],
   ['/dmx-strobe-motifs.js', ['dmx-strobe-motifs.js', 'text/javascript; charset=utf-8']],
   ['/dmx-strobe-score.js', ['dmx-strobe-score.js', 'text/javascript; charset=utf-8']],
@@ -67,6 +94,10 @@ const STATIC = new Map([
   ['/dmx-stage.css', ['dmx-stage.css', 'text/css; charset=utf-8']],
   ['/dj-waveform.js', ['dj-waveform.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-transport.js', ['dmx-stage-transport.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-formation-actions.js', ['dmx-formation-actions.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-formation-scenes.js', ['dmx-formation-scenes.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-formation-rig.js', ['dmx-formation-rig.js', 'text/javascript; charset=utf-8']],
+  ['/select-state.js', ['select-state.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-full.js', ['dmx-stage-full.js', 'text/javascript; charset=utf-8']],
   ['/dmx-ar-model.js', ['dmx-ar-model.js', 'text/javascript; charset=utf-8']],
   ['/dmx-ar-planner.js', ['dmx-ar-planner.js', 'text/javascript; charset=utf-8']],
@@ -99,13 +130,9 @@ const STATIC = new Map([
   ['/dmx-stage-webgpu.js', ['dmx-stage-webgpu.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-webgl.js', ['dmx-stage-webgl.js', 'text/javascript; charset=utf-8']],
   ['/dmx-stage-3d.css', ['dmx-stage-3d.css', 'text/css; charset=utf-8']],
-  ['/', ['index.html', 'text/html; charset=utf-8']],
-  ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
+  ['/', ['dj.html', 'text/html; charset=utf-8']],
   ['/style.css', ['style.css', 'text/css; charset=utf-8']],
-  ['/editor', ['editor.html', 'text/html; charset=utf-8']],
-  ['/editor.js', ['editor.js', 'text/javascript; charset=utf-8']],
   ['/editor-model.js', ['editor-model.js', 'text/javascript; charset=utf-8']],
-  ['/music', ['music.html', 'text/html; charset=utf-8']],
   ['/dj', ['dj.html', 'text/html; charset=utf-8']],
   ['/tidal-callback.html', ['tidal-callback.html', 'text/html; charset=utf-8']],
   ['/tidal-auth.js', ['tidal-auth.js', 'text/javascript; charset=utf-8']],
@@ -179,14 +206,7 @@ const STATIC = new Map([
   ['/show-worker.js', ['show-worker.js', 'text/javascript; charset=utf-8']],
   ['/beat-grid.js', ['beat-grid.js', 'text/javascript; charset=utf-8']],
   ['/beat-analysis.js', ['beat-analysis.js', 'text/javascript; charset=utf-8']],
-  ['/music.js', ['music.js', 'text/javascript; charset=utf-8']],
 ]);
-const validName = value => {
-  if (typeof value !== 'string' || !value.trim() || value.trim().length > 60 || /[\x00-\x1f]/.test(value)) {
-    throw new AppError('Der Name muss zwischen 1 und 60 Zeichen lang sein.');
-  }
-  return value.trim();
-};
 const json = (res, status, data) => {
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
   res.end(JSON.stringify(data));
@@ -219,9 +239,9 @@ function tokenMatches(header, token) {
   return actual.length === expected.length && timingSafeEqual(actual, expected);
 }
 
-/** The HTTP service is independent of the transport; tests inject a DemoClient. */
+/** Local DJ, analysis, DMX and VR service. */
 export async function createApp({
-  demo = false, client = demo ? new DemoClient() : new WizClient(),
+  demo = false,
   dataDir = join(ROOT, 'data'), token = '', hosts = allowedHosts(), tls = null, previewTls = tls, previewPort = Number(process.env.VR_PREVIEW_PORT || 3031),
   beatAnalysis = new BeatAnalysis(),
   structureAnalysis = new StructureAnalysis(),
@@ -229,142 +249,7 @@ export async function createApp({
   dmx = new DmxConnection({demo}),
 } = {}) {
   if(!Number.isInteger(previewPort)||previewPort<0||previewPort>65535)throw new AppError('VR_PREVIEW_PORT muss eine gültige Portnummer sein.',400);
-  const devices = new Map();
-  const music = new MusicSession(client);
-  const queues = new Map();
   const rates = new Map();
-  let saving = Promise.resolve();
-  let discovering = null;
-  let connecting = null;
-  const connectionCache = new Map();
-  const storePath = join(dataDir, 'devices.json');
-
-  if (!demo) {
-    try {
-      const saved = JSON.parse(await readFile(storePath, 'utf8'));
-      if (!Array.isArray(saved)) throw new Error('Erwartet wurde eine Liste.');
-      for (const item of saved.slice(0, 128)) {
-        assertLocalIP(item.ip, client.interfaces());
-        devices.set(item.ip, { ip: item.ip, name: validName(item.name),
-          mac: typeof item.mac === 'string' ? item.mac : null, online: null,
-          pilot: null, capabilities: capabilities() });
-      }
-    } catch (error) {
-      if (error.code !== 'ENOENT') {
-        throw new Error(`Gerätedatei ${storePath} kann nicht gelesen werden: ${error.message}. Datei prüfen; sie wurde nicht überschrieben.`);
-      }
-    }
-  }
-  async function save() {
-    if (demo) return;
-    const content = JSON.stringify([...devices.values()].map(({ ip, name, mac }) => ({ ip, name, mac })), null, 2) + '\n';
-    const task = saving.catch(() => {}).then(async () => {
-      await mkdir(dataDir, { recursive: true, mode: 0o700 });
-      const temp = `${storePath}.${randomBytes(5).toString('hex')}.tmp`;
-      await writeFile(temp, content, { mode: 0o600 });
-      await rename(temp, storePath);
-    });
-    saving = task;
-    await task;
-  }
-  function serialize(record) {
-    return { ip: record.ip, name: record.name, mac: record.mac || null,
-      musicActive: Boolean(record.musicActive), online: record.online ?? null, lastSeen: record.lastSeen || null,
-      pilot: record.pilot || null, system: record.system || {}, model: record.model || {},
-      capabilities: record.capabilities || capabilities(), warnings: record.warnings || [],
-      lastError: record.lastError || null,
-      history: client.history.get(record.ip) || [] };
-  }
-  function list() { return [...devices.values()].map(serialize); }
-  function remember({ ip, pilot, system, model, mac, ...rest }) {
-    // A rediscovered MAC may have a new DHCP address; preserve the local nickname.
-    const identity = mac || pilot?.mac || system?.mac;
-    const old = devices.get(ip) || [...devices.values()].find(x => identity && x.mac === identity);
-    if (!old && devices.size >= 128) throw new AppError('Maximal 128 Geräte im Prototyp.', 409);
-    if (old && old.ip !== ip) devices.delete(old.ip);
-    const record = { ...old, ip, name: old?.name || (demo ? (ip.endsWith('.50') ? 'Wohnzimmer (Demo)' : 'Leselampe (Demo)') : `AnyDj ${ip}`), online: true,
-      lastSeen: new Date().toISOString(), lastError: null,
-      ...rest, pilot: pilot || old?.pilot || null, system: system || old?.system || {},
-      model: model || old?.model || {}, mac: identity || old?.mac || null };
-    record.capabilities = capabilities(record.system, record.model, record.pilot || {});
-    devices.set(ip, record);
-    return record;
-  }
-  async function serial(ip, operation) {
-    const previous = queues.get(ip) || { promise: Promise.resolve(), count: 0 };
-    if (previous.count >= 12) throw new AppError('Zu viele offene Befehle für diese Lampe.', 429, 'BUSY');
-    const entry = { count: previous.count + 1, promise: null };
-    const task = previous.promise.catch(() => {}).then(operation);
-    entry.promise = task;
-    queues.set(ip, entry);
-    try { return await task; }
-    finally {
-      const current = queues.get(ip);
-      if (current) current.count = Math.max(0, current.count - 1);
-      if (current === entry) queues.delete(ip);
-    }
-  }
-  async function refresh(ip, inspect = false) {
-    const session = music.session;
-    if (session?.ip === ip && session.info) {
-      // Do not compete with the music stream. This is explicitly a cached read,
-      // not an assertion that the current physical color matches this snapshot.
-      const stored = devices.get(ip);
-      return { ...stored, ...session.info, ip, name: stored.name, musicActive: true,
-        online: session.lastAck ? true : stored.online,
-        warnings: [...(session.info.warnings || []), 'Musik aktiv: Anzeige des zuletzt gelesenen Zustands. Live-Status wird nach dem Stoppen wieder abgefragt.'] };
-    }
-    try {
-      const record = devices.get(ip);
-      const result = inspect || !record?.inspected ? await client.inspect(ip) : { pilot: await client.read(ip) };
-      const actualMac = result.pilot?.mac || result.system?.mac;
-      if (record?.mac && actualMac && record.mac.toLowerCase() !== actualMac.toLowerCase()) throw new AppError('Die gespeicherte IP gehört inzwischen zu einem anderen Gerät.', 409, 'DEVICE_CHANGED');
-      return remember({ ip, ...result, inspected: true });
-    } catch (error) {
-      const record = devices.get(ip);
-      if (record) { record.online = false; record.lastError = error.message; }
-      throw error;
-    }
-  }
-  async function checkConnection(ip, force = false) {
-    if (!devices.has(ip) && devices.has(connectionCache.get(ip)?.result.device?.ip)) ip = connectionCache.get(ip).result.device.ip;
-    const cached = connectionCache.get(ip);
-    if (!force && cached && Date.now() < cached.until && !music.session) return { ...cached.result, devices: list() };
-    if (connecting) { await connecting; return checkConnection(ip); }
-    const task = (async () => {
-      const stored = devices.get(ip);
-      let record, scanError = false;
-      if (stored) try { record = await serial(ip, () => refresh(ip)); } catch {}
-      if (!record && !music.session) {
-        try {
-          const scan = await (discovering || client.discover());
-          const found = stored ? scan.devices.find(d => stored.mac && (d.mac || d.pilot?.mac || d.system?.mac)?.toLowerCase() === stored.mac.toLowerCase()) : scan.devices[0];
-          if (found) {
-            const newIP = assertLocalIP(found.ip, client.interfaces());
-            // Read and verify the identity before replacing the stored address.
-            const info = await serial(newIP, () => client.inspect(newIP));
-            const mac = info.pilot?.mac || info.system?.mac;
-            if (!stored || mac?.toLowerCase() === stored.mac?.toLowerCase()) {
-              record = remember({ ip: newIP, ...info, inspected: true }); await save();
-            }
-          }
-        } catch { scanError = true; }
-      }
-      let result;
-      if (record) result = { state: record.musicActive ? 'music' : 'ready', message: record.musicActive ? 'Musik läuft bereits. Statusprüfung pausiert während der Wiedergabe.' : record.ip !== ip && ip ? 'Lampe unter neuer IP wiedergefunden und verbunden.' : 'Lampe verbunden.', device: serialize(record) };
-      else {
-        result = { state: 'offline',
-          message: music.session ? 'Verbindungsprüfung wartet, bis die laufende Musik beendet ist.' : scanError ? 'Lampe nicht erreichbar; die Suche im vorhandenen Netzwerk konnte nicht abgeschlossen werden.' : 'Lampe aktuell nicht im Heimnetz erreichbar. Bitte Stromversorgung und Verbindung im Router prüfen.',
-          device: stored ? serialize(devices.get(ip)) : null };
-      }
-      const entry = { result, until: Date.now() + (record?.musicActive ? 0 : 5000) };
-      connectionCache.set(ip, entry); if (record?.ip) connectionCache.set(record.ip, entry);
-      if (connectionCache.size > 256) connectionCache.delete(connectionCache.keys().next().value);
-      return { ...result, devices: list() };
-    })();
-    connecting = task;
-    try { return await task; } finally { if (connecting === task) connecting = null; }
-  }
   const limiter = (req, frame = false) => {
     const key = `${req.socket.remoteAddress || 'unknown'}:${frame=== 'preview'?'preview':frame ? 'music' : 'api'}`;
     const now = Date.now();
@@ -408,7 +293,7 @@ export async function createApp({
       }
       if (req.method === 'GET' && path === '/favicon.ico') { res.writeHead(204); res.end(); return; }
       if (!path.startsWith('/api/')) throw new AppError('Nicht gefunden.', 404);
-      limiter(req, path === '/api/vr-preview/frame'?'preview':path === '/api/dmx/frame' || path === '/api/music/frame' || path === '/api/music/status');
+      limiter(req, path === '/api/vr-preview/frame'?'preview':path === '/api/dmx/frame');
       if (req.method === 'GET' && path === '/api/meta') {
         json(res, 200, { version: VERSION, demo, tokenRequired: Boolean(token) && !tokenMatches(req.headers.authorization, token) }); return;
       }
@@ -420,7 +305,7 @@ export async function createApp({
       if (token && !tokenMatches(req.headers.authorization, token)) {
         throw new AppError('Bitte den Web-Zugangscode aus dem Server-Terminal eingeben.', 401, 'UNAUTHORIZED');
       }
-      if (!['GET', 'HEAD'].includes(req.method) && req.headers['x-anydj-local'] !== '1' && req.headers['x-wiz-local'] !== '1') {
+      if (!['GET', 'HEAD'].includes(req.method) && req.headers['x-anydj-local'] !== '1') {
         throw new AppError('Schreibzugriff benötigt den Header X-AnyDj-Local: 1.', 403, 'CSRF');
       }
       if(path.startsWith('/api/vr-preview/')){
@@ -457,125 +342,7 @@ export async function createApp({
         if (req.method !== 'POST') throw new AppError('Songstruktur-Analyse benötigt GET oder POST.',405);
         json(res,200,await structureAnalysis.handle(req,res));return;
       }
-      if (req.method === 'POST' && path === '/api/connection') {
-        const body = await bodyJSON(req);
-        const ip = body.ip ? assertLocalIP(body.ip, client.interfaces()) : devices.keys().next().value;
-        if (body.ip && !devices.has(ip) && !connectionCache.has(ip)) throw new AppError('Unbekannte Lampe.', 404);
-        json(res, 200, await checkConnection(ip, body.force === true)); return;
-      }
-      if (path.startsWith('/api/music/')) {
-        if (req.method !== 'POST') throw new AppError('Musikzugriff benötigt POST.', 405);
-        const body = await bodyJSON(req);
-        if (path === '/api/music/start') {
-          if (connecting) throw new AppError('Verbindungsprüfung läuft noch. Bitte kurz warten.', 409, 'CONNECTION_CHECK');
-          const ip = assertLocalIP(body.ip, client.interfaces());
-          if (!devices.has(ip)) throw new AppError('Lampe zuerst hinzufügen.', 404);
-          if (body.source === 'system' && (demo || !['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress))) {
-            throw new AppError('Rechner-Audio ist nur direkt am Rechner im echten Modus verfügbar.', 403);
-          }
-          json(res, 200, await serial(ip, () => music.start(ip, body.source, body.settings))); return;
-        }
-        if (path === '/api/music/frame') { music.frame(body.id, body); json(res, 202, { accepted: true }); return; }
-        if (path === '/api/music/status') { json(res, 200, music.status(body.id)); return; }
-        if (path === '/api/music/settings') { music.configure(body.id, body.settings); json(res, 200, { accepted: true }); return; }
-        if (path === '/api/music/stop') { json(res, 200, await music.stop(body.id)); return; }
-        throw new AppError('Musik-Endpunkt nicht gefunden.', 404);
-      }
-      if (req.method === 'GET' && path === '/api/devices') {
-        json(res, 200, { devices: list(), interfaces: client.interfaces() }); return;
-      }
-      if (req.method === 'POST' && path === '/api/discover') {
-        if (music.session) throw new AppError('Musik zuerst stoppen, bevor erneut nach Lampen gesucht wird.', 409, 'MUSIC_ACTIVE');
-        const body = await bodyJSON(req);
-        if (body.interface != null && typeof body.interface !== 'string') throw new AppError('interface muss eine IPv4-Adresse sein.');
-        if (!discovering) {
-          discovering = (async () => {
-            const result = await client.discover(body.interface || '');
-            const found = [];
-            for (const item of result.devices) {
-              try { assertLocalIP(item.ip, client.interfaces()); remember(item); found.push(item.ip); }
-              catch (error) { result.warnings.push(error.message); }
-            }
-            // Broadcast replies can be lost while Wi-Fi is reconnecting. Probe
-            // saved addresses as well; refresh verifies the stored MAC identity.
-            if(!body.interface) {
-              const known=[...devices.keys()].filter(ip=>!found.includes(ip)).slice(0,12);
-              await Promise.allSettled(known.map(async ip=>{
-                try { await serial(ip,()=>refresh(ip));found.push(ip); } catch {}
-              }));
-            }
-            connectionCache.clear();
-            await save();
-            return { devices: list(), found, warnings: result.warnings, interfaces: result.interfaces };
-          })();
-        }
-        const task = discovering;
-        try { json(res, 200, await task); }
-        finally { if (discovering === task) discovering = null; }
-        return;
-      }
-      if (req.method === 'POST' && path === '/api/devices') {
-        const body = await bodyJSON(req);
-        const ip = assertLocalIP(body.ip, client.interfaces());
-        const name = body.name ? validName(body.name) : null;
-        const record = await serial(ip, () => refresh(ip, true));
-        if (name) record.name = name;
-        await save();
-        json(res, 200, { device: serialize(record), devices: list() }); return;
-      }
-      const match = path.match(/^\/api\/devices\/([^/]+)(\/pilot)?$/);
-      if (!match) throw new AppError('API-Endpunkt nicht gefunden.', 404);
-      const ip = assertLocalIP(decodeURIComponent(match[1]), client.interfaces());
-      if (!devices.has(ip)) throw new AppError('Lampe zuerst suchen oder über ihre IP hinzufügen.', 404, 'UNKNOWN_DEVICE');
-      if (music.ip === ip && ((req.method === 'POST' && match[2]) || req.method === 'DELETE')) {
-        throw new AppError('Musikeffekt zuerst auf der Musikseite stoppen.', 409, 'MUSIC_ACTIVE');
-      }
-      if (req.method === 'GET' && !match[2]) {
-        const record = await serial(ip, () => refresh(ip));
-        json(res, 200, { device: serialize(record) }); return;
-      }
-      if (req.method === 'PATCH' && !match[2]) {
-        const body = await bodyJSON(req);
-        devices.get(ip).name = validName(body.name);
-        await save();
-        json(res, 200, { device: serialize(devices.get(ip)) }); return;
-      }
-      if (req.method === 'DELETE' && !match[2]) {
-        await bodyJSON(req);
-        await serial(ip, async () => {
-          if (music.ip === ip) throw new AppError('Musik zuerst stoppen.', 409, 'MUSIC_ACTIVE');
-          devices.delete(ip); await save();
-        });
-        json(res, 200, { devices: list() }); return;
-      }
-      if (req.method === 'POST' && match[2] === '/pilot') {
-        const params = validatePilot(await bodyJSON(req));
-        const output = await serial(ip, async () => {
-          if (music.ip === ip) throw new AppError('Musik zuerst stoppen.', 409, 'MUSIC_ACTIVE');
-          const record = devices.get(ip);
-          if (!record) throw new AppError('Lampe wurde entfernt.', 404);
-          const caps = record.capabilities;
-          if ('r' in params && caps?.color === false) throw new AppError('Diese Lampe unterstützt laut Modul keine RGB-Farben.');
-          if ('temp' in params && caps?.temperature === false) throw new AppError('Diese Lampe unterstützt laut Modul keine einstellbare Weißtemperatur.');
-          if ('dimming' in params && caps?.brightness === false) throw new AppError('Dieses Gerät unterstützt laut Modul keine Helligkeitsregelung.');
-          if ('temp' in params && caps?.rangeReported && (params.temp < caps.minKelvin || params.temp > caps.maxKelvin)) {
-            throw new AppError(`Die Lampe meldet einen Bereich von ${caps.minKelvin} bis ${caps.maxKelvin} K.`);
-          }
-          try {
-            const result = await client.control(ip, params);
-            if (result.pilot) remember({ ip, pilot: result.pilot });
-            else { record.online = null; record.lastError = result.warning; }
-            return { device: serialize(devices.get(ip)), warning: result.warning, sent: { method: 'setPilot', params } };
-          } catch (error) {
-            // A lost UDP response does not prove the command was not executed.
-            record.online = error.code === 'UDP_TIMEOUT' ? null : record.online;
-            record.lastError = error.message;
-            throw error;
-          }
-        });
-        json(res, 200, output); return;
-      }
-      throw new AppError('HTTP-Methode nicht erlaubt.', 405);
+      throw new AppError('Nicht gefunden.', 404);
     } catch (error) {
       if (!res.headersSent) json(res, error.status || 500, {
         error: { code: error.code || 'SERVER_ERROR', message: error.status ? error.message : 'Serverfehler. Details stehen im Server-Terminal.' },
@@ -586,7 +353,7 @@ export async function createApp({
   });
   async function previewAddresses(){
     if(!bridgeTask)bridgeTask=(async()=>{
-      const allowed=new Set(['/dmx-scene-readability.js','/dmx-stage-brand.js','/dmx-stage-brand-data.js','/song-movement-plan.js','/dmx-group-motion.js','/dmx-room-presets.js','/dmx-beam-volume.js','/dmx-device-manager.js','/dmx-device-manager.css','/dmx-activity.js','/dmx-participation.js','/dmx-light-scenes.js','/instrument-activity.js','/musical-attention.js','/show-action.js','/show-score.js','/vr-test','/vr-test/','/api/vr-preview/test-connect','/vr-view','/vr-view-boot.js','/vr-view.js','/vr-view.css','/dmx-vr-renderer.js','/dmx-vr-quality.js','/dmx-vr-scene.js','/dmx-stage-vr.js','/dmx-vr-console.js','/dmx-vr-playback.js','/dmx-surface-light.js','/dmx-light-geometry.js','/dmx-zone-plan.js','/dmx-zone-motion.js','/dmx-ar-model.js','/dmx-room-style.js','/dmx-room-mesh.js','/dmx-ar-planner.js','/dmx-ar-controls.js','/dmx-ar.css','/dmx-stage-3d-renderer.js','/api/vr-preview/stream','/api/vr-preview/pair']);
+      const allowed=new Set(['/dmx-scene-readability.js','/dmx-stage-brand.js','/dmx-stage-brand-data.js','/song-movement-plan.js','/dmx-musical-score.js','/dmx-group-motion.js','/dmx-room-presets.js','/dmx-beam-volume.js','/dmx-device-manager.js','/dmx-device-manager.css','/dmx-activity.js','/dmx-participation.js','/dmx-focus.js','/dmx-light-scenes.js','/instrument-activity.js','/musical-attention.js','/show-action.js','/show-score.js','/vr-test','/vr-test/','/api/vr-preview/test-connect','/vr-view','/vr-view-boot.js','/vr-view.js','/vr-view.css','/dmx-vr-renderer.js','/dmx-vr-quality.js','/dmx-vr-scene.js','/dmx-stage-vr.js','/dmx-vr-console.js','/dmx-vr-playback.js','/dmx-surface-light.js','/dmx-light-geometry.js','/dmx-zone-plan.js','/dmx-zone-motion.js','/dmx-ar-model.js','/dmx-room-style.js','/dmx-room-mesh.js','/dmx-ar-planner.js','/dmx-ar-controls.js','/dmx-ar.css','/dmx-stage-3d-renderer.js','/api/vr-preview/stream','/api/vr-preview/pair']);
       previewBridge=(previewTls?https.createServer.bind(https,previewTls):http.createServer)((req,res)=>{let path=(req.url||'').split('?')[0];if(req.method==='GET'&&(path==='/'||path==='/vr-view/')){req.url='/vr-view'+(req.url.includes('?')?req.url.slice(req.url.indexOf('?')):'');path='/vr-view';}if(req.method==='GET'&&path==='/favicon.ico'){res.writeHead(204);res.end();return;}if(!(req.method==='POST'&&['/api/vr-preview/command','/api/vr-preview/resume'].includes(path))&&(req.method!=='GET'||!allowed.has(path))){res.writeHead(403);res.end('Dieser Zugang ist nur für die VR-Vorschau.');return;}server.emit('request',req,res);});
       await new Promise((resolve,reject)=>{previewBridge.once('error',reject);previewBridge.listen(previewPort,'0.0.0.0',resolve);});
       return previewBridge.address().port;
@@ -599,10 +366,10 @@ export async function createApp({
   server.headersTimeout = 10000;
   server.keepAliveTimeout = 5000;
   server.maxHeadersCount = 50;
-  server.on('close', () => { beatAnalysis.close(); structureAnalysis.close(); styleAnalysis.close(); if (music.session) void music.stop(music.session.id); });
+  server.on('close', () => { beatAnalysis.close(); structureAnalysis.close(); styleAnalysis.close(); });
   server.on('listening',()=>dmx.startMonitoring());
   server.on('close',()=>void dmx.close());
-  return { server, devices, client, music, dmx };
+  return { server, dmx };
 }
 
 async function main() {
@@ -611,7 +378,7 @@ async function main() {
   }
   const args = process.argv.slice(2);
   if (args.includes('--help')) {
-    console.log('node server.mjs [--lan] [--demo] [--https]\nSSL_CERT_FILE=.certs/localhost.pem, SSL_KEY_FILE=.certs/localhost-key.pem\nPORT=3030, HOST=127.0.0.1, WIZ_WEB_TOKEN=<mindestens 20 Zeichen>, WIZ_DATA_DIR=<Pfad>');
+    console.log('node server.mjs [--lan] [--demo] [--https]\nSSL_CERT_FILE=.certs/localhost.pem, SSL_KEY_FILE=.certs/localhost-key.pem\nPORT=3030, HOST=127.0.0.1, ANYDJ_WEB_TOKEN=<mindestens 20 Zeichen>, ANYDJ_DATA_DIR=<Pfad>');
     return;
   }
   if (args.some(x => !['--lan', '--demo', '--https'].includes(x))) throw new Error('Unbekannte Option. Siehe --help.');
@@ -633,24 +400,23 @@ async function main() {
   const port = Number(process.env.PORT || 3030);
   if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('PORT muss zwischen 1 und 65535 liegen.');
   const lan = !['localhost', '127.0.0.1', '[::1]'].includes(host);
-  const token = process.env.WIZ_WEB_TOKEN || '';
-  if (token && token.length < 20) throw new Error('WIZ_WEB_TOKEN muss mindestens 20 Zeichen lang sein.');
-  const { server, client, music, dmx } = await createApp({ demo, token, hosts, tls,
-    ...(process.env.WIZ_DATA_DIR ? { dataDir: resolve(process.env.WIZ_DATA_DIR) } : {}),
+  const token = process.env.ANYDJ_WEB_TOKEN || '';
+  if (token && token.length < 20) throw new Error('ANYDJ_WEB_TOKEN muss mindestens 20 Zeichen lang sein.');
+  const { server, dmx } = await createApp({ demo, token, hosts, tls,
+    ...(process.env.ANYDJ_DATA_DIR ? { dataDir: resolve(process.env.ANYDJ_DATA_DIR) } : {}),
   });
   await new Promise((resolve, reject) => { server.once('error', reject); server.listen(port, host, resolve); });
-  console.log(`\nAnyDj · Prototyp ${VERSION}${demo ? ' · DEMO: keine echte Lampe wird angesprochen' : ''}`);
+  console.log(`\nAnyDj · Prototyp ${VERSION}${demo ? ' · DEMO: keine Hardwareausgabe' : ''}`);
   console.log(`Rechner: ${protocol}://127.0.0.1:${port}`);
   if (secure) console.log(`Spotify Redirect URI: https://127.0.0.1:${port}/spotify-callback.html`);
   if (lan) {
-    for (const iface of (new WizClient()).interfaces()) console.log(`Heimnetz (${iface.name}): ${protocol}://${iface.address}:${port}`);
+    for (const [name,entries] of Object.entries(networkInterfaces())) for (const iface of entries||[]) if (!iface.internal && iface.family==='IPv4') console.log(`Heimnetz (${name}): ${protocol}://${iface.address}:${port}`);
     console.log(secure ? 'Das lokale Zertifikat muss auch die verwendete Heimnetz-IP abdecken.' : 'Nur in einem vertrauenswürdigen Heimnetz verwenden. Kein TLS; keine Internet-Portfreigabe.');
   }
-  if (token) console.log(`\nWeb-Zugangscode: ${token}\n(Das ist NICHT der AnyDj Home Security Key.)`);
+  if (token) console.log(`\nWeb-Zugangscode: ${token}\n`);
   console.log('\nBeenden: Strg+C\n');
   const stop = async () => {
     setTimeout(() => process.exit(0), 6000).unref();
-    if (music.session) await music.stop(music.session.id);
     await dmx.close();
     server.close(() => process.exit(0));
   };

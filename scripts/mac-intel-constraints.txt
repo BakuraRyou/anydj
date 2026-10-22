@@ -1,0 +1,14 @@
+# Native Intel macOS stack. PyTorch's last x86_64 macOS wheels are 2.2.2.
+# NumPy 1.x also preserves the NumPy ABI used by those wheels.
+torch==2.2.2
+torchaudio==2.2.2
+numpy==1.26.4
+scipy==1.13.1
+rotary-embedding-torch==0.8.6
+librosa==0.11.0
+numba==0.60.0
+llvmlite==0.43.0
+scikit-learn==1.6.1
+matplotlib==3.9.4
+huggingface_hub==0.34.4
+onnxruntime==1.19.2

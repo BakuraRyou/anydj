@@ -35,7 +35,8 @@ test('Strobo owns physical row geometry and exposure, without automatic group mo
  const lights=Array.from({length:8},(_,i)=>({id:'h'+i,type:'moving',position:{x:i-3.5,y:4,height:3},target:{x:0,y:2},motionUV:{x:.5,y:.5},motionPresentation:'strobe',power:1,movingPresenceBasePower:1,movingPresence:presence,movingShutter:1}));
  lights.forEach(l=>room.positions[l.id]={...l.position,type:'moving',rotation:0});
  const render=p=>applyRoomPlan({layout:{width:8,depth:6,positions:{}},lights:lights.map(l=>({...l,movingPresence:p}))},room).lights;
- const a=render(presence),other={...presence,groupMotion:{...presence.groupMotion,form:(presence.groupMotion.form+5)%20}};
+ const a=render(presence),g=presence.groupMotion;
+ const other={...presence,groupMotion:{...g,music:{...g.music,sequence:{...g.music.sequence,layout:2,rolePhase:1}}}};
  assert.notDeepEqual(a.map(l=>l.target),render(other).map(l=>l.target));
  assert.ok(a.some(l=>l.power>0));
  const dark=render({...presence,groupMotion:{...presence.groupMotion,kind:'silence'}});

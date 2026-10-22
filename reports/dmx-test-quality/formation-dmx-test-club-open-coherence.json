@@ -1,0 +1,3875 @@
+{
+  "method": "Physical room preview, WebGL renderer (SwiftShader), normal playback score, 53 percent flicker, no hardware validation.",
+  "source": "dmx-test.mp3, local audio analysis",
+  "interval": [
+    99,
+    115
+  ],
+  "library": {
+    "selectedPreserved": true,
+    "editsPreserved": true,
+    "addedOnce": true,
+    "listed": true
+  },
+  "scenes": [
+    {
+      "start": 0,
+      "end": 3.79,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.850099582385179,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "energy": 0.0006638825678601545,
+        "tone": 0.5103026076651979,
+        "drums": 0.0000948699570243131,
+        "bass": 0.00008770237407268798,
+        "voice": 0,
+        "pitchConfidence": 0,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 3.79,
+      "end": 14.06,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9018298557477732,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "energy": 0.3455323716518215,
+        "tone": 0.445350677874199,
+        "drums": 0.17265155105441468,
+        "bass": 0.2640143014646716,
+        "voice": 0.034197493621758626,
+        "pitchConfidence": 0.35329556025316544,
+        "pitchRise": -0.1693707444423082,
+        "density": 0.03245699448231094,
+        "irregularity": 0,
+        "impulses": 1
+      }
+    },
+    {
+      "start": 14.06,
+      "end": 25.69,
+      "formationId": "horizontal-sheets",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9232582800705162,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "energy": 0.4883885338034415,
+        "tone": 0.43446487801208994,
+        "drums": 0.25900982709367,
+        "bass": 0.24139729270204097,
+        "voice": 0.12292947558211378,
+        "pitchConfidence": 0.1898633316566282,
+        "pitchRise": 0,
+        "density": 0.08598452278589853,
+        "irregularity": 0,
+        "impulses": 3
+      }
+    },
+    {
+      "start": 25.69,
+      "end": 32.88,
+      "formationId": "converging-lines",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9398874178161067,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "energy": 0.5992494521073782,
+        "tone": 0.38609263285290063,
+        "drums": 0.1026006807713167,
+        "bass": 0.6743164969181348,
+        "voice": 0.010168472995436599,
+        "pitchConfidence": 0.3607606182781621,
+        "pitchRise": -0.0332663945147717,
+        "density": 0.23180343069077416,
+        "irregularity": 0.018737993165847486,
+        "impulses": 5
+      }
+    },
+    {
+      "start": 32.88,
+      "end": 40.01,
+      "formationId": "converging-lines",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9394961552347761,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "energy": 0.5966410348985077,
+        "tone": 0.39365725279087305,
+        "drums": 0.09712607966061199,
+        "bass": 0.6397960337470379,
+        "voice": 0.0006020741090550503,
+        "pitchConfidence": 0.2723194855397286,
+        "pitchRise": 0,
+        "density": 0.23375409069658734,
+        "irregularity": 0.5422903829445728,
+        "impulses": 5
+      }
+    },
+    {
+      "start": 40.01,
+      "end": 47.18,
+      "formationId": "converging-lines",
+      "program": "resolve",
+      "story": "gather",
+      "act": "resolve",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "hinge",
+        "articulation": "stroke",
+        "key": "radial/hinge/stroke",
+        "spread": 0.9441374270160144,
+        "amplitude": 0.08393079927414007,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessene Rücknahme",
+        "texture": "sustain",
+        "energy": 0.6275828467734296,
+        "tone": 0.28868829016827285,
+        "drums": 0.3818964060864998,
+        "bass": 0.30988533519845457,
+        "voice": 0.004616712643930315,
+        "pitchConfidence": 0.25874112366572466,
+        "pitchRise": 0,
+        "density": 0.3254300325430032,
+        "irregularity": 0.03337414891790423,
+        "impulses": 7
+      }
+    },
+    {
+      "start": 47.18,
+      "end": 54.36,
+      "formationId": "open-fan",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.9687446181938669,
+        "amplitude": 0.09541415515713791,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessener Aufbau",
+        "texture": "drums",
+        "energy": 0.791630787959113,
+        "tone": 0.23264730469057518,
+        "drums": 0.6078683625271359,
+        "bass": 0.5306566477861232,
+        "voice": 0.0006022521254637255,
+        "pitchConfidence": 0.5482383895548,
+        "pitchRise": -0.14320422356788062,
+        "density": 0.7428040854224699,
+        "irregularity": 0.1239325167479604,
+        "impulses": 16
+      }
+    },
+    {
+      "start": 54.36,
+      "end": 61.52,
+      "formationId": "converging-lines",
+      "program": "resolve",
+      "story": "gather",
+      "act": "resolve",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "hinge",
+        "articulation": "stroke",
+        "key": "radial/hinge/stroke",
+        "spread": 0.9338723029230983,
+        "amplitude": 0.07914040803077922,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessene Rücknahme",
+        "texture": "sustain",
+        "energy": 0.5591486861539888,
+        "tone": 0.41032688178621374,
+        "drums": 0.3858854134099554,
+        "bass": 0.38250429670931063,
+        "voice": 0.0007437534247580793,
+        "pitchConfidence": 0.28381286598933453,
+        "pitchRise": 0,
+        "density": 0.7448789571694596,
+        "irregularity": 0.021107665110047236,
+        "impulses": 16
+      }
+    },
+    {
+      "start": 61.52,
+      "end": 65.04,
+      "formationId": "nested-gates",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.9360754882522845,
+        "amplitude": 0.08016856118439947,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessener Aufbau",
+        "texture": "bass",
+        "energy": 0.5738365883485637,
+        "tone": 0.43425049470267496,
+        "drums": 0.1848149404914135,
+        "bass": 0.5540352133856784,
+        "voice": 0.005946580901848738,
+        "pitchConfidence": 0.03576858096774535,
+        "pitchRise": 0,
+        "density": 0.4734848484848481,
+        "irregularity": 0.019461245028866897,
+        "impulses": 5
+      }
+    },
+    {
+      "start": 65.04,
+      "end": 72.24,
+      "formationId": "open-fan",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.9430403798418255,
+        "amplitude": 0.08341884392618526,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessener Aufbau",
+        "texture": "voice",
+        "energy": 0.6202691989455036,
+        "tone": 0.4260156203534462,
+        "drums": 0.06039973088405074,
+        "bass": 0.4971863261585715,
+        "voice": 0.49619059460255954,
+        "pitchConfidence": 0.273832144195266,
+        "pitchRise": 0,
+        "density": 0.09259259259259274,
+        "irregularity": 0,
+        "impulses": 2
+      }
+    },
+    {
+      "start": 72.24,
+      "end": 77.62,
+      "formationId": "split-foci",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9316020491450905,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Führende Stimme",
+        "texture": "voice",
+        "energy": 0.5440136609672699,
+        "tone": 0.5375118952720181,
+        "drums": 0.04607477996999191,
+        "bass": 0.44451165696621303,
+        "voice": 0.6065027179440372,
+        "pitchConfidence": 0.2653081231666527,
+        "pitchRise": 0,
+        "density": 0.06195786864931835,
+        "irregularity": 0,
+        "impulses": 1
+      }
+    },
+    {
+      "start": 77.62,
+      "end": 84.8,
+      "formationId": "lattice",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.9522967844245379,
+        "amplitude": 0.08773849939811772,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.681978562830253,
+        "tone": 0.3589480069411498,
+        "drums": 0.48229057703241957,
+        "bass": 0.5422023546274068,
+        "voice": 0.013186951918562648,
+        "pitchConfidence": 0.40869210919214194,
+        "pitchRise": 0.06336426483207905,
+        "density": 0.7428040854224706,
+        "irregularity": 0.021870444131994356,
+        "impulses": 16
+      }
+    },
+    {
+      "start": 84.8,
+      "end": 93.74,
+      "formationId": "lattice",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.9515437811850882,
+        "amplitude": 0.08738709788637451,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.6769585412339215,
+        "tone": 0.3751453764928296,
+        "drums": 0.44849115441932114,
+        "bass": 0.5574232353830259,
+        "voice": 0.11826141434809015,
+        "pitchConfidence": 0.5464521941606683,
+        "pitchRise": 0.045643744872241154,
+        "density": 0.7457121551081284,
+        "irregularity": 0.12494981691625275,
+        "impulses": 20
+      }
+    },
+    {
+      "start": 93.74,
+      "end": 99.12,
+      "formationId": "open-fan",
+      "program": "unfold",
+      "story": "bloom",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "rise",
+        "articulation": "stroke",
+        "key": "radial/rise/stroke",
+        "spread": 0.9345519491235096,
+        "amplitude": 0.07945757625763782,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessener Aufbau",
+        "texture": "drums",
+        "energy": 0.5636796608233973,
+        "tone": 0.4327180199473493,
+        "drums": 0.5807737634684844,
+        "bass": 0.09983367694108294,
+        "voice": 0.00518028899823312,
+        "pitchConfidence": 0.5311683973281067,
+        "pitchRise": -0.04084587287656116,
+        "density": 0.7434944237918203,
+        "irregularity": 0.022175002328140965,
+        "impulses": 12
+      }
+    },
+    {
+      "start": 99.12,
+      "end": 106.28,
+      "formationId": "lattice",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.9753404904534475,
+        "amplitude": 0.0984922288782755,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.8356032696896499,
+        "tone": 0.2420269128844407,
+        "drums": 0.5940305268962854,
+        "bass": 0.6028241660278881,
+        "voice": 0.0005066827220028636,
+        "pitchConfidence": 0.28456164953642255,
+        "pitchRise": 0,
+        "density": 0.7448789571694604,
+        "irregularity": 0.021870444131990043,
+        "impulses": 16
+      }
+    },
+    {
+      "start": 106.28,
+      "end": 113.44,
+      "formationId": "vertical-curtain",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.9661932723992382,
+        "amplitude": 0.09422352711964452,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.7746218159949215,
+        "tone": 0.3371658643874673,
+        "drums": 0.5086539162552504,
+        "bass": 0.5129443640824666,
+        "voice": 0.0035782948119655036,
+        "pitchConfidence": 0.33499095153662883,
+        "pitchRise": 0,
+        "density": 0.698324022346369,
+        "irregularity": 0.24346620638354535,
+        "impulses": 15
+      }
+    },
+    {
+      "start": 113.44,
+      "end": 120.62,
+      "formationId": "crossed-fans",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.9720438412499257,
+        "amplitude": 0.09695379258329867,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.8136256083328381,
+        "tone": 0.33930671139751245,
+        "drums": 0.6011873685431794,
+        "bass": 0.5722735780755226,
+        "voice": 0.0006496324755336533,
+        "pitchConfidence": 0.2513769516711115,
+        "pitchRise": 0,
+        "density": 0.7428040854224691,
+        "irregularity": 0.021107665110049485,
+        "impulses": 16
+      }
+    },
+    {
+      "start": 120.62,
+      "end": 127.77,
+      "formationId": "twin-fans",
+      "program": "sweep",
+      "story": "weave",
+      "act": "interlace",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "hinge",
+        "articulation": "stroke",
+        "key": "radial/hinge/stroke",
+        "spread": 0.965278276003269,
+        "amplitude": 0.09379652880152556,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "energy": 0.7685218400217937,
+        "tone": 0.3606099170602939,
+        "drums": 0.4722146017668532,
+        "bass": 0.617517097450076,
+        "voice": 0.05707425855268366,
+        "pitchConfidence": 0.264567327107388,
+        "pitchRise": 0,
+        "density": 0.6993006993007002,
+        "irregularity": 0.26068438619593076,
+        "impulses": 15
+      }
+    },
+    {
+      "start": 127.77,
+      "end": 134.96,
+      "formationId": "converging-lines",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9242797133445297,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gemessene Rücknahme",
+        "texture": "bass",
+        "energy": 0.495198088963532,
+        "tone": 0.4117957636268079,
+        "drums": 0.1108084845013483,
+        "bass": 0.5758558596004194,
+        "voice": 0.012129089962996518,
+        "pitchConfidence": 0.41712557048283055,
+        "pitchRise": 0.22912505562700808,
+        "density": 0.04636068613815477,
+        "irregularity": 0,
+        "impulses": 1
+      }
+    },
+    {
+      "start": 134.96,
+      "end": 142.1,
+      "formationId": "split-foci",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.9230045045001469,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Führende Stimme",
+        "texture": "voice",
+        "energy": 0.4866966966676461,
+        "tone": 0.5311383162380062,
+        "drums": 0.07900670192060896,
+        "bass": 0.36181401792301876,
+        "voice": 0.4848047538681044,
+        "pitchConfidence": 0.22185340543398546,
+        "pitchRise": 0,
+        "density": 0.04668534080298795,
+        "irregularity": 0,
+        "impulses": 1
+      }
+    },
+    {
+      "start": 142.1,
+      "end": 155.98,
+      "formationId": "braided-ribbons",
+      "program": "sweep",
+      "story": "weave",
+      "act": "interlace",
+      "chapter": 0,
+      "variation": {
+        "path": "depth",
+        "gesture": "orbit",
+        "articulation": "stroke",
+        "key": "depth/orbit/stroke",
+        "spread": 0.9381755345934681,
+        "amplitude": 0.08114858281028511,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "energy": 0.5878368972897874,
+        "tone": 0.41040242825859663,
+        "drums": 0.20228493579796297,
+        "bass": 0.5028142122502471,
+        "voice": 0.05896850906958897,
+        "pitchConfidence": 0.25821090744461067,
+        "pitchRise": 0,
+        "density": 0.5043227665706054,
+        "irregularity": 0.48953775253829773,
+        "impulses": 21
+      }
+    },
+    {
+      "start": 155.98,
+      "end": 163.62,
+      "formationId": "braided-ribbons",
+      "program": "sweep",
+      "story": "weave",
+      "act": "interlace",
+      "chapter": 0,
+      "variation": {
+        "path": "depth",
+        "gesture": "orbit",
+        "articulation": "stroke",
+        "key": "depth/orbit/stroke",
+        "spread": 0.937888510788281,
+        "amplitude": 0.08101463836786447,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Gehaltenes Klangbild",
+        "texture": "sustain",
+        "energy": 0.5859234052552067,
+        "tone": 0.38383162285315453,
+        "drums": 0.35297141933725346,
+        "bass": 0.5357469113999689,
+        "voice": 0.25053312183240584,
+        "pitchConfidence": 0.258295414338399,
+        "pitchRise": 0,
+        "density": 0.6980802792321104,
+        "irregularity": 0.16397385610546616,
+        "impulses": 16
+      }
+    },
+    {
+      "start": 163.62,
+      "end": 170.75,
+      "formationId": "lattice",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.945314656244358,
+        "amplitude": 0.08448017291403376,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.6354310416290535,
+        "tone": 0.38195432428643655,
+        "drums": 0.6120240174258822,
+        "bass": 0.3221344451956934,
+        "voice": 0.21893630552162027,
+        "pitchConfidence": 0.2762831682388045,
+        "pitchRise": 0,
+        "density": 0.7480130902290795,
+        "irregularity": 0.021107665110042025,
+        "impulses": 16
+      }
+    },
+    {
+      "start": 170.75,
+      "end": 177.92,
+      "formationId": "crossed-fans",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.9808541881177905,
+        "amplitude": 0.10106528778830223,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.8723612541186033,
+        "tone": 0.2131637805872837,
+        "drums": 0.6655129951382971,
+        "bass": 0.5785455406719356,
+        "voice": 0.04233523019392601,
+        "pitchConfidence": 0.3840679489478542,
+        "pitchRise": 0.053090441195567106,
+        "density": 0.7438400743840088,
+        "irregularity": 0.02187044413199004,
+        "impulses": 16
+      }
+    },
+    {
+      "start": 177.92,
+      "end": 185.08,
+      "formationId": "folding-blades",
+      "program": "cascade",
+      "story": "relay",
+      "act": "interlace",
+      "chapter": 0,
+      "variation": {
+        "path": "zigzag",
+        "gesture": "scissor",
+        "articulation": "echo",
+        "key": "zigzag/scissor/echo",
+        "spread": 0.9634148617954256,
+        "amplitude": 0.09292693550453196,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.7560990786361709,
+        "tone": 0.3032994739344332,
+        "drums": 0.5231936795230414,
+        "bass": 0.4772574051855054,
+        "voice": 0.23964074108192496,
+        "pitchConfidence": 0.340957436342063,
+        "pitchRise": 0,
+        "density": 0.6517690875232752,
+        "irregularity": 0.4600116150066547,
+        "impulses": 14
+      }
+    },
+    {
+      "start": 185.08,
+      "end": 192.26,
+      "formationId": "lattice",
+      "program": "cascade",
+      "story": "relay",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "traverse",
+        "gesture": "sweep",
+        "articulation": "stroke",
+        "key": "traverse/sweep/stroke",
+        "spread": 0.9723116719160594,
+        "amplitude": 0.09707878022749439,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.8154111461070624,
+        "tone": 0.27360217922054675,
+        "drums": 0.6217340163779919,
+        "bass": 0.5365032794469132,
+        "voice": 0.06795470722585159,
+        "pitchConfidence": 0.3912002895187099,
+        "pitchRise": 0.06505701741564629,
+        "density": 0.7428040854224721,
+        "irregularity": 0.021107665110056937,
+        "impulses": 16
+      }
+    },
+    {
+      "start": 192.26,
+      "end": 199.41,
+      "formationId": "folding-blades",
+      "program": "cascade",
+      "story": "relay",
+      "act": "interlace",
+      "chapter": 0,
+      "variation": {
+        "path": "zigzag",
+        "gesture": "scissor",
+        "articulation": "echo",
+        "key": "zigzag/scissor/echo",
+        "spread": 0.9673305679467264,
+        "amplitude": 0.09475426504180567,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Perkussive Figur",
+        "texture": "drums",
+        "energy": 0.7822037863115096,
+        "tone": 0.3728394695981681,
+        "drums": 0.5064196420565523,
+        "bass": 0.48508968616710746,
+        "voice": 0.18866366277547297,
+        "pitchConfidence": 0.34181848428409634,
+        "pitchRise": 0,
+        "density": 0.6526806526806522,
+        "irregularity": 0.6471012633565333,
+        "impulses": 14
+      }
+    },
+    {
+      "start": 199.41,
+      "end": 202.5,
+      "formationId": "converging-lines",
+      "program": "sculpture",
+      "story": "suspend",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": {
+        "path": "radial",
+        "gesture": "carry",
+        "articulation": "stroke",
+        "key": "radial/carry/stroke",
+        "spread": 0.928934894283829,
+        "amplitude": 0.025,
+        "phaseSpan": 1
+      },
+      "musicalEvidence": {
+        "reason": "Tragende Bassfigur",
+        "texture": "bass",
+        "energy": 0.5262326285588601,
+        "tone": 0.15523777284180965,
+        "drums": 0.31727737985890847,
+        "bass": 0.6646584944140957,
+        "voice": 0.09411470402088569,
+        "pitchConfidence": 0.7746445198323287,
+        "pitchRise": 0.014771526252869982,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    },
+    {
+      "start": 202.5,
+      "end": 216.11102040816326,
+      "formationId": "parallel-lines",
+      "program": "rest",
+      "story": "rest",
+      "act": "introduce",
+      "chapter": 0,
+      "variation": null,
+      "musicalEvidence": {
+        "reason": "Musikalische Pause",
+        "texture": "sustain",
+        "energy": 0.0072782222098738475,
+        "tone": 0.47189473528772685,
+        "drums": 0.0012190195253510728,
+        "bass": 0.014254259662712286,
+        "voice": 0.0025036129062992254,
+        "pitchConfidence": 0.05297791269227163,
+        "pitchRise": 0,
+        "density": 0,
+        "irregularity": 0,
+        "impulses": 0
+      }
+    }
+  ],
+  "states": [
+    {
+      "time": 10,
+      "targets": [
+        [
+          -106109,
+          95853,
+          0
+        ],
+        [
+          -76109,
+          95853,
+          0
+        ],
+        [
+          -46109,
+          95853,
+          0
+        ],
+        [
+          -16109,
+          95853,
+          0
+        ],
+        [
+          13891,
+          95853,
+          0
+        ],
+        [
+          43891,
+          95853,
+          0
+        ],
+        [
+          73891,
+          95853,
+          0
+        ],
+        [
+          103891,
+          95853,
+          0
+        ],
+        [
+          -106109,
+          155400,
+          0
+        ],
+        [
+          -76109,
+          155400,
+          0
+        ],
+        [
+          -46109,
+          155400,
+          0
+        ],
+        [
+          -16109,
+          155400,
+          0
+        ],
+        [
+          13891,
+          155400,
+          0
+        ],
+        [
+          43891,
+          155400,
+          0
+        ],
+        [
+          73891,
+          155400,
+          0
+        ],
+        [
+          103891,
+          155400,
+          0
+        ],
+        [
+          -106109,
+          214948,
+          0
+        ],
+        [
+          -76109,
+          214948,
+          0
+        ],
+        [
+          -46109,
+          214948,
+          0
+        ],
+        [
+          -16109,
+          214948,
+          0
+        ],
+        [
+          13891,
+          214948,
+          0
+        ],
+        [
+          43891,
+          214948,
+          0
+        ],
+        [
+          73891,
+          214948,
+          0
+        ],
+        [
+          103891,
+          214948,
+          0
+        ],
+        [
+          -106109,
+          247223,
+          0
+        ],
+        [
+          -76109,
+          247223,
+          0
+        ],
+        [
+          -46109,
+          247223,
+          0
+        ],
+        [
+          -16109,
+          247223,
+          0
+        ],
+        [
+          13891,
+          247223,
+          0
+        ],
+        [
+          43891,
+          247223,
+          0
+        ],
+        [
+          73891,
+          247223,
+          0
+        ],
+        [
+          103891,
+          247223,
+          0
+        ],
+        [
+          -106109,
+          274044,
+          0
+        ],
+        [
+          -76109,
+          274044,
+          0
+        ],
+        [
+          -46109,
+          274044,
+          0
+        ],
+        [
+          -16109,
+          274044,
+          0
+        ],
+        [
+          13891,
+          274044,
+          0
+        ],
+        [
+          43891,
+          274044,
+          0
+        ],
+        [
+          73891,
+          274044,
+          0
+        ],
+        [
+          103891,
+          274044,
+          0
+        ],
+        [
+          -106109,
+          300864,
+          0
+        ],
+        [
+          -76109,
+          300864,
+          0
+        ],
+        [
+          -46109,
+          300864,
+          0
+        ],
+        [
+          -16109,
+          300864,
+          0
+        ],
+        [
+          13891,
+          300864,
+          0
+        ],
+        [
+          43891,
+          300864,
+          0
+        ],
+        [
+          73891,
+          300864,
+          0
+        ],
+        [
+          103891,
+          300864,
+          0
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.5662174772175603,
+      "rows": [
+        {
+          "y": 12,
+          "visible": 0,
+          "colors": [
+            "rgb(255,234,0)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 0,
+          "colors": [
+            "rgb(255,234,0)"
+          ]
+        },
+        {
+          "y": 32,
+          "visible": 0,
+          "colors": [
+            "rgb(255,234,0)"
+          ]
+        },
+        {
+          "y": 37,
+          "visible": 0,
+          "colors": [
+            "rgb(255,234,0)"
+          ]
+        },
+        {
+          "y": 41,
+          "visible": 0,
+          "colors": [
+            "rgb(255,234,0)"
+          ]
+        },
+        {
+          "y": 45,
+          "visible": 0,
+          "colors": [
+            "rgb(255,234,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 43,
+      "targets": [
+        [
+          320,
+          196755,
+          0
+        ],
+        [
+          229,
+          196755,
+          0
+        ],
+        [
+          137,
+          196755,
+          0
+        ],
+        [
+          46,
+          196755,
+          0
+        ],
+        [
+          -46,
+          182234,
+          0
+        ],
+        [
+          -137,
+          182234,
+          0
+        ],
+        [
+          -229,
+          182234,
+          0
+        ],
+        [
+          -320,
+          182234,
+          0
+        ],
+        [
+          320,
+          197007,
+          0
+        ],
+        [
+          229,
+          197007,
+          0
+        ],
+        [
+          137,
+          197007,
+          0
+        ],
+        [
+          46,
+          197007,
+          0
+        ],
+        [
+          -46,
+          182486,
+          0
+        ],
+        [
+          -137,
+          182486,
+          0
+        ],
+        [
+          -229,
+          182486,
+          0
+        ],
+        [
+          -320,
+          182486,
+          0
+        ],
+        [
+          320,
+          197259,
+          0
+        ],
+        [
+          229,
+          197259,
+          0
+        ],
+        [
+          137,
+          197259,
+          0
+        ],
+        [
+          46,
+          197259,
+          0
+        ],
+        [
+          -46,
+          182738,
+          0
+        ],
+        [
+          -137,
+          182738,
+          0
+        ],
+        [
+          -229,
+          182738,
+          0
+        ],
+        [
+          -320,
+          182738,
+          0
+        ],
+        [
+          320,
+          197511,
+          0
+        ],
+        [
+          229,
+          197511,
+          0
+        ],
+        [
+          137,
+          197511,
+          0
+        ],
+        [
+          46,
+          197511,
+          0
+        ],
+        [
+          -46,
+          182990,
+          0
+        ],
+        [
+          -137,
+          182990,
+          0
+        ],
+        [
+          -229,
+          182990,
+          0
+        ],
+        [
+          -320,
+          182990,
+          0
+        ],
+        [
+          320,
+          197763,
+          0
+        ],
+        [
+          229,
+          197763,
+          0
+        ],
+        [
+          137,
+          197763,
+          0
+        ],
+        [
+          46,
+          197763,
+          0
+        ],
+        [
+          -46,
+          183242,
+          0
+        ],
+        [
+          -137,
+          183242,
+          0
+        ],
+        [
+          -229,
+          183242,
+          0
+        ],
+        [
+          -320,
+          183242,
+          0
+        ],
+        [
+          320,
+          198015,
+          0
+        ],
+        [
+          229,
+          198015,
+          0
+        ],
+        [
+          137,
+          198015,
+          0
+        ],
+        [
+          46,
+          198015,
+          0
+        ],
+        [
+          -46,
+          183494,
+          0
+        ],
+        [
+          -137,
+          183494,
+          0
+        ],
+        [
+          -229,
+          183494,
+          0
+        ],
+        [
+          -320,
+          183494,
+          0
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.6178428133022429,
+      "rows": [
+        {
+          "y": 12,
+          "visible": 0,
+          "colors": [
+            "rgb(0,255,230)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 0,
+          "colors": [
+            "rgb(0,255,230)"
+          ]
+        },
+        {
+          "y": 32,
+          "visible": 0,
+          "colors": [
+            "rgb(0,255,230)"
+          ]
+        },
+        {
+          "y": 37,
+          "visible": 0,
+          "colors": [
+            "rgb(0,255,230)"
+          ]
+        },
+        {
+          "y": 41,
+          "visible": 0,
+          "colors": [
+            "rgb(0,255,230)"
+          ]
+        },
+        {
+          "y": 45,
+          "visible": 0,
+          "colors": [
+            "rgb(0,255,230)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 65,
+      "targets": [
+        [
+          -86865,
+          193756,
+          0
+        ],
+        [
+          -86865,
+          216120,
+          0
+        ],
+        [
+          -58583,
+          238485,
+          0
+        ],
+        [
+          -30302,
+          260849,
+          0
+        ],
+        [
+          30302,
+          260849,
+          0
+        ],
+        [
+          58583,
+          238485,
+          0
+        ],
+        [
+          86865,
+          216120,
+          0
+        ],
+        [
+          86865,
+          193756,
+          0
+        ],
+        [
+          -86865,
+          193756,
+          0
+        ],
+        [
+          -86865,
+          216120,
+          0
+        ],
+        [
+          -58583,
+          238485,
+          0
+        ],
+        [
+          -30302,
+          260849,
+          0
+        ],
+        [
+          30302,
+          260849,
+          0
+        ],
+        [
+          58583,
+          238485,
+          0
+        ],
+        [
+          86865,
+          216120,
+          0
+        ],
+        [
+          86865,
+          193756,
+          0
+        ],
+        [
+          -86865,
+          193756,
+          0
+        ],
+        [
+          -86865,
+          216120,
+          0
+        ],
+        [
+          -58583,
+          238485,
+          0
+        ],
+        [
+          -30302,
+          260849,
+          0
+        ],
+        [
+          30302,
+          260849,
+          0
+        ],
+        [
+          58583,
+          238485,
+          0
+        ],
+        [
+          86865,
+          216120,
+          0
+        ],
+        [
+          86865,
+          193756,
+          0
+        ],
+        [
+          -86865,
+          193756,
+          0
+        ],
+        [
+          -86865,
+          216120,
+          0
+        ],
+        [
+          -58583,
+          238485,
+          0
+        ],
+        [
+          -30302,
+          260849,
+          0
+        ],
+        [
+          30302,
+          260849,
+          0
+        ],
+        [
+          58583,
+          238485,
+          0
+        ],
+        [
+          86865,
+          216120,
+          0
+        ],
+        [
+          86865,
+          193756,
+          0
+        ],
+        [
+          -86865,
+          193756,
+          0
+        ],
+        [
+          -86865,
+          216120,
+          0
+        ],
+        [
+          -58583,
+          238485,
+          0
+        ],
+        [
+          -30302,
+          260849,
+          0
+        ],
+        [
+          30302,
+          260849,
+          0
+        ],
+        [
+          58583,
+          238485,
+          0
+        ],
+        [
+          86865,
+          216120,
+          0
+        ],
+        [
+          86865,
+          193756,
+          0
+        ],
+        [
+          -86865,
+          193756,
+          0
+        ],
+        [
+          -86865,
+          216120,
+          0
+        ],
+        [
+          -58583,
+          238485,
+          0
+        ],
+        [
+          -30302,
+          260849,
+          0
+        ],
+        [
+          30302,
+          260849,
+          0
+        ],
+        [
+          58583,
+          238485,
+          0
+        ],
+        [
+          86865,
+          216120,
+          0
+        ],
+        [
+          86865,
+          193756,
+          0
+        ]
+      ],
+      "visible": 48,
+      "maximum": 0.9113078665506275,
+      "rows": [
+        {
+          "y": 12,
+          "visible": 8,
+          "colors": [
+            "rgb(0,177,255)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 8,
+          "colors": [
+            "rgb(0,177,255)"
+          ]
+        },
+        {
+          "y": 32,
+          "visible": 8,
+          "colors": [
+            "rgb(0,177,255)"
+          ]
+        },
+        {
+          "y": 37,
+          "visible": 8,
+          "colors": [
+            "rgb(0,177,255)"
+          ]
+        },
+        {
+          "y": 41,
+          "visible": 8,
+          "colors": [
+            "rgb(0,177,255)"
+          ]
+        },
+        {
+          "y": 45,
+          "visible": 8,
+          "colors": [
+            "rgb(0,177,255)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 89,
+      "targets": [
+        [
+          110770,
+          151384,
+          0
+        ],
+        [
+          92084,
+          248862,
+          0
+        ],
+        [
+          62967,
+          151384,
+          0
+        ],
+        [
+          33850,
+          248862,
+          0
+        ],
+        [
+          4734,
+          151384,
+          0
+        ],
+        [
+          -24383,
+          248862,
+          0
+        ],
+        [
+          -53500,
+          151384,
+          0
+        ],
+        [
+          -82617,
+          248862,
+          0
+        ],
+        [
+          110770,
+          151384,
+          0
+        ],
+        [
+          92084,
+          248862,
+          0
+        ],
+        [
+          62967,
+          151384,
+          0
+        ],
+        [
+          33850,
+          248862,
+          0
+        ],
+        [
+          4734,
+          151384,
+          0
+        ],
+        [
+          -24383,
+          248862,
+          0
+        ],
+        [
+          -53500,
+          151384,
+          0
+        ],
+        [
+          -82617,
+          248862,
+          0
+        ],
+        [
+          110770,
+          151384,
+          0
+        ],
+        [
+          92084,
+          248862,
+          0
+        ],
+        [
+          62967,
+          151384,
+          0
+        ],
+        [
+          33850,
+          248862,
+          0
+        ],
+        [
+          4734,
+          151384,
+          0
+        ],
+        [
+          -24383,
+          248862,
+          0
+        ],
+        [
+          -53500,
+          151384,
+          0
+        ],
+        [
+          -82617,
+          248862,
+          0
+        ],
+        [
+          110770,
+          151384,
+          0
+        ],
+        [
+          92084,
+          248862,
+          0
+        ],
+        [
+          62967,
+          151384,
+          0
+        ],
+        [
+          33850,
+          248862,
+          0
+        ],
+        [
+          4734,
+          151384,
+          0
+        ],
+        [
+          -24383,
+          248862,
+          0
+        ],
+        [
+          -53500,
+          151384,
+          0
+        ],
+        [
+          -82617,
+          248862,
+          0
+        ],
+        [
+          110770,
+          151384,
+          0
+        ],
+        [
+          92084,
+          248862,
+          0
+        ],
+        [
+          62967,
+          151384,
+          0
+        ],
+        [
+          33850,
+          248862,
+          0
+        ],
+        [
+          4734,
+          151384,
+          0
+        ],
+        [
+          -24383,
+          248862,
+          0
+        ],
+        [
+          -53500,
+          151384,
+          0
+        ],
+        [
+          -82617,
+          248862,
+          0
+        ],
+        [
+          110770,
+          151384,
+          0
+        ],
+        [
+          92084,
+          248862,
+          0
+        ],
+        [
+          62967,
+          151384,
+          0
+        ],
+        [
+          33850,
+          248862,
+          0
+        ],
+        [
+          4734,
+          151384,
+          0
+        ],
+        [
+          -24383,
+          248862,
+          0
+        ],
+        [
+          -53500,
+          151384,
+          0
+        ],
+        [
+          -82617,
+          248862,
+          0
+        ]
+      ],
+      "visible": 7,
+      "maximum": 0.8327398787020419,
+      "rows": [
+        {
+          "y": 12,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 32,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 37,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 41,
+          "visible": 3,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 45,
+          "visible": 4,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 110,
+      "targets": [
+        [
+          -119132,
+          122020,
+          0
+        ],
+        [
+          -86588,
+          122020,
+          0
+        ],
+        [
+          -53234,
+          122020,
+          0
+        ],
+        [
+          -19879,
+          122020,
+          0
+        ],
+        [
+          13475,
+          122020,
+          0
+        ],
+        [
+          46830,
+          122020,
+          0
+        ],
+        [
+          80185,
+          122020,
+          0
+        ],
+        [
+          113539,
+          122020,
+          0
+        ],
+        [
+          -119132,
+          168384,
+          0
+        ],
+        [
+          -86588,
+          168384,
+          0
+        ],
+        [
+          -53234,
+          168384,
+          0
+        ],
+        [
+          -19879,
+          168384,
+          0
+        ],
+        [
+          13475,
+          168384,
+          0
+        ],
+        [
+          46830,
+          168384,
+          0
+        ],
+        [
+          80185,
+          168384,
+          0
+        ],
+        [
+          113539,
+          168384,
+          0
+        ],
+        [
+          -119132,
+          214747,
+          0
+        ],
+        [
+          -86588,
+          214747,
+          0
+        ],
+        [
+          -53234,
+          214747,
+          0
+        ],
+        [
+          -19879,
+          214747,
+          0
+        ],
+        [
+          13475,
+          214747,
+          0
+        ],
+        [
+          46830,
+          214747,
+          0
+        ],
+        [
+          80185,
+          214747,
+          0
+        ],
+        [
+          113539,
+          214747,
+          0
+        ],
+        [
+          -119132,
+          237929,
+          0
+        ],
+        [
+          -86588,
+          237929,
+          0
+        ],
+        [
+          -53234,
+          237929,
+          0
+        ],
+        [
+          -19879,
+          237929,
+          0
+        ],
+        [
+          13475,
+          237929,
+          0
+        ],
+        [
+          46830,
+          237929,
+          0
+        ],
+        [
+          80185,
+          237929,
+          0
+        ],
+        [
+          113539,
+          237929,
+          0
+        ],
+        [
+          -119132,
+          256475,
+          0
+        ],
+        [
+          -86588,
+          256475,
+          0
+        ],
+        [
+          -53234,
+          256475,
+          0
+        ],
+        [
+          -19879,
+          256475,
+          0
+        ],
+        [
+          13475,
+          256475,
+          0
+        ],
+        [
+          46830,
+          256475,
+          0
+        ],
+        [
+          80185,
+          256475,
+          0
+        ],
+        [
+          113539,
+          256475,
+          0
+        ],
+        [
+          -119132,
+          275020,
+          0
+        ],
+        [
+          -86588,
+          275020,
+          0
+        ],
+        [
+          -53234,
+          275020,
+          0
+        ],
+        [
+          -19879,
+          275020,
+          0
+        ],
+        [
+          13475,
+          275020,
+          0
+        ],
+        [
+          46830,
+          275020,
+          0
+        ],
+        [
+          80185,
+          275020,
+          0
+        ],
+        [
+          113539,
+          275020,
+          0
+        ]
+      ],
+      "visible": 5,
+      "maximum": 0.9025781156739636,
+      "rows": [
+        {
+          "y": 12,
+          "visible": 0,
+          "colors": [
+            "rgb(255,62,0)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 0,
+          "colors": [
+            "rgb(255,62,0)"
+          ]
+        },
+        {
+          "y": 32,
+          "visible": 0,
+          "colors": [
+            "rgb(255,62,0)"
+          ]
+        },
+        {
+          "y": 37,
+          "visible": 1,
+          "colors": [
+            "rgb(255,62,0)"
+          ]
+        },
+        {
+          "y": 41,
+          "visible": 2,
+          "colors": [
+            "rgb(255,62,0)"
+          ]
+        },
+        {
+          "y": 45,
+          "visible": 2,
+          "colors": [
+            "rgb(255,62,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 135,
+      "targets": [
+        [
+          11953,
+          178370,
+          0
+        ],
+        [
+          8431,
+          178370,
+          0
+        ],
+        [
+          4909,
+          178370,
+          0
+        ],
+        [
+          1388,
+          178370,
+          0
+        ],
+        [
+          -1388,
+          178370,
+          0
+        ],
+        [
+          -4909,
+          178370,
+          0
+        ],
+        [
+          -8431,
+          178370,
+          0
+        ],
+        [
+          -11953,
+          178370,
+          0
+        ],
+        [
+          11953,
+          186667,
+          0
+        ],
+        [
+          8431,
+          186667,
+          0
+        ],
+        [
+          4909,
+          186667,
+          0
+        ],
+        [
+          1388,
+          186667,
+          0
+        ],
+        [
+          -1388,
+          186667,
+          0
+        ],
+        [
+          -4909,
+          186667,
+          0
+        ],
+        [
+          -8431,
+          186667,
+          0
+        ],
+        [
+          -11953,
+          186667,
+          0
+        ],
+        [
+          11953,
+          194964,
+          0
+        ],
+        [
+          8431,
+          194964,
+          0
+        ],
+        [
+          4909,
+          194964,
+          0
+        ],
+        [
+          1388,
+          194964,
+          0
+        ],
+        [
+          -1388,
+          194964,
+          0
+        ],
+        [
+          -4909,
+          194964,
+          0
+        ],
+        [
+          -8431,
+          194964,
+          0
+        ],
+        [
+          -11953,
+          194964,
+          0
+        ],
+        [
+          11953,
+          203261,
+          0
+        ],
+        [
+          8431,
+          203261,
+          0
+        ],
+        [
+          4909,
+          203261,
+          0
+        ],
+        [
+          1388,
+          203261,
+          0
+        ],
+        [
+          -1388,
+          203261,
+          0
+        ],
+        [
+          -4909,
+          203261,
+          0
+        ],
+        [
+          -8431,
+          203261,
+          0
+        ],
+        [
+          -11953,
+          203261,
+          0
+        ],
+        [
+          11953,
+          211558,
+          0
+        ],
+        [
+          8431,
+          211558,
+          0
+        ],
+        [
+          4909,
+          211558,
+          0
+        ],
+        [
+          1388,
+          211558,
+          0
+        ],
+        [
+          -1388,
+          211558,
+          0
+        ],
+        [
+          -4909,
+          211558,
+          0
+        ],
+        [
+          -8431,
+          211558,
+          0
+        ],
+        [
+          -11953,
+          211558,
+          0
+        ],
+        [
+          11953,
+          219855,
+          0
+        ],
+        [
+          8431,
+          219855,
+          0
+        ],
+        [
+          4909,
+          219855,
+          0
+        ],
+        [
+          1388,
+          219855,
+          0
+        ],
+        [
+          -1388,
+          219855,
+          0
+        ],
+        [
+          -4909,
+          219855,
+          0
+        ],
+        [
+          -8431,
+          219855,
+          0
+        ],
+        [
+          -11953,
+          219855,
+          0
+        ]
+      ],
+      "visible": 0,
+      "maximum": 0.5967181193397686,
+      "rows": [
+        {
+          "y": 12,
+          "visible": 0,
+          "colors": [
+            "rgb(255,200,0)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 0,
+          "colors": [
+            "rgb(255,200,0)"
+          ]
+        },
+        {
+          "y": 32,
+          "visible": 0,
+          "colors": [
+            "rgb(255,200,0)"
+          ]
+        },
+        {
+          "y": 37,
+          "visible": 0,
+          "colors": [
+            "rgb(255,200,0)"
+          ]
+        },
+        {
+          "y": 41,
+          "visible": 0,
+          "colors": [
+            "rgb(255,200,0)"
+          ]
+        },
+        {
+          "y": 45,
+          "visible": 0,
+          "colors": [
+            "rgb(255,200,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 173,
+      "targets": [
+        [
+          110775,
+          178012,
+          0
+        ],
+        [
+          85761,
+          178012,
+          0
+        ],
+        [
+          60748,
+          178012,
+          0
+        ],
+        [
+          35734,
+          178012,
+          0
+        ],
+        [
+          10721,
+          178012,
+          0
+        ],
+        [
+          -14293,
+          178012,
+          0
+        ],
+        [
+          -39306,
+          178012,
+          0
+        ],
+        [
+          -64320,
+          178012,
+          0
+        ],
+        [
+          110775,
+          187369,
+          0
+        ],
+        [
+          85761,
+          187369,
+          0
+        ],
+        [
+          60748,
+          187369,
+          0
+        ],
+        [
+          35734,
+          187369,
+          0
+        ],
+        [
+          10721,
+          187369,
+          0
+        ],
+        [
+          -14293,
+          187369,
+          0
+        ],
+        [
+          -39306,
+          187369,
+          0
+        ],
+        [
+          -64320,
+          187369,
+          0
+        ],
+        [
+          110775,
+          196726,
+          0
+        ],
+        [
+          85761,
+          196726,
+          0
+        ],
+        [
+          60748,
+          196726,
+          0
+        ],
+        [
+          35734,
+          196726,
+          0
+        ],
+        [
+          10721,
+          196726,
+          0
+        ],
+        [
+          -14293,
+          196726,
+          0
+        ],
+        [
+          -39306,
+          196726,
+          0
+        ],
+        [
+          -64320,
+          196726,
+          0
+        ],
+        [
+          110775,
+          206083,
+          0
+        ],
+        [
+          85761,
+          206083,
+          0
+        ],
+        [
+          60748,
+          206083,
+          0
+        ],
+        [
+          35734,
+          206083,
+          0
+        ],
+        [
+          10721,
+          206083,
+          0
+        ],
+        [
+          -14293,
+          206083,
+          0
+        ],
+        [
+          -39306,
+          206083,
+          0
+        ],
+        [
+          -64320,
+          206083,
+          0
+        ],
+        [
+          110775,
+          215441,
+          0
+        ],
+        [
+          85761,
+          215441,
+          0
+        ],
+        [
+          60748,
+          215441,
+          0
+        ],
+        [
+          35734,
+          215441,
+          0
+        ],
+        [
+          10721,
+          215441,
+          0
+        ],
+        [
+          -14293,
+          215441,
+          0
+        ],
+        [
+          -39306,
+          215441,
+          0
+        ],
+        [
+          -64320,
+          215441,
+          0
+        ],
+        [
+          110775,
+          224798,
+          0
+        ],
+        [
+          85761,
+          224798,
+          0
+        ],
+        [
+          60748,
+          224798,
+          0
+        ],
+        [
+          35734,
+          224798,
+          0
+        ],
+        [
+          10721,
+          224798,
+          0
+        ],
+        [
+          -14293,
+          224798,
+          0
+        ],
+        [
+          -39306,
+          224798,
+          0
+        ],
+        [
+          -64320,
+          224798,
+          0
+        ]
+      ],
+      "visible": 7,
+      "maximum": 0.8708036764192033,
+      "rows": [
+        {
+          "y": 12,
+          "visible": 3,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 4,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 32,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 37,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 41,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 45,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 189,
+      "targets": [
+        [
+          85005,
+          124154,
+          0
+        ],
+        [
+          54603,
+          225936,
+          0
+        ],
+        [
+          24200,
+          124154,
+          0
+        ],
+        [
+          -6202,
+          225936,
+          0
+        ],
+        [
+          -36604,
+          124154,
+          0
+        ],
+        [
+          -67006,
+          225936,
+          0
+        ],
+        [
+          -97408,
+          124154,
+          0
+        ],
+        [
+          -115660,
+          225936,
+          0
+        ],
+        [
+          85005,
+          124154,
+          0
+        ],
+        [
+          54603,
+          225936,
+          0
+        ],
+        [
+          24200,
+          124154,
+          0
+        ],
+        [
+          -6202,
+          225936,
+          0
+        ],
+        [
+          -36604,
+          124154,
+          0
+        ],
+        [
+          -67006,
+          225936,
+          0
+        ],
+        [
+          -97408,
+          124154,
+          0
+        ],
+        [
+          -115660,
+          225936,
+          0
+        ],
+        [
+          85005,
+          124154,
+          0
+        ],
+        [
+          54603,
+          225936,
+          0
+        ],
+        [
+          24200,
+          124154,
+          0
+        ],
+        [
+          -6202,
+          225936,
+          0
+        ],
+        [
+          -36604,
+          124154,
+          0
+        ],
+        [
+          -67006,
+          225936,
+          0
+        ],
+        [
+          -97408,
+          124154,
+          0
+        ],
+        [
+          -115660,
+          225936,
+          0
+        ],
+        [
+          85005,
+          124154,
+          0
+        ],
+        [
+          54603,
+          225936,
+          0
+        ],
+        [
+          24200,
+          124154,
+          0
+        ],
+        [
+          -6202,
+          225936,
+          0
+        ],
+        [
+          -36604,
+          124154,
+          0
+        ],
+        [
+          -67006,
+          225936,
+          0
+        ],
+        [
+          -97408,
+          124154,
+          0
+        ],
+        [
+          -115660,
+          225936,
+          0
+        ],
+        [
+          85005,
+          124154,
+          0
+        ],
+        [
+          54603,
+          225936,
+          0
+        ],
+        [
+          24200,
+          124154,
+          0
+        ],
+        [
+          -6202,
+          225936,
+          0
+        ],
+        [
+          -36604,
+          124154,
+          0
+        ],
+        [
+          -67006,
+          225936,
+          0
+        ],
+        [
+          -97408,
+          124154,
+          0
+        ],
+        [
+          -115660,
+          225936,
+          0
+        ],
+        [
+          85005,
+          124154,
+          0
+        ],
+        [
+          54603,
+          225936,
+          0
+        ],
+        [
+          24200,
+          124154,
+          0
+        ],
+        [
+          -6202,
+          225936,
+          0
+        ],
+        [
+          -36604,
+          124154,
+          0
+        ],
+        [
+          -67006,
+          225936,
+          0
+        ],
+        [
+          -97408,
+          124154,
+          0
+        ],
+        [
+          -115660,
+          225936,
+          0
+        ]
+      ],
+      "visible": 5,
+      "maximum": 0.9299729401384977,
+      "rows": [
+        {
+          "y": 12,
+          "visible": 2,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 22,
+          "visible": 3,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 32,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 37,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 41,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        },
+        {
+          "y": 45,
+          "visible": 0,
+          "colors": [
+            "rgb(255,142,0)"
+          ]
+        }
+      ]
+    }
+  ],
+  "frames": 122,
+  "videoBytes": 880898,
+  "motionSamples": [
+    {
+      "time": 99.161,
+      "meanDegreesPerSecond": 4.902790283473736,
+      "visible": 48
+    },
+    {
+      "time": 99.29989999999852,
+      "meanDegreesPerSecond": 9.571254470899332,
+      "visible": 48
+    },
+    {
+      "time": 99.42730000000446,
+      "meanDegreesPerSecond": 25.576447495628475,
+      "visible": 48
+    },
+    {
+      "time": 99.55510000000149,
+      "meanDegreesPerSecond": 36.7359923337164,
+      "visible": 48
+    },
+    {
+      "time": 99.68239999999851,
+      "meanDegreesPerSecond": 39.733072863967315,
+      "visible": 48
+    },
+    {
+      "time": 99.80980000000447,
+      "meanDegreesPerSecond": 38.340969033118746,
+      "visible": 48
+    },
+    {
+      "time": 99.93930000000447,
+      "meanDegreesPerSecond": 33.804515232988926,
+      "visible": 48
+    },
+    {
+      "time": 100.07030000000447,
+      "meanDegreesPerSecond": 26.248787913342642,
+      "visible": 48
+    },
+    {
+      "time": 100.20610000000148,
+      "meanDegreesPerSecond": 20.659785472793967,
+      "visible": 48
+    },
+    {
+      "time": 100.33860000000149,
+      "meanDegreesPerSecond": 17.518512713868272,
+      "visible": 48
+    },
+    {
+      "time": 100.46860000000149,
+      "meanDegreesPerSecond": 15.442875695208123,
+      "visible": 48
+    },
+    {
+      "time": 100.5965,
+      "meanDegreesPerSecond": 14.11642887585927,
+      "visible": 48
+    },
+    {
+      "time": 100.745,
+      "meanDegreesPerSecond": 11.49572607040237,
+      "visible": 48
+    },
+    {
+      "time": 100.8745,
+      "meanDegreesPerSecond": 12.348012346733775,
+      "visible": 48
+    },
+    {
+      "time": 101.00420000000298,
+      "meanDegreesPerSecond": 9.75569565590194,
+      "visible": 48
+    },
+    {
+      "time": 101.138,
+      "meanDegreesPerSecond": 8.566924218648287,
+      "visible": 48
+    },
+    {
+      "time": 101.2745,
+      "meanDegreesPerSecond": 8.093253005125217,
+      "visible": 48
+    },
+    {
+      "time": 101.40689999999852,
+      "meanDegreesPerSecond": 8.922313778116042,
+      "visible": 48
+    },
+    {
+      "time": 101.54430000000447,
+      "meanDegreesPerSecond": 5.94556845368053,
+      "visible": 48
+    },
+    {
+      "time": 101.67730000000446,
+      "meanDegreesPerSecond": 4.027142559342981,
+      "visible": 48
+    },
+    {
+      "time": 101.812,
+      "meanDegreesPerSecond": 5.6995547443872745,
+      "visible": 48
+    },
+    {
+      "time": 101.9408999999985,
+      "meanDegreesPerSecond": 5.947678223063644,
+      "visible": 48
+    },
+    {
+      "time": 102.07120000000297,
+      "meanDegreesPerSecond": 4.194162084957925,
+      "visible": 48
+    },
+    {
+      "time": 102.217,
+      "meanDegreesPerSecond": 4.323061755781303,
+      "visible": 48
+    },
+    {
+      "time": 102.35420000000298,
+      "meanDegreesPerSecond": 5.070998251482102,
+      "visible": 48
+    },
+    {
+      "time": 102.482,
+      "meanDegreesPerSecond": 6.42433970141519,
+      "visible": 48
+    },
+    {
+      "time": 102.60889999999851,
+      "meanDegreesPerSecond": 7.326630414351855,
+      "visible": 48
+    },
+    {
+      "time": 102.7408999999985,
+      "meanDegreesPerSecond": 8.569158117804976,
+      "visible": 48
+    },
+    {
+      "time": 102.88220000000298,
+      "meanDegreesPerSecond": 9.680995310408544,
+      "visible": 48
+    },
+    {
+      "time": 103.01050000000001,
+      "meanDegreesPerSecond": 8.779098131751532,
+      "visible": 48
+    },
+    {
+      "time": 103.155,
+      "meanDegreesPerSecond": 8.46379958972618,
+      "visible": 48
+    },
+    {
+      "time": 103.29570000000298,
+      "meanDegreesPerSecond": 10.78623219540704,
+      "visible": 48
+    },
+    {
+      "time": 103.42689999999851,
+      "meanDegreesPerSecond": 9.391813871443764,
+      "visible": 48
+    },
+    {
+      "time": 103.55789999999851,
+      "meanDegreesPerSecond": 7.651354396148556,
+      "visible": 48
+    },
+    {
+      "time": 103.68310000000149,
+      "meanDegreesPerSecond": 6.436749377028344,
+      "visible": 48
+    },
+    {
+      "time": 103.80539999999851,
+      "meanDegreesPerSecond": 5.362770394666171,
+      "visible": 48
+    },
+    {
+      "time": 103.935,
+      "meanDegreesPerSecond": 3.74666038619223,
+      "visible": 48
+    },
+    {
+      "time": 104.06639999999851,
+      "meanDegreesPerSecond": 1.6930691732452605,
+      "visible": 48
+    },
+    {
+      "time": 104.2165,
+      "meanDegreesPerSecond": 4.029673037230751,
+      "visible": 48
+    },
+    {
+      "time": 104.35170000000298,
+      "meanDegreesPerSecond": 7.494133573441258,
+      "visible": 48
+    },
+    {
+      "time": 104.4886000000015,
+      "meanDegreesPerSecond": 4.836594883371972,
+      "visible": 48
+    },
+    {
+      "time": 104.6425,
+      "meanDegreesPerSecond": 8.977653336813518,
+      "visible": 48
+    },
+    {
+      "time": 104.785,
+      "meanDegreesPerSecond": 12.151740472952914,
+      "visible": 48
+    },
+    {
+      "time": 104.92639999999851,
+      "meanDegreesPerSecond": 9.326509863703672,
+      "visible": 48
+    },
+    {
+      "time": 105.0623999999985,
+      "meanDegreesPerSecond": 8.302983388067556,
+      "visible": 48
+    },
+    {
+      "time": 105.202,
+      "meanDegreesPerSecond": 7.827172052375133,
+      "visible": 48
+    },
+    {
+      "time": 105.3273999999985,
+      "meanDegreesPerSecond": 7.515237320845628,
+      "visible": 48
+    },
+    {
+      "time": 105.45939999999851,
+      "meanDegreesPerSecond": 7.223490616697153,
+      "visible": 48
+    },
+    {
+      "time": 105.58820000000298,
+      "meanDegreesPerSecond": 6.576593689328131,
+      "visible": 48
+    },
+    {
+      "time": 105.71770000000298,
+      "meanDegreesPerSecond": 5.962283459935686,
+      "visible": 48
+    },
+    {
+      "time": 105.84230000000447,
+      "meanDegreesPerSecond": 5.007037793355601,
+      "visible": 48
+    },
+    {
+      "time": 105.9788999999985,
+      "meanDegreesPerSecond": 4.081083084066159,
+      "visible": 48
+    },
+    {
+      "time": 106.10380000000447,
+      "meanDegreesPerSecond": 2.9796198030204195,
+      "visible": 48
+    },
+    {
+      "time": 106.2318999999985,
+      "meanDegreesPerSecond": 2.4454156797164104,
+      "visible": 48
+    },
+    {
+      "time": 106.35889999999851,
+      "meanDegreesPerSecond": 8.202629325423962,
+      "visible": 48
+    },
+    {
+      "time": 106.5055,
+      "meanDegreesPerSecond": 18.55697917220151,
+      "visible": 48
+    },
+    {
+      "time": 106.63939999999852,
+      "meanDegreesPerSecond": 39.423939020202376,
+      "visible": 48
+    },
+    {
+      "time": 106.76320000000298,
+      "meanDegreesPerSecond": 49.550165528163,
+      "visible": 48
+    },
+    {
+      "time": 106.89620000000298,
+      "meanDegreesPerSecond": 43.573416076994334,
+      "visible": 48
+    },
+    {
+      "time": 107.02810000000149,
+      "meanDegreesPerSecond": 39.70009798310878,
+      "visible": 48
+    },
+    {
+      "time": 107.18470000000298,
+      "meanDegreesPerSecond": 28.17306236211166,
+      "visible": 48
+    },
+    {
+      "time": 107.3126000000015,
+      "meanDegreesPerSecond": 29.412061430900646,
+      "visible": 48
+    },
+    {
+      "time": 107.44530000000447,
+      "meanDegreesPerSecond": 22.178304569999572,
+      "visible": 48
+    },
+    {
+      "time": 107.5683999999985,
+      "meanDegreesPerSecond": 20.223539159985904,
+      "visible": 48
+    },
+    {
+      "time": 107.70089999999851,
+      "meanDegreesPerSecond": 15.7663819911593,
+      "visible": 48
+    },
+    {
+      "time": 107.83289999999852,
+      "meanDegreesPerSecond": 12.896309410755078,
+      "visible": 48
+    },
+    {
+      "time": 107.97139999999851,
+      "meanDegreesPerSecond": 10.304104328162264,
+      "visible": 48
+    },
+    {
+      "time": 108.10289999999851,
+      "meanDegreesPerSecond": 9.391321025525171,
+      "visible": 48
+    },
+    {
+      "time": 108.224,
+      "meanDegreesPerSecond": 5.463019145513647,
+      "visible": 48
+    },
+    {
+      "time": 108.35670000000297,
+      "meanDegreesPerSecond": 4.159353519998663,
+      "visible": 48
+    },
+    {
+      "time": 108.47960000000148,
+      "meanDegreesPerSecond": 7.6052958985414145,
+      "visible": 48
+    },
+    {
+      "time": 108.60249999999999,
+      "meanDegreesPerSecond": 6.607099498103197,
+      "visible": 48
+    },
+    {
+      "time": 108.72380000000447,
+      "meanDegreesPerSecond": 3.8407951763742996,
+      "visible": 48
+    },
+    {
+      "time": 108.85470000000298,
+      "meanDegreesPerSecond": 2.7363922342685854,
+      "visible": 48
+    },
+    {
+      "time": 108.99030000000447,
+      "meanDegreesPerSecond": 4.13890399176553,
+      "visible": 48
+    },
+    {
+      "time": 109.11880000000447,
+      "meanDegreesPerSecond": 3.750385830264859,
+      "visible": 48
+    },
+    {
+      "time": 109.24610000000149,
+      "meanDegreesPerSecond": 3.444497599118915,
+      "visible": 48
+    },
+    {
+      "time": 109.37960000000149,
+      "meanDegreesPerSecond": 3.598525892712845,
+      "visible": 48
+    },
+    {
+      "time": 109.50450000000001,
+      "meanDegreesPerSecond": 3.814546788750351,
+      "visible": 48
+    },
+    {
+      "time": 109.629,
+      "meanDegreesPerSecond": 4.234634659767253,
+      "visible": 48
+    },
+    {
+      "time": 109.7645,
+      "meanDegreesPerSecond": 5.449734141662017,
+      "visible": 48
+    },
+    {
+      "time": 109.894,
+      "meanDegreesPerSecond": 3.45362325061231,
+      "visible": 48
+    },
+    {
+      "time": 110.02230000000446,
+      "meanDegreesPerSecond": 2.9399592346609214,
+      "visible": 48
+    },
+    {
+      "time": 110.15420000000299,
+      "meanDegreesPerSecond": 2.759267228121741,
+      "visible": 48
+    },
+    {
+      "time": 110.27920000000299,
+      "meanDegreesPerSecond": 2.880069644983003,
+      "visible": 48
+    },
+    {
+      "time": 110.41530000000446,
+      "meanDegreesPerSecond": 3.1700952708701493,
+      "visible": 48
+    },
+    {
+      "time": 110.5571000000015,
+      "meanDegreesPerSecond": 5.399463653758057,
+      "visible": 48
+    },
+    {
+      "time": 110.687,
+      "meanDegreesPerSecond": 3.626803951988307,
+      "visible": 48
+    },
+    {
+      "time": 110.82830000000448,
+      "meanDegreesPerSecond": 2.6413573954219958,
+      "visible": 48
+    },
+    {
+      "time": 110.9706000000015,
+      "meanDegreesPerSecond": 2.799838511915063,
+      "visible": 48
+    },
+    {
+      "time": 111.10210000000149,
+      "meanDegreesPerSecond": 2.863193780444908,
+      "visible": 48
+    },
+    {
+      "time": 111.22980000000447,
+      "meanDegreesPerSecond": 3.5613430800031014,
+      "visible": 48
+    },
+    {
+      "time": 111.3571000000015,
+      "meanDegreesPerSecond": 3.067398875257678,
+      "visible": 48
+    },
+    {
+      "time": 111.47930000000447,
+      "meanDegreesPerSecond": 2.878173835050127,
+      "visible": 48
+    },
+    {
+      "time": 111.59889999999851,
+      "meanDegreesPerSecond": 3.9391363766684377,
+      "visible": 48
+    },
+    {
+      "time": 111.72230000000447,
+      "meanDegreesPerSecond": 5.033193479502953,
+      "visible": 48
+    },
+    {
+      "time": 111.84410000000149,
+      "meanDegreesPerSecond": 4.658942384702731,
+      "visible": 48
+    },
+    {
+      "time": 111.97820000000299,
+      "meanDegreesPerSecond": 3.0791046083198883,
+      "visible": 48
+    },
+    {
+      "time": 112.10530000000448,
+      "meanDegreesPerSecond": 2.913160734909989,
+      "visible": 48
+    },
+    {
+      "time": 112.22730000000448,
+      "meanDegreesPerSecond": 2.0826183629547548,
+      "visible": 48
+    },
+    {
+      "time": 112.346,
+      "meanDegreesPerSecond": 1.358034280739256,
+      "visible": 48
+    },
+    {
+      "time": 112.46810000000148,
+      "meanDegreesPerSecond": 1.5104603773230532,
+      "visible": 48
+    },
+    {
+      "time": 112.5956000000015,
+      "meanDegreesPerSecond": 1.9284889916275894,
+      "visible": 48
+    },
+    {
+      "time": 112.72130000000448,
+      "meanDegreesPerSecond": 2.958972162164288,
+      "visible": 48
+    },
+    {
+      "time": 112.85189999999851,
+      "meanDegreesPerSecond": 3.5629387784341504,
+      "visible": 48
+    },
+    {
+      "time": 112.97510000000149,
+      "meanDegreesPerSecond": 3.566557281577332,
+      "visible": 48
+    },
+    {
+      "time": 113.1038999999985,
+      "meanDegreesPerSecond": 2.8770724215692662,
+      "visible": 48
+    },
+    {
+      "time": 113.2228999999985,
+      "meanDegreesPerSecond": 2.2722040800262784,
+      "visible": 48
+    },
+    {
+      "time": 113.3456000000015,
+      "meanDegreesPerSecond": 4.325816843538868,
+      "visible": 48
+    },
+    {
+      "time": 113.4671000000015,
+      "meanDegreesPerSecond": 4.410062480251127,
+      "visible": 48
+    },
+    {
+      "time": 113.58820000000298,
+      "meanDegreesPerSecond": 10.59535540667664,
+      "visible": 48
+    },
+    {
+      "time": 113.71160000000148,
+      "meanDegreesPerSecond": 23.256174884124917,
+      "visible": 48
+    },
+    {
+      "time": 113.83460000000149,
+      "meanDegreesPerSecond": 36.135086854207614,
+      "visible": 48
+    },
+    {
+      "time": 113.9643999999985,
+      "meanDegreesPerSecond": 41.561861754341805,
+      "visible": 48
+    },
+    {
+      "time": 114.11,
+      "meanDegreesPerSecond": 41.685566536863924,
+      "visible": 48
+    },
+    {
+      "time": 114.2465,
+      "meanDegreesPerSecond": 44.139557646338574,
+      "visible": 48
+    },
+    {
+      "time": 114.38739999999851,
+      "meanDegreesPerSecond": 37.87585040084955,
+      "visible": 48
+    },
+    {
+      "time": 114.52830000000446,
+      "meanDegreesPerSecond": 33.22393461364863,
+      "visible": 48
+    },
+    {
+      "time": 114.65960000000149,
+      "meanDegreesPerSecond": 30.555210441327617,
+      "visible": 48
+    },
+    {
+      "time": 114.78180000000447,
+      "meanDegreesPerSecond": 28.341133067923135,
+      "visible": 48
+    },
+    {
+      "time": 114.9135,
+      "meanDegreesPerSecond": 22.439425991163635,
+      "visible": 48
+    }
+  ]
+}

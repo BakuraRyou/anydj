@@ -69,7 +69,7 @@ alte Releases und Restart-Dateien liegen außerhalb der Document Root.
 
 Keine Installation von Electron, Python-Modellen oder Projekt-`node_modules` auf
 dem Webspace nötig. Das erzeugte Hosting-`package.json` hat keine Dependencies.
-Den lokalen `server.mjs` für WiZ/DMX **nicht** als Plesk-Startup-Datei verwenden.
+Den lokalen `server.mjs` für DMX **nicht** als Plesk-Startup-Datei verwenden.
 Die öffentliche App ist die Browserausgabe; sie erhält keine Geräte- oder
 Analyse-APIs des lokalen Rechners.
 
@@ -287,3 +287,19 @@ npm run deploy:web -- --skip-build --dry-run
 Hardwareempfehlungen und tatsächliche Funktionsgrenzen stehen auf der
 Downloadseite unter `downloads.html#systemanforderungen`. Die empfohlene
 KI-Zielklasse ist keine gemessene Mindesthardware.
+
+### Linux, Windows und optional macOS automatisch veröffentlichen
+
+`npm run init:apps` erzeugt die lokale VM-Konfiguration und richtet Windows
+sowie native Build-Abhängigkeiten ein. Danach genügt `npm run deploy:apps`.
+Ein optionaler Mac wird über `builder/mac-build.json` angebunden.
+
+`npm run deploy:apps` baut und veröffentlicht zuerst Linux, startet danach eine
+vorbereitete Windows-VM bei Bedarf, baut Windows nativ, holt und prüft den
+Installer und veröffentlicht beide Plattformen. Eigens gestartete VMs werden
+auch nach Buildfehlern heruntergefahren. Buildfehler erscheinen im Terminal und
+führen zu Exitcode 1. Der bereits erfolgte Linux-Upload bleibt bestehen.
+
+Die einmalige Einrichtung und Optionen (`--check`, `--dry-run`,
+`--reuse-analysis`, `--vm-config`, `--config`) stehen in
+[desktop/windows-vm.md](../desktop/windows-vm.md#ein-befehl-für-linux-windows-vm-und-upload).

@@ -8,7 +8,7 @@ import {tmpdir} from 'node:os';
 import {join} from 'node:path';
 import {createApp} from '../server.mjs';
 const projectRoot=fileURLToPath(new URL('../',import.meta.url));
-const fixtures=await mkdtemp(join(tmpdir(),'wiz-queue-audio-'));
+const fixtures=await mkdtemp(join(tmpdir(),'anydj-queue-audio-'));
 const wav=join(fixtures,'test.wav'),mp3=join(fixtures,'test.mp3');
 await promisify(execFile)('ffmpeg',['-v','error','-f','lavfi','-i','sine=frequency=440:duration=12','-ar','16000',wav]);
 if(process.argv.includes('--covers')){
@@ -18,8 +18,7 @@ if(process.argv.includes('--covers')){
 }else await promisify(execFile)('ffmpeg',['-v','error','-i',wav,mp3]);
 const {BeatAnalysis}=await import('../lib/beat-analysis.mjs');const app=await createApp({demo:true,beatAnalysis:new BeatAnalysis({ready:async()=>{throw Error('Test uses builtin analysis');}})});app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
-await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
-const profile=await mkdtemp(join(tmpdir(),'wiz-beat-chrome-'));
+const profile=await mkdtemp(join(tmpdir(),'anydj-beat-chrome-'));
 const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--mute-audio','--autoplay-policy=no-user-gesture-required','--no-sandbox','--disable-gpu','--disable-background-networking','--no-first-run','--no-default-browser-check','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
 let ws;
 try {
@@ -37,7 +36,7 @@ try {
  Object.defineProperty(navigator.mediaDevices,'selectAudioOutput',{configurable:true,value:async()=>window.testOutput});
  HTMLMediaElement.prototype.setSinkId=async function(id){window.testCueSink=id;};
  const nativePlay=HTMLMediaElement.prototype.play;HTMLMediaElement.prototype.play=function(){return this.srcObject?Promise.resolve():nativePlay.call(this);};`});
- await c('Page.navigate',{url:base+'/dj'});await wait("document.querySelector('#djLamp')?.options.length>1");
+ await c('Page.navigate',{url:base+'/dj'});await wait("typeof document.querySelector('#djFiles')?.onchange==='function'");
 
 
 
@@ -56,7 +55,7 @@ try {
   assert.equal(await evaluate("document.querySelectorAll('#trackList img.dj-track-cover').length"),1);
   await writeFile(new URL('../reports/local-cover-browser.png',import.meta.url),Buffer.from((await c('Page.captureScreenshot',{format:'png'})).data,'base64'));
  }
- await evaluate(`document.querySelector('#djLamp').value='';document.querySelector('#djLamp').dispatchEvent(new Event('change'));
+ await evaluate(`
  document.querySelector('[aria-label="Auf Deck A laden"]').click();`);
  await wait("!document.querySelector('.dj-play').disabled");
  await evaluate(`window.deckA=document.querySelectorAll('.dj-deck')[0];window.deckB=document.querySelectorAll('.dj-deck')[1];window.setControl=(selector,value)=>{const n=deckA.querySelector(selector);n.value=value;n.dispatchEvent(new Event('input',{bubbles:true}));};document.querySelector('#autoCrossfade').checked=false;`);
@@ -139,8 +138,22 @@ try {
  await wait("document.querySelectorAll('[data-song-track] option').length===2");
  await evaluate("var select=document.querySelector('[data-song-track]');select.selectedIndex=1;select.dispatchEvent(new Event('change'));document.querySelector('[data-song-load]').click()");
  await wait("document.querySelector('[data-song-title]').textContent==='test.mp3'");
+ await evaluate("document.querySelector('[data-song-play]').click()");
+ await wait("!deckA.querySelector('audio').paused");
+ const beforeLightTab=await evaluate("deckA.querySelector('audio').currentTime");
  await evaluate("document.querySelector('[data-workspace-tab=lighting]').click()");
  await wait("document.querySelector('.section-editor-embedded .light-editor')");
+ assert.equal(await evaluate("deckA.querySelector('audio').paused"),false,'opening Light keeps the deck playing');
+ await wait(`deckA.querySelector('audio').currentTime>${beforeLightTab}+.2`);
+ assert.equal(await evaluate("document.querySelector('.stage-3d-song-editor [data-play]').textContent.includes('Pause')"),true,'editor reflects ongoing playback');
+ await evaluate("document.querySelector('.stage-3d-song-editor [data-close]').click()");
+ await wait("!document.querySelector('.section-editor-embedded')");
+ assert.equal(await evaluate("deckA.querySelector('audio').paused"),false,'disposing the editor leaves shared deck audio playing');
+ await evaluate("document.querySelector('.stage-3d-song-editor>button').click()");
+ await wait("document.querySelector('.section-editor-embedded .light-editor')");
+ assert.equal(await evaluate("deckA.querySelector('audio').paused"),false,'reopening Light keeps the deck playing');
+ await evaluate("document.querySelector('[data-song-play]').click()");
+ await wait("deckA.querySelector('audio').paused");
  assert.equal(await evaluate("document.querySelector('dialog.section-editor')===null"),true,'manager is embedded, not a new dialog');
  assert.equal(await evaluate("Boolean(document.querySelector('.stage-3d-song-editor .le-track canvas'))"),true,'light curve shares the editable timeline');
  await evaluate("var zoom=document.querySelector('.stage-3d-song-editor [data-zoom]');zoom.value=3;zoom.dispatchEvent(new Event('input'))");

@@ -21,3 +21,15 @@ test('beat, bar and free edits use the selected grid; gaps stay automatic',()=>{
  assert.equal(editPhaseTime(source,0,'start',1.3,plan,'free')[0].start,1.3);
  assert.throws(()=>editPhaseTime(source,0,'end',NaN,plan));
 });
+
+test('isolating a moment preserves adjacent lighting and independent fixture edits',async()=>{
+ const {isolateLightMoment}=await import('../public/light-editor-model.js');
+ const {cleanLook}=await import('../public/dmx-show.js');
+ const edits=[{id:'phase',name:'Chorus',start:0,end:10,motif:'chorus',rhythm:'auto',movement:1,colors:'auto',colorA:'#ff0000',colorB:'#0000ff',profile:'show',fixtures:[{target:'patch:a',look:cleanLook()}]}];
+ const result=isolateLightMoment(edits,3.25,10,1);
+ assert.deepEqual(result.edits.map(e=>[e.start,e.end]),[[0,3.25],[3.25,4.25],[4.25,10]]);
+ assert.equal(result.index,1);assert.equal(result.edits[1].profile,'show');
+ result.edits[1].fixtures[0].look.brightness=0;
+ assert.equal(result.edits[0].fixtures[0].look.brightness,100);assert.equal(result.edits[2].fixtures[0].look.brightness,100);assert.equal(edits[0].end,10);
+ assert.throws(()=>isolateLightMoment(edits,10,10));
+});

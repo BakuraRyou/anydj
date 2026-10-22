@@ -30,3 +30,9 @@ test('tempo context and rate-dependent duration bounds survive saving',()=>{
  assert.equal(v.rateA,.5);assert.equal(variantProblem(v,a,b,.5,1),'');
  assert.throws(()=>makeTransitionVariant(a,b,{...plan,time:95,duration:8},{rateA:1}));
 });
+test('saved variants remain usable after unrelated cuts and flag cuts inside their overlap',()=>{
+ const a=track('a'),b=track('b'),variant=makeTransitionVariant(a,b,plan);
+ a.audioCuts=[[20,30]];assert.equal(variantProblem(variant,a,b),'');
+ b.audioCuts=[[0,10]];assert.match(variantProblem(variant,a,b),/geschnitten/);
+ assert.throws(()=>makeTransitionVariant(a,b,plan),/entfernten Liedteil/);
+});

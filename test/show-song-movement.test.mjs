@@ -20,6 +20,24 @@ test('show consumes measured movement even without selected flash accents and ke
  assert.deepEqual(movingPresenceAt({...source,movingPlan:JSON.parse(JSON.stringify(p))}),movingPresenceAt(source));
  const a=showGroupMotionAt(p,10,picture);showGroupMotionAt(p,20,picture);assert.deepEqual(showGroupMotionAt(p,10,picture),a);
 });
+test('Show does not inherit automatic rear-wall pictures from its musical movement plan',()=>{
+ const p=plan();
+ p.songMovement={...p.songMovement,passages:p.songMovement.passages.map(s=>({...s,surface:'wall'}))};
+ const picture=p.showScore[0],motion=showGroupMotionAt(p,10,picture);
+ assert.ok(motion);assert.equal(motion.intent.surface,'floor');
+ for(let rank=0;rank<8;rank++)assert.equal(groupComposition(motion,rank,8,0,6).wallBlend,0);
+ const room=clubStageRoom();room.zones=[];
+ const lights=Array.from({length:8},(_,i)=>({id:'source'+i,type:'moving',position:{x:i-3.5,y:4,height:3},target:{x:0,y:3},
+  motionUV:{x:.5,y:.5},motionPresentation:'show',power:1,movingPresenceBasePower:1,
+  movingPresence:{level:1,mask:'all',rowFraction:1,groupMotion:motion}}));
+ const result=applyRoomPlan({layout:{width:8,depth:6,positions:{}},lights},room);
+ const rear=result.lights.filter(l=>l.type==='moving'&&room.positions[l.id]?.wallTarget);
+ assert.equal(rear.length,24);
+ for(const light of rear){
+  assert.equal(light.motionWallBlend,0);
+  assert.deepEqual(wallChoreography(light,room).target,light.target,'rear-wall redirection is inactive');
+ }
+});
 test('show group development preserves show occupancy and authored holds and rhythms',()=>{
  const p=plan(),picture=p.showScore[0],motion=showGroupMotionAt(p,10,picture);
  for(let rank=0;rank<8;rank++)assert.equal(groupComposition(motion,rank,8,0,6).level,1);

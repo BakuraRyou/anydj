@@ -2,10 +2,10 @@
 // it again after room expansion, so a four-head source cannot limit a large rig.
 const timelines=new WeakMap();
 const smooth=v=>{v=Math.max(0,Math.min(1,v));return v*v*(3-2*v);};
-export function fixtureParticipation(plan,scene,time){
+export function showFixtureParticipation(plan,scene,time){
  if(!plan||!scene||!Number.isFinite(time))return undefined;
  let cached=timelines.get(plan);if(!cached){cached=new Map();timelines.set(plan,cached);}
- const key=`${scene.start}:${scene.end}`;
+ const key=`show:${scene.start}:${scene.end}`;
  let starts=cached.get(key);
  if(!starts){
   starts=[scene.start];
@@ -17,12 +17,19 @@ export function fixtureParticipation(plan,scene,time){
   cached.set(key,starts);
  }
  let index=0;while(index+1<starts.length&&time>=starts[index+1])index++;
- const energy=Math.max(0,Math.min(1,scene.energy??.5));
  const progress=smooth((time-scene.start)/Math.max(.001,scene.end-scene.start));
- const fraction=scene.climax?1:scene.kind==='build'||scene.role==='build'?.65+.35*progress:energy>=.85?.85:.65;
+ const fraction=scene.climax?1:scene.kind==='build'||scene.role==='build'?.65+.35*progress:(scene.energy??.5)>=.85?.85:.65;
+ // Show owns picture identity and transitions. Keep the approved membership
+ // behavior alongside its authored action shutters and large-scale formations.
  return {fraction,selection:(scene.index??0)+index,
   previous:index>0?(scene.index??0)+index-1:undefined,
   blend:index>0?smooth((time-starts[index])/1.2):1};
+}
+// Automatic keeps the scene-local membership used before the Strobo changes.
+// Its movement picture supplies the handover; a second song-wide selection
+// clock and anticipatory reserve must not replace or dim that picture.
+export function fixtureParticipation(plan,scene,time){
+ return showFixtureParticipation(plan,scene,time);
 }
 export function fixtureParticipationLevel(policy,rank,count){
  if(count<=1)return 1;

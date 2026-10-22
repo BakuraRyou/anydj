@@ -8,6 +8,31 @@ npm run preview:web
 Vorschau: `http://127.0.0.1:4173`. Der Vorschau-Server ist nur ein lokales
 Entwicklungswerkzeug. Für die öffentliche Seite genügt normaler HTTPS-Webspace.
 
+## SEO und öffentliche Adresse
+
+Der Build erzeugt Canonical-Adressen, Open-Graph- und Twitter-Vorschauen,
+strukturierte Daten für Website, Seiten und Software sowie `sitemap.xml` und
+`robots.txt`. Die Standardadresse ist `https://anydj.de/`. Für eine andere Domain
+oder einen Unterordner die endgültige Adresse beim Build angeben:
+
+```sh
+ANYDJ_SITE_URL=https://example.org/anydj/ npm run build:web
+node scripts/check-seo.mjs
+```
+
+Beim regulären Deployment übernimmt der Build `publicUrl` aus der
+Deployment-Konfiguration. Die SEO-Angaben stehen im ausgelieferten HTML;
+JavaScript ist dafür nicht erforderlich. Die Streaming-Anmeldeseiten tragen
+`noindex`, bleiben aber für Crawler erreichbar. Die Sitemap enthält nur die
+fünf öffentlichen Inhaltsseiten. Strukturierte Daten enthalten keine erfundenen
+Bewertungen, Preise oder Verfügbarkeiten.
+
+Nach der Veröffentlichung `https://anydj.de/sitemap.xml` in der Google Search
+Console einreichen und Startseite, Downloads und Web-Demo per URL-Prüfung
+kontrollieren. Beim Hosting unter einer anderen Adresse deren Sitemap verwenden.
+Suchpositionen und reale Core Web Vitals lassen sich erst mit Daten der
+veröffentlichten Seite bewerten.
+
 Den **Inhalt** von `dist/web/` per SFTP oder über die Hosting-Verwaltung
 hochladen. `index.html` ist die Startseite, `dj.html` die Anwendung. Auch ein
 Unterordner wie `https://example.org/anydj/` funktioniert. Keine Rewrite-Regeln,
@@ -27,7 +52,7 @@ Doppelklick als `file://`.
   Neustart ggf. erneut auswählen; gespeicherte Ordnerfreigaben hängen vom Browser ab.
 - Audiodateien bis 50 MiB und 15 Minuten, soweit der Browser das Format decodiert.
 
-Kein direkter WiZ-UDP-Zugriff, keine WLAN-Wiederverbindung, keine KI-Beat-/Stil-/
+Keine DMX-Hardwareausgabe und keine KI-Beat-/Stil-/
 Instrumenten-/Strukturanalyse. Auto Beat ist deshalb deaktiviert. Die
 Browseranalyse wird als eigene Betriebsart ausgewiesen; bewusst nicht
 enthaltene KI-Funktionen erzeugen keine Teilanalyse-Warnung.
@@ -74,9 +99,17 @@ Kompletter Ablauf: `npm run deploy:full`; siehe [Deployment](../builder/README.m
 
 ## Gestaltung und Produktvorschau
 
-Startseite und Downloads teilen ein responsives, dunkles Layout mit mintfarbenen
-Akzenten. Die Startseite zeigt das echte DJ-Pult aus der Browser-Demo;
-`product-preview.webp` wird mit dem Web-Build ausgeliefert. Die Downloadseite
+Startseite, Downloads und Informationsseiten verwenden ein helles, redaktionelles
+Layout mit warmen Papierflächen, Signalorange und dunklen Produktansichten.
+Die Startseite verbindet den Einstieg direkt mit der spielbaren Lichtbühne.
+Drei Kapitel führen durch Mix, musikabhängiges Licht und Raumplanung; die
+Signal- und Raumgrafiken sind schematische Darstellungen. Gestaltung und
+responsive Regeln liegen in `web.css` und `landing-show.css`.
+
+Die eigentliche DJ-Anwendung behält ihre dunkle Arbeitsoberfläche.
+`public/design-tokens.css` und `public/dj-theme.css` steuern deren Farben.
+`product-preview.webp` zeigt das echte DJ-Pult aus der Browser-Demo.
+Die Downloadseite
 zeigt ausschließlich verifizierte, vorhandene Installer als Download an.
 
 ```sh

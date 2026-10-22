@@ -1,0 +1,77 @@
+/* Mix workspace: existing audio controls, with persistent deck transport. */
+.dj-page .dj-deck-controls h3{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:4px 0 0}
+.dj-page .dj-console .dj-deck{padding:12px 16px;display:flex;flex-direction:column;gap:0;min-height:0}
+.dj-page .dj-deck-top{flex:none;min-width:0}
+.dj-page .dj-deck-top h2{margin:0 0 7px;font-size:11px}
+.dj-page .dj-deck-top h2[data-playing=true]::after{content:' ●';color:var(--accent)}
+.dj-page .dj-console .dj-deck .dj-track-title{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0 0 7px}
+.dj-page .dj-console .dj-deck canvas.dj-waveform{height:52px;margin:5px 0}
+.dj-page .dj-deck-top .dj-position{margin:0}
+.dj-page .dj-deck-top .dj-clock{margin:2px 0 6px;font-variant-numeric:tabular-nums}
+.dj-page .dj-deck-top .dj-buttons{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:0 0 10px}
+.dj-page .dj-deck-top .dj-buttons>.button{min-height:36px}
+.dj-page .dj-deck-controls{min-height:0;overflow:auto;scrollbar-width:thin;scrollbar-color:#454854 transparent;padding-right:4px;border-top:1px solid var(--line)}
+.dj-page .dj-deck-controls:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.dj-page .dj-performance{display:grid;gap:8px;margin:10px 0}
+.dj-page .dj-tempo{gap:5px;align-items:center}
+.dj-page .dj-tempo>label:first-child{font-weight:600;font-size:12px}
+.dj-page .dj-tempo .button{min-height:32px;padding:5px 12px}
+.dj-page .dj-keylock{font-size:11px}
+.dj-page .dj-channel-strip{display:grid;gap:4px}
+.dj-page .dj-channel-volume{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:center;font-size:12px;margin:0}
+.dj-page .dj-channel-strip .dj-level{margin:0;font-size:10px}
+.dj-page .dj-eq{border:0;padding:0;margin:0}
+.dj-page .dj-eq>summary{font-size:12px;cursor:pointer;min-height:28px;padding:4px 0}
+.dj-page .dj-eq-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:0}
+.dj-page .dj-eq-grid label{display:flex;flex-direction:column;align-items:stretch;gap:3px;font-size:11px;margin:0}
+.dj-page .dj-eq-grid output{font-size:10px;color:var(--muted)}
+.dj-page .dj-eq [data-eq-reset]{min-height:26px;padding:3px 8px;font-size:10px;margin-top:3px}
+.dj-page .dj-monitor{min-height:32px;justify-self:stretch}
+.dj-page .dj-monitor[aria-pressed=true],.dj-page [data-loop][aria-pressed=true]{background:var(--accent);color:#15200b;border-color:var(--accent)}
+.dj-page .dj-hotcues{gap:4px}
+.dj-page .dj-hotcues .button{padding:5px;min-height:32px;font-size:11px}
+.dj-page .dj-loop{gap:5px;font-size:11px}
+.dj-page .dj-loop .button,.dj-page .dj-loop select{min-height:30px;padding:4px 7px;font-size:11px}
+.dj-page [data-loop-info]{margin:0;font-size:10px}
+.dj-page .dj-transport-options{border-top:1px solid var(--line);margin-top:4px}
+.dj-page .dj-transport-options>summary{font-size:11px;min-height:30px;padding:7px 0}
+.dj-page .dj-transition-heading{flex-wrap:wrap;gap:8px}
+.dj-page .dj-master-level{font-size:10px}
+.dj-page .dj-mixer-light .dj-light-heading{display:flex;align-items:center;gap:8px}
+.dj-page .dj-mixer-light .dj-light-heading h2{margin-right:auto}
+@media(min-width:761px){
+ .dj-page main.dj-resize-workspace{grid-template-rows:var(--dj-split-tracks,minmax(360px,min(500px,58dvh)) 8px minmax(180px,1fr))}
+ .dj-page .dj-console .dj-deck{overflow:hidden;scrollbar-gutter:auto}
+ .dj-page .dj-mixer>.dj-mixer-transition{flex:1}
+}
+@media(max-width:760px){
+ .dj-page .dj-deck-controls{overflow:visible}
+ .dj-page .dj-console .dj-deck{min-height:auto}
+ .dj-page .dj-mixer{order:0}
+}
+.dj-page .dj-control-banks{display:flex;gap:4px;border-bottom:1px solid var(--line);padding-bottom:5px}
+.dj-page .dj-control-banks .button{flex:1;min-height:30px;padding:5px;font-size:11px}
+.dj-page .dj-control-banks [aria-selected=true]{border-color:var(--deck-accent);color:var(--deck-accent);background:#ffffff09}
+.dj-page .dj-control-bank{display:grid;gap:7px}
+.dj-page .dj-control-bank[hidden]{display:none}
+.dj-page .dj-channel-strip h3{display:none}
+.dj-page .dj-console .dj-deck canvas.dj-waveform{height:42px}
+.dj-page .dj-console .dj-deck .dj-track-title{font-size:16px;margin-bottom:3px}
+.dj-page .dj-deck-top .dj-buttons{margin-bottom:7px}
+.dj-page .dj-performance{gap:6px;margin-top:7px}
+.dj-page .dj-eq-grid{gap:5px}
+.dj-page .dj-eq-grid input{margin:0}
+/* Keep all four EQ bands within the default 800 px desktop workspace. */
+.dj-page .dj-deck-top .dj-position{font-size:0;line-height:0}
+.dj-page .dj-deck-top .dj-position input{margin:0;min-height:20px}
+.dj-page .dj-eq>summary{min-height:22px;padding:2px 0}
+.dj-page .dj-monitor{min-height:28px;padding:4px}
+.dj-page .dj-tempo .button{min-height:28px}
+.dj-page .dj-cue-setup{min-height:28px;padding:4px 8px;font-size:11px;margin-bottom:8px}
+
+/* Quiet startup: reveal performance tools explicitly, keeping transport fixed. */
+.dj-page .dj-deck-mix>summary{cursor:pointer;min-height:34px;padding:8px 0;font-size:12px;color:var(--text);font-weight:550}
+.dj-page .dj-deck-mix[open]>summary{color:var(--deck-accent)}
+.dj-page .dj-deck-mix{margin:0}
+.dj-page .dj-deck-controls .dj-transport-options{margin-top:0}
+.dj-page .dj-mixer>.dj-mixer-transition{flex:1}

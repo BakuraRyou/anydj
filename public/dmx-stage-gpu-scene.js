@@ -1,11 +1,11 @@
 import {createBeamSurfaceCache} from './dmx-light-geometry.js';
-import {beamVolume,volumeCorners} from './dmx-beam-volume.js';
+import {beamVolume,volumeCorners,beamScreenBounds} from './dmx-beam-volume.js';
 import {drawStageGeometry,stageCamera,lensHaloScale,previewLightExposure} from './dmx-stage-3d-renderer.js';
 import {environmentColor,sceneEnvironmentBrightness} from './dmx-room-style.js';
-const sub=(a,b)=>a.map((v,i)=>v-b[i]);
 const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
 const unit=a=>{const n=Math.hypot(...a)||1;return a.map(v=>v/n);};
 const offset=(p,v,s)=>p.map((n,i)=>n+v[i]*s);
+const zeroUV=[0,0];
 // A reusable interleaved stream: position, RGBA, projective UVW, effect kind.
 // Geometry stays shared with Canvas/XR; projection and soft effects run on the GPU.
 export function createStageGpuScene(){
@@ -17,18 +17,34 @@ export function createStageGpuScene(){
     const rgb=value.startsWith('#')?[1,3,5].map(i=>parseInt(value.slice(i,i+2),16)/255):(value.match(/[\d.]+/g)||[0,0,0]).slice(0,3).map(v=>Number(v)/255);
     if(colors.size>=512)colors.clear();colors.set(value,rgb);return rgb;
   };
+  function reserve(size){
+    if(size<=data.length)return;
+    let capacity=data.length;while(capacity<size)capacity*=2;
+    const next=new Float32Array(capacity);next.set(data);data=next;
+  }
   function vertex(p,rgb,alpha,uv,kind){
-    if(length+11>data.length){const next=new Float32Array(data.length*2);next.set(data);data=next;}
     data[length++]=p[0];data[length++]=p[1];data[length++]=p[2];
     data[length++]=rgb[0];data[length++]=rgb[1];data[length++]=rgb[2];data[length++]=alpha;
     data[length++]=uv[0];data[length++]=uv[1];data[length++]=uv[2]??1;data[length++]=kind;
   }
   function emit(points,fill,alpha,kind,uv,mode,volume=null){
     const first=length/11,rgb=color(fill);
+    const count=mode==='lines'?(points.length===2?2:points.length*2):Math.max(0,points.length-2)*3;
+    reserve(length+count*11);
     if(mode==='lines')for(let i=0;i<(points.length===2?1:points.length);i++){
-      vertex(points[i],rgb,alpha,[0,0],0);vertex(points[(i+1)%points.length],rgb,alpha,[0,0],0);
-    }else for(let i=1;i<points.length-1;i++)for(const j of [0,i,i+1])vertex(points[j],rgb,alpha,uv?.[j]||[0,0],kind);
-    const count=length/11-first;if(!count)return;
+      vertex(points[i],rgb,alpha,zeroUV,0);vertex(points[(i+1)%points.length],rgb,alpha,zeroUV,0);
+    }else if(points.length>=3){
+      vertex(points[0],rgb,alpha,uv?.[0]||zeroUV,kind);
+      vertex(points[1],rgb,alpha,uv?.[1]||zeroUV,kind);
+      vertex(points[2],rgb,alpha,uv?.[2]||zeroUV,kind);
+      for(let i=3;i<points.length;i++){
+        // A triangle fan repeats its first and previous corner verbatim.
+        data.copyWithin(length,first*11,first*11+11);length+=11;
+        data.copyWithin(length,length-22,length-11);length+=11;
+        vertex(points[i],rgb,alpha,uv?.[i]||zeroUV,kind);
+      }
+    }
+    if(!count)return;
     const previous=batches.at(-1);
     if(previous?.mode===mode&&!volume&&!previous.volume)previous.count+=count;else batches.push({first,count,mode,volume});
   }
@@ -74,15 +90,9 @@ export function createStageGpuScene(){
         const volume=beamVolume(ray,layout);if(!volume)return true;
         // A conservative screen rectangle only schedules fragments. It does
         // not define beam shape: every fragment intersects the actual cone.
-        const corners=volumeCorners(volume);
-        if(corners.every(p=>project.depth(p)<=.08))return true;
-        let left=-1,rightEdge=1,bottomEdge=-1,top=1;
-        if(corners.every(p=>project.depth(p)>.08)){
-          const ndc=corners.map(p=>{const v=sub(p,eye),z=project.depth(p);return [v.reduce((n,x,i)=>n+x*right[i],0)*2*focal/width/z,v.reduce((n,x,i)=>n+x*up[i],0)*2*focal/height/z];});
-          left=Math.max(-1,Math.min(...ndc.map(p=>p[0])));rightEdge=Math.min(1,Math.max(...ndc.map(p=>p[0])));
-          bottomEdge=Math.max(-1,Math.min(...ndc.map(p=>p[1])));top=Math.min(1,Math.max(...ndc.map(p=>p[1])));
-        }
-        if(left>=rightEdge||bottomEdge>=top)return true;
+        const bounds=beamScreenBounds(volumeCorners(volume),{eye,right,up,forward,scaleX:2*focal/width,scaleY:2*focal/height,padX:2/width,padY:2/height});
+        if(!bounds)return true;
+        const [left,bottomEdge,rightEdge,top]=bounds;
         const points=[[left,bottomEdge],[rightEdge,bottomEdge],[rightEdge,top],[left,top]].map(([x,y])=>eye.map((v,i)=>v+forward[i]+right[i]*x*width/(2*focal)+up[i]*y*height/(2*focal)));
         queue.push({points,fill:tint,alpha:previewLightExposure(power),stroke:null,emissive:true,kind:8,uv:null,volume:volume.data,depth:(project.depth(start)+project.depth(end))/2});return true;
       },

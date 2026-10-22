@@ -9,11 +9,10 @@ import {createApp} from '../server.mjs';
 const app=await createApp({demo:true,previewPort:0});
 app.server.listen(0,'127.0.0.1');await once(app.server,'listening');
 const base=`http://127.0.0.1:${app.server.address().port}`;
-await fetch(base+'/api/discover',{method:'POST',headers:{'Content-Type':'application/json','X-AnyDj-Local':'1'},body:'{}'});
 
 const requests=[];
 app.server.on('request',req=>requests.push(req.url));
-const profile=await mkdtemp(join(tmpdir(),'wiz-dj-connection-'));
+const profile=await mkdtemp(join(tmpdir(),'anydj-dj-check-'));
 const chrome=spawn('/usr/bin/google-chrome',['--headless=new','--no-sandbox','--disable-gpu','--disable-background-networking','--no-first-run','--remote-debugging-port=0',`--user-data-dir=${profile}`,'about:blank'],{stdio:['ignore','ignore','pipe']});
 let ws,sim;
 try {
@@ -40,11 +39,11 @@ try {
 
   const reload=async()=>{const origin=await evaluate('performance.timeOrigin');await c('Page.reload');await wait(`performance.timeOrigin!==${origin}&&document.readyState==='complete'`);};
   await c('Emulation.setDeviceMetricsOverride',{width:1280,height:900,deviceScaleFactor:1,mobile:false});
-  await c('Page.navigate',{url:base+'/dj'});await wait("document.querySelector('#djLamp')?.options.length>1&&typeof document.querySelector('#djFiles').onchange==='function'");
+  await c('Page.navigate',{url:base+'/dj'});await wait("typeof document.querySelector('#djFiles').onchange==='function'");
   await evaluate(`(()=>{document.querySelector('#djStructure').checked=false;const originalFetch=fetch;window.fetch=async(url,options={})=>{if(String(url).startsWith('/api/analysis/')){if(options.method!=='POST')return new Response(JSON.stringify({available:true}));const duration=options.body.byteLength/64000;return new Response(JSON.stringify(url.endsWith('beats')?{version:1,source:'beat-this',duration,beats:[0,.5,1,1.5],downbeats:[0]}:{version:1,source:'discogs-effnet',duration,segments:[{start:0,end:duration,scores:{electronic:.8,rock:0,pop:0,groove:0,acoustic:0,orchestral:0,ambient:0},tags:[]}]}));}return originalFetch(url,options);};
     const rate=16000,n=rate*30,buffer=new ArrayBuffer(44+n*2),v=new DataView(buffer);const text=(offset,s)=>[...s].forEach((c,i)=>v.setUint8(offset+i,c.charCodeAt(0)));text(0,'RIFF');v.setUint32(4,36+n*2,true);text(8,'WAVE');text(12,'fmt ');v.setUint32(16,16,true);v.setUint16(20,1,true);v.setUint16(22,1,true);v.setUint32(24,rate,true);v.setUint32(28,rate*2,true);v.setUint16(32,2,true);v.setUint16(34,16,true);text(36,'data');v.setUint32(40,n*2,true);for(let i=0;i<n;i++)v.setInt16(44+i*2,Math.sin(i/rate*440*Math.PI*2)*5000,true);const dt=new DataTransfer();dt.items.add(new File([buffer],'vr-test.wav',{type:'audio/wav'}));const input=document.querySelector('#djFiles');input.files=dt.files;input.dispatchEvent(new Event('change'));})()`);
   await wait(`document.querySelector('#trackList [aria-label="Auf Deck A laden"]:not(:disabled)')`);
-  await evaluate(`document.querySelector('#djLamp').value='';document.querySelector('#djLamp').dispatchEvent(new Event('change'));document.querySelector('[aria-label="Auf Deck A laden"]').click();document.querySelector('#autoCrossfade').checked=false;`);
+  await evaluate(`document.querySelector('[aria-label="Auf Deck A laden"]').click();document.querySelector('#autoCrossfade').checked=false;`);
   await wait("!document.querySelector('.dj-play').disabled");
   await evaluate("document.querySelector('#openLightStage').click();document.querySelector('[data-moving-heads]').click();document.querySelector('#stageSettings').click();document.querySelector('[data-demo]').click();document.querySelector('[data-close]').click();document.querySelector('[data-layout-open]').click()");
   await wait("document.querySelector('#stageLayoutDialog').open&&document.querySelector('[data-layout-aim]').textContent.includes('Pan')");

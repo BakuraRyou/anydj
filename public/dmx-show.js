@@ -1,3 +1,4 @@
+import {sectionFixtureAt} from './section-lighting.js';
 import {COLOR_MODES} from './dj-color-modes.js';
 import {stagePatch} from './dmx-model.js';
 export const GROUPS=['Links','Rechts','Hintergrund'];
@@ -48,6 +49,37 @@ function colorFor(frame,look,position){
   const p=((hue+position)%1)*(colors.length-1),i=Math.floor(p),f=p-i;
   return hex(colors[i]).map((v,c)=>v*(1-f)+hex(colors[Math.min(i+1,colors.length-1)])[c]*f);
 }
+// Shared look evaluation for live design and time-bounded song edits.
+export function lookFrame(frame,look,{beat=null,group=0,position=0,units=1,animation=look.animation}={}){
+  if(!frame||frame.state===false)return frame;
+  if(animation==='auto')animation='follow';
+  const spatial=position/units;
+  const phase=beat===null?0:((beat+look.offset)/look.period%1+1)%1;
+  let level=frame.dimming/100;
+  if(animation==='wash')level=frame.dimming>0?.55:0;
+  else if(beat!==null&&animation!=='follow'){
+    const power=look.strength/100;
+    let shape=1;
+    if(animation==='pulse')shape=Math.exp(-phase*8);
+    if(animation==='alternate')shape=(Math.floor((beat+look.offset)/look.period)%2===(group===1?1:0))?1:.08;
+    if(animation==='wave')shape=(1+Math.cos(2*Math.PI*(phase-spatial)))/2;
+    if(animation==='chase')shape=Math.floor(phase*units)===position?1:.05;
+    level*=1-power+power*shape;
+  }
+  const rgb=colorFor(frame,look,animation==='wave'||animation==='chase'?spatial*.3:0);
+  return {state:true,r:rgb[0],g:rgb[1],b:rgb[2],dimming:clamp(level*look.brightness,0,100)};
+}
+export function songFixtureFrame(frame,stream,targets,options={}){
+  const cue=sectionFixtureAt(stream.movingPlan,stream.songTime,targets);
+  return cue?lookFrame(frame,cleanLook(cue.look),{beat:stream.beat,...options}):frame;
+}
+export function songFixtureMix(frame,streams,targets,options={}){
+  const active=streams.filter(s=>s.frame&&s.weight>0);
+  if(!active.some(s=>sectionFixtureAt(s.movingPlan,s.songTime,targets)))return frame;
+  const total=active.reduce((n,s)=>n+s.weight,0);
+  const values=active.map(s=>sectionFixtureAt(s.movingPlan,s.songTime,targets)?songFixtureFrame(s.frame,s,targets,options):frame);
+  return {state:true,dimming:100,...Object.fromEntries(['r','g','b'].map(k=>[k,active.reduce((n,s,i)=>n+(values[i]?.[k]||0)*(values[i]?.dimming||0)/100*s.weight,0)/total]))};
+}
 export function fixtureFrames(stream,config,equipment){
   const patch=stagePatch(equipment),spots=patch.filter(f=>f.profile!=='rgb-pixels');
   if(!stream?.frame||stream.frame.state===false)return patch.map(f=>Array.from({length:f.cells},()=>null));
@@ -58,21 +90,7 @@ export function fixtureFrames(stream,config,equipment){
     if(animation==='auto')animation=/quiet|held|break|outro/.test(stream.look||'')?'wash':bar?'chase':group===2?'wash':'alternate';
     return Array.from({length:fixture.cells},(_,cell)=>{
       const units=bar?fixture.cells:spots.length,position=bar?cell:spots.indexOf(fixture);
-      const spatial=position/units;
-      const phase=beat===null?0:((beat+look.offset)/look.period%1+1)%1;
-      let level=stream.frame.dimming/100;
-      if(animation==='wash')level=stream.frame.dimming>0?.55:0;
-      else if(beat!==null&&animation!=='follow'){
-        const power=look.strength/100;
-        let shape=1;
-        if(animation==='pulse')shape=Math.exp(-phase*8);
-        if(animation==='alternate')shape=(Math.floor((beat+look.offset)/look.period)%2===(group===1?1:0))?1:.08;
-        if(animation==='wave')shape=(1+Math.cos(2*Math.PI*(phase-spatial)))/2;
-        if(animation==='chase')shape=Math.floor(phase*units)===position?1:.05;
-        level*=1-power+power*shape;
-      }
-      const rgb=colorFor(stream.frame,look,animation==='wave'||animation==='chase'?spatial*.3:0);
-      return {state:true,r:rgb[0],g:rgb[1],b:rgb[2],dimming:clamp(level*look.brightness,0,100)};
+      return lookFrame(stream.frame,look,{beat,group,position,units,animation});
     });
   });
 }

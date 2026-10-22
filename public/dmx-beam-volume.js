@@ -53,9 +53,11 @@ float volumeLight(vec3 eyePosition,vec3 direction,float limit){
   vec3 p=relative+direction*(span.x+(float(j)+.5)*stepSize);float depth=dot(p,axis),width=max(.001,slope*depth);
   float radial=length(p-axis*depth)/width;
   float profile=max(0.0,exp(-4.0*radial*radial)-exp(-4.0));
-  total+=profile/(.12+depth*depth*.035);
+  total+=profile/(.12+width*width*2.0);
  }
- // Bounded single scattering: more illuminated haze along the view is brighter.
+ // Irradiance follows the actual cone cross-section. A fixed depth falloff
+ // made narrow, long beams vanish regardless of their optical concentration.
+ // Bounded single scattering keeps accumulated haze below full exposure.
  float phase=.65+.35*pow(max(0.0,dot(axis,-direction)),2.0);
  return 1.0-exp(-total*stepSize*.24*phase);
 }
@@ -97,7 +99,7 @@ fn volumeLight(eyePosition:vec3f,direction:vec3f)->f32 {
   let p=relative+direction*(span.x+(f32(j)+.5)*stepSize);let depth=dot(p,axis);let width=max(.001,slope*depth);
   let radial=length(p-axis*depth)/width;
   let profile=max(0.0,exp(-4.0*radial*radial)-exp(-4.0));
-  total+=profile/(.12+depth*depth*.035);
+  total+=profile/(.12+width*width*2.0);
  }
  let phase=.65+.35*pow(max(0.0,dot(axis,-direction)),2.0);
  return 1.0-exp(-total*stepSize*.24*phase);
@@ -127,7 +129,7 @@ export function sampleBeamVolume(data,eye,direction,samples=8){
  for(let j=0;j<samples;j++){
   const t=lo+(j+.5)*step,px=x+dx*t,py=y+dy*t,pz=z+dz*t,h=px*ax+py*ay+pz*az,w=Math.max(.001,slope*h);
   const rx=px-ax*h,ry=py-ay*h,rz=pz-az*h,r2=(rx*rx+ry*ry+rz*rz)/(w*w);
-  total+=Math.max(0,Math.exp(-4*r2)-Math.exp(-4))/(.12+h*h*.035);
+  total+=Math.max(0,Math.exp(-4*r2)-Math.exp(-4))/(.12+w*w*2.0);
  }
  return 1-Math.exp(-total*step*.24*(.65+.35*Math.max(0,-along)**2));
 }
@@ -138,4 +140,26 @@ export function volumeCorners(volume){
  const v=[a[1]*u[2]-a[2]*u[1],a[2]*u[0]-a[0]*u[2],a[0]*u[1]-a[1]*u[0]];
  const tip=volume.origin.map((n,i)=>n+a[i]*volume.reach),r=volume.slope*volume.reach/Math.cos(Math.PI/16);
  return [volume.origin,...Array.from({length:16},(_,i)=>tip.map((n,k)=>n+r*(u[k]*Math.cos(i*Math.PI/8)+v[k]*Math.sin(i*Math.PI/8))))];
+}
+
+// Project the conservative cone hull, clipping its edges before perspective
+// division. A cone crossing the eye plane does not always cover the viewport.
+export function beamScreenBounds(corners,{eye,right,up,forward,scaleX,scaleY,padX=0,padY=0}){
+ const near=.08/Math.hypot(1,1/scaleX,1/scaleY);
+ let left=Infinity,bottom=Infinity,rightEdge=-Infinity,top=-Infinity;
+ const include=(x,y,z)=>{x=x*scaleX/z;y=y*scaleY/z;left=Math.min(left,x);rightEdge=Math.max(rightEdge,x);bottom=Math.min(bottom,y);top=Math.max(top,y);};
+ const points=corners.map(p=>{
+  const x=p[0]-eye[0],y=p[1]-eye[1],z=p[2]-eye[2];
+  const v=[x*right[0]+y*right[1]+z*right[2],x*up[0]+y*up[1]+z*up[2],x*forward[0]+y*forward[1]+z*forward[2]];
+  if(v[2]>=near)include(...v);return v;
+ });
+ if(left===Infinity)return null;
+ const clip=(a,b)=>{
+  if((a[2]<near)===(b[2]<near))return;
+  const t=(near-a[2])/(b[2]-a[2]);include(a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t,near);
+ };
+ // The hull consists of an apex and a closed ring at its far end.
+ for(let i=1;i<points.length;i++){clip(points[0],points[i]);clip(points[i],points[i+1]||points[1]);}
+ left=Math.max(-1,left-padX);bottom=Math.max(-1,bottom-padY);rightEdge=Math.min(1,rightEdge+padX);top=Math.min(1,top+padY);
+ return left>=rightEdge||bottom>=top?null:[left,bottom,rightEdge,top];
 }

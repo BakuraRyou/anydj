@@ -33,12 +33,14 @@ try {
   };
   let ready=false;
   for(let i=0;i<100;i++){
-    ready=await evaluate("Boolean(document.querySelector('#djLamp')?.options.length>1)");
+    ready=await evaluate("Boolean(typeof document.querySelector('#djFiles')?.onchange==='function')");
     if(ready)break;await new Promise(resolve=>setTimeout(resolve,100));
   }
-  if(!ready)throw Error('Demo lamp/UI did not initialize');
-  const result=await evaluate(`(async()=>({url:location.href,decks:document.querySelectorAll('.dj-deck').length,nodeExposed:typeof process!=='undefined'||typeof require!=='undefined',status:(await fetch('/api/devices')).status}))()`);
+  if(!ready)throw Error('DJ UI did not initialize');
+  const result=await evaluate(`(async()=>({url:location.href,decks:document.querySelectorAll('.dj-deck').length,nodeExposed:typeof process!=='undefined'||typeof require!=='undefined',status:(await fetch('/api/dmx/status')).status}))()`);
   if(result.decks!==2||result.nodeExposed||result.status!==200)throw Error(JSON.stringify(result));
+  const titlebar=await evaluate(`(()=>{const bar=document.querySelector('.desktop-titlebar');return {present:!!bar,buttons:bar?.querySelectorAll('.desktop-window-controls button').length,draggable:bar&&getComputedStyle(bar).webkitAppRegion,shellTop:document.querySelector('.dj-page>.shell').getBoundingClientRect().top,consoleTop:document.querySelector('.dj-console').getBoundingClientRect().top,toolbarIntegrated:!!bar?.querySelector('#djStop')};})()`);
+  if(!titlebar.present||titlebar.buttons!==3||titlebar.draggable!=='drag'||titlebar.shellTop!==34||titlebar.consoleTop!==34||!titlebar.toolbarIntegrated)throw Error('Desktop titlebar: '+JSON.stringify(titlebar));
   const analysis=await evaluate(`Promise.all(['beats','style','structure'].map(async name=>({name,...await (await fetch('/api/analysis/'+name)).json()})))`);
   if(!process.argv.includes('--lite')&&analysis.some(engine=>!engine.available))throw Error('Packaged analysis unavailable: '+JSON.stringify(analysis));
   let songStatus=null;
@@ -55,7 +57,7 @@ try {
     if(!songStatus?.text.includes('Vollständig berechnet'))throw Error('Song analysis did not finish: '+JSON.stringify(songStatus));
     songStatus.seconds=Math.round((Date.now()-started)/100)/10;
   }
-  console.log(JSON.stringify({desktopSmoke:true,...result,analysis,songStatus},null,2));
+  console.log(JSON.stringify({desktopSmoke:true,...result,titlebar,analysis,songStatus},null,2));
   await send('Runtime.evaluate',{expression:'window.close()'},sessionId).catch(()=>{});
 } finally {
   clearTimeout(deadline);ws?.close();

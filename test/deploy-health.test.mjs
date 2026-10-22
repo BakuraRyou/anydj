@@ -1,6 +1,28 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {health,pruneAfterHealthcheck} from '../scripts/deploy.mjs';
+import {mkdtemp,rm} from 'node:fs/promises';
+import {tmpdir} from 'node:os';
+import {join} from 'node:path';
+import {health,pruneAfterHealthcheck,withDeploymentLock} from '../scripts/deploy.mjs';
+
+test('deployment lock prevents concurrent publication and releases after success or failure',async()=>{
+  const workspace=await mkdtemp(join(tmpdir(),'anydj-deploy-lock-'));
+  let release,entered;
+  const started=new Promise(resolve=>{entered=resolve;});
+  const pending=new Promise(resolve=>{release=resolve;});
+  try{
+    const first=withDeploymentLock(async()=>{entered();await pending;return 'published';},{workspace});
+    await started;
+    await assert.rejects(withDeploymentLock(()=>assert.fail('concurrent deployment started'),{workspace}),/Deployment läuft bereits/);
+    release();
+    assert.equal(await first,'published');
+    await assert.rejects(withDeploymentLock(async()=>{throw Error('upload failed');},{workspace}),/upload failed/);
+    assert.equal(await withDeploymentLock(async()=>'retry succeeded',{workspace}),'retry succeeded');
+  }finally{
+    release();
+    await rm(workspace,{recursive:true,force:true});
+  }
+});
 
 test('healthcheck reports hosting routing errors, redirects and startup failures',async()=>{
   for(const [status,message] of [[404,/Node.js-Aktivierung/],[302,/Weiterleitung/],[503,/Startfehler/]]){

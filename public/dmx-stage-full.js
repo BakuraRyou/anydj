@@ -1,3 +1,4 @@
+import {setSelectValue} from './select-state.js';
 import {drawWaveform} from './dj-waveform.js';
 
 const time=value=>`${Math.floor(Math.max(0,value)/60)}:${String(Math.floor(Math.max(0,value)%60)).padStart(2,'0')}`;
@@ -80,7 +81,9 @@ export function createStageFullTransport(host,{dialog,topControls,canvas,onDeckT
     const decks=api.getDecks();
     for(const card of cards){
       const d=decks.find(deck=>deck.id===card.id)||{};
-      if(!card.profileBusy)card.profile.value=d.showProfile||'auto';
+      const inherited=card.profile.querySelector('option[value=default]');if(inherited)setText(inherited,`Standard verwenden (${d.defaultShowProfileLabel||'Automatisch'})`);
+      const profileValue=d.showProfileInherited?'default':d.showProfile||'auto';
+      if(!card.profileBusy&&card.profile.value!==profileValue)card.profile.value=profileValue;
       setDisabled(card.profile,Boolean(card.profileBusy)||!d.canSetShowProfile);
       const position=Math.max(0,Number(d.position)||0),length=Math.max(0,Number(d.duration)||0);
       setText(card.title,d.title||'Kein Track geladen');card.title.title=d.title||'Kein Track geladen';
@@ -102,7 +105,7 @@ export function createStageFullTransport(host,{dialog,topControls,canvas,onDeckT
       crossfade.value=state.position;setDisabled(crossfade,!state.canCrossfade);
       setText(mix,state.mix);crossfade.setAttribute('aria-valuetext',state.mix);
       auto.checked=state.auto;setDisabled(auto,!state.canAuto);
-      duration.value=state.duration;setDisabled(duration,!state.canDuration);
+      setSelectValue(duration,state.duration);setDisabled(duration,!state.canDuration);
       setDisabled(fade,!state.canFade);setText(fade,state.fading?'Abbrechen':'Überblenden');
       setText(status,state.status||'');status.title=state.status||'';
     }

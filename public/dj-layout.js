@@ -1,38 +1,42 @@
 // Group existing controls without replacing their event handlers or audio state.
 export function simplifyDJLayout(decks,mixer,lightStage){
- const statusbar=document.createElement('footer');statusbar.className='dj-statusbar';statusbar.setAttribute('aria-label','Verbindungsstatus');
- document.querySelector('.shell').append(statusbar);statusbar.append(document.getElementById('djConnection'));
  const disclosure=(title,className)=>{const node=document.createElement('details');node.className=className;const summary=document.createElement('summary');summary.textContent=title;node.append(summary);return node;};
  for(const deck of decks){
   const root=deck.panel;
   const lighting=disclosure('Lichtgestaltung','dj-light-options');
   const picker=root.querySelector('.dj-color-picker'),lightCanvas=root.querySelector('canvas:not(.dj-waveform)');
   picker.before(lighting);lighting.append(picker,lightCanvas);
-  const transport=root.querySelector('.dj-buttons'),extra=disclosure('Deck einstellen','dj-transport-options');
-  extra.append(root.querySelector('.dj-set-cue'),root.querySelector('.dj-unload'));transport.append(extra);
-  const performance=root.querySelector('.dj-performance'),tools=disclosure('Mix-Werkzeuge','dj-deck-tools');
-  performance.before(tools);tools.append(performance);
-  tools.querySelector('summary').title='Tempo, Hotcues, Loops, Klang und Vorhören';
-  const activeTools=new MutationObserver(()=>{
-    const states=[];
-    if(performance.querySelector('[data-loop]').getAttribute('aria-pressed')==='true')states.push('Loop aktiv');
-    if(performance.querySelector('.dj-monitor').getAttribute('aria-pressed')==='true')states.push('Vorhören an');
-    const tempo=performance.querySelector('[data-tempo-value]').textContent;
-    if(Math.abs(parseFloat(tempo))>.05)states.push('Tempo '+tempo);
-    const text='Mix-Werkzeuge'+(states.length?' · '+states.join(' · '):'');
-    if(tools.querySelector('summary').textContent!==text)tools.querySelector('summary').textContent=text;
-    const overview='Deck einstellen'+(states.length?' · '+states.join(' · '):'');
-    if(extra.querySelector('summary').textContent!==overview)extra.querySelector('summary').textContent=overview;
-  });
-  activeTools.observe(performance,{subtree:true,childList:true,attributes:true,attributeFilter:['aria-pressed']});
-  window.addEventListener('pagehide',()=>activeTools.disconnect(),{once:true});
-  // One entry point for preparation; transport stays visually dominant.
+  const transport=root.querySelector('.dj-buttons'),extra=disclosure('Weitere Deck-Optionen','dj-transport-options');
+  extra.append(root.querySelector('.dj-set-cue'),root.querySelector('.dj-unload'),lighting,root.querySelector('.dj-deck-show-profile'));
+  const performance=root.querySelector('.dj-performance');
   const volume=root.querySelector('.dj-volume').closest('label'),level=root.querySelector('.dj-level');
-  extra.append(volume,level,tools,lighting);
+  volume.classList.add('dj-channel-volume');
+  const channel=document.createElement('div');channel.className='dj-channel-strip';channel.append(volume,level);
+  const eq=performance.querySelector('.dj-eq');eq.open=true;eq.querySelector('summary').textContent='Klang · Gain & EQ';
+  const monitor=performance.querySelector('.dj-monitor');monitor.textContent='Kopfhörer · Cue';
+  const channelTitle=document.createElement('h3');channelTitle.textContent='Kanal & Klang';channel.prepend(channelTitle);
+  performance.querySelector('.dj-tempo').after(channel,eq,monitor);
+  const banks=document.createElement('div');banks.className='dj-control-banks';banks.setAttribute('role','tablist');banks.setAttribute('aria-label',`Bedienbereich Deck ${deck.name}`);
+  const sound=document.createElement('div'),cues=document.createElement('div');sound.className=cues.className='dj-control-bank';
+  sound.append(channel,eq);cues.append(performance.querySelector('.dj-hotcues'),performance.querySelector('.dj-loop'),performance.querySelector('[data-loop-info]'));
+  const panels=[sound,cues],buttons=['Kanal & EQ','Hotcues & Loops'].map((label,i)=>{
+   const button=document.createElement('button');button.type='button';button.className='button secondary';button.textContent=label;button.id=`deck-${deck.name}-tab-${i}`;button.setAttribute('role','tab');
+   panels[i].id=`deck-${deck.name}-bank-${i}`;panels[i].setAttribute('role','tabpanel');panels[i].setAttribute('aria-labelledby',button.id);button.setAttribute('aria-controls',panels[i].id);banks.append(button);return button;
+  });
+  const selectBank=i=>{buttons.forEach((button,j)=>{button.setAttribute('aria-selected',String(i===j));button.tabIndex=i===j?0:-1;panels[j].hidden=i!==j;});};
+  buttons.forEach((button,i)=>{button.onclick=()=>selectBank(i);button.onkeydown=event=>{if(['ArrowLeft','ArrowRight','Home','End'].includes(event.key)){event.preventDefault();event.stopPropagation();const next=event.key==='Home'?0:event.key==='End'?1:1-i;selectBank(next);buttons[next].focus();}};});selectBank(0);
+  performance.append(monitor,banks,sound,cues);
   const seek=root.querySelector('.dj-seek');seek.setAttribute('aria-label',`Abspielposition Deck ${deck.name}`);seek.closest('label').classList.add('dj-position');
-  root.querySelector('.dj-clock').after(transport);
+  const top=document.createElement('div');top.className='dj-deck-top';
+  top.append(root.querySelector('h2'),root.querySelector('.dj-track-title'),root.querySelector('.dj-performance-readout'),root.querySelector('.dj-waveform'),seek.closest('label'),root.querySelector('.dj-clock'),transport);
+  const controls=document.createElement('div');controls.className='dj-deck-controls';controls.setAttribute('aria-label',`Mix-Werkzeuge Deck ${deck.name}`);controls.tabIndex=0;
+  const mixTools=disclosure('DJ-Mix','dj-deck-mix');mixTools.querySelector('summary').dataset.mixSummary='';mixTools.querySelector('summary').title='Tempo, Sync, EQ, Vorhören, Hotcues und Loops';mixTools.append(performance);
+  controls.append(mixTools,extra);
   const analysisFooter=document.createElement('div');analysisFooter.className='dj-analysis-footer';
-  analysisFooter.append(root.querySelector('.dj-analysis'));root.append(analysisFooter);
+  analysisFooter.append(root.querySelector('.dj-analysis'));controls.append(analysisFooter);
+  root.prepend(top,controls);
+  const look=root.querySelector('.dj-look');if(look)lighting.append(look);
+
 
  }
  const light=document.createElement('section');light.className='dj-mixer-light';light.setAttribute('aria-label','Lichtshow');
@@ -64,14 +68,29 @@ export function simplifyDJLayout(decks,mixer,lightStage){
  const preference=document.createElement('label');preference.innerHTML='Leichte Stilpräferenz <select id="transitionPreference"><option value="">Keine</option><option value="smooth">Sanft</option><option value="bass">Bassübergabe</option><option value="handover">Kurze Überlagerung</option><option value="cut">Kurzer Wechsel</option></select>';options.append(preference);
  transition.append(auto,options,document.getElementById('fadeStatus'));light.after(transition);
  const master=mixer.querySelector('.dj-master'),audio=disclosure('Audio & Aufnahme','dj-audio-options');
- audio.append(master.querySelector('.dj-routing'),master.querySelector('.dj-shortcuts'),master.querySelector('.dj-recording'));audio.prepend(master.querySelector('.dj-level'));master.append(audio);transition.append(master);
+ audio.append(master.querySelector('.dj-routing'),master.querySelector('.dj-shortcuts'),master.querySelector('.dj-recording'));master.append(audio);master.querySelector('[data-master-meter]').closest('.dj-level').classList.add('dj-master-level');transition.append(master);
+ const setupCue=document.createElement('button');setupCue.type='button';setupCue.className='button secondary dj-cue-setup';setupCue.textContent='Kopfhörer einrichten';
+ setupCue.onclick=()=>{audio.open=true;const routing=audio.querySelector('.dj-routing');routing.open=true;routing.querySelector('summary').focus();};audio.prepend(setupCue);audio.prepend(audio.querySelector('summary'));audio.append(master.querySelector('.dj-master-level'));
  const recording=audio.querySelector('.dj-recording'),summary=audio.querySelector('summary');
  const observer=new MutationObserver(()=>{const running=recording.querySelector('[data-record]').textContent==='Aufnahme beenden',saved=!recording.querySelector('[data-download]').hidden;summary.textContent='Audio & Aufnahme'+(running?' · Aufnahme läuft':saved?' · Aufnahme bereit':'');});
  observer.observe(recording,{subtree:true,childList:true,attributes:true,attributeFilter:['hidden']});
  window.addEventListener('pagehide',()=>observer.disconnect(),{once:true});
- const headingRow=document.querySelector('.dj-library-heading'),files=disclosure('Musik hinzufügen','dj-import-options');
- headingRow.append(files);files.append(document.getElementById('addTracks'),document.getElementById('linkFolder'),document.getElementById('folderBar'),document.getElementById('folderStatus'));
- files.append(document.getElementById('enqueueAll'));
+ const headingRow=document.querySelector('.dj-library-heading'),files=document.createElement('div');files.className='dj-import-options';
+ const importButton=document.createElement('button');importButton.type='button';importButton.className='button primary';importButton.innerHTML='<span aria-hidden="true" class="dj-import-icon">+</span><span class="dj-import-label">Musik hinzufügen</span>';importButton.setAttribute('aria-label','Musik hinzufügen');importButton.title='Musik hinzufügen';importButton.setAttribute('popovertarget','libraryImportPopover');importButton.setAttribute('aria-expanded','false');
+ const importPanel=document.createElement('div');importPanel.id='libraryImportPopover';importPanel.className='dj-import-panel';importPanel.setAttribute('popover','auto');importPanel.setAttribute('aria-labelledby','libraryImportTitle');
+ const importTitle=document.createElement('h3');importTitle.id='libraryImportTitle';importTitle.textContent='Lokale Musik hinzufügen';
+ const importActions=document.createElement('div');importActions.className='dj-import-actions';importActions.append(document.getElementById('addTracks'),document.getElementById('linkFolder'));
+ importPanel.append(importTitle,importActions,document.getElementById('folderBar'),document.getElementById('folderStatus'));files.append(importButton,importPanel);headingRow.append(files);
+ document.getElementById('libraryTools').append(document.getElementById('enqueueAll'));
+ const positionImport=()=>{
+  const rect=importButton.getBoundingClientRect(),width=importPanel.offsetWidth,height=importPanel.offsetHeight;
+  importPanel.style.left=Math.max(12,Math.min(rect.right-width,innerWidth-width-12))+'px';
+  importPanel.style.top=Math.max(12,Math.min(rect.bottom+8+height<=innerHeight-12?rect.bottom+8:rect.top-height-8,innerHeight-height-12))+'px';
+ };
+ importPanel.addEventListener('toggle',()=>{const open=importPanel.matches(':popover-open');importButton.setAttribute('aria-expanded',String(open));if(open)positionImport();});
+ new ResizeObserver(()=>{if(importPanel.matches(':popover-open'))positionImport();}).observe(importPanel);
+ window.addEventListener('resize',()=>{if(importPanel.matches(':popover-open'))positionImport();});
+ document.addEventListener('scroll',()=>{if(importPanel.matches(':popover-open'))positionImport();},true);
  const filterButton=document.getElementById('libraryFilterButton'),filterPopover=document.getElementById('libraryFilterPopover');
  const positionFilters=()=>{
   const rect=filterButton.getBoundingClientRect();
@@ -152,7 +171,7 @@ function makeResizableLayout(){
   });
   const observer=new ResizeObserver(()=>{if(desktop.matches)render();});observer.observe(root);g.observer=observer;g.render=render;render();
  }
- group('workspace',document.querySelector('.dj-page main'),'y',[200,200],['Höhe von Pult und Listen']);
+ group('workspace',document.querySelector('.dj-page main'),'y',[300,180],['Höhe von Pult und Listen']);
  group('decks',document.querySelector('.dj-decks'),'x',[200,260,200],['Breite von Deck A und Mixer','Breite von Mixer und Deck B']);
  group('collections',document.querySelector('.dj-collections'),'x',[260,260],['Breite von Bibliothek und Warteschlange']);
  const reset=document.createElement('button');reset.type='button';reset.className='button secondary';reset.textContent='Layout zurücksetzen';

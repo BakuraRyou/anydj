@@ -1,0 +1,119 @@
+{
+  "method": "Physical room preview, software renderer, four synthetic musical passages, 53 percent flicker, no audio or hardware validation.",
+  "states": [
+    {
+      "time": 1,
+      "visible": 8,
+      "maximum": 1,
+      "rows": [
+        {
+          "y": 27,
+          "visible": 6,
+          "colors": [
+            "rgb(40,150,255)"
+          ]
+        },
+        {
+          "y": 30,
+          "visible": 0,
+          "colors": [
+            "rgb(40,150,255)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 2,
+          "colors": [
+            "rgb(255,100,20)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 5,
+      "visible": 14,
+      "maximum": 1,
+      "rows": [
+        {
+          "y": 27,
+          "visible": 8,
+          "colors": [
+            "rgb(40,150,255)"
+          ]
+        },
+        {
+          "y": 30,
+          "visible": 4,
+          "colors": [
+            "rgb(40,150,255)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 2,
+          "colors": [
+            "rgb(255,100,20)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 10.8,
+      "visible": 42,
+      "maximum": 1,
+      "rows": [
+        {
+          "y": 27,
+          "visible": 14,
+          "colors": [
+            "rgb(40,150,255)"
+          ]
+        },
+        {
+          "y": 30,
+          "visible": 14,
+          "colors": [
+            "rgb(40,150,255)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 14,
+          "colors": [
+            "rgb(255,100,20)"
+          ]
+        }
+      ]
+    },
+    {
+      "time": 13,
+      "visible": 38,
+      "maximum": 1,
+      "rows": [
+        {
+          "y": 27,
+          "visible": 16,
+          "colors": [
+            "rgb(40,150,255)"
+          ]
+        },
+        {
+          "y": 30,
+          "visible": 6,
+          "colors": [
+            "rgb(40,150,255)"
+          ]
+        },
+        {
+          "y": 33,
+          "visible": 16,
+          "colors": [
+            "rgb(255,100,20)"
+          ]
+        }
+      ]
+    }
+  ],
+  "frames": 344,
+  "videoBytes": 1230192
+}

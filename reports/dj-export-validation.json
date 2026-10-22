@@ -1,0 +1,45 @@
+{
+  "targetedTests": {
+    "passed": 44,
+    "failed": 0,
+    "command": "node --test test/queue-export.test.mjs test/setlist-transition.test.mjs test/transition-library.test.mjs test/transition-preview.test.mjs test/musical-transition.test.mjs test/dj-module-loading.test.mjs"
+  },
+  "browserCheck": "reports/dj-queue-export-check.json",
+  "webBuild": "passed",
+  "fullSuite": {
+    "passed": 1077,
+    "failed": 2,
+    "failures": [
+      {
+        "test": "test/dmx-strobe-phrases.test.mjs:20",
+        "reason": "foregroundRows(sequences[1]) > foregroundRows(sequences[0])"
+      },
+      {
+        "test": "test/vr-preview.test.mjs:108",
+        "reason": "Preview dependency blocked: /dmx-strobe-score.js (403)"
+      }
+    ],
+    "bothFailuresReproducedWithoutExportChanges": true
+  },
+  "limitations": [
+    "Local audio files only",
+    "Export at original tempo; stored transitions with changed playback rates are rejected",
+    "Live deck EQ, loops and manual transport actions are not included in the offline queue export",
+    "Decoded source tracks still consume memory; compressed MP3 is held until the dialog closes"
+  ],
+  "internalCutTransitions": {
+    "targetedTests": {
+      "passed": 37,
+      "failed": 0
+    },
+    "browserCheck": "reports/dj-cut-joins-check.json",
+    "realAudioMixVerified": true,
+    "cutEditorAuditionVerified": true,
+    "savedAndRestored": true,
+    "fullSuite": {
+      "passed": 1084,
+      "failed": 2,
+      "samePreExistingStrobeAndVRFailures": true
+    }
+  }
+}

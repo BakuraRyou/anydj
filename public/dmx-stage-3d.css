@@ -6,6 +6,7 @@
 .stage-3d :is(button,input,select,summary):focus-visible{outline:2px solid var(--show-accent);outline-offset:2px}
 .stage-3d p{font-size:11px;color:var(--show-muted);line-height:1.6;margin:8px 0}
 .stage-3d-heading{display:flex;align-items:center;gap:8px;padding:10px 16px;border-bottom:1px solid var(--show-line)}
+.stage-3d-fps{flex:none;min-width:6ch;text-align:right;font:11px ui-monospace,SFMono-Regular,Consolas,monospace;font-variant-numeric:tabular-nums;color:var(--show-muted);white-space:nowrap;cursor:help}
 .stage-3d-heading strong{margin-right:auto;font-size:15px;font-weight:600;letter-spacing:-.02em}.stage-3d-heading small{display:inline-block;margin-left:10px;color:var(--show-muted);font-size:10px;font-weight:400;letter-spacing:0}
 .stage-3d-tool-tabs{display:flex;align-items:center;gap:6px;padding:8px 16px;border-bottom:1px solid var(--show-line)}
 .stage-3d-tool-tabs .button{min-height:30px;padding:5px 13px}
@@ -349,3 +350,16 @@ html:has(.stage-3d-dialog[open]){overflow:hidden}body:has(.stage-3d-dialog[open]
 .stage-xr-next{padding:12px;border-radius:8px;background:#223b43;color:#d7eeeb}
 .stage-xr-flow .is-ready .stage-vr-setup{display:none}
 .stage-xr-flow .stage-view-xr-actions .button{flex:1}
+
+.stage-view-toolbar>[data-focus-point][aria-pressed=true]{background:#294d44;border-color:#6fb89e;color:#d4fff0}
+
+/* The existing light editor gets a persistent save bar and two working columns. */
+.stage-3d .stage-3d-song-editor .le-workspace{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(240px,1fr);gap:16px}
+.stage-3d .stage-3d-song-editor .le-inspector{display:flex;gap:10px}
+.stage-3d .stage-3d-song-editor .le-main{gap:12px}
+.stage-3d .stage-3d-song-editor .le-transport{margin:0;position:sticky;top:-14px;z-index:4}
+.stage-3d .stage-3d-song-editor .le-footer{position:sticky;bottom:-14px;z-index:5;padding:10px;background:var(--surface-panel,#14151b);border-radius:8px}
+.stage-3d .stage-3d-song-editor .le-timeline-tools{flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.stage-3d .stage-3d-song-editor .le-palette-card{padding:10px}
+@media(max-width:900px){.stage-3d .stage-3d-song-editor .le-workspace{grid-template-columns:minmax(0,1fr)}}
+.stage-3d .stage-3d-song-editor .le-advanced{padding:12px 0;display:grid;gap:12px}
