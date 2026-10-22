@@ -1,0 +1,39 @@
+{
+  "method": "Same saved desktop analyses; sampled ground pictures every 0.43 s, silence omitted. No reanalysis.",
+  "shadesMusicalBoundariesUnchanged": true,
+  "songs": [
+    {
+      "song": "shades",
+      "before": {
+        "groundPictures": 13,
+        "catalogPictures": 3
+      },
+      "after": {
+        "groundPictures": 14,
+        "catalogPictures": 4
+      }
+    },
+    {
+      "song": "dmx",
+      "before": {
+        "groundPictures": 16,
+        "catalogPictures": 3
+      },
+      "after": {
+        "groundPictures": 17,
+        "catalogPictures": 7
+      }
+    },
+    {
+      "song": "moravia",
+      "before": {
+        "groundPictures": 8,
+        "catalogPictures": 0
+      },
+      "after": {
+        "groundPictures": 8,
+        "catalogPictures": 0
+      }
+    }
+  ]
+}

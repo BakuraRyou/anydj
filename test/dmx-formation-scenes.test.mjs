@@ -12,10 +12,11 @@ const trace=scene=>[.15,.5,.85].flatMap(progress=>[0,1,2].flatMap(row=>Array.fro
  return [p.x,p.y,p.beamFocus,p.membership].map(v=>Math.round(v*1e5));
 }))).flat().join(',');
 
-test('160 complete scene layouts have distinct bounded geometry and membership',()=>{
- assert.equal(FORMATION_SCENES.length,160);
+test('every ground formation has six distinct bounded scene layouts',()=>{
+ assert.ok(Object.keys(FORMATION_NAMES).length>=300);
+ assert.equal(FORMATION_SCENES.length,Object.keys(FORMATION_NAMES).length*6);
  assert.deepEqual(new Set(FORMATION_SCENES.map(s=>s.shape)),new Set(Object.keys(FORMATION_NAMES)));
- assert.equal(new Set(FORMATION_SCENES.map(trace)).size,160,'cosmetic variants cannot count as different scenes');
+ assert.equal(new Set(FORMATION_SCENES.map(trace)).size,FORMATION_SCENES.length,'cosmetic variants cannot count as different scenes');
 });
 test('all scenes are selectable for eligible musical movements',()=>{
  const reached=new Set();
@@ -24,7 +25,7 @@ test('all scenes are selectable for eligible musical movements',()=>{
    const scene=chooseFormationScene(shape,motion,evidence,phrase);
    assert.ok(scene.motions.includes(motion));reached.add(scene.id);
   }
- assert.equal(reached.size,160);
+ assert.equal(reached.size,FORMATION_SCENES.length);
 });
 test('section matching excludes dense islands in sparse music and corridors under lead vocals',()=>{
  for(let phrase=0;phrase<40;phrase++)for(const motion of ['relay','dialogue','weave','suspend','bloom','gather']){

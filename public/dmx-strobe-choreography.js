@@ -1,3 +1,4 @@
+import {CATALOG_NAMES,catalogFormation,catalogSpatialPose} from './dmx-formation-catalog.js';
 import {planFormationAction,formationActionPose,formationActionGeometry,formationActionExit,formationGeometryPose} from './dmx-formation-actions.js';
 import {formationScenePose} from './dmx-formation-scenes.js';
 import {formationRigFixtureRole} from './dmx-formation-rig.js';
@@ -7,7 +8,7 @@ const clamp=v=>Math.max(0,Math.min(1,v));
 const mod=(v,n)=>((v%n)+n)%n;
 const ease=v=>{v=clamp(v);return v*v*(3-2*v);};
 
-export const FORMATION_NAMES=Object.freeze({
+export const FORMATION_NAMES=Object.freeze({...CATALOG_NAMES,
  'parallel-lines':'Parallele Ebenen','open-fan':'Offener Fächer','crossed-fans':'Gekreuzte Fächer',
  'split-wings':'Flügel','diagonal-plane':'Diagonale Ebene','rising-arch':'Bogen',
  crown:'Krone','vaulted-roof':'Gewölbe','layered-steps':'Staffelung',lattice:'Strahlengitter',
@@ -52,6 +53,7 @@ export function formationFor(passage={}){
   'chevron':'rising-arch','inverted-chevron':'vaulted-roof','orbit':'diamond'})[name]??'open-fan';
 }
 export function formationPose(id,rank,count,row=0,groups=1,progress=.5){
+ if(catalogFormation(id))return formationSpatialPose(id,rank,count,row,groups,progress);
  const r=count>1?rank/(count-1)*2-1:0,a=Math.abs(r),side=Math.sign(r),layer=row/Math.max(1,groups-1);
  const p=ease(progress),travel=Math.sin(p*Math.PI),sway=Math.sin((p-.5)*Math.PI);
  let x=.5+r*.34,y=.36;
@@ -162,7 +164,7 @@ function musicalMotion(features,previous){
 // Compose several visual sentences inside one musical passage. A motif recalls
 // its opening, not an immutable animation for the entire verse or chorus.
 export function planFormationScenes(sequences,plan){
- const groups=[],motifs=new Map(),scenes=[],variationHistory=[],shapeHistory=[],musicalPhrases=new Map();let variationOrdinal=0,phaseCursor=0;
+ const groups=[],motifs=new Map(),scenes=[],variationHistory=[],shapeHistory=[],musicalPhrases=new Map(),selectionHistories=new Map();let variationOrdinal=0,phaseCursor=0;
  const audioTimeline=formationAudioTimeline(plan);
  const beats=plan.beatGrid?.beats??plan.beatTiming?.times??[];
  const measuredBars=plan.beatGrid?.downbeats??[];
@@ -224,7 +226,14 @@ export function planFormationScenes(sequences,plan){
    // unrelated intro or another song cannot consume this figure's variations.
    const phraseKey=decision?`${group.motif??'unmarked'}:${group.role}:${decision.motion}:${decision.evidence.texture}`:null;
    const phrase=musicalPhrases.get(phraseKey)??0;
-   const musical=developFormationPhrase(decision,phrase,source.sharedPassage.composition?formationFor(source.sharedPassage):null);
+   const selectionKey=decision?`${group.role}:${decision.motion}:${decision.evidence.texture}`:null;
+   const selectionHistory=selectionHistories.get(selectionKey)??[];
+   const recall=i===0&&decision&&remembered?.openingEvidence?.texture===decision.evidence.texture&&
+    remembered.openingMotion===decision.motion&&Math.abs(remembered.openingEvidence.energy-decision.evidence.energy)<.15
+    ?remembered.openingShape:null;
+   const musical=developFormationPhrase(decision,phrase,source.sharedPassage.composition?formationFor(source.sharedPassage):null,
+    {history:selectionHistory,recalled:recall,allowOpening:group.role==='arrival',
+     anchorLocked:Object.hasOwn(FORMATION_NAMES,source.sharedPassage.composition??'')});
    if(musical?.evidence.phrase!=null)musicalPhrases.set(phraseKey,phrase+1);
    // A passage keeps one visual theme. Musical sentences develop that theme
    // through an entrance, an answer, an interweaving and a resolution. They do
@@ -305,7 +314,8 @@ export function planFormationScenes(sequences,plan){
       action.entryShape=previous.shape;
       const beforeTravel=previous.action.trajectory,travel=action.trajectory;
       if(travel&&beforeTravel&&travel.shape===beforeTravel.shape&&travel.period===beforeTravel.period&&
-       travel.direction===beforeTravel.direction&&travel.low===beforeTravel.low)action.continueOrbit=true;
+       travel.direction===beforeTravel.direction&&travel.low===beforeTravel.low&&
+       (!catalogFormation(travel.shape)||travel.variant===beforeTravel.variant))action.continueOrbit=true;
       if(action.kind==='develop'&&action.entry.shape===action.to&&action.from!==action.to)action.to=action.from;
       if(action.path?.length>1&&action.entry.shape===action.path[1].shape&&action.path[0].shape!==action.path[1].shape){
        const origin=action.path[0].shape,target=action.path[1].shape;
@@ -320,8 +330,8 @@ export function planFormationScenes(sequences,plan){
       // Prepare the arrival picture before the source hit. Do not make the
       // motors traverse the whole stage during the short brightness attack.
       const anticipation=previous.anticipation;
-      const span=Math.min(1.2,sharedOverlap??.7,(previous.end-previous.start)*.25);
-      previous.departure={start:anticipation?.start??start-span,end:start,
+      const span=Math.min(1.8,Math.max(1.2,sharedOverlap??.7),(previous.end-previous.start)*.25);
+      previous.departure={start:anticipation?.start??start-span,end:start,shape:formationStory.shape,
        geometry:formationActionGeometry(action,start,1)};
      }
     }
@@ -334,7 +344,11 @@ export function planFormationScenes(sequences,plan){
      formationEntrances:before.exitEntrances}:null,
     exitEntrances:events.filter(e=>e.time<end).slice(-2)};
    local.push(scene);scenes.push(scene);
-   if(motifKey&&!motifs.has(motifKey))motifs.set(motifKey,{formationId:theme,kind});
+   if(musical?.evidence.phrase!=null){
+    selectionHistory.push({shape:formationId,layout:scenePicture?.layout});
+    if(selectionHistory.length>32)selectionHistory.shift();selectionHistories.set(selectionKey,selectionHistory);
+   }
+   if(motifKey&&!motifs.has(motifKey))motifs.set(motifKey,{formationId:theme,kind,openingShape:formationId,openingMotion:motion,openingEvidence:musical?.evidence});
   }
   if(quiet||lockedVariation)phaseCursor=groupPhase+(lockedVariation?.phaseSpan??.5);
   for(const s of group.sequences){
@@ -436,6 +450,9 @@ function actionStoryPose(story,time,rank,count,row,groups,frozen,fixtureRole,aud
  const opening=formationBuildProgress(story.opening,time,elapsed);
  const value=formationActionPose(story.action,time,rank,count,row,groups,formationSpatialPose,opening);
  let {x,y,exposure,beamFocus}=value;
+ // Accompaniment starts in its displayed frame, but an authored departure
+ // must still be allowed to prepare the next leading picture in advance.
+ if(fixtureRole==='frame'){x=.5;y=.24+row/Math.max(1,groups-1)*.5;beamFocus=0;}
  // The action is the complete choreography. Source accents articulate its
  // participating groups; no travelling mask or global swing is added here.
  if(audio&&story.motion!=='rest'&&story.motion!=='bloom'){
@@ -453,14 +470,13 @@ function actionStoryPose(story,time,rank,count,row,groups,frozen,fixtureRole,aud
  // sustained textures must not inherit small, unrelated pitch-estimator moves.
  const melodic=['melody','voice'].includes(story.musicalEvidence?.texture);
  const pitchWeight=melodic?ease(((story.musicalEvidence?.pitchConfidence??0)-.65)/.25):0;
- if(audio&&story.motion!=='rest'&&pitchWeight>0)y+=(audio.pitch-.5)*audio.pitchConfidence*.12*pitchWeight;
+ if(audio&&story.motion!=='rest'&&fixtureRole!=='frame'&&pitchWeight>0)y+=(audio.pitch-.5)*audio.pitchConfidence*.12*pitchWeight;
  if(fixtureRole==='support')exposure*=.45;
- if(story.anticipation&&!story.departure&&!frozen&&story.motion!=='rest'){
+ if(story.anticipation&&!story.departure&&!frozen&&story.motion!=='rest'&&fixtureRole!=='frame'){
   const cue=story.anticipation,prepare=ease((time-cue.start)/Math.max(.001,cue.end-cue.start))*clamp(cue.strength);
   x=.5+(x-.5)*(1-.32*prepare);y=.5+(y-.5)*(1-.2*prepare);exposure*=1-.25*prepare;
  }
  if(fixtureRole==='frame'){
-  x=.5;y=.24+row/Math.max(1,groups-1)*.5;beamFocus=0;
   exposure=story.motion==='rest'?0:Math.min(rank,count-1-rank)<2?.38*(story.action?.grouping?value.exposure:1):0;
  }
  return {x:clamp(x),y:clamp(y),exposure:clamp(exposure),beamFocus,id:story.shape,layer:layerFor(row,groups),
@@ -648,7 +664,9 @@ function programPose(program,sequence,rank,count,row,groups,progress,frozen){
 // These coordinates describe a shared plane through the room. A fan opens
 // outwards, a crossing passes through its opposite side, and a curtain shares
 // one height. They must not be interpreted as steep, mount-relative tilts.
-export function formationSpatialPose(id,rank,count,row=0,groups=1,progress=.5){
+export function formationSpatialPose(id,rank,count,row=0,groups=1,progress=.5,variant='ensemble'){
+ const catalog=catalogSpatialPose(id,rank,count,row,groups,progress);
+ if(catalog)return formationScenePose({layout:variant},catalog,rank,count,row,groups);
  const r=count>1?rank/(count-1)*2-1:0,a=Math.abs(r),side=Math.sign(r);
  const p=clamp(progress),layer=row/Math.max(1,groups-1),sweep=p*2-1;
  let x=.5+r*.42,y=.5,beamFocus=1;
@@ -730,11 +748,19 @@ export function strobeChoreography(figure,rank,count,row=0,groups=1){
   'row-steps':'layered-steps',frame:'nested-gates'};
  const roleFor=story=>figure.fixtureRole??formationRigFixtureRole(figure.rigFamily,story);
  const storyForRig=story=>{
+  if(figure.rigFamily&&story?.departure?.shape&&roleFor({shape:story.departure.shape})==='frame'){
+   // The outgoing leader prepares its own accompaniment pose while the new
+   // leader prepares the hero picture. Sending both to the hero and then
+   // snapping one back to its frame demanded an impossible return on the hit.
+   story={...story,audioTimeline:story.audioTimeline,departure:{...story.departure,geometry:{frame:true}}};
+  }
   if(!figure.rigFamily||!story?.action?.entry||!story.action.entryShape||roleFor(story)!=='lead'||
    roleFor({shape:story.action.entryShape})!=='frame')return story;
   // A newly leading bank starts at its own displayed accompaniment pose,
   // not at the outgoing row family's unilateral sweep endpoint.
-  return {...story,audioTimeline:story.audioTimeline,action:{...story.action,entry:{frame:true}}};
+  const prepared=s.previous?.formationStory?.departure;
+  const entry=prepared&&Math.abs(prepared.end-story.start)<1e-6?prepared.geometry:{frame:true};
+  return {...story,audioTimeline:story.audioTimeline,action:{...story.action,entry}};
  };
  const fixtureRole=roleFor(geometry.formationStory);
  const program=geometry.formationProgram;

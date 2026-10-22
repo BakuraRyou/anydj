@@ -1,3 +1,4 @@
+import {catalogFormation} from './dmx-formation-catalog.js';
 // Discover wide rows and compact opposing banks from physical mounting gaps.
 // IDs, preset names and saved room data do not define a fixture's show role.
 export function formationRigRoles(groups,positions){
@@ -30,6 +31,6 @@ export function formationRigPresence(presence,role){
 const planeShapes=new Set(['parallel-lines','horizontal-sheets','vertical-curtain','crossed-sheets','diagonal-plane','opposed-diagonals','rake','split-curtain']);
 export function formationRigFixtureRole(family,story){
  if(!family||!story)return null;
- const leader=planeShapes.has(story.shape??story.theme)?'rows':'banks';
+ const shape=story.shape??story.theme,leader=catalogFormation(shape)?.family??(planeShapes.has(shape)?'rows':'banks');
  return family===leader?'lead':'frame';
 }

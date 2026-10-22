@@ -1,0 +1,19 @@
+{
+  "song": "Shades.mp3",
+  "interval": [
+    28,
+    35
+  ],
+  "stage": "Choreografie-Arena",
+  "method": "Saved desktop analysis, sampled at 30 Hz; diagnostic summaries every 0.5 s. Ideal versus preview motor beam axes, in degrees. Local synthetic source fixture expanded through the actual room rig; no hardware measurement.",
+  "before": {
+    "sampledPeakAngularError": 11.846662665814446,
+    "sampledPeakRequestedAngularSpeed": 230.5632823422895,
+    "backwardsFixtures": 0
+  },
+  "after": {
+    "sampledPeakAngularError": 1.2556966660732658,
+    "sampledPeakRequestedAngularSpeed": 72.92920659318087,
+    "backwardsFixtures": 0
+  }
+}

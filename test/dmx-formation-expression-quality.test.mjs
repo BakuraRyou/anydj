@@ -78,3 +78,25 @@ test('phrase development order depends on musical character and quiet passages d
  assert.notDeepEqual(order('drums'),order('bass'));assert.ok(new Set(order('drums')).size>=6);
  const f=fixture({texture:'melody',motion:'suspend'});assert.equal(f.action.grouping,undefined);
 });
+
+
+test('rhythmic sweeps return on a smooth spatial arc while meeting every measured picture exactly',()=>{
+ const {action}=fixture({shape:'open-fan',motion:'dialogue'});
+ assert.ok(action.returnArc);assert.equal(action.trajectory,undefined);
+ // Unequal source intervals exercise tilt continuity beyond a fixed tempo.
+ action.path=[{time:0,shape:'open-fan'},{time:3,shape:'crossed-fans'},{time:7,shape:'open-fan'},{time:10,shape:'crossed-fans'}];
+ action.end=10;
+ for(const point of action.path.slice(1,-1)){
+  for(const rank of [0,4,11,15]){
+   const now=pose(action,point.time,rank),before=pose(action,point.time-.0001,rank),after=pose(action,point.time+.0001,rank),
+    expected=pose({...action,returnArc:0},point.time,rank);
+   assert.ok(Math.hypot(now.x-expected.x,now.y-expected.y)<1e-10,'the return arc must not move a musical endpoint');
+   const left=(now.y-before.y)/.0001,right=(after.y-now.y)/.0001;
+   assert.ok(Math.abs(left-right)<.0001,'the two strokes share one vertical velocity');
+   assert.ok(Math.abs(left)>.03,'a pan reversal must not stop the whole beam');
+  }
+ }
+ for(let t=0;t<=10;t+=.037)assert.deepEqual(pose(action,t),pose(JSON.parse(JSON.stringify(action)),t));
+ const quiet=fixture({shape:'open-fan',motion:'suspend',texture:'melody'});
+ assert.equal(quiet.action.returnArc,undefined,'a sustained melodic picture must not gain a rhythmic return stroke');
+});

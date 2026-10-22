@@ -1,3 +1,4 @@
+import {catalogCandidates,catalogMatchScore,catalogFormation} from './dmx-formation-catalog.js';
 import {chooseFormationScene} from './dmx-formation-scenes.js';
 import {bassAttackEvents} from './musical-attention.js';
 
@@ -254,15 +255,16 @@ const phrasePictures={
  weave:['twin-fans','traveling-wave','rising-arch','radial-wheel','diamond','double-helix','split-wings','concentric-fans','folded-roof','opposed-diagonals','spiral-shell','braided-ribbons'],
  suspend:['horizontal-sheets','vaulted-roof','parallel-lines','rising-arch','vertical-curtain','folded-roof','portal-rows']
 };
-export function developFormationPhrase(decision,phrase=0,preferredShape=null){
- const evidence=decision?.evidence,pictures=phrasePictures[decision?.motion];
+export function developFormationPhrase(decision,phrase=0,preferredShape=null,context=null){
+ const evidence=decision?.evidence,pictures=phrasePictures[decision?.motion]??
+  (decision?.motion==='bloom'&&context?.allowOpening?['open-fan','crown','nested-gates','concentric-fans']:null);
  // A pad or a grid alone cannot demand new pictures; a measured rhythmic or
  // melodic line must actually be present. Builds and withdrawals keep one arc.
  if(!decision)return decision;
  if(!pictures||evidence.impulses<2||evidence.energy<.06){
   return {...decision,scene:chooseFormationScene(decision.shape,decision.motion,evidence,0)};
  }
- const anchor=preferredShape??decision.shape;
+ const anchor=decision.motion==='bloom'&&!context?.anchorLocked?decision.shape:preferredShape??decision.shape;
  // Related figures remain eligible, but their order follows the sound.
  // A fixed catalogue order made unrelated songs repeat the same sentences.
  const angular=new Set(['parallel-lines','crossed-sheets','diagonal-plane','layered-steps','lattice','opposed-diagonals','rake','folding-blades']);
@@ -271,10 +273,35 @@ export function developFormationPhrase(decision,phrase=0,preferredShape=null){
  const score=shape=>(angular.has(shape)?(evidence.drums??0)*1.4+(evidence.irregularity??0)*.5:0)
   +(curved.has(shape)?(evidence.pitchConfidence??0)+(evidence.tone??.5)*.5:0)
   +(spacious.has(shape)?(evidence.bass??0)+(evidence.voice??0)+(1-(evidence.energy??.5))*.5:0);
- const choices=[anchor,...pictures.filter(shape=>shape!==anchor).sort((a,b)=>score(b)-score(a))];
- const step=Math.max(0,Math.floor(phrase)),shape=choices[step%choices.length];
+ const familiar=pictures.filter(shape=>shape!==anchor).sort((a,b)=>score(b)-score(a));
+ const candidates=catalogCandidates(decision.motion,evidence),expansion=candidates.map(f=>f.id);
+ const choices=[anchor,...expansion.flatMap((shape,i)=>i<familiar.length?[shape,familiar[i]]:[shape])];
+ const step=Math.max(0,Math.floor(phrase));
+ let shape=choices[step%choices.length],selection='phrase';
+ const history=context?.history??[];
+ if(context?.anchorLocked&&step===0){shape=anchor;selection='authored-opening';}
+ else if(context?.recalled){shape=context.recalled;selection='motif-recall';}
+ else if(context&&history.length&&candidates.length){
+  // Stay within a narrow musical fit budget. Recency decides among suitable
+  // pictures, rather than walking farther down a whole-song catalogue timer.
+  const best=catalogMatchScore(candidates[0],decision.motion,evidence);
+  const suitable=candidates.filter(f=>best-catalogMatchScore(f,decision.motion,evidence)<=.75);
+  const recent=history.slice(-12);
+  const score=f=>{
+   let value=catalogMatchScore(f,decision.motion,evidence);
+   recent.forEach((used,i)=>{const weight=(i+1)/recent.length,old=catalogFormation(used.shape);
+    if(used.shape===f.id)value-=2.5*weight;
+    else if(old?.structure.id===f.structure.id&&old?.contour.id===f.contour.id)value-=2.5*weight;
+    else if(old?.structure.id===f.structure.id)value-=.18*weight;
+    else if(old?.contour.id===f.contour.id)value-=.1*weight;
+   });
+   return value;
+  };
+  shape=suitable.slice().sort((a,b)=>score(b)-score(a))[0].id;selection='musical-development';
+ }
+ const sceneStep=step+history.filter(used=>used.shape===shape).length;
  const act=['introduce','answer','interlace','resolve'][step%4];
- return {...decision,shape,act,scene:chooseFormationScene(shape,decision.motion,evidence,step),evidence:{...evidence,phrase:step,
+ return {...decision,shape,act,scene:chooseFormationScene(shape,decision.motion,evidence,sceneStep),evidence:{...evidence,phrase:step,selection,
   development:step===0?'Musikalisches Grundbild':act==='answer'?'Antwort der nächsten Phrase':act==='interlace'?'Verflechtung der Phrase':act==='resolve'?'Auflösung der Phrase':'Erneute Entfaltung'}};
 }
 

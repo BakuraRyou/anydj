@@ -1,3 +1,4 @@
+import {FORMATION_CATALOG} from './dmx-formation-catalog.js';
 // Structural scene vocabulary: changes targets and fixture group composition,
 // never colour, playback speed or the source-derived musical clock.
 const families=[
@@ -5,13 +6,14 @@ const families=[
  'crown','vaulted-roof','layered-steps','lattice','braided-ribbons','twin-fans','diamond',
  'nested-gates','traveling-wave','converging-lines','radial-wheel','double-helix','folding-blades',
  'horizontal-sheets','vertical-curtain','crossed-sheets','spiral-shell','split-foci',
- 'chevron-stack','hourglass','portal-rows','folded-roof','opposed-diagonals','rake','split-curtain','concentric-fans'
+ 'chevron-stack','hourglass','portal-rows','folded-roof','opposed-diagonals','rake','split-curtain','concentric-fans',...FORMATION_CATALOG.map(f=>f.id)
 ];
 const layouts=[
  {id:'ensemble',name:'Gesamtbild',motions:['relay','dialogue','weave','suspend','bloom','gather']},
  {id:'terraces',name:'Drei Höhenebenen',motions:['relay','weave','suspend','bloom','gather']},
  {id:'wings',name:'Zwei getrennte Flügel',motions:['dialogue','weave','bloom','gather']},
  {id:'corridor',name:'Offener Mittelkorridor',motions:['relay','weave','bloom']},
+ {id:'depth-layers',name:'Gestaffelte Tiefe',motions:['relay','dialogue','weave','bloom','gather']},
  {id:'islands',name:'Vier Lichtgruppen',motions:['relay','dialogue','weave']}
 ];
 export const FORMATION_SCENES=Object.freeze(families.flatMap(shape=>layouts.map(layout=>Object.freeze({
@@ -36,6 +38,8 @@ export function formationScenePose(scene,pose,rank,count,row,groups){
  const u=rank/Math.max(1,count-1),layer=row/Math.max(1,groups-1),side=u<.5?-1:1;
  let {x,y}=pose,membership=1;
  switch(scene.layout){
+  case 'depth-layers':
+   x=.5+(x-.5)*(.65+layer*.25);y=.15+y*.7+Math.cos(layer*Math.PI)*.08;break;
   case 'terraces':
    // Each mounting row owns a complete miniature picture at a distinct height.
    x=.5+(x-.5)*.8;y=.16+layer*.56+(y-.5)*.22;break;

@@ -54,3 +54,17 @@ test('explicit movement areas retain their own routing and other modes are unaff
  assert.notDeepEqual(auto.target,strobe.target);
  assert.deepEqual(roomSurfaceChoreography({...source,motionPresentation:'auto'},layout),auto);
 });
+
+
+test('a common formation plane stays ahead of front rows in either stage orientation',()=>{
+ for(const reverse of [false,true]){
+  const layout=room(),depth=layout.depth;
+  layout.positions.h0.y=reverse?depth-.1:.1;
+  if(reverse)for(let i=1;i<8;i++)layout.positions['h'+i].y=depth-layout.positions['h'+i].y;
+  for(let i=0;i<8;i++)for(const beamFocus of [0,.5,1])for(const x of [.05,.5,.95]){
+   const source=light(layout,i,{x,y:.6,beamFocus}),target=strobeSpaceTarget(source,layout);
+   assert.ok((target.y-source.position.y)*(reverse?1:-1)>0,'no front bank may turn towards the back of the stage');
+   assert.ok([target.x,target.y,target.z].every(Number.isFinite));
+  }
+ }
+});

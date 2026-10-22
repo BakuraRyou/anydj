@@ -35,6 +35,7 @@ test('development server serves the entire static DJ module dependency graph',as
  assert.ok(visited.has('/dj-shuffle.js'));
  assert.ok(visited.has('/dmx-musical-score.js'));
  assert.ok(visited.has('/dmx-formation-music.js'));
+ assert.ok(visited.has('/dmx-formation-catalog.js'));
  assert.ok(visited.has('/transition-optimizer.js'));
  assert.ok(visited.size>20);
 });

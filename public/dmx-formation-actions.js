@@ -1,3 +1,4 @@
+import {catalogFormation,catalogCounterpart} from './dmx-formation-catalog.js';
 const clamp=v=>Math.max(0,Math.min(1,v));
 const ease=v=>{v=clamp(v);return v*v*(3-2*v);};
 const counterparts={
@@ -84,7 +85,7 @@ export function planFormationAction(story,plan,timeline){
  // A sustained melodic fan should meet across the stage. Split wings send
  // every ray in a bank to the same outside direction and leave an empty centre.
  const quietTarget=story.shape==='rising-arch'?'vaulted-roof':evidence.tone>.55?'crossed-fans':'rising-arch';
- const to=kind==='develop'?quietTarget:kind==='opening'?story.shape:kind==='closing'?'converging-lines':kind==='hold'||kind==='rest'?story.shape:counterparts[story.shape]??story.shape;
+ const to=kind==='develop'?(catalogCounterpart(story.shape)??quietTarget):kind==='opening'?story.shape:kind==='closing'?'converging-lines':kind==='hold'||kind==='rest'?story.shape:catalogCounterpart(story.shape)??counterparts[story.shape]??story.shape;
  // The opening track belongs to the whole musical arc, including earlier
  // phrases. Once that arc is fully open, continue on measured entrances;
  // inspecting all its old points would hold every later phrase indefinitely.
@@ -98,7 +99,7 @@ export function planFormationAction(story,plan,timeline){
  const origin=movingOpening?story.shape:from;
  // Open, close and cross a gate instead of merely resizing another nearly
  // identical gate. The section's shared hero picture remains the origin.
- const destination=movingOpening&&['nested-gates','portal-rows'].includes(story.shape)?'crossed-fans':movingOpening?counterparts[story.shape]??to:to;
+ const destination=movingOpening&&['nested-gates','portal-rows'].includes(story.shape)?'crossed-fans':movingOpening?catalogCounterpart(story.shape)??counterparts[story.shape]??to:to;
  // Crossing the full fan swaps the far left/right beam directions. On low
  // side banks, a one-bar Cartesian morph demands more angular speed than
  // the motors can supply. Give these large sweeps two bars, keeping the
@@ -130,16 +131,16 @@ export function planFormationAction(story,plan,timeline){
  // velocity survives bar lines and phrase cuts without an extra motor overlay.
  const cyclic=['radial-wheel','spiral-shell','traveling-wave','double-helix','braided-ribbons'];
  const flowingFans=['open-fan','nested-gates','portal-rows','crown','concentric-fans','twin-fans'];
- const continuous=(pathKinds.includes(kind)&&kind!=='answer'||kind==='develop')&&cyclic.includes(story.shape)
+ const continuous=(catalogFormation(story.shape)?.cyclic&&(pathKinds.includes(kind)&&kind!=='answer'||kind==='develop'||movingOpening))||(pathKinds.includes(kind)&&kind!=='answer'||kind==='develop')&&cyclic.includes(story.shape)
   ||movingOpening&&flowingFans.includes(story.shape);
  const trajectory=continuous&&beats.length>=3&&selected.length>=2
-  ?{shape:story.shape,start:movingOpening?pathStart:start,clock:beats.map(time=>({time,position:grid.indexOf(time)})),
+  ?{shape:story.shape,variant:story.scene?.layout??'ensemble',start:movingOpening?pathStart:start,clock:beats.map(time=>({time,position:grid.indexOf(time)})),
     period:evidence.movementDrive>.6?16:32,direction:story.direction??1,
     low:evidence.texture==='bass'||evidence.tone<.4}:null;
  const heightBand=Number.isFinite(evidence.tone)&&evidence.energy>.35&&
   (evidence.texture==='bass'||evidence.texture==='drums'&&evidence.tone<.48)
   ?{floor:evidence.texture==='bass'?.04:.08,span:evidence.texture==='bass'?.55:.7}:null;
- return {kind,source,cueSource,from,to,...(heightBand?{heightBand}:{}),...(trajectory?{trajectory}:{}),...(articulated?{grouping}:{}),...(path?{path}:{}),movingOpening,
+ return {kind,source,cueSource,from,to,...(catalogFormation(story.shape)?{catalogVariant:story.scene?.layout??'ensemble'}:{}),...(heightBand?{heightBand}:{}),...(trajectory?{trajectory}:{}),...(articulated?{grouping,...((pathKinds.includes(kind)||movingOpening)&&!trajectory?{returnArc:.08}:{})}:{}),...(path?{path}:{}),movingOpening,
   start,end,cues,clock,overlap:kind==='develop'?Math.min(.85,Math.max(.45,beat*2),...selected.slice(1).map((e,i)=>(e.time-selected[i].time)*.8)):cueSource==='rhythm'?Math.min(.12,beat*.2):Math.min(.3,beat*.6),direction:story.direction??1,
   reason:kind==='develop'?(melodic?'Melodiegeführte Entfaltung':'Klanggeführte Entwicklung'):kind==='answer'?'Musikalischer Ruf mit räumlicher Antwort':kind==='crossing'?'Gemeinsame Kreuzung zweier Strahlenbilder'
    :kind==='handoff'?'Übergabe zwischen benachbarten Lichtgruppen':kind==='opening'?'Gemeinsame Entfaltung':kind==='closing'?'Gemeinsame Zusammenführung':'Getragenes Lichtbild'};
@@ -148,11 +149,11 @@ export function planFormationAction(story,plan,timeline){
 // Compact, rig-independent geometry descriptors preserve the outgoing picture
 // without retaining entire stories or sampling a particular installation.
 export function formationActionGeometry(action,time,opening=1){
- const picture=(shape,progress=1)=>({shape,progress,...(action.heightBand?{heightBand:action.heightBand}:{})});
+ const picture=(shape,progress=1)=>({shape,progress,...(catalogFormation(shape)?{variant:action.catalogVariant??'ensemble'}:{}),...(action.heightBand?{heightBand:action.heightBand}:{})});
  if(action.trajectory&&time>=action.trajectory.start){
   const travel=action.trajectory,clock=travel.clock,i=Math.min(clock.length-2,Math.max(0,upper(clock,time)-1)),a=clock[i],b=clock[i+1];
   const phase=(a.position+(time-a.time)/(b.time-a.time)*(b.position-a.position))/travel.period*travel.direction;
-  const target={orbit:travel.shape,phase,low:travel.low};
+  const target={orbit:travel.shape,variant:travel.variant,phase,low:travel.low};
   // Connected entries retain their actual pose during the first statement.
   const span=Math.min(action.path?.[1]?.time??action.end,action.end)-travel.start;
   const join=ease((time-travel.start)/Math.max(.001,span));
@@ -163,6 +164,7 @@ export function formationActionGeometry(action,time,opening=1){
   const join=a===b?0:ease((time-a.time)/(b.time-a.time));
   return {a:i===0&&action.entry?action.entry:picture(a.shape),b:picture(b.shape),join,
    ...(a!==b?{curve:{t:clamp((time-a.time)/(b.time-a.time)),duration:b.time-a.time,
+    ...(action.returnArc?{arc:action.returnArc*(i%2===0?1:-1)}:{}),
     ...(i>0?{before:i===1&&action.entry?action.entry:picture(action.path[i-1].shape),beforeDuration:a.time-action.path[i-1].time}:{}),
     ...(i+2<action.path.length?{after:picture(action.path[i+2].shape),afterDuration:action.path[i+2].time-b.time}:{})}}:{})};
  }
@@ -183,6 +185,10 @@ export function formationGeometryPose(geometry,rank,count,row,groups,spatialPose
    const radius=geometry.orbit==='spiral-shell'?.12+.28*(r+1)/2:.4;
    x=.5+Math.cos(angle)*radius;y=.5+Math.sin(angle)*radius*.9;
   }
+  if(catalogFormation(geometry.orbit)){
+   const pose=spatialPose(geometry.orbit,rank,count,row,groups,((geometry.phase%1)+1)%1,geometry.variant);
+   return geometry.low?{...pose,y:.06+pose.y*.52}:pose;
+  }
   if(['open-fan','nested-gates','portal-rows','crown','concentric-fans','twin-fans'].includes(geometry.orbit)){
    const pose=spatialPose(geometry.orbit,rank,count,row,groups,.5+.5*Math.cos(phase));
    x=.5+(pose.x-.5)*(.82+.15*Math.sin(phase));
@@ -196,7 +202,7 @@ export function formationGeometryPose(geometry,rank,count,row,groups,spatialPose
   // Many festival installations consist of small opposing pairs. Sampling
   // every pair as a complete two-ray fan discards all its interior rays.
   if(groups>6&&count<=2){rank=count===1?row:rank===0?groups-1-row:groups+row;count*=groups;}
-  const pose=spatialPose(geometry.shape,rank,count,row,groups,geometry.progress??1);
+  const pose=spatialPose(geometry.shape,rank,count,row,groups,geometry.progress??1,geometry.variant);
   return geometry.heightBand?{...pose,y:geometry.heightBand.floor+pose.y*geometry.heightBand.span}:pose;
  }
  const a=formationGeometryPose(geometry.a,rank,count,row,groups,spatialPose),b=formationGeometryPose(geometry.b,rank,count,row,groups,spatialPose);
@@ -212,11 +218,19 @@ export function formationGeometryPose(geometry,rank,count,row,groups,spatialPose
    return (2*t3-3*t2+1)*a[key]+(t3-2*t2+t)*c.duration*v0+(-2*t3+3*t2)*b[key]+(t3-t2)*c.duration*v1;
   };
   x=interpolate('x');y=interpolate('y');beamFocus=interpolate('beamFocus');
+  if(c.arc){
+   // Meet each authored picture exactly, then return on the other side of
+   // a shallow vertical loop. Adjacent strokes share their tilt velocity;
+   // unequal source intervals must not create a new jerk at the turnaround.
+   const v0=c.before?c.arc*Math.PI/Math.max(c.beforeDuration,c.duration):0,
+    v1=c.after?-c.arc*Math.PI/Math.max(c.afterDuration,c.duration):0,t=c.t,t2=t*t,t3=t2*t;
+   y+=(t3-2*t2+t)*c.duration*v0+(t3-t2)*c.duration*v1;
+  }
  }
 
  if(geometry.opening!==undefined){const p=ease(geometry.opening);x=.5+(x-.5)*(.2+.8*p);y=.28+(y-.28)*p;}
  if(geometry.closing!==undefined){const p=ease(geometry.closing);x+=(.5-x)*p;y+=(.4-y)*p;}
- return {x,y,beamFocus};
+ return {x,y,beamFocus,membership:(a.membership??1)+((b.membership??1)-(a.membership??1))*join};
 }
 export function formationActionExit(action,opening=1){
  const geometry=formationActionGeometry(action,action.end,opening);
@@ -271,7 +285,8 @@ export function formationActionPose(action,time,rank,count,row,groups,spatialPos
  const geometry=formationActionGeometry(action,time,opening);
  // Answers may stagger their wings while sharing the same geometric path.
  if(action.kind==='answer'&&!action.path)geometry.join=ease(morph);
- const {x,y,beamFocus}=formationGeometryPose(geometry,rank,count,row,groups,spatialPose);
+ const {x,y,beamFocus,membership=1}=formationGeometryPose(geometry,rank,count,row,groups,spatialPose);
+ exposure*=membership;
  if(count===1&&groups===1&&action.kind!=='rest')exposure=1;
  return {x:clamp(x),y:clamp(y),beamFocus,exposure:clamp(exposure),progress,unit};
 }

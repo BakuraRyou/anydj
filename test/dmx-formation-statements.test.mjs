@@ -76,3 +76,38 @@ test('connected moving passages remain deterministic, transferable and manually 
  const story=scenes.find(s=>s.start===8).formationStory;
  assert.deepEqual(formationStoryPose(story,9,0,2,7,24,true),formationStoryPose(story,14,0,2,7,24,true));
 });
+
+
+test('a bank that becomes the next leader can prepare its arrival while it is still accompaniment',()=>{
+ const {scenes,sequences}=drop(),outgoing=scenes[0].formationStory,incoming=scenes[1].formationStory;
+ assert.ok(outgoing.departure);
+ const target=formationStoryPose(incoming,8,0,16,0,3,false,'lead');
+ const frame=formationStoryPose(outgoing,8,0,16,0,3,false,'frame');
+ assert.ok(Math.hypot(frame.x-target.x,frame.y-target.y)<1e-9,'the formerly supporting bank must be ready on the hit');
+ const early=formationStoryPose(outgoing,outgoing.departure.start-.01,0,16,0,3,false,'frame');
+ assert.equal(early.x,.5);assert.equal(early.y,.24);
+ for(const time of [7.5,7.9,8,8.02]){
+  const sequence=sequences.find(s=>time>=s.start&&time<s.end),state=formationSceneStateAt(sequence,time);
+  const figure={presentation:'strobe',flicker:53,rigFamily:'banks',music:{sequence:{...sequence,...state,time}}};
+  const wire=JSON.parse(JSON.stringify(figure));
+  assert.deepEqual(strobeChoreography(figure,0,16,0,3),strobeChoreography(wire,0,16,0,3));
+ }
+});
+
+test('both incoming and retiring rig families reach their own prepared pose before an arrival',()=>{
+ const {sequences}=drop();
+ const at=(time,family)=>{
+  const sequence=sequences.find(s=>time>=s.start&&time<s.end),state=formationSceneStateAt(sequence,time);
+  return {presentation:'strobe',flicker:53,rigFamily:family,music:{sequence:{...sequence,...state,time}}};
+ };
+ const dt=.00001;
+ for(const family of ['rows','banks'])for(const rank of [0,4,11,15])for(const row of [0,1,2]){
+  const before=strobeChoreography(at(8-dt,family),rank,16,row,3),on=strobeChoreography(at(8,family),rank,16,row,3),after=strobeChoreography(at(8+dt,family),rank,16,row,3);
+  assert.ok(Math.hypot(before.x-after.x,before.y-after.y)<1e-7,'switching the leader must not demand an immediate return stroke');
+  if(family==='rows'){
+   assert.ok(Math.abs(on.x-.5)<1e-9);assert.ok(Math.abs(on.y-(.24+row*.25))<1e-9);
+   assert.equal(on.beamFocus,0,'the retiring plane must already be in its own frame');
+  }
+  assert.deepEqual(strobeChoreography(at(7.8,family),rank,16,row,3),strobeChoreography(JSON.parse(JSON.stringify(at(7.8,family))),rank,16,row,3));
+ }
+});

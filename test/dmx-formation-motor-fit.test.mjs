@@ -79,3 +79,63 @@ test('continuous low fans remain within real side-bank motor limits',()=>{
  assert.ok(arrivalError<2,`the beam picture must arrive on its musical cue: ${arrivalError}`);
  assert.equal(JSON.stringify(room),original);
 });
+
+test('rounded rhythmic returns stay forward and reach source endpoints within real motor limits',()=>{
+ const room=combinedFormationRoom();assert.deepEqual(room.zones,[]);
+ const original=JSON.stringify(room),base=storyFor('open-fan');
+ const seed={...base,motion:'dialogue',opening:[{time:0,position:1},{time:base.end,position:1}],
+  musicalEvidence:{texture:'drums',energy:.85,movementDrive:.85,bass:.2,drums:.9,density:.65,tone:.25}};
+ const story={...seed,action:planFormationAction(seed,plan,{roles:{...timeline.roles,bass:timeline.roles.lead}})},preview=createRoomPreview(),dt=1/60;
+ assert.ok(story.action.returnArc);
+ const source=time=>({layout:{width:8,depth:6,positions:{}},crowd:[],lights:[{id:'source',type:'moving',position:{x:0,y:4,height:3},target:{x:0,y:2},motionUV:{x:.5,y:.5},
+  motionPresentation:'strobe',power:1,color:'#fff',movingPresenceBasePower:1,movingShutter:1,movingPresence:{level:1,spread:1,mask:'all',rowFraction:1,rowSelection:0,trackMotion:true,
+   groupMotion:{presentation:'strobe',flicker:53,music:{sequence:{start:story.start,end:story.end,time,age:time,role:'groove',sharedPassage:{},formationId:story.shape,formationProgram:{kind:'dialogue'},formationStory:story}}}}}]});
+ let peakError=0,arrivalError=0,samples=0;
+ for(let i=0;i<=Math.floor(story.end/dt);i++){
+  const time=i*dt,scene=source(time),future=source(time+.12).lights[0];
+  scene.lights[0].motionAhead={seconds:.12,target:future.target,motionUV:future.motionUV,movingPresence:future.movingPresence};
+  const raw=applyRoomPlan(scene,room),ideal=alignRoomFormation(raw.lights.map(l=>roomMusicalAim(l,raw.layout,room)),raw.layout);
+  const actual=preview(scene,room,false,time);
+  if(time<1)continue;
+  for(let j=0;j<actual.lights.length;j++){
+   const a=actual.lights[j];if(!a.id.startsWith('combined-formation-arena-0-'))continue;
+   const x=axis(a),y=axis(ideal[j]);assert.ok(x[1]<0,'the complete return stays towards the audience');const error=Math.acos(Math.max(-1,Math.min(1,x.reduce((sum,v,k)=>sum+v*y[k],0))))*180/Math.PI;
+   peakError=Math.max(peakError,error);samples++;
+   if(story.action.path.some(p=>Math.abs(time-p.time)<dt/2))arrivalError=Math.max(arrivalError,error);
+  }
+ }
+ assert.ok(samples>1000);assert.ok(peakError<8,`side banks must not trail a crossing by tens of degrees: ${peakError}`);
+ assert.ok(arrivalError<2,`the beam picture must arrive on its musical cue: ${arrivalError}`);
+ assert.equal(JSON.stringify(room),original);
+});
+
+test('expanded curves stay within real side-bank motor limits',()=>{
+ for(const shape of ['geometry-span-double-wave','geometry-radial-level','geometry-spiral-serpentine','geometry-triptych-sine']){
+ const room=combinedFormationRoom();assert.deepEqual(room.zones,[]);
+ const original=JSON.stringify(room),base=storyFor(shape);
+ const seed={...base,motion:'weave',opening:[{time:0,position:1},{time:base.end,position:1}],
+  musicalEvidence:{texture:'bass',energy:.85,movementDrive:.85,bass:.9,drums:.2,density:.65,tone:.25}};
+ const story={...seed,action:planFormationAction(seed,plan,{roles:{...timeline.roles,bass:timeline.roles.lead}})},preview=createRoomPreview(),dt=1/60;
+ assert.ok(story.action.trajectory);
+ const source=time=>({layout:{width:8,depth:6,positions:{}},crowd:[],lights:[{id:'source',type:'moving',position:{x:0,y:4,height:3},target:{x:0,y:2},motionUV:{x:.5,y:.5},
+  motionPresentation:'strobe',power:1,color:'#fff',movingPresenceBasePower:1,movingShutter:1,movingPresence:{level:1,spread:1,mask:'all',rowFraction:1,rowSelection:0,trackMotion:true,
+   groupMotion:{presentation:'strobe',flicker:53,music:{sequence:{start:story.start,end:story.end,time,age:time,role:'groove',sharedPassage:{},formationId:story.shape,formationProgram:{kind:'dialogue'},formationStory:story}}}}}]});
+ let peakError=0,arrivalError=0,samples=0;
+ for(let i=0;i<=Math.floor(story.end/dt);i++){
+  const time=i*dt,scene=source(time),future=source(time+.12).lights[0];
+  scene.lights[0].motionAhead={seconds:.12,target:future.target,motionUV:future.motionUV,movingPresence:future.movingPresence};
+  const raw=applyRoomPlan(scene,room),ideal=alignRoomFormation(raw.lights.map(l=>roomMusicalAim(l,raw.layout,room)),raw.layout);
+  const actual=preview(scene,room,false,time);
+  if(time<1)continue;
+  for(let j=0;j<actual.lights.length;j++){
+   const a=actual.lights[j];if(!a.id.startsWith('combined-formation-arena-0-'))continue;
+   const x=axis(a),y=axis(ideal[j]),error=Math.acos(Math.max(-1,Math.min(1,x.reduce((sum,v,k)=>sum+v*y[k],0))))*180/Math.PI;
+   peakError=Math.max(peakError,error);samples++;
+   if(story.action.path.some(p=>Math.abs(time-p.time)<dt/2))arrivalError=Math.max(arrivalError,error);
+  }
+ }
+ assert.ok(samples>1000);assert.ok(peakError<8,`side banks must not trail a crossing by tens of degrees: ${peakError}`);
+ assert.ok(arrivalError<2,`the beam picture must arrive on its musical cue: ${arrivalError}`);
+ assert.equal(JSON.stringify(room),original);
+ }
+});

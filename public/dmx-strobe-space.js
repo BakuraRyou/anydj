@@ -50,7 +50,12 @@ export function strobeSpaceTarget(light,layout){
   const focus=clamp(light.motionUV.beamFocus);
   // One world-space plane joins floor and flown fixtures into the same
   // picture. Its rays continue to the real room boundary after crossing it.
-  const planeY=forward<0?near+reach*.08:far-reach*.08;
+  // A shared plane must remain in front of the foremost emitter as well.
+  // A shallow front row can otherwise sit beyond the default 8% plane and
+  // be sent backwards while the rear rows still face the audience.
+  const mountYs=[light.position.y,...mounts.map(p=>p.y)];
+  const planeY=forward<0?Math.min(near+reach*.08,...mountYs.map(y=>y-.5))
+   :Math.max(far-reach*.08,...mountYs.map(y=>y+.5));
   const distance=Math.max(.01,Math.abs(planeY-light.position.y));
   const emissionHeight=light.emissionHeight??light.position.height+(light.aimed?(light.modelSize?.height??0)*.71:0);
   const parallel={x:light.position.x+(u-.5)*distance*1.4,

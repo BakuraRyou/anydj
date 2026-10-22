@@ -71,6 +71,7 @@ const STATIC = new Map([
   ['/dmx-strobe-conductor.js', ['dmx-strobe-conductor.js', 'text/javascript; charset=utf-8']],
   ['/dmx-strobe-choreography.js', ['dmx-strobe-choreography.js', 'text/javascript; charset=utf-8']],
   ['/dmx-formation-variations.js', ['dmx-formation-variations.js', 'text/javascript; charset=utf-8']],
+  ['/dmx-formation-catalog.js', ['dmx-formation-catalog.js', 'text/javascript; charset=utf-8']],
   ['/dmx-formation-music.js', ['dmx-formation-music.js', 'text/javascript; charset=utf-8']],
   ['/dmx-strobe-space.js', ['dmx-strobe-space.js', 'text/javascript; charset=utf-8']],
   ['/dmx-strobe-motifs.js', ['dmx-strobe-motifs.js', 'text/javascript; charset=utf-8']],
