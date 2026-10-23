@@ -167,3 +167,6 @@
 .dj-cut-editor .cut-shortcuts{margin:0 0 16px;font-size:12px;color:var(--muted,#aabac3)}
 .dj-cut-editor .cut-shortcuts>summary{cursor:pointer;padding:6px 0}
 .dj-cut-editor .cut-shortcuts p{line-height:1.7;margin:6px 0}
+
+/* Avoid recomputing a full-window blur for every offline export frame. */
+.dj-export-dialog[data-exporting="true"]::backdrop{backdrop-filter:none}

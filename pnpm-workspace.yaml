@@ -1,5 +1,6 @@
 allowBuilds:
   electron-winstaller: false
+  ffmpeg-static: false
 minimumReleaseAgeExclude:
   - '@iwer/devui@2.5.0'
   - iwer@2.5.0

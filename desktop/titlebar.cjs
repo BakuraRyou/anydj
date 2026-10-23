@@ -2,6 +2,18 @@
 // No Node API or general-purpose IPC bridge is exposed to the page.
 const {ipcRenderer,contextBridge,webUtils}=require('electron');
 contextBridge.exposeInMainWorld('anydjDesktop',true);
+contextBridge.exposeInMainWorld('anydjGraphics',{
+ get:()=>ipcRenderer.invoke('anydj:graphics-state'),
+ set:preference=>ipcRenderer.invoke('anydj:graphics-set',preference)
+});
+contextBridge.exposeInMainWorld('anydjVideo',{
+ begin:settings=>ipcRenderer.invoke('anydj:video-begin',settings),
+ audio:(id,bytes)=>ipcRenderer.invoke('anydj:video-audio',id,bytes),
+ start:(id,options)=>ipcRenderer.invoke('anydj:video-start',id,options),
+ frame:(id,bytes)=>ipcRenderer.invoke('anydj:video-frame',id,bytes),
+ finish:id=>ipcRenderer.invoke('anydj:video-finish',id),
+ cancel:id=>ipcRenderer.invoke('anydj:video-cancel',id)
+});
 contextBridge.exposeInMainWorld('anydjFiles',{
  remember:(id,file)=>{const path=webUtils.getPathForFile(file);return path?ipcRenderer.invoke('anydj:remember-audio',{id,path}):Promise.resolve(false);},
  read:id=>ipcRenderer.invoke('anydj:read-audio',id),

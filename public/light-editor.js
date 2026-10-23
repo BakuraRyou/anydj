@@ -1,3 +1,4 @@
+import {reformFixtureCues} from './dmx-stage-edit.js';
 import {songPaletteAt} from './song-palette.js';
 import {showFrameAt} from './show-plan.js';
 import {cleanLook,DEFAULT_LOOK} from './dmx-show.js';
@@ -28,7 +29,7 @@ export function createLightEditor(host,{plan,edits,title='Lichtshow',position=()
       <p class="le-scope-help" data-scope-help></p>
       <div class="section-fields">
         <div class="le-target-controls" hidden><div class="le-palette-card"><span class="le-label">Aktuelle Gerätefarben</span><div data-target-colors></div><p data-target-colors-help></p></div>
-          <label>Eigene Gestaltung<input data-cue-enabled type="checkbox"></label>
+          <label>Eigene Gestaltung<input data-cue-enabled type="checkbox"></label><label><input data-cue-active type="checkbox"> Licht aktiv in diesem Zeitraum</label>
           <div data-cue-fields>
             <label>Farbe<select data-cue-mode><option value="auto">Songfarbe übernehmen</option><option value="fixed">Feste Farbe</option><option value="custom">Eigene Farbkombination</option><option value="opposite">Kontrast zur Songfarbe</option></select></label>
             <div class="le-tool-grid"><label>Farbe<input data-cue-a type="color"></label><label>Zweite Farbe<input data-cue-b type="color"></label></div>
@@ -68,7 +69,7 @@ export function createLightEditor(host,{plan,edits,title='Lichtshow',position=()
   q('[data-play]').onclick=async()=>{if(!audio)return;if(!audio.paused){audio.pause();return;}try{q('[data-play]').disabled=true;await onBeforePlay();if(destroyed)return;audio.currentTime=time;await audio.play();}catch(error){message(`Wiedergabe fehlgeschlagen: ${error.message}`);}finally{if(!destroyed)q('[data-play]').disabled=false;}};
   const clone=()=>structuredClone(draft);
   const remember=old=>{if(JSON.stringify(old)===JSON.stringify(draft))return;history.push(old);if(history.length>100)history.shift();future=[];};
-  const change=fn=>{if(saving)return;const old=clone();try{fn();draft=validateSectionEdits(draft,plan.duration);remember(old);render();}catch(error){draft=old;message(error.message);render();}};
+  const change=fn=>{if(saving||destroyed)return false;const old=clone();try{fn();draft=validateSectionEdits(draft,plan.duration);remember(old);render();return true;}catch(error){draft=old;message(error.message);render();return false;}};
   function seek(value){
     time=Math.max(0,Math.min(plan.duration,value));const active=sectionPlanAt(rendered,time),f=showFrameAt(active,time);
     if(f){q('[data-orb]').style.background=`rgb(${f.r},${f.g},${f.b})`;q('[data-orb]').style.opacity=.15+.85*f.dimming/100;}
@@ -116,7 +117,7 @@ export function createLightEditor(host,{plan,edits,title='Lichtshow',position=()
   function renderTarget(){
     const target=targets.find(t=>t.id===editTarget),cue=currentCue(),look=cleanLook(cue?.look);
     q('[data-scope-help]').textContent=editTarget==='scene'?'Farben, Stil und Bewegung gelten für den ausgewählten Abschnitt. Geräte können diese Vorgaben gezielt überschreiben.':`${target?.name||'Gespeichertes Gerät'} · nur im ausgewählten Zeitbereich. Einzelgeräte haben Vorrang vor Gruppen.`;
-    cueField('enabled').checked=Boolean(cue);q('[data-cue-fields]').inert=!cue;
+    cueField('enabled').checked=Boolean(cue);cueField('active').checked=(cue?.look.brightness??100)>0;q('[data-cue-fields]').inert=!cue;
     for(const key of ['mode','animation','brightness','strength','period'])cueField(key).value=look[key];
     cueField('a').value=look.colors[0];cueField('b').value=look.colors[1];
     cueField('a').disabled=!cue||!['fixed','custom'].includes(look.mode);cueField('b').disabled=!cue||look.mode!=='custom';
@@ -128,13 +129,23 @@ export function createLightEditor(host,{plan,edits,title='Lichtshow',position=()
     cueField('x').min=-(room?.width||60)/2;cueField('x').max=(room?.width||60)/2;cueField('y').min=0;cueField('y').max=room?.depth||60;
     q('[data-edit-position]').hidden=!onEditPosition||!target?.room;
   }
+  function setCueLook(cue,look){
+    cue.look=cleanLook(look);
+    const members=targets.find(t=>t.id===editTarget)?.members||[];
+    for(const target of members){let other=draft[selected].fixtures.find(c=>c.target===target);if(!other){other={target};draft[selected].fixtures.push(other);}other.look=cleanLook(look);}
+  }
+  cueField('active').onchange=()=>change(()=>{
+    const phase=draft[selected];phase.fixtures??=[];let cue=currentCue();
+    if(!cue){cue={target:editTarget,look:cleanLook({animation:'follow'})};phase.fixtures.push(cue);}
+    setCueLook(cue,{...cue.look,brightness:cueField('active').checked?100:0});
+  });
   cueField('enabled').onchange=()=>change(()=>{
-    const phase=draft[selected];phase.fixtures=(phase.fixtures||[]).filter(c=>c.target!==editTarget);
-    if(cueField('enabled').checked)phase.fixtures.push({target:editTarget,look:cleanLook({...DEFAULT_LOOK,animation:'follow'})});
+    const phase=draft[selected],members=targets.find(t=>t.id===editTarget)?.members||[];phase.fixtures=(phase.fixtures||[]).filter(c=>c.target!==editTarget&&!members.includes(c.target));
+    if(cueField('enabled').checked){const cue={target:editTarget};phase.fixtures.push(cue);setCueLook(cue,{...DEFAULT_LOOK,animation:'follow'});}
   });
   for(const key of ['mode','animation','a','b','brightness','strength','period','aim-enabled','x','y'])cueField(key).onchange=()=>change(()=>{
     const cue=currentCue();if(!cue)return;
-    cue.look=cleanLook({mode:cueField('mode').value,colors:[cueField('a').value,cueField('b').value],animation:cueField('animation').value,brightness:Number(cueField('brightness').value),strength:Number(cueField('strength').value),period:Number(cueField('period').value)});
+    setCueLook(cue,{mode:cueField('mode').value,colors:[cueField('a').value,cueField('b').value],animation:cueField('animation').value,brightness:Number(cueField('brightness').value),strength:Number(cueField('strength').value),period:Number(cueField('period').value)});
     if(cueField('aim-enabled').checked){const target=targets.find(t=>t.id===editTarget),x=Number(cueField('x').value),y=Number(cueField('y').value);if(!target?.room||!Number.isFinite(x)||!Number.isFinite(y)||Math.abs(x)>target.room.width/2||y<0||y>target.room.depth)throw Error('Das Lichtziel muss im Raum liegen.');cue.aim={x,y};}else delete cue.aim;
     message('Gerätegestaltung für diesen Zeitbereich aktualisiert.');
   });
@@ -148,7 +159,7 @@ export function createLightEditor(host,{plan,edits,title='Lichtshow',position=()
     q('[data-target-colors]').replaceChildren(...colors.map((color,i)=>{
       const label=document.createElement('label'),input=document.createElement('input');input.type='color';input.setAttribute('aria-label',`Aktuelle Gerätefarbe ${i+1} ändern`);
       input.value=color.startsWith('#')?color:hex((color.match(/[\d.]+/g)||[0,0,0]).slice(0,3).map(Number));
-      label.textContent=`Farbe ${i+1}`;input.onchange=()=>change(()=>{const phase=draft[selected];phase.fixtures??=[];let cue=currentCue();if(!cue){cue={target:editTarget,look:cleanLook()};phase.fixtures.push(cue);}cue.look=cleanLook({...cue.look,mode:'fixed',colors:[input.value,input.value]});});label.append(input);return label;
+      label.textContent=`Farbe ${i+1}`;input.onchange=()=>change(()=>{const phase=draft[selected];phase.fixtures??=[];let cue=currentCue();if(!cue){cue={target:editTarget,look:cleanLook()};phase.fixtures.push(cue);}setCueLook(cue,{...cue.look,mode:'fixed',colors:[input.value,input.value]});});label.append(input);return label;
     }));
   }
   const targetColorTimer=setInterval(updateTargetColors,200);
@@ -230,5 +241,16 @@ export function createLightEditor(host,{plan,edits,title='Lichtshow',position=()
   };
   render();
   if(audio&&!audio.paused){q('[data-play]').textContent='Ⅱ Pause';tick();}
-  return {previewHost:q('[data-set-preview]'),getEdits:clone,setPosition:seek,destroy(){destroyed=true;clearInterval(targetColorTimer);audioEvents.abort();cancelAnimationFrame(animation);if(audio&&!externalAudio){audio.pause();audio.removeAttribute('src');audio.load();}timeline.destroy();dialog.remove();}};
+  return {previewHost:q('[data-set-preview]'),getEdits:clone,setPosition:seek,
+    get target(){return editTarget;},
+    get targetGroups(){return targets.filter(t=>t.members?.length);},
+    get targetMembers(){return targets.find(t=>t.id===editTarget)?.members||[editTarget];},
+    selectTargetAt(target,at=time){
+      if(saving||destroyed||![...q('[data-target]').options].some(o=>o.value===target))return false;
+      const index=draft.findIndex(e=>at>=e.start&&at<e.end);
+      if(index<0){message('An dieser Position zuerst mit „Moment bearbeiten“ einen Zeitraum anlegen.');return false;}
+      selected=index;editTarget=target;q('[data-target]').value=target;q('[data-target]').selectedOptions[0].hidden=false;targetColorSignature='';time=at;render();updateTargetColors();return true;
+    },
+    reformAt(members,anchor,formation,spread,boundary){if(!draft[selected])return false;return change(()=>{draft[selected].fixtures=reformFixtureCues(draft[selected],editTarget,members,anchor,formation,spread,boundary);message('Lichtziele für den ausgewählten Zeitraum festgelegt.');});},
+    destroy(){destroyed=true;clearInterval(targetColorTimer);audioEvents.abort();cancelAnimationFrame(animation);if(audio&&!externalAudio){audio.pause();audio.removeAttribute('src');audio.load();}timeline.destroy();dialog.remove();}};
 }

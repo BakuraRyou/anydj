@@ -49,16 +49,18 @@ float volumeLight(vec3 eyePosition,vec3 direction,float limit){
  }
  if(span.y<=span.x)return 0.0;
  float stepSize=(span.y-span.x)/8.0,total=0.0;
+ vec3 radialOrigin=relative-axis*z,radialDirection=direction-axis*dz;
  for(int j=0;j<8;j++){
-  vec3 p=relative+direction*(span.x+(float(j)+.5)*stepSize);float depth=dot(p,axis),width=max(.001,slope*depth);
-  float radial=length(p-axis*depth)/width;
-  float profile=max(0.0,exp(-4.0*radial*radial)-exp(-4.0));
+  float t=span.x+(float(j)+.5)*stepSize,depth=z+dz*t,width=max(.001,slope*depth);
+  vec3 radial=radialOrigin+radialDirection*t;
+  float radialSquared=dot(radial,radial)/(width*width);
+  float profile=max(0.0,exp(-4.0*radialSquared)-exp(-4.0));
   total+=profile/(.12+width*width*2.0);
  }
  // Irradiance follows the actual cone cross-section. A fixed depth falloff
  // made narrow, long beams vanish regardless of their optical concentration.
  // Bounded single scattering keeps accumulated haze below full exposure.
- float phase=.65+.35*pow(max(0.0,dot(axis,-direction)),2.0);
+ float facing=max(0.0,-dz),phase=.65+.35*facing*facing;
  return 1.0-exp(-total*stepSize*.24*phase);
 }
 `;
@@ -95,13 +97,15 @@ fn volumeLight(eyePosition:vec3f,direction:vec3f)->f32 {
  }
  if(span.y<=span.x){return 0.0;}
  let stepSize=(span.y-span.x)/8.0;var total=0.0;
+ let radialOrigin=relative-axis*z;let radialDirection=direction-axis*dz;
  for(var j=0;j<8;j++){
-  let p=relative+direction*(span.x+(f32(j)+.5)*stepSize);let depth=dot(p,axis);let width=max(.001,slope*depth);
-  let radial=length(p-axis*depth)/width;
-  let profile=max(0.0,exp(-4.0*radial*radial)-exp(-4.0));
+  let t=span.x+(f32(j)+.5)*stepSize;let depth=z+dz*t;let width=max(.001,slope*depth);
+  let radial=radialOrigin+radialDirection*t;
+  let radialSquared=dot(radial,radial)/(width*width);
+  let profile=max(0.0,exp(-4.0*radialSquared)-exp(-4.0));
   total+=profile/(.12+width*width*2.0);
  }
- let phase=.65+.35*pow(max(0.0,dot(axis,-direction)),2.0);
+ let facing=max(0.0,-dz);let phase=.65+.35*facing*facing;
  return 1.0-exp(-total*stepSize*.24*phase);
 }
 `;

@@ -1,5 +1,6 @@
+import {automaticFixtureGroups} from './dmx-group-motion.js';
 // UI composition only: keep existing controls, handlers and saved settings intact.
-export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones,getPreviewLights=()=>({room:[],patch:[]})}){
+export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones,getPreviewLights=()=>({room:[],patch:[]}),onEditMode=()=>{}}){
   const q=s=>panel.querySelector(s),heading=q('.stage-3d-heading'),canvas=q('canvas'),tools=q('.stage-3d-tools'),status=q(':scope>p[role=status]');
   heading.querySelector('strong').innerHTML='Lichtshow <small>3D-Vorschau</small>';
   q('[data-stage3d-full]').textContent='Vollbild';
@@ -33,8 +34,26 @@ export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones,
   const retry=document.createElement('button');retry.type='button';retry.className='button secondary';retry.textContent='Song-Licht bearbeiten';retry.hidden=true;
   const editorMount=document.createElement('div');songHost.append(songHint,retry,editorMount);
   const lightHost=document.createElement('div');lightHost.className='stage-3d-light-editor';lightPage.append(lightTabs,songHost,lightHost);
+  const editButton=document.createElement('button');editButton.type='button';editButton.className='button secondary';editButton.textContent='Edit-Modus';editButton.setAttribute('aria-pressed','false');editButton.dataset.stageEdit='';
+  const direct=document.createElement('div');direct.className='stage-3d-direct-edit';direct.hidden=true;
+  direct.innerHTML='<p data-edit-hint role="status">Licht in der 3D-Ansicht anklicken. Die Auswahl gilt für den Abschnitt an der aktuellen Songposition.</p><button type="button" class="button secondary" data-edit-group>Gruppe auswählen</button><label>Formation<select data-edit-formation><option value="keep">Aktuelle Formation verschieben</option><option value="focus">Gemeinsames Ziel</option><option value="line">Linie</option><option value="fan">Fächer</option></select></label><label>Breite (m)<input data-edit-spread type="number" min="0" max="60" step="0.1" value="2"></label><button type="button" class="button secondary" data-edit-aim aria-pressed="false">Lichtziel im 3D-Bild anklicken</button>';
+  songHost.prepend(direct);const dq=key=>direct.querySelector(`[data-edit-${key}]`);
+  let editMode=false,aiming=false,selection=null,selectedLight='';
+  function stopAim(){aiming=false;dq('aim').setAttribute('aria-pressed','false');}
+  function setEditMode(value){if(value===editMode)return;editMode=value;work.classList.toggle('editing-direct',value);stopAim();direct.hidden=!value;editButton.setAttribute('aria-pressed',String(value));onEditMode(value);if(value)show('lighting');else releaseSong();}
+  editButton.onclick=()=>{const value=!editMode;setEditMode(value);if(!value&&current==='lighting')show('');};
+  dq('aim').onclick=()=>{if(!session||session.target==='scene'){dq('hint').textContent='Wähle zuerst ein Licht oder eine Raumgruppe.';return;}aiming=!aiming;dq('aim').setAttribute('aria-pressed',String(aiming));dq('hint').textContent=aiming?'Auf den Boden klicken, um die Lichtziele für den ausgewählten Zeitraum festzulegen. Escape bricht ab.':'Lichtziel-Auswahl beendet.';};
+  dq('group').onclick=()=>{
+    const room=roomPlanner?.active?roomPlanner.plan:null;
+    const group=session?.targetGroups?.find(t=>t.members?.includes(`room:${room?.id}:${selectedLight}`)&&t.id.startsWith('room-group:'));
+    const type=room?.positions[selectedLight]?.type;
+    if(group)session.selectTargetAt(group.id);
+    else if(type)session?.selectTargetAt(`room-type:${room.id}:${type}`);
+    else dq('hint').textContent='Wähle zuerst ein Gerät im Raumplan.';
+  };
+  function applySelection(){if(!selection||!session)return;const {target,time}=selection;selection=null;if(session.selectTargetAt(target,time))dq('hint').textContent='Gerät ausgewählt. Farbe und Aktivität unten ändern oder ein Lichtziel im Bild wählen.';}
   let roomSignature='',lightView='song',session=null,sessionKey='',pending=null,epoch=0,disposed=false;
-  function releaseSong(){epoch++;pending?.abort();pending=null;session?.destroy();session=null;sessionKey='';editorMount.replaceChildren();}
+  function releaseSong(){stopAim();epoch++;pending?.abort();pending=null;session?.destroy();session=null;sessionKey='';editorMount.replaceChildren();}
   async function ensureSong(force=false){
     const selected=transport.getSelected(),key=selected?.canEdit?`${selected.id}:${selected.trackId}`:'';
     if(sessionKey&&sessionKey!==key)releaseSong();
@@ -46,14 +65,16 @@ export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones,
     try{
       const room=roomPlanner?.active?roomPlanner.plan:null;
       const devices=Object.entries(room?.positions||{}).filter(([,p])=>['moving','spot','bar'].includes(p.type));
-      const targets=room?[...['moving','spot','bar'].filter(type=>devices.some(([,p])=>p.type===type)).map(type=>({id:`room-type:${room.id}:${type}`,name:`Raumgruppe · ${type==='moving'?'Moving Heads':type==='spot'?'Scheinwerfer':'Lichtleisten'}`,room:{width:room.width,depth:room.depth}})),...[...new Set(devices.map(([,p])=>p.group).filter(Number.isInteger))].map(group=>({id:`room-group:${room.id}:${group}`,name:`Raumgruppe · Gruppe ${group+1}`,room:{width:room.width,depth:room.depth}})),...devices.map(([id,p])=>({id:`room:${room.id}:${id}`,name:p.name||id,room:{width:room.width,depth:room.depth},aim:p.target}))]:[];
+      const roles=automaticFixtureGroups(devices.filter(([,p])=>p.type==='moving').map(([id,p])=>({id,position:p,group:p.group})));
+      const groupRows=[...new Set([...roles.values()].map(r=>r.row))];
+      const targets=room?[...['moving','spot','bar'].filter(type=>devices.some(([,p])=>p.type===type)).map(type=>({id:`room-type:${room.id}:${type}`,name:`Raumgruppe · ${type==='moving'?'Moving Heads':type==='spot'?'Scheinwerfer':'Lichtleisten'}`,members:devices.filter(([,p])=>p.type===type).map(([id])=>`room:${room.id}:${id}`),room:{width:room.width,depth:room.depth}})),...groupRows.map(group=>({id:`room-group:${room.id}:${group}`,name:`Formation · Gruppe ${group+1}`,members:devices.filter(([id])=>roles.get(id)?.row===group).map(([id])=>`room:${room.id}:${id}`),room:{width:room.width,depth:room.depth}})),...devices.map(([id,p])=>({id:`room:${room.id}:${id}`,name:p.name||id,room:{width:room.width,depth:room.depth},aim:p.target}))]:[];
       const editor=await transport.mountEditor(editorMount,{signal:pending.signal,targets,getTargetPreview:target=>{
         const scene=getPreviewLights(),prefix=`room:${room?.id}:`,typePrefix=`room-type:${room?.id}:`,groupPrefix=`room-group:${room?.id}:`;
-        const selected=target.startsWith(prefix)?scene.room.filter(l=>l.id===target.slice(prefix.length)):target.startsWith(typePrefix)?scene.room.filter(l=>l.type===target.slice(typePrefix.length)):target.startsWith(groupPrefix)?scene.room.filter(l=>room.positions[l.id]?.group===Number(target.slice(groupPrefix.length))):target.startsWith('patch:')?scene.patch.filter(l=>l.id===target.slice(6)):[];
+        const selected=target.startsWith(prefix)?scene.room.filter(l=>l.id===target.slice(prefix.length)):target.startsWith(typePrefix)?scene.room.filter(l=>l.type===target.slice(typePrefix.length)):target.startsWith(groupPrefix)?scene.room.filter(l=>targets.find(t=>t.id===target)?.members?.includes(prefix+l.id)):target.startsWith('patch:')?scene.patch.filter(l=>l.id===target.slice(6)):[];
         return selected.map(l=>({color:l.color,power:l.power}));
       },onEditPosition:target=>{show('fixtures');const prefix=`room:${room?.id}:`;if(target.startsWith(prefix))roomPlanner?.selectDevice(target.slice(prefix.length));},onDispose:()=>{if(own!==epoch)return;session=null;songHint.textContent='Entwurf bleibt für diese Sitzung erhalten.';retry.hidden=false;}});
       if(own!==epoch||disposed){editor?.destroy();return;}
-      pending=null;session=editor;
+      pending=null;session=editor;applySelection();
       if(editor){
         // Share the timeline's zoom, scroll and playhead with the existing light curve.
         const track=editorMount.querySelector('.le-track'),curve=editorMount.querySelector('.le-preview-card canvas');
@@ -67,7 +88,7 @@ export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones,
   }
   retry.onclick=()=>ensureSong(true);
   function chooseLight(view='song',stageView='look'){
-    cleanup?.();cleanup=null;lightView=view;
+    cleanup?.();cleanup=null;lightView=view;if(view!=='song'&&editMode)setEditMode(false);
     songHost.hidden=view!=='song';lightHost.hidden=view==='song';
     lightTabs.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.lightView===view)));
     work.classList.toggle('editing-song',current==='lighting'&&view==='song');
@@ -76,7 +97,7 @@ export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones,
   }
   lightTabs.querySelectorAll('button').forEach(b=>b.onclick=()=>chooseLight(b.dataset.lightView));
   function show(key,view='song'){
-    cleanup?.();cleanup=null;current=key;
+    cleanup?.();cleanup=null;current=key;if(key!=='lighting'&&editMode)setEditMode(false);
     if(key==='room'){if(!zoneHome.parentNode)zones.panel.before(zoneHome);room.append(zones.panel);}else zoneHome.replaceWith(zones.panel);
     work.classList.toggle('has-tools',Boolean(key));work.classList.toggle('editing-room',key==='room');work.classList.toggle('editing-devices',key==='fixtures');inspector.hidden=!key;
     for(const [name,page] of pages){page.hidden=name!==key;buttons.get(name).setAttribute('aria-pressed',String(name===key));buttons.get(name).setAttribute('aria-expanded',String(name===key));}
@@ -108,7 +129,7 @@ export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones,
     const views=document.createElement('div');views.className='stage-view-group';views.setAttribute('role','group');views.setAttribute('aria-label','Perspektive');
     views.append(q('[data-camera=front]'),q('[data-camera=top]'),q('[data-dancer]'));
     const zoom=document.createElement('div');zoom.className='stage-view-group stage-view-zoom';zoom.setAttribute('role','group');zoom.setAttribute('aria-label','Ausschnitt');
-    reset.textContent='Einpassen';reset.title='Raum einpassen';zoom.append(q('[data-camera=out]'),q('[data-camera=in]'),reset);
+    reset.textContent='Einpassen';reset.title='Raum einpassen';zoom.append(q('[data-camera=out]'),q('[data-camera=in]'),reset,editButton);
     const extras=document.createElement('div');extras.className='stage-view-extras';
     function disclosure(label,kind){
       const details=document.createElement('details');details.className='stage-view-menu';details.dataset.viewMenu=kind;
@@ -153,5 +174,29 @@ export function createStageWorkspace(panel,{mountLighting,onFit,transport,zones,
   }
   const fitButton=reset;fitButton.addEventListener('click',onFit);
   show('');
-  return {show,dismiss(){if(!current)return false;const button=buttons.get(current);show('');button?.focus();return true;},organizeTools,setRoomPlanner(value){roomPlanner=value;},update(){if(sessionKey){const d=transport.getSelected();if(`${d?.id}:${d?.trackId}`!==sessionKey)releaseSong();}if(current==='lighting'&&lightView==='song')void ensureSong();},refresh(){positionHint.hidden=!dancer.hidden;},close(){show('');releaseSong();},destroy(){disposed=true;toolEvents.abort();releaseSong();cleanup?.();zoneHome.replaceWith(zones.panel);fitButton.removeEventListener('click',onFit);}};
+  return {show,exitEdit(){setEditMode(false);},get editMode(){return editMode;},get aiming(){return aiming;},cancelAim(){if(!aiming)return false;stopAim();return true;},
+    selectLight(id){
+      if(!editMode)return;stopAim();selectedLight=id;
+      const room=roomPlanner?.active?roomPlanner.plan:null;
+      const target=room?.positions[id]?`room:${room.id}:${id}`:`patch:${id}`;
+      selection={target,time:transport.getSelected()?.position||0};
+      if(current!=='lighting'||lightView!=='song')show('lighting');
+      applySelection();
+    },
+    aimAt(point){
+      if(!aiming||!session)return false;
+      const room=roomPlanner?.active?roomPlanner.plan:null,target=session.target;
+      if(!room||!target.startsWith('room')){dq('hint').textContent='Lichtziele per Klick sind für Geräte im Raumplan verfügbar.';stopAim();return true;}
+      const prefix=`room:${room.id}:`;
+      const ids=session.targetMembers;
+      const members=getPreviewLights().room.filter(l=>ids.includes(prefix+l.id)).map(l=>({...l,targetId:prefix+l.id}));
+      if(session.reformAt(members,point,dq('formation').value,Number(dq('spread').value),room.boundary)){stopAim();dq('hint').textContent='Formation im ausgewählten Zeitraum geändert. Mit „Änderungen speichern“ übernehmen.';}
+      return true;
+    },
+    selectedLights(){
+      if(!editMode||!session)return [];
+      const room=roomPlanner?.active?roomPlanner.plan:null;
+      if(!room)return session.targetMembers.filter(id=>id.startsWith('patch:')).map(id=>id.slice(6));
+      const prefix=`room:${room.id}:`;return session.targetMembers.filter(id=>id.startsWith(prefix)).map(id=>id.slice(prefix.length));
+    },dismiss(){if(!current)return false;const button=buttons.get(current);show('');button?.focus();return true;},organizeTools,setRoomPlanner(value){roomPlanner=value;},update(){if(sessionKey){const d=transport.getSelected();if(`${d?.id}:${d?.trackId}`!==sessionKey)releaseSong();}if(current==='lighting'&&lightView==='song')void ensureSong();},refresh(){positionHint.hidden=!dancer.hidden;},close(){setEditMode(false);show('');releaseSong();},destroy(){disposed=true;toolEvents.abort();releaseSong();cleanup?.();zoneHome.replaceWith(zones.panel);fitButton.removeEventListener('click',onFit);}};
 }

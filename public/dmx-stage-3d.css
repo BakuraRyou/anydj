@@ -363,3 +363,10 @@ html:has(.stage-3d-dialog[open]){overflow:hidden}body:has(.stage-3d-dialog[open]
 .stage-3d .stage-3d-song-editor .le-palette-card{padding:10px}
 @media(max-width:900px){.stage-3d .stage-3d-song-editor .le-workspace{grid-template-columns:minmax(0,1fr)}}
 .stage-3d .stage-3d-song-editor .le-advanced{padding:12px 0;display:grid;gap:12px}
+
+.stage-3d-direct-edit{display:flex;flex-wrap:wrap;align-items:end;gap:8px;margin-bottom:12px;padding:12px;border:1px solid #ffd38466;border-radius:8px;background:#ffd3840a}
+.stage-3d-direct-edit[hidden]{display:none}
+.stage-3d-direct-edit p{flex-basis:100%;margin:0;font-size:12px}
+.stage-3d-direct-edit label{display:grid;gap:4px;font-size:12px}
+.stage-3d-direct-edit input{width:90px}
+.stage-3d-dialog .editing-direct .stage-3d-inspector{width:min(420px,calc(100% - 24px))}

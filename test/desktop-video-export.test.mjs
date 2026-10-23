@@ -1,0 +1,71 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {mkdtemp,readFile,writeFile,rm,readdir} from 'node:fs/promises';
+import {join} from 'node:path';
+import {tmpdir} from 'node:os';
+import {execFile} from 'node:child_process';
+import {promisify} from 'node:util';
+import {createVideoExportJob,videoSettings,installVideoExport,videoEncoderError,resolveVideoEncoder} from '../desktop/video-export.mjs';
+const run=promisify(execFile),ffmpeg=await resolveVideoEncoder();
+const config={width:1280,height:720,fps:30,duration:.1};
+test('video settings reject unbounded workloads',()=>{
+ for(const value of [{...config,duration:Infinity},{...config,duration:21601},{...config,fps:120},{...config,width:1}])assert.throws(()=>videoSettings(value));
+});
+test('encoder diagnostics preserve signals and exit codes even without stderr',()=>{
+ const details={frames:71,expected:1800,width:1920,height:1080};
+ assert.match(videoEncoderError({...details,code:null,signal:'SIGKILL'}).message,/SIGKILL.*1920 × 1080.*71\/1800/);
+ assert.match(videoEncoderError({...details,code:137,signal:null,log:'Encoderfehler'}).message,/Exitcode 137.*Encoderfehler/);
+});
+test('a killed encoder reports its signal through an outstanding frame write', {skip:process.platform==='win32'},async t=>{
+ const root=await mkdtemp(join(tmpdir(),'anydj-video-signal-'));t.after(()=>rm(root,{recursive:true,force:true}));
+ const executable=join(root,'encoder'),destination=join(root,'keep.mp4');
+ await writeFile(executable,'#!/bin/sh\nsleep 0.05\nkill -KILL $$\n',{mode:0o755});await writeFile(destination,'previous export');
+ const job=await createVideoExportJob({ffmpeg:executable,destination,settings:{...config,width:1920,height:1080},tempRoot:root});t.after(()=>job.cancel());
+ await job.audio(new Uint8Array([1]));await job.startFrames();
+ const jpeg=new Uint8Array(1024*1024);jpeg[0]=255;jpeg[1]=216;
+ await assert.rejects(job.frame(jpeg),/SIGKILL.*1920 × 1080/);await job.cancel();
+ assert.equal(await readFile(destination,'utf8'),'previous export');
+});
+test('native MP4 contains decodable H.264 frames and AAC; cancelled jobs preserve existing destinations',async t=>{
+ const root=await mkdtemp(join(tmpdir(),'anydj-video-test-'));t.after(()=>rm(root,{recursive:true,force:true}));
+ const wav=join(root,'audio.wav'),jpg=join(root,'frame.jpg'),destination=join(root,'show.mp4');
+ await run(ffmpeg,['-v','error','-f','lavfi','-i','sine=frequency=440:duration=0.1','-ar','44100','-ac','2',wav]);
+ await run(ffmpeg,['-v','error','-f','lavfi','-i','color=c=green:s=1280x720','-frames:v','1','-threads','1',jpg]);
+ const job=await createVideoExportJob({ffmpeg,destination,settings:config,tempRoot:root});t.after(()=>job.cancel());
+ await job.audio(new Uint8Array(await readFile(wav)));await job.startFrames();
+ await assert.rejects(job.finish(),/vollständig/);
+ for(let i=0;i<3;i++)await job.frame(new Uint8Array(await readFile(jpg)));
+ assert.deepEqual(await job.finish(),{name:'show.mp4'});
+ const {stdout,stderr}=await run(ffmpeg,['-i',destination,'-map','0:v:0','-f','framemd5','-']);
+ assert.match(stderr,/Video: h264/);assert.match(stderr,/Audio: aac/);assert.equal(stdout.split('\n').filter(l=>/^0,/.test(l)).length,3);
+ assert.ok((await readFile(destination)).includes(Buffer.from('ftyp')));
+ const previous=await readFile(destination),cancelled=await createVideoExportJob({ffmpeg,destination,settings:config,tempRoot:root});
+ await cancelled.audio(new Uint8Array(await readFile(wav)));await cancelled.startFrames();await cancelled.frame(new Uint8Array(await readFile(jpg)));await cancelled.cancel();
+ assert.deepEqual(await readFile(destination),previous);
+ assert.deepEqual((await readdir(root)).sort(),['audio.wav','frame.jpg','show.mp4']);
+});
+test('video IPC rejects foreign windows and subframes before showing a save dialog',async()=>{
+ const handlers=new Map(),mainFrame={url:'http://127.0.0.1:36931/dj'},owner={mainFrame};let dialogs=0;
+ installVideoExport({ipcMain:{handle:(name,fn)=>handlers.set(name,fn)},dialog:{showSaveDialog:async()=>{dialogs++;return {canceled:true};}},origin:'http://127.0.0.1:36931',getWindow:()=>({webContents:owner})});
+ const begin=handlers.get('anydj:video-begin');
+ await assert.rejects(begin({sender:{},senderFrame:mainFrame},config));
+ await assert.rejects(begin({sender:owner,senderFrame:{url:mainFrame.url}},config));assert.equal(dialogs,0);
+ assert.equal(await begin({sender:owner,senderFrame:mainFrame},config),null);assert.equal(dialogs,1);
+});
+test('export prevents background throttling and restores it on cancellation',async t=>{
+ const directory=await mkdtemp(join(tmpdir(),'anydj-throttle-test-'));t.after(()=>rm(directory,{recursive:true,force:true}));
+ const handlers=new Map(),mainFrame={url:'http://127.0.0.1:36931/dj'},changes=[];
+ const owner={mainFrame,isDestroyed:()=>false,getBackgroundThrottling:()=>true,setBackgroundThrottling:value=>changes.push(value)},event={sender:owner,senderFrame:mainFrame};
+ const manager=installVideoExport({ipcMain:{handle:(name,fn)=>handlers.set(name,fn)},dialog:{showSaveDialog:async()=>({canceled:false,filePath:join(directory,'show.mp4')})},origin:'http://127.0.0.1:36931',getWindow:()=>({webContents:owner})});
+ t.after(()=>manager.close());
+ const {id}=await handlers.get('anydj:video-begin')(event,config);assert.deepEqual(changes,[false]);
+ const cancel=handlers.get('anydj:video-cancel');
+ await Promise.all([cancel(event,id),cancel(event,id)]);await cancel(event,id);
+ assert.deepEqual(changes,[false,true]);
+ await assert.rejects(cancel({...event,sender:{}},id));
+ await assert.rejects(cancel(event,'unknown-id'));
+ const next=await handlers.get('anydj:video-begin')(event,config);
+ await cancel(event,id);assert.deepEqual(changes,[false,true,false]);
+ await manager.close();await cancel(event,next.id);
+ assert.deepEqual(changes,[false,true,false,true]);
+});

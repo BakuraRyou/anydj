@@ -9,9 +9,10 @@ export function openSectionEditor({track,plan,position=()=>0,getDiagnostics=()=>
   const editor=createLightEditor(dialog,{title:track.name,plan,edits:edits??undefined,position,audioSrc,externalAudio,onPreview,onBeforePlay,getDiagnostics,targets,onEditPosition,getTargetPreview,
     onClose:()=>{if(!host)dialog.close();cleanup();},onSave:async edits=>{await onSave(edits);if(!host){dialog.close();cleanup();}}});
   const stage=mountPreview?.(editor.previewHost);if(stage)editor.previewHost.hidden=false;
+  const destroyEditor=editor.destroy;
   let cleaned=false;
-  const cleanup=()=>{if(cleaned)return;cleaned=true;window.removeEventListener('pagehide',cleanup);const draft=editor.getEdits();editor.destroy();stage?.destroy();onDispose(draft);if(audioSrc)URL.revokeObjectURL(audioSrc);dialog.remove();opener?.focus();};
+  const cleanup=()=>{if(cleaned)return;cleaned=true;window.removeEventListener('pagehide',cleanup);const draft=editor.getEdits();destroyEditor();stage?.destroy();onDispose(draft);if(audioSrc)URL.revokeObjectURL(audioSrc);dialog.remove();opener?.focus();};
   dialog.addEventListener('close',cleanup,{once:true});window.addEventListener('pagehide',cleanup,{once:true});
-  if(host){for(const button of dialog.querySelectorAll('[data-close]'))button.textContent='Bearbeitung beenden';return {...editor,destroy:cleanup};}
+  if(host){for(const button of dialog.querySelectorAll('[data-close]'))button.textContent='Bearbeitung beenden';editor.destroy=cleanup;return editor;}
   dialog.showModal();return editor;
 }

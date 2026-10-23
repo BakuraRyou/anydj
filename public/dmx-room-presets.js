@@ -4,10 +4,11 @@ import {newRoomPlan,validateRoomPlan,insideRoom,triangulateFloor} from './dmx-ar
 // Detect existing/renamed rooms by their fixture IDs, without rewriting plans.
 export function roomSpectatorView(layout){
  const plan=layout.roomPlan??layout,positions=plan.positions??{},has=prefix=>Object.keys(positions).some(id=>id.startsWith(prefix));
- let x=0,y=layout.room?layout.depth*.5:-Math.min(3,layout.depth),yaw=0;
+ let x=0,y=layout.room?layout.depth*.5:-Math.min(3,layout.depth),yaw=0,pitch=0;
  // The forward banks begin at y=16 with a 19 m span. At the old y=8
  // position they sit outside the spectator's 72-degree field of view.
- if(has('choreo-'))y=layout.depth*7/46;
+ if(has('gala-')){y=layout.depth*4/56;pitch=-.16;}
+ else if(has('choreo-'))y=layout.depth*7/46;
  else if(has('combined-formation-arena-'))y=layout.depth*2.5/36;
  else if(has('formation-arena-'))y=layout.depth*5.5/36;
  else if(has('strobe-head-'))y=layout.depth*10/36;
@@ -25,7 +26,81 @@ export function roomSpectatorView(layout){
   const point=candidates.filter(available).sort((a,b)=>Math.hypot(a[0]-x,a[1]-y)-Math.hypot(b[0]-x,b[1]-y))[0];
   if(point)[x,y]=point;
  }
- return {mode:'dancer',x,y,eyeHeight:1.7,yaw,pitch:0,zoom:1};
+ return {mode:'dancer',x,y,eyeHeight:1.7,yaw,pitch,zoom:1};
+}
+
+// Approximate proportions from the China Film anniversary gala reference.
+// Rings are static mounting geometry; every light remains an editable device.
+export function galaArenaRoom(){
+ const plan=newRoomPlan(48,56,15);
+ plan.name='Gala-Arena · Lichtringe';plan.style='industrial';
+ plan.environmentBrightness=14;plan.representation='model';plan.zones=[];
+ const {mesh,face,box}=roomMeshBuilder(plan.name);
+ face([[-24,0,0],[24,0,0],[24,56,0],[-24,56,0]],'#202633');
+ for(const [a,b] of [[[-24,0],[24,0]],[[24,0],[24,56]],[[24,56],[-24,56]],[[-24,56],[-24,0]]])face([[...a,0],[...b,0],[...b,15],[...a,15]],'#202737');
+ face([[-24,0,15],[24,0,15],[24,56,15],[-24,56,15]],'#121925');
+ // Three ascending spectator tiers on both sides and across the rear.
+ for(let tier=0;tier<3;tier++){
+  const z=1.2+tier*1.5,x=18+tier*2;
+  for(const side of [-1,1])box(side<0?-x-2:x,12,z,2,38,.28,tier%2?'#374255':'#2c3648');
+  box(-18,50+tier*2,z,36,2,.28,tier%2?'#374255':'#2c3648');
+ }
+ box(-16,30,0,32,18,.6,'#30394a');
+ box(-3,44,.6,6,1.3,1,'#151c29');
+ for(const side of [-1,1]){
+  for(let i=0;i<3;i++)box(side<0?-17.5:16,29+i*.4,0,1.5,.4,(i+1)*.2,'#414b5b');
+  for(let i=0;i<5;i++)box(side<0?-17.5:16.5,31,6+i*.7,1,.8,.62,'#121823');
+ }
+ const add=(id,type,name,x,y,height,target,beamAngle=3,rotation=0)=>{
+  plan.positions['gala-'+id]={type,name,x,y,height,rotation,target,beamAngle,
+   size:type==='bar'?{width:1.5,depth:.12,height:.14}:{width:.26,depth:.28,height:.32}};
+ };
+ // Seven suspended circles: a large crown, paired wings and smaller satellites.
+ const rings=[[0,35,12.2,4.6,24],[-11,34,10.4,3.2,16],[11,34,10.4,3.2,16],[-7,44,8.4,2.5,12],[7,44,8.4,2.5,12],[-11,23,7.2,2.2,12],[11,23,7.2,2.2,12]];
+ rings.forEach(([cx,cy,z,r,count],ring)=>{
+  const point=(a,radius,h)=>[cx+Math.cos(a)*radius,cy+Math.sin(a)*radius,h];
+  for(let i=0;i<32;i++){
+   const a=i*Math.PI/16,b=(i+1)*Math.PI/16;
+   face([point(a,r-.14,z),point(b,r-.14,z),point(b,r+.14,z),point(a,r+.14,z)],'#69768b');
+   face([point(a,r+.14,z),point(b,r+.14,z),point(b,r+.14,z+.22),point(a,r+.14,z+.22)],'#46536a');
+  }
+  for(let i=0;i<4;i++){
+   const [x,y]=point(i*Math.PI/2,r,z);
+   box(x-.025,y-.025,z+.22,.05,.05,14.5-z-.22,'#4b576b');
+  }
+  for(let i=0;i<count;i++){
+   const a=(i+.5)*Math.PI*2/count,[x,y]=point(a,r,z);
+   add(`ring-${ring}-${i}`,'moving',`Lichtring ${ring+1} · Beam ${i+1}`,x,y,z-.4,{x,y,z:.62},2.4);
+  }
+ });
+ // Broad ceiling fans and low stage fans complement the circular curtains.
+ for(const [row,y] of [[0,28],[1,43]]){
+  box(-16,y,14.1,32,.22,.22,'#536078');
+  for(let i=0;i<12;i++){
+   const x=-15+i*30/11;
+   add(`roof-${row}-${i}`,'moving',`Dachtraverse ${row+1} · Beam ${i+1}`,x,y,13.7,{x:x*.75,y:19+row*8,z:1},3);
+  }
+ }
+ for(let i=0;i<16;i++){
+  const x=-15+i*2;
+  add(`floor-${i}`,'moving',`Bühnenkante · Bodenfächer ${i+1}`,x,30.4,.8,{x:x*.7,y:20,z:8},3);
+  add(`edge-${i}`,'bar',`Bühnenkante · LED ${i+1}`,x,30.05,.7,{x,y:31.5,z:.62},40);
+  add(`back-${i}`,'bar',`Rückwand · Lichtkontur ${i+1}`,x,49.7,5.9,{x,y:55.8,z:6},40);
+ }
+ for(const side of [-1,1])for(let i=0;i<8;i++){
+  const y=18+i*4;
+  add(`wash-${side}-${i}`,'spot',`Rang ${side<0?'links':'rechts'} · Wash ${i+1}`,side*17.5,y,6,{x:side*23.8,y,z:8},32);
+ }
+ // Millimetre precision avoids verbose circle coordinates in portable plans.
+ const vertices=[],indices=new Map(),remap=mesh.vertices.map(p=>{
+  const point=p.map(n=>Math.round(n*1000)/1000||0),key=point.join(',');
+  if(!indices.has(key)){indices.set(key,vertices.length);vertices.push(point);}
+  return indices.get(key);
+ });
+ mesh.vertices=vertices;mesh.triangles=mesh.triangles.map(t=>t.map(i=>remap[i]));
+ for(const p of Object.values(plan.positions))for(const value of [p,p.target])for(const k of ['x','y','z','height'])if(k in value)value[k]=Math.round(value[k]*1000)/1000||0;
+ plan.mesh=mesh;
+ return validateRoomPlan(plan);
 }
 
 export function formationArenaRoom(){

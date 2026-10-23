@@ -1,4 +1,6 @@
 import {installLocalAudio,installLocalReadPermissions} from './local-audio.mjs';
+import {installVideoExport} from './video-export.mjs';
+import {configureDesktopGraphics} from './graphics.mjs';
 import {app, BrowserWindow, dialog, session, shell, ipcMain} from 'electron';
 import {fileURLToPath} from 'node:url';
 import {installWindowChrome,showAppWindow} from './window-chrome.mjs';
@@ -11,7 +13,8 @@ import {readFile} from 'node:fs/promises';
 // A stable origin preserves IndexedDB, folder handles and localStorage across launches.
 let origin='http://127.0.0.1:36931';
 const isolatedTest=process.argv.includes('--demo')&&process.argv.includes('--isolated-test');
-let backend, window, quitting=false;
+let backend, window, videoExports, quitting=false;
+const desktopGraphics=configureDesktopGraphics(app);
 if(!app.requestSingleInstanceLock())app.quit();
 else {
   app.on('second-instance',()=>{if(window)showAppWindow(window);});
@@ -21,9 +24,13 @@ else {
     event.preventDefault();quitting=true;
     const timeout=setTimeout(()=>app.exit(0),6000);timeout.unref();
     void (async()=>{
-      try {await backend.dmx.close();if(backend.music.session)await backend.music.stop(backend.music.session.id);}
+      try {
+        // Finish both cleanup tasks even if one of them fails.
+        const results=await Promise.allSettled([videoExports?.close(),backend.dmx.close()]);
+        for(const result of results)if(result.status==='rejected')console.error('AnyDj konnte nicht vollständig aufräumen:',result.reason);
+      }
       finally {backend.server.close(()=>app.exit(0));backend.server.closeAllConnections();}
-    })();
+    })().catch(error=>{console.error('AnyDj konnte nicht vollständig beendet werden:',error);app.exit(1);});
   });
   void app.whenReady().then(async()=>{
   try {
@@ -48,6 +55,10 @@ else {
       ...(process.platform==='darwin'?{titleBarStyle:'hidden',trafficLightPosition:{x:12,y:10}}:{}),
       webPreferences:{preload:fileURLToPath(new URL('./titlebar.cjs',import.meta.url)),session:browserSession,contextIsolation:true,nodeIntegration:false,sandbox:true}});
     installWindowChrome(window,ipcMain,origin);
+    desktopGraphics.install({ipcMain,getWindow:()=>window,origin});
+    videoExports=installVideoExport({ipcMain,dialog,origin,getWindow:()=>window,packaged:app.isPackaged,resourcesPath:process.resourcesPath});
+    window.webContents.on('render-process-gone',()=>void videoExports.close().catch(error=>console.error('Videoexport konnte nicht beendet werden:',error)));
+    window.webContents.on('did-start-navigation',(_event,_url,_inPlace,isMainFrame)=>{if(isMainFrame)void videoExports.close().catch(error=>console.error('Videoexport konnte nicht beendet werden:',error));});
     window.once('ready-to-show',()=>showAppWindow(window));
     window.webContents.on('will-prevent-unload',event=>{
       const response=dialog.showMessageBoxSync(window,{type:'question',title:'AnyDj verlassen?',message:'Es läuft noch eine Wiedergabe oder es gibt eine ungesicherte Aufnahme bzw. einen Export.',detail:'Beim Verlassen wird die Wiedergabe beendet. Nicht heruntergeladene Aufnahmen oder Exporte können verloren gehen.',buttons:['In AnyDj bleiben','Trotzdem verlassen'],defaultId:0,cancelId:0,noLink:true});

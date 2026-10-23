@@ -10,7 +10,7 @@ const previewEquipment={devices:Array.from({length:4},(_,i)=>({id:`preview-${i}`
 import {activityAt,movingPresenceAt,movingPresenceLevel,mixMovingPresence} from './dmx-activity.js';
 import {projectMovingHeads,movingDevicePoses} from './dmx-layout-model.js';
 import {MOVING_MOODS,movingMood} from './dmx-moving-moods.js';
-export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=null,getLayout=null,getPreviewEnabled=()=>false,onPreview=()=>{},showMoodControl=true,adjustFrame=frame=>frame}={}) {
+export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=null,getLayout=null,getPreviewEnabled=()=>false,onPreview=()=>{},showMoodControl=true,adjustFrame=frame=>frame,offline=false}={}) {
   const storageKey='anydj-stage-moving-heads';
   let enabled=true,lastTime=null,poses=restingHeads();
   const songTimes=new WeakMap(),directionCache=new WeakMap(),predictionSeconds=.12;
@@ -50,6 +50,10 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
     title.textContent=failed?'MOVING HEADS · Vorbereitung teilweise fehlgeschlagen':ready<total?`MOVING HEADS · Vorbereitung ${ready}/${total}`:total?'MOVING HEADS · Choreografie bereit':'MOVING HEADS · SIMULATION';
   }});
   function prepare(){if((enabled||getPreviewEnabled())&&!disposed)preparation.prepare(getPlans(),mode,mood);}
+  function prepareStreams(streams,nextMode='auto'){
+    if(mode!==nextMode){mode=nextMode;prepare();}
+    preparation.prioritize(streams.filter(s=>s.playing!==false&&s.frame&&s.frame.state!==false&&s.weight>0).sort((a,b)=>b.weight-a.weight).map(s=>s.movingPlan).filter(Boolean),mode,mood);
+  }
   function setMood(value){const next=movingMood(value);if(next===mood)return;previousMood=mood;mood=next;moodSelect.value=mood;moodHelp.textContent=MOVING_MOODS[mood].help;try{localStorage.setItem('anydj-moving-mood',mood);}catch{}prepare();}
   moodSelect.onchange=()=>setMood(moodSelect.value);
   function sync(){
@@ -64,14 +68,16 @@ export function createMovingHeads(scene, controls,{getPlans=()=>[],getDevices=nu
   toggle.onclick=()=>{enabled=!enabled;sync();try{localStorage.setItem(storageKey,String(enabled));}catch{}};
   sync();
   return {
+    get preparationStatus(){return preparation.stats();},
     refresh:sync,
     setMood,
     prepare,
+    prepareStreams,
     update(fixtures,frame,time,blackout,streams=[],nextMode='auto',colorLimit=2){
       if(mode!==nextMode){mode=nextMode;prepare();}
       const motionMode=mode;
-      if((!enabled&&!getPreviewEnabled())||document.hidden){lastTime=null;return;}
-      preparation.prioritize(streams.filter(s=>s.playing!==false&&s.frame&&s.frame.state!==false&&s.weight>0).sort((a,b)=>b.weight-a.weight).map(s=>s.movingPlan).filter(Boolean),motionMode,mood);
+      if((!enabled&&!getPreviewEnabled())||!offline&&document.hidden){lastTime=null;return;}
+      prepareStreams(streams,nextMode);
       const devices=getDevices?.()??Array.from({length:4},(_,i)=>({id:`moving-${i}`}));syncDevices(devices);
       const spots=fixtures.filter(f=>f.profile==='dimmer-rgb');
       let colors=(spots.length?spots:fixtures).flatMap(f=>f.cells),strobeColor,strobePalette;

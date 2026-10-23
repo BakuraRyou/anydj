@@ -17,6 +17,15 @@ export function createAppSettings(){
  <section><h3>Hilfe</h3><button type="button" class="button secondary" data-help>Tutorial & Fehler melden</button></section><p class="small muted" data-save role="status"></p>`;
  document.body.append(dialog);
  const q=s=>dialog.querySelector(s),status=q('[data-save]');
+ if(window.anydjGraphics){
+  const graphics=document.createElement('section');graphics.hidden=true;
+  graphics.innerHTML='<h3>3D-Grafik & Videoexport</h3><label class="app-setting"><span><strong>Grafikkarte</strong><small>Die Hochleistungs-GPU kann große Lichtshows deutlich schneller rendern. Die Änderung gilt nach einem Neustart.</small></span><select data-graphics><option value="auto">Systemstandard</option><option value="nvidia">NVIDIA-Hochleistungs-GPU</option></select></label><p class="small muted" data-graphics-status role="status"></p>';
+  q('[data-view-actions]').closest('section').after(graphics);
+  const select=graphics.querySelector('[data-graphics]'),hint=graphics.querySelector('[data-graphics-status]');
+  const update=value=>{graphics.hidden=!value.supported;select.value=value.preference;hint.textContent=value.restartRequired?'Gespeichert. Bitte AnyDj vollständig schließen und neu starten.':value.active==='nvidia'?'NVIDIA-Hochleistungs-GPU ist für diese Sitzung ausgewählt.':'Die Grafikkarte wird vom System ausgewählt.';};
+  void window.anydjGraphics.get().then(update).catch(()=>{});
+  select.onchange=async()=>{select.disabled=true;try{update(await window.anydjGraphics.set(select.value));}catch(error){hint.textContent=error.message;}finally{select.disabled=false;}};
+ }
  // Preserve existing actions and their event handlers; analysis belongs with imports.
  const analysis=document.getElementById('djStructure')?.closest('label');
  if(analysis){analysis.hidden=false;const details=document.createElement('details');details.className='app-analysis-settings';details.innerHTML='<summary>Analyseoptionen</summary>';details.append(analysis);document.getElementById('libraryImportPopover').append(details);}

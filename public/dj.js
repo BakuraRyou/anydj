@@ -1301,7 +1301,7 @@ function editQueue(action,listId=selectedQueueList) {
   if(editingLiveQueue()&&fade?.fromQueue)return;
   if(editingLiveQueue())queueEpoch++;action(displayedQueue());persistDisplayedQueue();renderQueue();
 }
-const queueExportMenu=createQueueExportMenu($('queueExport'),()=>({entries:displayedQueue(),tracks,ensureFile,name:viewedQueue()?.name||'Aktuelle Warteschlange',options:{seconds:fadeSeconds(),musical:$('autoBeat').checked,adaptive:$('fadeDuration').value==='auto',entryWindow:Number($('transitionEntryWindow').value),preferredStyle:$('transitionPreference').value}}));
+const queueExportMenu=createQueueExportMenu($('queueExport'),()=>({entries:displayedQueue(),tracks,ensureFile,videoSetup:window.anydjVideo?{...lightStage.captureVideoSetup(),tuning:structuredClone(lightTuning?.settings),flicker:flickerControl.value}:null,name:viewedQueue()?.name||'Aktuelle Warteschlange',options:{seconds:fadeSeconds(),musical:$('autoBeat').checked,adaptive:$('fadeDuration').value==='auto',entryWindow:Number($('transitionEntryWindow').value),preferredStyle:$('transitionPreference').value}}));
 $('queueClear').onclick=()=>editQueue(entries=>{if(editingLiveQueue())shuffleEnabled=false;entries.splice(0);});
 let queueResumeBusy=false;
 function canResumeQueue(){

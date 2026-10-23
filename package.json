@@ -14,6 +14,7 @@
     "demo": "node server.mjs --demo",
     "test": "node --test test/*.test.mjs",
     "desktop": "node scripts/start-desktop.mjs",
+    "desktop:gpu": "node scripts/start-desktop.mjs --high-performance-gpu",
     "pack": "node scripts/pack.mjs",
     "pack:linux": "node scripts/pack.mjs --linux",
     "pack:win": "node scripts/pack.mjs --win",
@@ -46,7 +47,8 @@
   "devDependencies": {
     "@iwer/devui": "^2.5.0",
     "electron": "44.5.1",
-    "electron-builder": "26.15.3"
+    "electron-builder": "26.15.3",
+    "ffmpeg-static": "5.3.0"
   },
   "homepage": "https://github.com/BakuraRyou/anydj",
   "dependencies": {

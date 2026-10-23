@@ -1,6 +1,9 @@
 .dj-queue-placeholder{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:12px;padding:24px;min-width:0}
 .dj-queue-placeholder p{color:var(--muted)}
-.dj-detach{white-space:nowrap}
+.dj-page .dj-library-heading>.dj-detach.button{display:inline-grid;place-items:center;flex:0 0 32px;width:32px;height:32px;min-width:32px;min-height:32px;align-self:center;padding:0;border-color:transparent;background:transparent;color:var(--muted);border-radius:6px}
+.dj-page .dj-library-heading>.dj-detach.button:hover{background:var(--surface-raised,#242630);border-color:var(--line);color:var(--text)}
+.dj-page .dj-library-heading>.dj-detach.button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.dj-detach svg{pointer-events:none}
 .dj-queue h2[draggable=true]{cursor:grab}
 body.dj-detached-page{display:block;margin:0;padding:0;min-width:0;height:100dvh;overflow:hidden}
 .dj-detached-page>.dj-queue{display:flex;flex-direction:column;box-sizing:border-box;width:100%;height:100%;min-height:0;margin:0;border:0;border-radius:0;padding:16px;gap:10px}

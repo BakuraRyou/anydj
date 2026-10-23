@@ -41,7 +41,7 @@ export async function renderExportChunk(schedule,buffers,first,count,{sampleRate
  const audio=await ctx.startRendering();
  return [audio.getChannelData(0).slice(warm),audio.getChannelData(1).slice(warm)];
 }
-export async function exportQueueAudio(schedule,files,{signal,onProgress=()=>{},format='mp3',bitrate=192,master=.8,workerFactory=()=>new Worker(new URL('./audio-export-worker.js',import.meta.url))}={}){
+export async function exportQueueAudio(schedule,files,{signal,onProgress=()=>{},onPart=null,format='mp3',bitrate=192,master=.8,workerFactory=()=>new Worker(new URL('./audio-export-worker.js',import.meta.url))}={}){
  const outputFormat=audioExportFormat(format);
  const abort=()=>signal?.throwIfAborted();abort();
  const worker=workerFactory(),parts=[],buffers=new Map();let pending;
@@ -50,9 +50,10 @@ export async function exportQueueAudio(schedule,files,{signal,onProgress=()=>{},
  worker.onmessage=({data})=>{const job=pending;pending=null;if(data.error)job?.reject(Error(data.error));else job?.resolve(data);};
  worker.onerror=()=>{pending?.reject(Error(`${outputFormat.label}-Encoder konnte nicht geladen werden.`));pending=null;};
  const send=(message,transfer=[])=>new Promise((resolve,reject)=>{pending={resolve,reject};worker.postMessage(message,transfer);});
+ const collect=async values=>{for(const value of values||[]){abort();if(onPart)await onPart(value);else parts.push(value);}};
  try{
   const sampleRate=44100,total=Math.ceil(schedule.duration*sampleRate),block=sampleRate*10;
-  const initialized=await send({type:'start',format,bitrate,total});abort();parts.push(...(initialized.parts||[]));
+  const initialized=await send({type:'start',format,bitrate,total});abort();await collect(initialized.parts);
   const decode=new OfflineAudioContext(2,1,sampleRate);
   for(let first=0;first<total;first+=block){
    abort();const count=Math.min(block,total-first),start=Math.max(0,(first-sampleRate)/sampleRate),end=(first+count)/sampleRate;
@@ -65,10 +66,10 @@ export async function exportQueueAudio(schedule,files,{signal,onProgress=()=>{},
     buffers.set(key,audio);
    }
    const [left,right]=await renderExportChunk(schedule,buffers,first,count,{master});abort();
-   const result=await send({type:'chunk',left,right},[left.buffer,right.buffer]);abort();parts.push(...result.parts);
+   const result=await send({type:'chunk',left,right},[left.buffer,right.buffer]);abort();await collect(result.parts);
    onProgress((first+count)/total,`${outputFormat.label} wird erstellt …`);
   }
-  const result=await send({type:'finish'});abort();parts.push(...(result.parts||[]));if(result.bytes)parts.push(result.bytes);
+  const result=await send({type:'finish'});abort();await collect(result.parts);if(result.bytes)await collect([result.bytes]);
   return new Blob(parts,{type:outputFormat.mime});
  }finally{signal?.removeEventListener('abort',cancel);worker.terminate();buffers.clear();}
 }

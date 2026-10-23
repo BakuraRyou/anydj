@@ -1,5 +1,5 @@
 import {syncSelectOptions,setSelectValue,setControlDisabled} from './select-state.js';
-import {choreographyArenaRoom,combinedFormationRoom,formationArenaRoom,upgradeFormationStage,strobeStageRoom,upgradeFestivalLighting,festivalStageRoom,villageBarnRoom,largeHallRoomWithDJQuietZone,largeClubRoom,clubStageRoomWithoutQuietZones,clubStageRoom} from './dmx-room-presets.js';
+import {galaArenaRoom,choreographyArenaRoom,combinedFormationRoom,formationArenaRoom,upgradeFormationStage,strobeStageRoom,upgradeFestivalLighting,festivalStageRoom,villageBarnRoom,largeHallRoomWithDJQuietZone,largeClubRoom,clubStageRoomWithoutQuietZones,clubStageRoom} from './dmx-room-presets.js';
 import {compactDeviceManager} from './dmx-device-manager.js';
 import {importRoomModel,modelFileLimit} from './dmx-room-mesh.js';
 import {createZonePlan} from './dmx-zone-plan.js';
@@ -11,8 +11,8 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   let plans=[],selected='',enabled=false,disposed=false,step=1,fixture='',mode='select',draft=[],pointer=null,drag=null,preview=null,arReady=false;
   const renderRoom=createRoomPreview();let roomZones=null,zoneDrag=null,compact=null;
   let mapView={key:'',zoom:1,x:0,y:0},pan=null;
-  let undo=null,storageError='',lastMessage='',clubRoomAdded=false,clubStageRoomAdded=false,clubStageOpenRoomAdded=false,hallDJRoomAdded=false,barnRoomAdded=false,festivalRoomAdded=false,strobeRoomAdded=false,formationArenaAdded=false,combinedFormationAdded=false,choreographyArenaAdded=false;
-  try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved){plans=(saved.plans||[]).slice(0,20).flatMap(p=>{try{return [validateRoomPlan(p)];}catch{return [];}});selected=saved.selected;enabled=saved.enabled===true;clubRoomAdded=saved.clubRoomAdded===true;clubStageRoomAdded=saved.clubStageRoomAdded===true;clubStageOpenRoomAdded=saved.clubStageOpenRoomAdded===true;hallDJRoomAdded=saved.hallDJRoomAdded===true;barnRoomAdded=saved.barnRoomAdded===true;festivalRoomAdded=saved.festivalRoomAdded===true;strobeRoomAdded=saved.strobeRoomAdded===true;formationArenaAdded=saved.formationArenaAdded===true;combinedFormationAdded=saved.combinedFormationAdded===true;choreographyArenaAdded=saved.choreographyArenaAdded===true;}}catch{storageError='Deine Räume konnten nicht geladen werden. Du kannst eine Sicherung importieren.';}
+  let undo=null,storageError='',lastMessage='',clubRoomAdded=false,clubStageRoomAdded=false,clubStageOpenRoomAdded=false,hallDJRoomAdded=false,barnRoomAdded=false,festivalRoomAdded=false,strobeRoomAdded=false,formationArenaAdded=false,combinedFormationAdded=false,choreographyArenaAdded=false,galaArenaAdded=false;
+  try{const saved=JSON.parse(localStorage.getItem(storageKey)||'null');if(saved){plans=(saved.plans||[]).slice(0,20).flatMap(p=>{try{return [validateRoomPlan(p)];}catch{return [];}});selected=saved.selected;enabled=saved.enabled===true;clubRoomAdded=saved.clubRoomAdded===true;clubStageRoomAdded=saved.clubStageRoomAdded===true;clubStageOpenRoomAdded=saved.clubStageOpenRoomAdded===true;hallDJRoomAdded=saved.hallDJRoomAdded===true;barnRoomAdded=saved.barnRoomAdded===true;festivalRoomAdded=saved.festivalRoomAdded===true;strobeRoomAdded=saved.strobeRoomAdded===true;formationArenaAdded=saved.formationArenaAdded===true;combinedFormationAdded=saved.combinedFormationAdded===true;choreographyArenaAdded=saved.choreographyArenaAdded===true;galaArenaAdded=saved.galaArenaAdded===true;}}catch{storageError='Deine Räume konnten nicht geladen werden. Du kannst eine Sicherung importieren.';}
   let libraryUpdated=false;
   plans=plans.map(plan=>{const updated=upgradeFormationStage(upgradeFestivalLighting(plan));if(updated!==plan)libraryUpdated=true;return updated;});
   if(!clubRoomAdded){
@@ -41,11 +41,15 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
     if(!plans.some(p=>p.positions?.['choreo-beam-row-0-0']))plans.push(choreographyArenaRoom());
     choreographyArenaAdded=true;libraryUpdated=true;
   }
+  if(!galaArenaAdded&&plans.length<20){
+    if(!plans.some(p=>p.positions?.['gala-ring-0-0']))plans.push(galaArenaRoom());
+    galaArenaAdded=true;libraryUpdated=true;
+  }
   if(!plans.some(p=>p.id===selected)){
     selected=(plans.find(p=>p.name==='Club-Bühne · ohne Ruhezonen')||plans[0])?.id||'';
     enabled=Boolean(selected);libraryUpdated=true;
   }
-  if(libraryUpdated)try{localStorage.setItem(storageKey,JSON.stringify({plans,selected,enabled,clubRoomAdded,clubStageRoomAdded,clubStageOpenRoomAdded,hallDJRoomAdded,barnRoomAdded,festivalRoomAdded,strobeRoomAdded,formationArenaAdded,combinedFormationAdded,choreographyArenaAdded}));}catch{storageError='Speichern auf diesem Gerät fehlgeschlagen. Bitte exportiere deinen Raum.';}
+  if(libraryUpdated)try{localStorage.setItem(storageKey,JSON.stringify({plans,selected,enabled,clubRoomAdded,clubStageRoomAdded,clubStageOpenRoomAdded,hallDJRoomAdded,barnRoomAdded,festivalRoomAdded,strobeRoomAdded,formationArenaAdded,combinedFormationAdded,choreographyArenaAdded,galaArenaAdded}));}catch{storageError='Speichern auf diesem Gerät fehlgeschlagen. Bitte exportiere deinen Raum.';}
 
   const current=()=>plans.find(p=>p.id===selected)||null;
   const root=document.createElement('details');root.className='stage-ar-planner';root.open=true;
@@ -97,7 +101,7 @@ export function createARPlanner(host,{getScene=()=>null,onChange=()=>{},sendPlan
   host.prepend(root);
   const q=name=>root.querySelector(`[data-ar-${name}]`);
   function notify(text,error=false){lastMessage=text;q('status').textContent=text;q('status').dataset.error=String(error);}
-  function persist(){try{localStorage.setItem(storageKey,JSON.stringify({plans,selected,enabled,clubRoomAdded,clubStageRoomAdded,clubStageOpenRoomAdded,hallDJRoomAdded,barnRoomAdded,festivalRoomAdded,strobeRoomAdded,formationArenaAdded,combinedFormationAdded,choreographyArenaAdded}));storageError='';}catch{storageError='Speichern auf diesem Gerät fehlgeschlagen. Bitte exportiere deinen Raum.';notify(storageError,true);}onChange();}
+  function persist(){try{localStorage.setItem(storageKey,JSON.stringify({plans,selected,enabled,clubRoomAdded,clubStageRoomAdded,clubStageOpenRoomAdded,hallDJRoomAdded,barnRoomAdded,festivalRoomAdded,strobeRoomAdded,formationArenaAdded,combinedFormationAdded,choreographyArenaAdded,galaArenaAdded}));storageError='';}catch{storageError='Speichern auf diesem Gerät fehlgeschlagen. Bitte exportiere deinen Raum.';notify(storageError,true);}onChange();}
   function commit(value,{message='Änderung gespeichert.',history=true}={}){
     const plan=validateRoomPlan(value),i=plans.findIndex(p=>p.id===plan.id);
     if(i<0&&plans.length>=20)throw Error('Du hast bereits 20 Räume. Exportiere und entferne zuerst einen alten Raum.');

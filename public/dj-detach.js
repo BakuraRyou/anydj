@@ -6,7 +6,14 @@ export function createDetachedQueue(panel,{onDragEnd,onLayout,onKey,onError}){
  placeholder.className='panel dj-queue-placeholder';
  placeholder.innerHTML='<h2>Warteschlange im eigenen Fenster</h2><p>Du kannst Songs zwischen den Fenstern ziehen.</p><button type="button" class="button secondary">Fenster anzeigen</button><button type="button" class="button secondary">Wieder andocken</button>';
  panel.before(home);
- const button=document.createElement('button');button.type='button';button.className='button secondary dj-detach';button.textContent='Abdocken';button.title='Warteschlange als Desktop-Fenster öffnen';
+ const button=document.createElement('button');button.type='button';button.className='button secondary dj-detach';
+ button.innerHTML='<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M13 5H5v14h14v-8"/><path data-dock-arrow/></svg>';
+ const updateButton=detached=>{
+  const label=detached?'Warteschlange wieder andocken':'Warteschlange abdocken';
+  button.title=label;button.setAttribute('aria-label',label);
+  button.querySelector('[data-dock-arrow]').setAttribute('d',detached?'M20 4l-8 8m0-6v6h6':'M12 12l8-8m-6 0h6v6');
+ };
+ updateButton(false);
  panel.querySelector('.dj-library-heading').append(button);
  const heading=panel.querySelector('h2');heading.draggable=true;heading.title='Zum Abdocken aus dem App-Fenster ziehen';
  let popup=null,opening=false,lastBounds=null,loadTimer,settingsObserver;
@@ -24,7 +31,7 @@ export function createDetachedQueue(panel,{onDragEnd,onLayout,onKey,onError}){
   saveBounds();
   // Popovers cannot remain in the old document's top layer when adopted.
   for(const menu of panel.querySelectorAll(':popover-open'))menu.hidePopover();
-  home.after(panel);placeholder.remove();button.textContent='Abdocken';
+  home.after(panel);placeholder.remove();updateButton(false);
   const previous=popup;popup=null;opening=false;
   if(!closing&&!previous.closed)previous.close();
   if(closing)setTimeout(()=>{if(!previous.closed)previous.close();},0);
@@ -49,7 +56,7 @@ export function createDetachedQueue(panel,{onDragEnd,onLayout,onKey,onError}){
    clearInterval(loadTimer);
    for(const menu of panel.querySelectorAll(':popover-open'))menu.hidePopover();
    home.after(placeholder);
-   child.document.body.append(panel);button.textContent='Wieder andocken';opening=false;
+   child.document.body.append(panel);updateButton(true);opening=false;
    const syncSettings=()=>{for(const key of ['appComfortable','appContrast','appReducedMotion'])child.document.documentElement.dataset[key]=document.documentElement.dataset[key]||'false';};
    syncSettings();settingsObserver=new MutationObserver(syncSettings);settingsObserver.observe(document.documentElement,{attributes:true,attributeFilter:['data-app-comfortable','data-app-contrast','data-app-reduced-motion']});
    child.document.addEventListener('dragend',onDragEnd);

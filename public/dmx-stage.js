@@ -199,6 +199,7 @@ export function createDmxStage(button,{adjustFrame=frame=>frame,getMovingPlans=(
   blackoutButton.onclick=()=>{blackout=!blackout;render();};
   if(inline)activate(true);
   return {
+    captureVideoSetup:()=>structuredClone({equipment:editor.equipment,config:editor.config,count:editor.count,layout:layout.value,view:stage3d.captureExportView()}),
     tabs,
     lightingPreview(target){const patch=stagePatch(editor.equipment);return lastFixtures.flatMap((f,i)=>target===`patch:${fixtureKey(patch[i])}`||target===`patch-group:${editor.config.members[i]}`?f.cells.map(rgb=>({color:`rgb(${rgb.join(',')})`,power:Math.max(...rgb)/255})):[]);},
     get lightingTargets(){return [...GROUPS.map((name,i)=>({id:`patch-group:${i}`,name:`DMX-Gruppe · ${name}`})),...stagePatch(editor.equipment).map(f=>({id:`patch:${fixtureKey(f)}`,name:`DMX · ${f.name}`}))];},
