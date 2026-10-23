@@ -1,4 +1,4 @@
-import {strobeScoreAt} from './dmx-strobe-score.js';
+import {strobeScoreAt,strobeEndingAt} from './dmx-strobe-score.js';
 import {formationPreviewAt} from './dmx-strobe-choreography.js';
 import {fixtureParticipation,showFixtureParticipation,fixtureParticipationLevel} from './dmx-participation.js';
 import {automaticGroupMotionAt,showGroupMotionAt,automaticFixtureGroups,groupComposition,presenceRowFocus} from './dmx-group-motion.js';
@@ -130,7 +130,7 @@ export function musicalDarknessAt(plan,time){
   }
   if(plan&&Number.isFinite(time)){
     let rests=restCache.get(plan);
-    if(!rests){rests=instrumentRests(plan.structure?.instruments);restCache.set(plan,rests);}
+    if(!rests){rests=instrumentRests(plan.structure?.instruments,plan.arrangement?.motionEnvelope);restCache.set(plan,rests);}
     let lo=0,hi=rests.length;
     while(lo<hi){const mid=(lo+hi)>>>1;if(rests[mid].start<=time)lo=mid+1;else hi=mid;}
     const rest=rests[lo-1];
@@ -236,7 +236,8 @@ export function movingPresenceAt(source){
  const plan=source.movingPlan,time=source.songTime;
  if(source.stageMode==='strobe'||plan?.showProfile==='strobe'){
   const groupMotion=plan?strobeScoreAt(plan,time):Number.isFinite(source.beat)?formationPreviewAt(source.beat/2):null;
-  return {level:groupMotion?(plan?musicalDarknessAt(plan,time).level:1):0,spread:1,mask:'all',rowFraction:1,rowSelection:0,trackMotion:true,groupMotion:groupMotion?{...groupMotion,flicker:source.flicker}:null};
+  const ending=strobeEndingAt(plan,time);
+  return {level:groupMotion?(plan?musicalDarknessAt(plan,ending?.sampleTime??time).level:1):0,spread:1,mask:'all',rowFraction:1,rowSelection:0,trackMotion:true,groupMotion:groupMotion?{...groupMotion,flicker:source.flicker}:null};
  }
  const scene=(!source.movingMood||source.movingMood==='balanced'||source.movingMood==='show')&&lightingSceneAt(plan,time);
  if(scene){

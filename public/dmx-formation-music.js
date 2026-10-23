@@ -1,4 +1,4 @@
-import {catalogCandidates,catalogMatchScore,catalogFormation} from './dmx-formation-catalog.js';
+import {catalogCandidates,catalogMatchScore,catalogFormation,catalogSpatialPose} from './dmx-formation-catalog.js';
 import {chooseFormationScene} from './dmx-formation-scenes.js';
 import {bassAttackEvents} from './musical-attention.js';
 
@@ -255,6 +255,17 @@ const phrasePictures={
  weave:['twin-fans','traveling-wave','rising-arch','radial-wheel','diamond','double-helix','split-wings','concentric-fans','folded-roof','opposed-diagonals','spiral-shell','braided-ribbons'],
  suspend:['horizontal-sheets','vaulted-roof','parallel-lines','rising-arch','vertical-curtain','folded-roof','portal-rows']
 };
+const pictureSignatures=new Map();
+function pictureSimilarity(a,b){
+ const signature=id=>{
+  if(!pictureSignatures.has(id))pictureSignatures.set(id,[.25,.75].flatMap(progress=>[0,1,2].flatMap(row=>
+   Array.from({length:12},(_,rank)=>{const p=catalogSpatialPose(id,rank,12,row,3,progress);return [p.x,p.y];}).flat())));
+  return pictureSignatures.get(id);
+ };
+ const left=signature(a),right=signature(b);
+ const distance=Math.sqrt(left.reduce((sum,v,i)=>sum+(v-right[i])**2,0)/(left.length/2));
+ return clamp(1-distance/.16)**2;
+}
 export function developFormationPhrase(decision,phrase=0,preferredShape=null,context=null){
  const evidence=decision?.evidence,pictures=phrasePictures[decision?.motion]??
   (decision?.motion==='bloom'&&context?.allowOpening?['open-fan','crown','nested-gates','concentric-fans']:null);
@@ -294,10 +305,14 @@ export function developFormationPhrase(decision,phrase=0,preferredShape=null,con
     else if(old?.structure.id===f.structure.id&&old?.contour.id===f.contour.id)value-=2.5*weight;
     else if(old?.structure.id===f.structure.id)value-=.18*weight;
     else if(old?.contour.id===f.contour.id)value-=.1*weight;
+    // Different catalogue IDs can draw almost the same silhouette. Prefer
+    // a visible contrast among equally suitable musical pictures, evaluating
+    // whole rows at two phases rather than counting names as variety.
+    if(old&&i>=recent.length-4)value-=1.1*weight*pictureSimilarity(f.id,old.id);
    });
    return value;
   };
-  shape=suitable.slice().sort((a,b)=>score(b)-score(a))[0].id;selection='musical-development';
+  shape=suitable.map(f=>({id:f.id,score:score(f)})).sort((a,b)=>b.score-a.score)[0].id;selection='musical-development';
  }
  const sceneStep=step+history.filter(used=>used.shape===shape).length;
  const act=['introduce','answer','interlace','resolve'][step%4];

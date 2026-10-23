@@ -53,9 +53,11 @@ export function createQueueExportMenu(button,getOptions){
  const menu=document.createElement('div');menu.id='queueExportMenu';menu.className='dj-export-menu';menu.setAttribute('popover','auto');menu.setAttribute('aria-label','Audio exportieren');
  button.textContent='⋯';button.title='Warteschlange exportieren';button.setAttribute('aria-label','Warteschlange exportieren');button.setAttribute('popovertarget',menu.id);button.setAttribute('aria-expanded','false');
  for(const format of AUDIO_EXPORT_FORMATS){const action=document.createElement('button');action.type='button';action.dataset.exportFormat=format.id;const label=document.createElement('strong'),detail=document.createElement('span');label.textContent='Als '+format.label+' exportieren';detail.textContent=format.description;action.append(label,detail);action.onclick=()=>{menu.hidePopover();button.focus({preventScroll:true});openQueueExport({...getOptions(),format:format.id});};menu.append(action);}
- document.body.append(menu);
- const position=()=>{const r=button.getBoundingClientRect(),w=menu.offsetWidth,h=menu.offsetHeight;menu.style.left=Math.max(12,Math.min(r.right-w,innerWidth-w-12))+'px';menu.style.top=Math.max(12,Math.min(r.bottom+h+8<=innerHeight?r.bottom+8:r.top-h-8,innerHeight-h-12))+'px';};
+ button.parentElement.append(menu);
+ const position=()=>{const {innerWidth,innerHeight}=button.ownerDocument.defaultView;const r=button.getBoundingClientRect(),w=menu.offsetWidth,h=menu.offsetHeight;menu.style.left=Math.max(12,Math.min(r.right-w,innerWidth-w-12))+'px';menu.style.top=Math.max(12,Math.min(r.bottom+h+8<=innerHeight?r.bottom+8:r.top-h-8,innerHeight-h-12))+'px';};
  menu.addEventListener('toggle',()=>{const open=menu.matches(':popover-open');button.setAttribute('aria-expanded',String(open));if(open){position();menu.querySelector('button').focus({preventScroll:true});}});
  const move=()=>{if(menu.matches(':popover-open'))position();};window.addEventListener('resize',move);document.addEventListener('scroll',move,true);
- return {destroy(){window.removeEventListener('resize',move);document.removeEventListener('scroll',move,true);menu.remove();}};
+ // The button and menu can move together into a desktop document.
+ const observer=new ResizeObserver(move);observer.observe(button);
+ return {destroy(){observer.disconnect();window.removeEventListener('resize',move);document.removeEventListener('scroll',move,true);menu.remove();}};
 }

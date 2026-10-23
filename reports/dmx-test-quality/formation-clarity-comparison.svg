@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="500" viewBox="0 0 1200 500">
+<rect width="1200" height="500" fill="#101825"/>
+<style>text{font-family:Arial,sans-serif;fill:#dce7f3}.small{font-size:16px}.title{font-size:24px;font-weight:bold}</style>
+<text x="40" y="44" class="title">Formationen: dieselbe Figur, derselbe musikalische Einsatz</text>
+<text x="40" y="76" class="small">Schematische Zielebene · 24 Geräte · jeweils 6 aktive Strahlen · gleiche Helligkeit und Bewegung</text>
+<rect x="40" y="106" width="550" height="300" rx="12" fill="#172436"/>
+<text x="60" y="142" class="title">Bisher: schmaler Ausschnitt</text>
+<polyline points="104.30,177.34 122.62,203.47 140.94,227.23 159.27,248.61 177.59,267.61 195.91,284.24 214.23,298.49 232.55,310.37 250.87,319.87 269.20,327.00 287.52,331.75 305.84,334.12 324.16,334.12 342.48,331.75 360.80,327.00 379.13,319.87 397.45,310.37 415.77,298.49 434.09,284.24 452.41,267.61 470.73,248.61 489.06,227.23 507.38,203.47 525.70,177.34" fill="none" stroke="#71859b" stroke-width="1.5" stroke-dasharray="4 6"/>
+<circle cx="104.30" cy="177.34" r="3" fill="#566579"/>
+<circle cx="122.62" cy="203.47" r="3" fill="#566579"/>
+<circle cx="140.94" cy="227.23" r="3" fill="#566579"/>
+<circle cx="159.27" cy="248.61" r="3" fill="#566579"/>
+<circle cx="177.59" cy="267.61" r="3" fill="#566579"/>
+<circle cx="195.91" cy="284.24" r="3" fill="#566579"/>
+<circle cx="214.23" cy="298.49" r="3" fill="#566579"/>
+<circle cx="232.55" cy="310.37" r="3" fill="#566579"/>
+<circle cx="250.87" cy="319.87" r="3" fill="#566579"/>
+<circle cx="269.20" cy="327.00" r="7" fill="#65d7ff"/>
+<circle cx="287.52" cy="331.75" r="7" fill="#65d7ff"/>
+<circle cx="305.84" cy="334.12" r="7" fill="#65d7ff"/>
+<circle cx="324.16" cy="334.12" r="7" fill="#65d7ff"/>
+<circle cx="342.48" cy="331.75" r="7" fill="#65d7ff"/>
+<circle cx="360.80" cy="327.00" r="7" fill="#65d7ff"/>
+<circle cx="379.13" cy="319.87" r="3" fill="#566579"/>
+<circle cx="397.45" cy="310.37" r="3" fill="#566579"/>
+<circle cx="415.77" cy="298.49" r="3" fill="#566579"/>
+<circle cx="434.09" cy="284.24" r="3" fill="#566579"/>
+<circle cx="452.41" cy="267.61" r="3" fill="#566579"/>
+<circle cx="470.73" cy="248.61" r="3" fill="#566579"/>
+<circle cx="489.06" cy="227.23" r="3" fill="#566579"/>
+<circle cx="507.38" cy="203.47" r="3" fill="#566579"/>
+<circle cx="525.70" cy="177.34" r="3" fill="#566579"/>
+<text x="60" y="387" class="small">Aktive Breite der Zielebene: 19%</text>
+<rect x="630" y="106" width="550" height="300" rx="12" fill="#172436"/>
+<text x="650" y="142" class="title">Jetzt: verteilte, gespiegelte Paare</text>
+<polyline points="694.30,177.34 712.62,203.47 730.94,227.23 749.27,248.61 767.59,267.61 785.91,284.24 804.23,298.49 822.55,310.37 840.87,319.87 859.20,327.00 877.52,331.75 895.84,334.12 914.16,334.12 932.48,331.75 950.80,327.00 969.13,319.87 987.45,310.37 1005.77,298.49 1024.09,284.24 1042.41,267.61 1060.73,248.61 1079.06,227.23 1097.38,203.47 1115.70,177.34" fill="none" stroke="#71859b" stroke-width="1.5" stroke-dasharray="4 6"/>
+<circle cx="694.30" cy="177.34" r="7" fill="#65d7ff"/>
+<circle cx="712.62" cy="203.47" r="3" fill="#566579"/>
+<circle cx="730.94" cy="227.23" r="3" fill="#566579"/>
+<circle cx="749.27" cy="248.61" r="3" fill="#566579"/>
+<circle cx="767.59" cy="267.61" r="7" fill="#65d7ff"/>
+<circle cx="785.91" cy="284.24" r="3" fill="#566579"/>
+<circle cx="804.23" cy="298.49" r="3" fill="#566579"/>
+<circle cx="822.55" cy="310.37" r="3" fill="#566579"/>
+<circle cx="840.87" cy="319.87" r="7" fill="#65d7ff"/>
+<circle cx="859.20" cy="327.00" r="3" fill="#566579"/>
+<circle cx="877.52" cy="331.75" r="3" fill="#566579"/>
+<circle cx="895.84" cy="334.12" r="3" fill="#566579"/>
+<circle cx="914.16" cy="334.12" r="3" fill="#566579"/>
+<circle cx="932.48" cy="331.75" r="3" fill="#566579"/>
+<circle cx="950.80" cy="327.00" r="3" fill="#566579"/>
+<circle cx="969.13" cy="319.87" r="7" fill="#65d7ff"/>
+<circle cx="987.45" cy="310.37" r="3" fill="#566579"/>
+<circle cx="1005.77" cy="298.49" r="3" fill="#566579"/>
+<circle cx="1024.09" cy="284.24" r="3" fill="#566579"/>
+<circle cx="1042.41" cy="267.61" r="7" fill="#65d7ff"/>
+<circle cx="1060.73" cy="248.61" r="3" fill="#566579"/>
+<circle cx="1079.06" cy="227.23" r="3" fill="#566579"/>
+<circle cx="1097.38" cy="203.47" r="3" fill="#566579"/>
+<circle cx="1115.70" cy="177.34" r="7" fill="#65d7ff"/>
+<text x="650" y="387" class="small">Aktive Breite der Zielebene: 86%</text>
+<text x="40" y="448" class="small">Die Antwortgruppen zeichnen den Bogen über die Bühne, ohne mehr Geräte gleichzeitig einzuschalten.</text>
+<text x="40" y="476" class="small">Dies ist eine Geometrieprüfung, keine Aufnahme der 3D-Vorschau.</text>
+</svg>

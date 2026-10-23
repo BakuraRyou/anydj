@@ -107,7 +107,7 @@ export function lightingScenes(plan){
  // Relative energy describes contrast, not silence. Only measured withdrawals
  // can turn an entire picture off, and phrase boundaries let a returning groove
  // recover inside a long structural section.
- const withdrawals=[...(plan.arrangement?.blackouts||[]),...instrumentRests(plan.structure?.instruments)];
+ const withdrawals=[...(plan.arrangement?.blackouts||[]),...instrumentRests(plan.structure?.instruments,plan.arrangement?.motionEnvelope)];
  const spans=(plan.sections||[]).flatMap((section,sectionIndex)=>{
   const boundaries=[section.start,section.end,...phrases.flatMap(p=>[p.start,p.end]),...withdrawals.flatMap(p=>[p.start,p.end])]
    .filter(t=>Number.isFinite(t)&&t>=section.start&&t<=section.end);

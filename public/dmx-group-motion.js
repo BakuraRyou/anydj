@@ -383,13 +383,16 @@ export function groupComposition(motion,rank,count,row=0,groups=1){
 export function presenceComposition(presence,rank,count,row=0,groups=1){
  if(!presence)return null;
  if(!presence.layers)return groupComposition(presence.groupMotion,rank,count,row,groups);
- let sum=0,x=0,y=0,level=0,weight=0,articulation=0,paired=0,wallBlend=0,visibleMotion=false,beamPicture=false,paletteIndex,paletteWeight=-1,beamFocus=0,focusWeight=0;
+ let sum=0,x=0,y=0,level=0,weight=0,articulation=0,paired=0,wallBlend=0,visibleMotion=false,beamPicture=false,pictures=0,paletteIndex,paletteWeight=-1,beamFocus=0,focusWeight=0;
  for(const layer of presence.layers){
   const w=layer.weight??1,c=presenceComposition(layer,rank,count,row,groups);sum+=w;
   level+=(c?.level??1)*w;
   if(Number.isFinite(c?.beamFocus)){beamFocus+=c.beamFocus*c.weight*w;focusWeight+=c.weight*w;}
-  if(c){const amount=c.weight*w;if(Number.isFinite(c.paletteIndex)&&amount>paletteWeight){paletteIndex=c.paletteIndex;paletteWeight=amount;}weight+=amount;wallBlend+=(c.wallBlend??0)*amount;paired+=(c.paired??0)*amount;articulation+=c.articulation*amount;x+=c.x*amount;y+=c.y*amount;if(c.visibleMotion&&amount>.5)visibleMotion=true;if(c.beamPicture&&amount>.5)beamPicture=true;}
+  if(c){const amount=c.weight*w;if(Number.isFinite(c.paletteIndex)&&amount>paletteWeight){paletteIndex=c.paletteIndex;paletteWeight=amount;}weight+=amount;wallBlend+=(c.wallBlend??0)*amount;paired+=(c.paired??0)*amount;articulation+=c.articulation*amount;x+=c.x*amount;y+=c.y*amount;if(c.visibleMotion&&amount>0)visibleMotion=true;if(c.beamPicture&&amount>0){beamPicture=true;pictures++;}}
  }
+ // A live morph also moves between two held pictures. Do not turn it into a
+ // dark motor transfer when neither layer alone owns a majority of the mix.
+ if(pictures>1)visibleMotion=true;
  return weight>0?{...(focusWeight>0?{beamFocus:beamFocus/focusWeight}:{}),...(Number.isFinite(paletteIndex)?{paletteIndex}:{}),...(visibleMotion?{visibleMotion:true}:{}),...(beamPicture?{beamPicture:true}:{}),wallBlend:wallBlend/weight,paired:paired/weight,x:x/weight,y:y/weight,level:level/Math.max(.0001,sum),weight:weight/Math.max(.0001,sum),articulation:articulation/weight}:null;
 }
 

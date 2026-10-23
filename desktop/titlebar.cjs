@@ -1,6 +1,7 @@
 // Sandboxed preload: only these window actions cross into the main process.
 // No Node API or general-purpose IPC bridge is exposed to the page.
 const {ipcRenderer,contextBridge,webUtils}=require('electron');
+contextBridge.exposeInMainWorld('anydjDesktop',true);
 contextBridge.exposeInMainWorld('anydjFiles',{
  remember:(id,file)=>{const path=webUtils.getPathForFile(file);return path?ipcRenderer.invoke('anydj:remember-audio',{id,path}):Promise.resolve(false);},
  read:id=>ipcRenderer.invoke('anydj:read-audio',id),

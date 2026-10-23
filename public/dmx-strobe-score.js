@@ -5,6 +5,22 @@ import {strobeChoreography} from './dmx-strobe-choreography.js';
 const clamp=v=>Math.max(0,Math.min(1,v));
 const ease=v=>{v=clamp(v);return v*v*(3-2*v);};
 const cache=new WeakMap();
+const endingCache=new WeakMap();
+// A terminal analysis pause is a release of the last picture, not a new
+// all-rig blackout. Internal musical rests retain their authored shutters.
+export function strobeEndingAt(plan,time){
+ if(!plan||!Number.isFinite(time))return null;
+ if(!endingCache.has(plan)){
+  const sequences=strobeConductor(plan).sequences;
+  let index=sequences.length-1;
+  while(index>=0&&sequences[index].role==='silence')index--;
+  const previous=sequences[index],first=sequences[index+1];
+  endingCache.set(plan,previous&&first?{start:first.start,end:Math.min(plan.duration??sequences.at(-1).end,first.start+1.8),sampleTime:previous.end-1e-6}:null);
+ }
+ const ending=endingCache.get(plan);
+ if(!ending||time<ending.start||time>=ending.end)return null;
+ return {...ending,level:1-ease((time-ending.start)/(ending.end-ending.start))};
+}
 export const STROBE_FORMS=['fan-open','fan-close','cross-through','parallel-rise','parallel-fall','opposing-wings','arch-open','diagonal-pass','ribbon-left','ribbon-right','centre-out','edges-in','scissor','staircase','curtain','orbit-open','braid','double-fan','roof-fold','wave-pass'];
 function family(scene){return scene.kind==='silence'?'silence':scene.kind==='sculpture'?'calm':scene.kind==='sweep'?'flow':scene.kind==='impact'?'impact':scene.kind==='build'?'build':'groove';}
 // Choose geometry from musical roles, not the ordinal position in a playlist.
@@ -75,6 +91,8 @@ export function strobeScore(plan){
  cache.set(plan,figures);return figures;
 }
 export function strobeScoreAt(plan,time){
+ const ending=strobeEndingAt(plan,time);
+ if(ending){const held=strobeScoreAt(plan,ending.sampleTime);return held?{...held,endingLevel:ending.level}:null;}
  const score=strobeScore(plan);let lo=0,hi=score.length;
  while(lo<hi){const mid=(lo+hi)>>>1;if(score[mid].start<=time)lo=mid+1;else hi=mid;}
  const figure=score[lo-1];if(!figure||time>=figure.end)return null;
@@ -98,6 +116,10 @@ export function strobeScoreAt(plan,time){
  return {...figure,music,...(edit?.movement===0?{geometrySequence:strobeMusicAt(plan,edit.start).sequence}:{}),transitionProgress,accentLevel,rhythmBeat,presentation:'strobe',composition:STROBE_FORMS[figure.form],progress:clamp((time-figure.start)/(figure.end-figure.start)),motionProgress:clamp((time-figure.motionStart)/(figure.motionEnd-figure.motionStart)),amount:Number.isFinite(edit?.movement)?clamp(edit.movement):1};
 }
 export function strobeComposition(figure,rank,count,row=0,groups=1){
+ const result=strobeCompositionPose(figure,rank,count,row,groups);
+ return Number.isFinite(figure.endingLevel)?{...result,level:result.level*figure.endingLevel}:result;
+}
+function strobeCompositionPose(figure,rank,count,row=0,groups=1){
  if(figure.music?.sequence?.sharedPassage)return strobeDramaticComposition(figure,rank,count,row,groups);
  if(figure.music?.sequence)return strobeStageComposition(figure,rank,count,row,groups);
  const motif=STROBE_MOTIFS[figure.motifId];

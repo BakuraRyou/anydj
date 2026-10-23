@@ -1,5 +1,7 @@
 import {strobeRole,strobeRoleColor} from './dmx-strobe-motifs.js';
-import {strobeScoreAt,strobeComposition} from './dmx-strobe-score.js';
+import {strobeScoreAt,strobeComposition,strobeEndingAt} from './dmx-strobe-score.js';
+import {showFrameAt} from './show-plan.js';
+import {stageWashDimming} from './stage-motifs.js';
 import {formationPreviewAt,FORMATION_NAMES,FORMATION_STORY_NAMES,FORMATION_ACT_NAMES} from './dmx-strobe-choreography.js';
 import {FORMATION_GESTURE_NAMES} from './dmx-formation-variations.js';
 import {lightingScenes,lightingSceneAt} from './dmx-light-scenes.js';
@@ -110,6 +112,11 @@ export function strobeGestureExposure(plan,time){
  return figure?Math.max(...Array.from({length:8},(_,i)=>strobeComposition(figure,i,8).level)):0;
 }
 export function strobeBaseDimming(source){
+ const ending=strobeEndingAt(source.movingPlan,source.songTime);
+ if(ending&&source.frame?.state!==false&&source.movingPlan.frames?.length&&source.movingPlan.step>0){
+  const frame=showFrameAt(source.movingPlan,ending.sampleTime,source.flicker);
+  return strobeBaseDimming({...source,songTime:ending.sampleTime,frame,washDimming:stageWashDimming(source.movingPlan,ending.sampleTime)});
+ }
  const raw=Number.isFinite(source.frame?.dimming)?Math.max(0,Math.min(100,source.frame.dimming)):0;
  if(!raw||source.frame?.state===false)return 0;
  const base=Number.isFinite(source.washDimming)?Math.max(0,Math.min(100,source.washDimming)):raw;
@@ -147,12 +154,15 @@ export function renderStrobe(active,patch,{movingSource=false,palette=null}={}){
  // Prepared songs no longer select a second animation from the demo catalog.
  const {animation,scene}=shared?{animation:null,scene:shared}:strobeAnimationAt(main);
  const progress=scene?clamp((main.songTime-scene.start)/(scene.end-scene.start)):clamp(main.sectionProgress);
- // One beat clock keeps the two decks' flashes from filling each other's gaps.
+ // Unprepared demos share one clock. Prepared songs keep their own measured
+ // envelopes, just like moving presence, throughout the deck handover.
  const beat=Number.isFinite(main.beat)?main.beat:null;
  const directed=Boolean(main.movingPlan&&Number.isFinite(main.songTime));
  const sources=active.map(s=>{
   const base=strobeBaseDimming(s);
-  return {source:s,unmaskedBase:base,base:base*musicalDarknessAt(s.movingPlan,s.songTime).level};
+  const sourceFigure=s.movingPlan&&Number.isFinite(s.songTime)?strobeScoreAt(s.movingPlan,s.songTime):figure;
+  const ending=strobeEndingAt(s.movingPlan,s.songTime);
+  return {source:s,figure:sourceFigure,unmaskedBase:base,base:base*musicalDarknessAt(s.movingPlan,ending?.sampleTime??s.songTime).level};
  });
  // Strong impacts are white; gentler passages retain the song's live colors.
  const flashStrength=active.reduce((sum,s)=>sum+s.weight*(Number.isFinite(s.flicker)?clamp(s.flicker/100):1),0)/total;
@@ -165,20 +175,21 @@ export function renderStrobe(active,patch,{movingSource=false,palette=null}={}){
   const bar=f.type==='bar'||f.profile==='rgb-pixels';if(!bar)ordinal++;if(f.type==='spot')spotOrdinal++;
   return Array.from({length:f.cells},(_,cell)=>{
    const index=bar?cell:ordinal,units=bar?f.cells:fixtures.length;
-   const dimming=sources.reduce((sum,{source:s,base,unmaskedBase})=>{
+   const dimming=sources.reduce((sum,{source:s,figure:sourceFigure,base,unmaskedBase})=>{
     const strength=Number.isFinite(s.flicker)?clamp(s.flicker/100):1;
+    const sourceShared=sourceFigure?.music?.sequence?.sharedPassage;
     // In a mixed rig, spots and bars accompany the SAME musical statement.
     // They no longer run independent copies of the moving-head role sequence.
-    const companion=!movingSource&&figure?.music?.sequence&&(bar&&primary||f.type==='spot'&&moving);
-    const hit=figure?.music?.sequence?.chapter==='arrival';
-    let composition=companion?{...figure,fixtureRole:!bar&&hit?'lead':'support'}:figure;
-    if(shared)composition={...composition,flicker:s.flicker};
-    const shape=figure?strobeComposition(composition,companion&&!bar?spotOrdinal:index,companion&&!bar?spots.length:units).level:0;
-    const limited=shared?shape:figure?.music?.sequence?(strength>0?shape*strength:1):1-strength+strength*shape;
-    const level=!figure&&beat===null?1:movingSource||f.type==='moving'?1:limited;
+    const companion=!movingSource&&sourceFigure?.music?.sequence&&(bar&&primary||f.type==='spot'&&moving);
+    const hit=sourceFigure?.music?.sequence?.chapter==='arrival';
+    let composition=companion?{...sourceFigure,fixtureRole:!bar&&hit?'lead':'support'}:sourceFigure;
+    if(sourceShared)composition={...composition,flicker:s.flicker};
+    const shape=sourceFigure?strobeComposition(composition,companion&&!bar?spotOrdinal:index,companion&&!bar?spots.length:units).level:0;
+    const limited=sourceShared?shape:sourceFigure?.music?.sequence?(strength>0?shape*strength:sourceFigure.endingLevel??1):1-strength+strength*shape;
+    const level=!sourceFigure&&beat===null?1:movingSource||f.type==='moving'?1:limited;
     // Moving presence owns its musical darkness after room expansion. Baking
     // it into the unmasked source here would multiply the same fade twice.
-    return sum+(movingSource||f.type==='moving'?unmaskedBase:base)*s.weight*(figure?level:1);
+    return sum+(movingSource||f.type==='moving'?unmaskedBase:base)*s.weight*(sourceFigure?level:1);
    },0)/total;
    const colorFigure=!movingSource&&figure?.music?.sequence?.formationStory&&(bar&&primary||f.type==='spot'&&moving)?{...figure,fixtureRole:'support'}:figure;
    const colorIndex=figure?.music?.sequence?.formationProgram?strobeComposition(colorFigure,index,units).paletteIndex??0:index;

@@ -208,7 +208,9 @@ export function selectGroupScore(plan,expanded=false){
   previousPassage=p;
   if(motion){history.push({motion,sequence,start:p.start,end:p.end});totalExposure.set(motion,(totalExposure.get(motion)||0)+p.end-p.start);last=motion;}
   while(history.length&&history[0].end<p.start-72)history.shift();
-  return {start:p.start,end:p.end,...(expanded?{sequence}:{}),...(p.development?{development:p.development}:{}),motion,composition:compositionFor[motion]??(autoByName.has(motion)?motion:null),coordination:coordination(p),intent:expanded?{...intent,symmetry:'paired',surface:'floor'}:intent,energy:p.energy,drive:p.drive,direction:p.direction??1,theme:motifKey?{key:motifKey,occurrence}:null,groupIndex:p.groupIndex,motif:p.motif??null,recalled:!!(active&&compatible)};
+  // Current audio evidence owns the role. Saved intent may still label an
+  // audible withdrawal as silence under an older rest interpretation.
+  return {start:p.start,end:p.end,...(expanded?{sequence}:{}),...(p.development?{development:p.development}:{}),motion,composition:compositionFor[motion]??(autoByName.has(motion)?motion:null),coordination:coordination(p),intent:expanded?{...intent,role:p.kind,symmetry:'paired',surface:'floor'}:intent,energy:p.energy,drive:p.drive,direction:p.direction??1,theme:motifKey?{key:motifKey,occurrence}:null,groupIndex:p.groupIndex,motif:p.motif??null,recalled:!!(active&&compatible)};
  });
  return score;
 }

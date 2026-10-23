@@ -72,8 +72,14 @@ export function planFormationAction(story,plan,timeline){
   :motion==='suspend'?(selected.length>=2&&evidence.energy>.12?'develop':'hold'):selected.length<2?'hold':motion==='dialogue'?'answer':motion==='weave'?'crossing':'handoff';
  const cues=selected.map((e,i)=>({...e,ordinal:i,group:i%4}));
  const clock=[{time:start,position:0}];
- for(const [i,e]of selected.entries())if(e.time>start+.02&&e.time<end-.02)clock.push({time:e.time,position:i/Math.max(1,selected.length-1)});
+ for(const e of selected)if(e.time>start+.02&&e.time<end-.02)clock.push({time:e.time,position:0});
  clock.push({time:end,position:1});
+ // Every measured interval owns part of the development, including the
+ // sustained tail after the last attack. Assigning that attack position one
+ // exhausted the motor clock while the final note was still sounding.
+ const weights=clock.slice(1).map((p,i)=>Math.sqrt(p.time-clock[i].time));
+ const total=weights.reduce((sum,v)=>sum+v,0);let position=0;
+ for(let i=1;i<clock.length;i++){position+=weights[i-1]/total;clock[i].position=i===clock.length-1?1:position;}
  const slopes=clock.slice(1).map((b,i)=>(b.position-clock[i].position)/(b.time-clock[i].time));
  clock.forEach((p,i)=>{const a=slopes[Math.max(0,i-1)],b=slopes[Math.min(slopes.length-1,i)];p.velocity=a>0&&b>0?2/(1/a+1/b):0;});
  // Separate the speed of light answers from full-rig travel. Dense measured
@@ -81,6 +87,10 @@ export function planFormationAction(story,plan,timeline){
  const articulated=rhythmic&&evidence.energy>.35&&
   (evidence.texture==='drums'&&evidence.drums>.4||evidence.texture==='bass'&&evidence.bass>.3||evidence.movementDrive>.65&&evidence.density>.35);
  const grouping=articulated?(evidence.texture==='bass'?'rows':'mirrored'):null;
+ // Row-based catalogue pictures need rays across their entire contour. A
+ // contiguous radial band shows only a small fragment of an arch or sheet.
+ // Interleave mirrored pairs while keeping the same source cue and density.
+ const groupOrder=grouping==='mirrored'&&catalogFormation(story.shape)?.family==='rows'?'interleaved':null;
  const from=kind==='opening'?'converging-lines':story.shape;
  // A sustained melodic fan should meet across the stage. Split wings send
  // every ray in a bank to the same outside direction and leave an empty centre.
@@ -140,8 +150,8 @@ export function planFormationAction(story,plan,timeline){
  const heightBand=Number.isFinite(evidence.tone)&&evidence.energy>.35&&
   (evidence.texture==='bass'||evidence.texture==='drums'&&evidence.tone<.48)
   ?{floor:evidence.texture==='bass'?.04:.08,span:evidence.texture==='bass'?.55:.7}:null;
- return {kind,source,cueSource,from,to,...(catalogFormation(story.shape)?{catalogVariant:story.scene?.layout??'ensemble'}:{}),...(heightBand?{heightBand}:{}),...(trajectory?{trajectory}:{}),...(articulated?{grouping,...((pathKinds.includes(kind)||movingOpening)&&!trajectory?{returnArc:.08}:{})}:{}),...(path?{path}:{}),movingOpening,
-  start,end,cues,clock,overlap:kind==='develop'?Math.min(.85,Math.max(.45,beat*2),...selected.slice(1).map((e,i)=>(e.time-selected[i].time)*.8)):cueSource==='rhythm'?Math.min(.12,beat*.2):Math.min(.3,beat*.6),direction:story.direction??1,
+ return {kind,source,cueSource,from,to,...(catalogFormation(story.shape)?{catalogVariant:story.scene?.layout??'ensemble'}:{}),...(heightBand?{heightBand}:{}),...(trajectory?{trajectory}:{}),...(articulated?{grouping,...(groupOrder?{groupOrder}:{}),...((pathKinds.includes(kind)||movingOpening)&&!trajectory?{returnArc:.08}:{})}:{}),...(path?{path}:{}),movingOpening,
+  start,end,cues,clock,...(movingOpening?{openingCarryEnd:pathStart}:{}),overlap:kind==='develop'?Math.min(.85,Math.max(.45,beat*2),...selected.slice(1).map((e,i)=>(e.time-selected[i].time)*.8)):cueSource==='rhythm'?Math.min(.12,beat*.2):Math.min(.3,beat*.6),direction:story.direction??1,
   reason:kind==='develop'?(melodic?'Melodiegeführte Entfaltung':'Klanggeführte Entwicklung'):kind==='answer'?'Musikalischer Ruf mit räumlicher Antwort':kind==='crossing'?'Gemeinsame Kreuzung zweier Strahlenbilder'
    :kind==='handoff'?'Übergabe zwischen benachbarten Lichtgruppen':kind==='opening'?'Gemeinsame Entfaltung':kind==='closing'?'Gemeinsame Zusammenführung':'Getragenes Lichtbild'};
 }
@@ -168,9 +178,17 @@ export function formationActionGeometry(action,time,opening=1){
     ...(i>0?{before:i===1&&action.entry?action.entry:picture(action.path[i-1].shape),beforeDuration:a.time-action.path[i-1].time}:{}),
     ...(i+2<action.path.length?{after:picture(action.path[i+2].shape),afterDuration:action.path[i+2].time-b.time}:{})}}:{})};
  }
- const p=formationActionProgress(action,time),morph=['opening','closing'].includes(action.kind)?opening:action.kind==='hold'?.35+.3*p:p;
+ const p=formationActionProgress(action,time);
+ if(action.kind==='closing')opening=closingProgress(opening,p);
+ const morph=['opening','closing'].includes(action.kind)?opening:action.kind==='hold'?.35+.3*p:p;
+ // Measured opening controls aperture and exposure. Its energy plateau must
+ // not also stop the entire picture: the action's source-cue clock carries
+ // a small shared lift, joining any completed-opening path at zero velocity.
+ const carryEnd=action.openingCarryEnd??(action.movingOpening?action.path?.[0]?.time:undefined)??action.end;
+ const carryPhase=action.kind==='opening'&&action.cues?.length>=2
+  ?clamp(p/Math.max(.001,formationActionProgress(action,carryEnd))):0;
  return {a:action.entry??picture(action.from,morph),b:picture(action.to,morph),join:action.kind==='hold'?0:ease(morph),
-  ...(action.kind==='opening'?{opening}:action.kind==='closing'?{closing:opening}:{})};
+  ...(action.kind==='opening'?{opening,openingCarry:.06*Math.sin(Math.PI*carryPhase)**2*(action.direction??1)}:action.kind==='closing'?{closing:opening}:{})};
 }
 export function formationGeometryPose(geometry,rank,count,row,groups,spatialPose){
  if(geometry.orbit){
@@ -228,7 +246,11 @@ export function formationGeometryPose(geometry,rank,count,row,groups,spatialPose
   }
  }
 
- if(geometry.opening!==undefined){const p=ease(geometry.opening);x=.5+(x-.5)*(.2+.8*p);y=.28+(y-.28)*p;}
+ if(geometry.opening!==undefined){
+  const p=ease(geometry.opening);x=.5+(x-.5)*(.2+.8*p);y=.28+(y-.28)*p;
+  const carry=(geometry.openingCarry??0)*p;
+  y=.5+(y-.5)*(1-2*Math.abs(carry))+carry;
+ }
  if(geometry.closing!==undefined){const p=ease(geometry.closing);x+=(.5-x)*p;y+=(.4-y)*p;}
  return {x,y,beamFocus,membership:(a.membership??1)+((b.membership??1)-(a.membership??1))*join};
 }
@@ -245,8 +267,13 @@ export function formationActionProgress(action,time){
  const dt=b.time-a.time,t=clamp((time-a.time)/dt),t2=t*t,t3=t2*t;
  return clamp((2*t3-3*t2+1)*a.position+(t3-2*t2+t)*dt*a.velocity+(-2*t3+3*t2)*b.position+(t3-t2)*dt*b.velocity);
 }
+// A withdrawal gathers an audible picture; silence is a separate musical
+// state. Retain its centre and carry the last part of the gathering through
+// the phrase instead of closing all shutters at an early energy plateau.
+const closingProgress=(opening,progress)=>Math.min(opening,.55+.2*progress);
 export function formationActionPose(action,time,rank,count,row,groups,spatialPose,opening=.5){
  const progress=formationActionProgress(action,time),u=count>1?rank/(count-1):.5,layer=row/Math.max(1,groups-1);
+ if(action.kind==='closing')opening=closingProgress(opening,progress);
  const index=upper(action.cues,time)-1,cue=action.cues[index],prior=action.cues[index-1]??{group:action.entryGroup??cue?.group??0};
  const transfer=cue?ease((time-cue.time)/action.overlap):1;
  // The new group lands on the attack; the outgoing group may leave a short
@@ -258,7 +285,11 @@ export function formationActionPose(action,time,rank,count,row,groups,spatialPos
  const radial=(action.grouping==='mirrored'||action.source==='bass'||action.kind==='develop'||action.kind==='crossing')&&count>2;
  const route=depth?layer:radial?Math.abs(u*2-1):u;
  const slots=Math.min(4,depth?groups:radial?Math.ceil(count/2):count);
- const unit=Math.min(slots-1,Math.floor(clamp(action.direction<0?1-route:route)*slots));
+ let unit=Math.min(slots-1,Math.floor(clamp(action.direction<0?1-route:route)*slots));
+ if(!depth&&action.groupOrder==='interleaved'&&count>=slots*4){
+  const pair=Math.min(rank,count-1-rank)%slots;
+  unit=action.direction<0?slots-1-pair:pair;
+ }
  const weight=group=>unit===group?1:0;
  const activeGroup=(cue?.ordinal??cue?.group??0)%slots,priorGroup=(prior.ordinal??prior.group??0)%slots;
  const lead=cue?(priorGroup===activeGroup?weight(activeGroup):Math.sqrt(weight(priorGroup)*(1-transfer)+weight(activeGroup)*attack)):unit===(action.entryGroup??0)%slots?1:0;
@@ -275,7 +306,11 @@ export function formationActionPose(action,time,rank,count,row,groups,spatialPos
   exposure=ease((opening-(Math.abs(u*2-1)*.65+layer*.35)*.8)/.17);
   if(action.movingOpening&&time>=action.path[0].time)exposure*=action.grouping ? .04+.96*lead : .65+.35*lead;
  }
- if(action.kind==='closing'){morph=opening;exposure=1-ease((opening-(1-Math.abs(u*2-1))*.65-layer*.15)/.25);}
+ if(action.kind==='closing'){
+  morph=opening;
+  const centre=Math.min(rank,count-1-rank)===Math.floor((count-1)/2);
+  exposure=Math.max(1-ease((opening-(1-Math.abs(u*2-1))*.65-layer*.15)/.25),centre?.65:0);
+ }
  if(action.kind==='develop')exposure=.16+.7*ease((progress-route*.7)/.22)+.14*lead;
  if(action.kind==='hold'){
   morph=.35+.3*progress;

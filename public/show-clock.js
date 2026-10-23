@@ -34,3 +34,34 @@ export function startShowClock(read,send,minimumMs=110) {
   timer=setTimeout(tick,0);
   return ()=>{stopped=true;clearTimeout(timer);};
 }
+
+// Local rendering follows display frames. Scheduling another timeout after
+// rendering adds its full work time to every interval and leaves stale light
+// samples on screen when the stage gets expensive. Read media time in send(),
+// including after a song change, seek or suspended browser frame.
+export function startPreviewClock(send,{minimumMs=16,requestFrame=requestAnimationFrame,cancelFrame=cancelAnimationFrame,page=globalThis.document}={}) {
+  let stopped=false,frame,timer,last=-Infinity;
+  function schedule(){
+    // The same update also supplies physical output. Keep sampling when the
+    // browser suspends display frames in a hidden tab.
+    if(page?.hidden)timer=setTimeout(()=>tick(performance.now()),minimumMs);
+    else frame=requestFrame(tick);
+  }
+  function cancel(){
+    if(frame!==undefined)cancelFrame(frame);
+    clearTimeout(timer);frame=timer=undefined;
+  }
+  function visibilityChanged(){cancel();last=-Infinity;if(!stopped)schedule();}
+  function tick(now){
+    frame=timer=undefined;
+    if(stopped)return;
+    try {
+      if(now-last>=minimumMs){last=now;send();}
+    } finally {
+      if(!stopped)schedule();
+    }
+  }
+  page?.addEventListener('visibilitychange',visibilityChanged);
+  schedule();
+  return ()=>{stopped=true;cancel();page?.removeEventListener('visibilitychange',visibilityChanged);};
+}

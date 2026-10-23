@@ -1,4 +1,5 @@
 import {createAppSettings} from './app-settings.js';
+import {createDetachedQueue} from './dj-detach.js';
 import {ensureLocalAccess} from './local-access.js';
 import {migrateStorageKey} from './storage-migration.js';
 import {createQueueExportMenu} from './queue-export-dialog.js';
@@ -39,7 +40,7 @@ import {applySectionLighting,sectionPlanAt} from './section-lighting.js';
 import {openSectionEditor} from './section-editor.js';
 import {applySongShowProfile,resolveShowProfile,SHOW_PROFILES,movingMoodForProfile} from './dj-show-profile.js';
 import {analysisStatus,transitionStatus} from './dj-status.js';
-import {startShowClock} from './show-clock.js';
+import {startPreviewClock} from './show-clock.js';
 import { analyzeBeats } from './beat-analysis.js';
 import { analyzeStyle } from './style-analysis.js';
 import { analyzeStructure } from './structure-analysis.js';
@@ -49,7 +50,8 @@ import { libraryTracks, readShow, saveShow, readLibrary, saveTrack, removeTrack,
 
 import {scanFolder, folderChanges, audioFile} from './dj-folder.js';
 
-const $ = id => document.getElementById(id);
+let detachedQueue=null;
+const $ = id => document.getElementById(id)||detachedQueue?.find(id);
 const webMode=document.documentElement.dataset.edition==='web';
 const token=webMode?'':await ensureLocalAccess();
 let lightTuning;
@@ -754,7 +756,7 @@ function groupTrackActions(row,compact=false) {
 }
 function positionQueueActions(menu){
   const trigger=menu.parentElement?.querySelector('.queue-row-more');if(!trigger)return;
-  const rect=trigger.getBoundingClientRect(),gap=8;
+  const rect=trigger.getBoundingClientRect(),gap=8,{innerWidth,innerHeight}=menu.ownerDocument.defaultView;
   menu.style.left=Math.max(gap,Math.min(rect.right-menu.offsetWidth,innerWidth-menu.offsetWidth-gap))+'px';
   const below=rect.bottom+gap,above=rect.top-menu.offsetHeight-gap;
   menu.style.top=Math.max(gap,Math.min(below+menu.offsetHeight<=innerHeight-gap?below:above,innerHeight-menu.offsetHeight-gap))+'px';
@@ -777,7 +779,7 @@ function groupQueueActions(row,entry){
   }
   row.append(actions);
 }
-const repositionQueueActions=()=>document.querySelectorAll('.queue-row-menu:popover-open').forEach(positionQueueActions);
+const repositionQueueActions=()=>$('queueList').querySelectorAll('.queue-row-menu:popover-open').forEach(positionQueueActions);
 window.addEventListener('resize',repositionQueueActions);
 document.addEventListener('scroll',repositionQueueActions,true);
 const feelings=createFeelingLibrary({changed:()=>renderLibrary(),notice});
@@ -873,9 +875,7 @@ function updateLightPreview(){
 }
 // Sample the preview independently of the slower transport labels, using one
 // media-time snapshot per deck for brightness, color and stage movement.
-const stopPreviewClock=startShowClock(()=>decks.map((deck,i)=>({key:deck.audio,time:deck.audio.currentTime,rate:deck.audio.playbackRate,
-  playing:!deck.audio.paused&&!deck.audio.seeking,weight:deckGains(Number($('crossfader').value))[i]*Number(deck.panel.querySelector('.dj-volume').value),
-  beats:deck.track?.plan?.beatTiming?.times})),updateLightPreview,16);
+const stopPreviewClock=startPreviewClock(updateLightPreview);
 setInterval(()=>{
   $('crossfader').disabled=Boolean(spotifyDeck?.spotifyStarted);
   for(const deck of decks) {
@@ -1223,7 +1223,7 @@ function renderQueueManager(){
   if(select.dataset.lists!==signature){select.dataset.lists=signature;select.replaceChildren(new Option('Aktuelle Warteschlange'+(queueSourceName?' · '+queueSourceName:''),''),...queueLists.map(list=>new Option(list.name,list.id)));}
   if(select.value!==selectedQueueList)select.value=selectedQueueList;if(select.disabled!==!queueListsReady)select.disabled=!queueListsReady;
   const list=viewedQueue();$('queueNameLabel').hidden=!list;$('queueDeleteList').hidden=!list;
-  if(document.activeElement!==$('queueName'))$('queueName').value=list?.name||'';
+  if($('queueName').ownerDocument.activeElement!==$('queueName'))$('queueName').value=list?.name||'';
   $('queueSaveList').textContent=list?'Setliste speichern':'Als Setliste speichern';
   $('queueSaveList').disabled=$('queueNew').disabled=!queueListsReady;
   $('queueLive').textContent=list&&queueRunning?`${queueSourceName||'Aktuelle Wiedergabe'} läuft weiter · ${queue.length} Titel verbleiben` : '';
@@ -1238,7 +1238,7 @@ function createQueueList(entries=[]){
    if(copy.transition)copy.transition.fromEntryId=entryIds.get(copy.transition.fromEntryId)||copy.transition.fromEntryId;
    return copy;
   })};
-  queueLists.push(list);selectedQueueList=list.id;persistLists();renderQueue();document.querySelector('.dj-list-options').open=true;$('queueName').focus();$('queueName').select();
+  queueLists.push(list);selectedQueueList=list.id;persistLists();renderQueue();$('queueName').closest('.dj-list-options').open=true;$('queueName').focus();$('queueName').select();
 }
 $('queueSelect').onchange=()=>{const id=$('queueSelect').value;clearQueueDrag();selectedQueueList=id;persistLists();renderQueue();};
 $('queueNew').onclick=()=>createQueueList();
@@ -1410,8 +1410,11 @@ function bindQueueDrag(row,id) {
   const grip=document.createElement('span');grip.className='queue-grip';grip.textContent='⠿';grip.title='Ziehen zum Verschieben';grip.setAttribute('aria-hidden','true');row.prepend(grip);
   row.addEventListener('dragstart',event=>{
     if(editingLiveQueue()&&(fade?.fromQueue||queueBusy)){event.preventDefault();return;}
-    queueDrag=id;if(editingLiveQueue())queueEpoch++;event.dataTransfer.effectAllowed='move';
+    queueDrag=id;if(editingLiveQueue())queueEpoch++;event.dataTransfer.effectAllowed='copyMove';
     event.dataTransfer.setData('application/x-anydj-queue',id);row.classList.add('queue-dragging');
+    const entry=displayedQueue().find(entry=>entry.id===id);
+    if(entry?.provider==='spotify')event.dataTransfer.setData('application/x-anydj-provider-track',JSON.stringify(entry.remote));
+    else if(entry?.trackId)event.dataTransfer.setData('application/x-anydj-track',entry.trackId);
   });
   row.addEventListener('dragend',clearQueueDrag);
 }
@@ -1569,4 +1572,8 @@ if(webMode){
 }
 
 const djTutorial=createDJTutorial();
+detachedQueue=createDetachedQueue(queueDropZone,{
+ onDragEnd:()=>{libraryDragging=false;queueDrag=null;clearLibraryQueueDrop();renderLibrary();renderQueue();},
+ onLayout:repositionQueueActions,onKey:event=>performanceControls.handleShortcut(event),onError:message=>notice(message,true)
+});
 window.addEventListener('pagehide',()=>djTutorial.destroy(),{once:true});

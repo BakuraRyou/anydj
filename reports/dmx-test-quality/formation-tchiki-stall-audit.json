@@ -1,0 +1,281 @@
+{
+  "method": "Fresh local full-track CPU analysis; current formation score sampled at 5 Hz across 3 rows × 16 target rays. Dark-mask and source-brightness checks cover all three target rows. No saved user overrides, room routing, GPU pixels or acoustic listening assessment.",
+  "source": "TCHIKI TCHIKI TCHIKI - Make The Girl Dance (original).mp3",
+  "duration": 189.1004375,
+  "stalls": [
+    {
+      "start": 187.3999999999979,
+      "end": 189.1004375,
+      "seconds": 1.7004375000020957,
+      "scenes": [
+        {
+          "start": 187.12,
+          "end": 188,
+          "motion": "suspend",
+          "shape": "horizontal-sheets",
+          "action": "hold",
+          "firstCue": 187.12,
+          "lastCue": 187.12,
+          "source": "melody"
+        },
+        {
+          "start": 188,
+          "end": 189.1004375,
+          "motion": "rest",
+          "shape": "parallel-lines",
+          "action": "rest",
+          "source": "lead"
+        }
+      ]
+    }
+  ],
+  "darkness": [],
+  "scenes": [
+    {
+      "start": 0,
+      "end": 1.14,
+      "motion": "suspend",
+      "shape": "horizontal-sheets",
+      "action": "hold",
+      "source": "lead"
+    },
+    {
+      "start": 1.14,
+      "end": 10.52,
+      "motion": "suspend",
+      "shape": "horizontal-sheets",
+      "action": "develop",
+      "firstCue": 1.68,
+      "lastCue": 10,
+      "source": "melody"
+    },
+    {
+      "start": 10.52,
+      "end": 19.11,
+      "motion": "suspend",
+      "shape": "horizontal-sheets",
+      "action": "develop",
+      "firstCue": 11.28,
+      "lastCue": 17.68,
+      "source": "melody"
+    },
+    {
+      "start": 19.11,
+      "end": 28.72,
+      "motion": "suspend",
+      "shape": "open-fan",
+      "action": "develop",
+      "firstCue": 19.12,
+      "lastCue": 27.52,
+      "source": "melody"
+    },
+    {
+      "start": 28.72,
+      "end": 38.3,
+      "motion": "suspend",
+      "shape": "converging-lines",
+      "action": "develop",
+      "firstCue": 28.72,
+      "lastCue": 37.12,
+      "source": "melody"
+    },
+    {
+      "start": 38.3,
+      "end": 47.92,
+      "motion": "bloom",
+      "shape": "nested-gates",
+      "action": "opening",
+      "firstCue": 38.32,
+      "lastCue": 46.72,
+      "source": "bass"
+    },
+    {
+      "start": 47.92,
+      "end": 57.22,
+      "motion": "weave",
+      "shape": "open-fan",
+      "action": "crossing",
+      "firstCue": 47.92,
+      "lastCue": 56.92,
+      "source": "drums"
+    },
+    {
+      "start": 57.22,
+      "end": 67.12,
+      "motion": "weave",
+      "shape": "geometry-radial-fold",
+      "action": "crossing",
+      "firstCue": 57.22,
+      "lastCue": 66.82,
+      "source": "drums"
+    },
+    {
+      "start": 67.12,
+      "end": 74.32,
+      "motion": "bloom",
+      "shape": "open-fan",
+      "action": "opening",
+      "firstCue": 67.12,
+      "lastCue": 73.72,
+      "source": "lead"
+    },
+    {
+      "start": 74.32,
+      "end": 81.52,
+      "motion": "relay",
+      "shape": "crossed-fans",
+      "action": "handoff",
+      "firstCue": 74.32000000000001,
+      "lastCue": 80.8,
+      "source": "melody"
+    },
+    {
+      "start": 81.52,
+      "end": 89.92,
+      "motion": "dialogue",
+      "shape": "traveling-wave",
+      "action": "answer",
+      "firstCue": 81.52,
+      "lastCue": 89.62,
+      "source": "bass"
+    },
+    {
+      "start": 89.92,
+      "end": 99.52,
+      "motion": "relay",
+      "shape": "chevron-stack",
+      "action": "handoff",
+      "firstCue": 89.92,
+      "lastCue": 98.64,
+      "source": "melody"
+    },
+    {
+      "start": 99.52,
+      "end": 109.12,
+      "motion": "relay",
+      "shape": "geometry-span-scallop",
+      "action": "handoff",
+      "firstCue": 99.52,
+      "lastCue": 108.88,
+      "source": "melody"
+    },
+    {
+      "start": 109.12,
+      "end": 113.92,
+      "motion": "bloom",
+      "shape": "nested-gates",
+      "action": "opening",
+      "firstCue": 109.42,
+      "lastCue": 113.62,
+      "source": "bass"
+    },
+    {
+      "start": 113.92,
+      "end": 119.92,
+      "motion": "bloom",
+      "shape": "nested-gates",
+      "action": "opening",
+      "firstCue": 113.92,
+      "lastCue": 119.32,
+      "source": "drums"
+    },
+    {
+      "start": 119.92,
+      "end": 129.52,
+      "motion": "dialogue",
+      "shape": "open-fan",
+      "action": "answer",
+      "firstCue": 119.92,
+      "lastCue": 128.64000000000001,
+      "source": "melody"
+    },
+    {
+      "start": 129.52,
+      "end": 139.13,
+      "motion": "dialogue",
+      "shape": "open-fan",
+      "action": "answer",
+      "firstCue": 130.12,
+      "lastCue": 139.12,
+      "source": "lead"
+    },
+    {
+      "start": 139.13,
+      "end": 148.72,
+      "motion": "suspend",
+      "shape": "rising-arch",
+      "action": "develop",
+      "firstCue": 141.76,
+      "lastCue": 147.6,
+      "source": "melody"
+    },
+    {
+      "start": 148.72,
+      "end": 158.32,
+      "motion": "suspend",
+      "shape": "radial-wheel",
+      "action": "develop",
+      "firstCue": 148.96,
+      "lastCue": 157.6,
+      "source": "melody"
+    },
+    {
+      "start": 158.32,
+      "end": 166.72,
+      "motion": "bloom",
+      "shape": "open-fan",
+      "action": "opening",
+      "firstCue": 158.92,
+      "lastCue": 166.12,
+      "source": "lead"
+    },
+    {
+      "start": 166.72,
+      "end": 172.72,
+      "motion": "bloom",
+      "shape": "open-fan",
+      "action": "opening",
+      "firstCue": 167.32,
+      "lastCue": 172.12,
+      "source": "lead"
+    },
+    {
+      "start": 172.72,
+      "end": 182.32,
+      "motion": "bloom",
+      "shape": "open-fan",
+      "action": "opening",
+      "firstCue": 173.32,
+      "lastCue": 181.72,
+      "source": "lead"
+    },
+    {
+      "start": 182.32,
+      "end": 187.12,
+      "motion": "gather",
+      "shape": "converging-lines",
+      "action": "closing",
+      "firstCue": 182.8,
+      "lastCue": 186.4,
+      "source": "bass"
+    },
+    {
+      "start": 187.12,
+      "end": 188,
+      "motion": "suspend",
+      "shape": "horizontal-sheets",
+      "action": "hold",
+      "firstCue": 187.12,
+      "lastCue": 187.12,
+      "source": "melody"
+    },
+    {
+      "start": 188,
+      "end": 189.1004375,
+      "motion": "rest",
+      "shape": "parallel-lines",
+      "action": "rest",
+      "source": "lead"
+    }
+  ]
+}

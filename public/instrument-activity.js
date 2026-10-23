@@ -56,22 +56,35 @@ export function instrumentDevelopment(instruments){
   return {step:instruments.step,intensity:energy.map(v=>v<.003?0:clamp(v/reference)),local:true};
 }
 
-// Longer quiet withdrawals do not need an imminent drop to finish in darkness.
-// Compare raw stem energy to the preceding music, not clipped drama intensity.
-export function instrumentRests(instruments){
+// Relative stem withdrawals describe contrast, not necessarily silence. When
+// the original mix envelope is available, it must confirm a near-silent gap.
+// Old plans without that measurement retain their stem-only interpretation.
+export function instrumentRests(instruments,motionEnvelope=null){
   if(!(instruments?.step>0)||!names.every(name=>Array.isArray(instruments[name])&&instruments[name].length===instruments.drums.length))return [];
   const step=instruments.step,n=instruments.drums.length;
   const energy=Array.from({length:n},(_,i)=>Math.sqrt(names.reduce((sum,name)=>sum+instruments[name][i]**2,0)));
   if(energy.some(v=>!Number.isFinite(v)))return [];
+  let mixedEnergy=null;
+  if(motionEnvelope?.length&&motionEnvelope.every((p,i)=>Number.isFinite(p.time)&&Number.isFinite(p.energy)&&(!i||p.time>motionEnvelope[i-1].time))){
+    let index=0;
+    mixedEnergy=energy.map((_,i)=>{
+      const time=i*step;
+      while(index+1<motionEnvelope.length&&motionEnvelope[index+1].time<=time)index++;
+      const a=motionEnvelope[index],b=motionEnvelope[Math.min(index+1,motionEnvelope.length-1)];
+      const blend=clamp((time-a.time)/Math.max(.001,b.time-a.time));
+      return a.energy+(b.energy-a.energy)*blend;
+    });
+  }
   const hold=Math.max(1,Math.ceil(.8/step)),history=Math.max(1,Math.round(8/step)),rests=[];
   for(let i=hold;i<n-hold;i++){
     const prior=energy.slice(Math.max(0,i-history),i),reference=quantile(prior,.9);
-    if(reference<.04||energy[i]>reference*.18)continue;
+    if(reference<.04||energy[i]>reference*.18||mixedEnergy&&mixedEnergy[i]>.035)continue;
     // A whole quiet interval is evidence; sparse beat gaps never qualify.
-    if(!energy.slice(i,i+hold).every(v=>v<=reference*.18))continue;
+    if(!energy.slice(i,i+hold).every((v,j)=>v<=reference*.18&&(!mixedEnergy||mixedEnergy[i+j]<=.035)))continue;
     let end=i+hold;
+    const returned=i=>energy[i]>reference*.28||mixedEnergy&&mixedEnergy[i]>.055;
     while(end<n){
-      if(energy[end]>reference*.28&&(end+1===n||energy[end+1]>reference*.28))break;
+      if(returned(end)&&(end+1===n||returned(end+1)))break;
       end++;
     }
     rests.push({start:i*step,end:end*step});i=end-1;

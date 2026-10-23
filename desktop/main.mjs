@@ -56,15 +56,17 @@ else {
     window.setMenuBarVisibility(false);
     window.webContents.setWindowOpenHandler(({url})=>{
       const target=new URL(url);
+      if(target.origin===origin&&target.pathname==='/dj-detached.html')return {action:'allow',overrideBrowserWindowOptions:{title:'AnyDj · Warteschlange',minWidth:420,minHeight:320,autoHideMenuBar:true,backgroundColor:'#0b0c10',webPreferences:{session:browserSession,contextIsolation:true,nodeIntegration:false,sandbox:true}}};
       if(target.origin===origin&&target.pathname==='/spotify-callback.html')return {action:'allow',overrideBrowserWindowOptions:{width:520,height:760,autoHideMenuBar:true,webPreferences:{session:browserSession,contextIsolation:true,nodeIntegration:false,sandbox:true}}};
       if(target.protocol==='https:'&&['open.spotify.com','developer.spotify.com'].includes(target.hostname))void shell.openExternal(url);
       return {action:'deny'};
     });
-    window.webContents.on('did-create-window',child=>{
+    window.webContents.on('did-create-window',(child,details)=>{
+      const detached=new URL(details.url).pathname==='/dj-detached.html';
       child.webContents.setWindowOpenHandler(()=>({action:'deny'}));
       child.webContents.on('will-navigate',(event,url)=>{
         const target=new URL(url);
-        if(target.protocol!=='https:'&&!(target.origin===origin&&target.pathname==='/spotify-callback.html'))event.preventDefault();
+        if(detached?target.origin!==origin||target.pathname!=='/dj-detached.html':target.protocol!=='https:'&&!(target.origin===origin&&target.pathname==='/spotify-callback.html'))event.preventDefault();
       });
     });
     window.webContents.on('will-navigate',(event,url)=>{if(new URL(url).origin!==origin)event.preventDefault();});
