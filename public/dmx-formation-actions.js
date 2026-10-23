@@ -38,14 +38,19 @@ export function planFormationAction(story,plan,timeline){
  const beat=gaps[Math.floor(gaps.length/2)]??.5;
  let source=evidence.texture==='bass'?'bass':evidence.texture==='drums'?'drums':'lead';
  let entrances=(timeline.roles[source]??[]).filter(e=>e.time>=start&&e.time<end),melodic=false,expressive=false;
+ // A clearly leading voice owns its measured stem entrances. Do not replace
+ // them with a denser drum grid or unrelated notes from the mixed signal.
+ const vocalEntrances=evidence.texture==='voice'?(timeline.roles.vocals??[]).filter(e=>e.time>=start&&e.time<end):[];
+ const vocalLed=vocalEntrances.length>=2;
+ if(vocalLed){source='vocals';entrances=vocalEntrances;}
  // A sustained section may contain a clear melodic line even when drum/bass
  // analysis sees no attacks. Its section label must not discard those notes.
- if(motion==='suspend'||evidence.texture==='voice'||evidence.texture==='melody'){
+ if(!vocalLed&&(motion==='suspend'||evidence.texture==='voice'||evidence.texture==='melody')){
   const notes=(plan.score?.notes??[]).filter(n=>n.start>=start&&n.start<end&&n.end-n.start>=.12&&(n.confidence==null||n.confidence>=.65))
    .map(n=>({time:n.start,strength:n.confidence??.7}));
   if(notes.length>=2){entrances=notes;source='melody';melodic=true;}
  }
- if(motion==='suspend'&&!melodic){
+ if(motion==='suspend'&&!melodic&&!vocalLed){
   const contour=(timeline.rows??[]).filter(e=>e.time>=start&&e.time<end);
   let anchor=contour[0];const changes=[];
   for(const row of contour)if(anchor&&row.time-anchor.time>=Math.max(.8,beat*2)&&
@@ -61,7 +66,7 @@ export function planFormationAction(story,plan,timeline){
  }
  let selected=[];
  for(const e of entrances)if(!selected.length||e.time-selected.at(-1).time>=beat*2-.025)selected.push({time:e.time,strength:clamp(e.strength??.7)});
- const rhythmic=!melodic&&['relay','dialogue','weave','bloom'].includes(motion)&&
+ const rhythmic=!melodic&&!vocalLed&&['relay','dialogue','weave','bloom'].includes(motion)&&
   (evidence.texture==='drums'||evidence.texture==='bass'||evidence.movementDrive>.55);
  const prepared=timeline.roles.lead??[],grid=plan.beatGrid?.beats??[];
  const cueStride=evidence.texture==='drums'&&evidence.density>.45&&evidence.movementDrive>.6?1:2;

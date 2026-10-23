@@ -5,6 +5,12 @@
 body.dj-detached-page{display:block;margin:0;padding:0;min-width:0;height:100dvh;overflow:hidden}
 .dj-detached-page>.dj-queue{display:flex;flex-direction:column;box-sizing:border-box;width:100%;height:100%;min-height:0;margin:0;border:0;border-radius:0;padding:16px;gap:10px}
 .dj-detached-page #queueList{flex:1;min-height:0;overflow:auto}
+/* A narrow desktop window still has a mouse-sized, single-row track layout.
+   The main page's mobile breakpoint otherwise puts actions on a second row. */
+.dj-detached-page #queueList>li:not(.dj-empty){grid-template-columns:16px minmax(0,1fr) auto;gap:6px}
+.dj-detached-page #queueList>li>.queue-grip{grid-column:1;grid-row:1}
+.dj-detached-page #queueList>li>.dj-track-info{grid-column:2;grid-row:1;min-width:0}
+.dj-detached-page #queueList>li>.dj-track-actions{grid-column:3;grid-row:1;justify-content:flex-end}
 .dj-detached-page .dj-library-heading{flex-wrap:wrap}
 .dj-detached-page .dj-library-heading h2{flex:1}
 html[data-app-comfortable=true] .dj-detached-page :is(button,.button,select,summary){min-height:40px;font-size:14px}

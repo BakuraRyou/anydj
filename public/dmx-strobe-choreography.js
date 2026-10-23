@@ -284,6 +284,16 @@ export function planFormationScenes(sequences,plan){
     climax&&precedingScene?.formationStory.climax!==true||
     group.role==='arrival'&&precedingScene?.formationStory.arrival!==true);
    const arrivalCue=arrivalEntry?audioTimeline?.roles.lead.find(e=>e.time>=start&&e.time<=Math.min(end,start+.3)):null;
+   // When the shared show has not authored a preparation, a confirmed build
+   // can focus its final two measured beats before the actual arrival. This
+   // does not add accents or infer a drop from loudness alone.
+   const previousStory=precedingScene?.formationStory;
+   if(arrivalCue&&previousStory?.building&&previousStory.motion==='bloom'&&
+    !previousStory.anticipation&&Math.abs(previousStory.end-start)<1e-6){
+    const span=Math.min(1.8,beatDuration(previousStory.start,previousStory.end)*2,
+     (previousStory.end-previousStory.start)*.25);
+    if(span>=.2)previousStory.anticipation={start:start-span,end:start,strength:.65};
+   }
    const sharedOverlap=Math.abs(start-source.start)<1e-6?shared?.transition?.overlap:undefined;
    const transitionDuration=arrivalCue?.18:Number.isFinite(sharedOverlap)&&sharedOverlap>0&&precedingScene
     ?Math.min(sharedOverlap,(end-start)*.25,(precedingScene.end-precedingScene.start)*.25):undefined;
@@ -295,7 +305,7 @@ export function planFormationScenes(sequences,plan){
     phaseStart:quiet||globalGesture?groupPhase:phaseCursor,phaseSpan:variation?.phaseSpan??1,
     energy:features[0],voice:features[2],breadth:formationProgram.breadth,
     expression,opening:impactOpening??(motion==='gather'?formationBuildTrack(audioTimeline,start,end,true):opening),musicalEvidence:musical?.evidence??null,
-    arcStart:group.start,arcEnd:group.end,arrival:source.role==='arrival',climax,
+    arcStart:group.start,arcEnd:group.end,building:group.role==='build',arrival:source.role==='arrival',climax,
     ...(shared?.anticipation?{anticipation:{...shared.anticipation}}:{}),
     ...(arrivalCue?{arrivalCue:{time:arrivalCue.time,strength:arrivalCue.strength}}:{}),
     ...(transitionDuration!==undefined?{transitionDuration}:{})};
@@ -457,7 +467,8 @@ function actionStoryPose(story,time,rank,count,row,groups,frozen,fixtureRole,aud
  // participating groups; no travelling mask or global swing is added here.
  if(audio&&story.motion!=='rest'&&story.motion!=='bloom'){
   const source=groups===1?story.action.source:row/Math.max(1,groups-1)<.3?'bass':row/Math.max(1,groups-1)>.7?'drums':story.action.source;
-  const accent=source==='bass'?audio.bassAccent:source==='drums'?audio.drumAccent:audio.accent;
+  const accent=source==='bass'?audio.bassAccent:source==='drums'?audio.drumAccent
+   :source==='vocals'?audio.vocalAccent??audio.accent:source==='melody'?audio.melodyAccent??audio.accent:audio.accent;
   exposure*=.7+.3*accent;
  }
  if(story.departure&&!frozen){

@@ -77,7 +77,9 @@ export function formationAudioTimeline(plan){
  const impulses=(arr.times??[]).map((time,i)=>({time,strength:clamp(arr.accents?.[i]??1),
   kind:arr.eventSources?.[i]??'prepared'})).filter(e=>Number.isFinite(e.time)&&e.strength>0).sort((a,b)=>a.time-b.time);
  const roles={lead:impulses};
- for(const name of ['drums','bass'])roles[name]=stems?.step>0?bassAttackEvents(stems[name],stems.step):[];
+ for(const name of ['drums','bass','vocals'])roles[name]=stems?.step>0?bassAttackEvents(stems[name],stems.step):[];
+ roles.melody=(plan.score?.notes??[]).filter(n=>Number.isFinite(n.start)&&n.end-n.start>=.12&&
+  (n.confidence==null||n.confidence>=.65)).map(n=>({time:n.start,strength:clamp(n.confidence??.7)})).sort((a,b)=>a.time-b.time);
  // Stem frames have coarser resolution. Use an agreeing prepared attack's
  // exact time for drums; bass retains its independently measured syncopation.
  roles.drums=roles.drums.map(e=>{
@@ -158,7 +160,8 @@ export function formationAudioAt(timeline,time){
  const values=Object.fromEntries(Object.keys(a).filter(k=>k!=='time').map(k=>[k,a[k]+(b[k]-a[k])*p]));
  const travel=clockPosition(timeline.clock,time)+clockPosition(timeline.motionClock,time);
  const result={...values,travel,beatTravel:timeline.beatClock?.length?clockPosition(timeline.beatClock,time):null,accent:impulseAt(timeline.roles.lead,time),
-  drumAccent:impulseAt(timeline.roles.drums,time),bassAccent:impulseAt(timeline.roles.bass,time)};
+  drumAccent:impulseAt(timeline.roles.drums,time),bassAccent:impulseAt(timeline.roles.bass,time),
+  vocalAccent:impulseAt(timeline.roles.vocals,time),melodyAccent:impulseAt(timeline.roles.melody,time)};
  if(cached.size>=128)cached.clear();cached.set(time,result);return result;
 }
 
